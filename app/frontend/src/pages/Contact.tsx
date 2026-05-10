@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import Layout from '@/components/Layout';
-import { Send, Phone, Mail, MapPin } from 'lucide-react';
+import { Send, Phone, Mail, MapPin, CheckCircle, Loader2 } from 'lucide-react';
+import { createClient } from '@metagptx/web-sdk';
+import { toast } from 'sonner';
+
+const client = createClient();
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -10,15 +14,43 @@ export default function Contact() {
     subject: '',
     message: '',
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert('تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.');
-    setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+    setIsSubmitting(true);
+
+    try {
+      const response = await client.apiCall.invoke({
+        url: '/api/v1/notifications/submit-contact',
+        method: 'POST',
+        data: {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          subject: formData.subject,
+          message: formData.message,
+        },
+      });
+
+      if (response.data?.success) {
+        setIsSubmitted(true);
+        toast.success('تم إرسال رسالتك بنجاح!');
+        setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+      } else {
+        toast.error('حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى.');
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
+      toast.error('حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -41,69 +73,107 @@ export default function Contact() {
             {/* Form */}
             <div className="lg:col-span-2">
               <div className="bg-white rounded-2xl shadow-lg p-8 md:p-10">
-                <h2 className="text-[#1a1a2e] font-bold text-2xl mb-8 font-tajawal">أرسل لنا رسالة</h2>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Row 1: Name + Email */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-[#1a1a2e]/70 text-sm mb-2 font-tajawal">الاسم الكامل *</label>
-                      <input
-                        type="text" name="name" required value={formData.name} onChange={handleChange}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-[#1a1a2e] font-tajawal placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors"
-                        placeholder="أدخل اسمك الكامل"
-                      />
+                {isSubmitted ? (
+                  <div className="text-center py-8">
+                    <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-100 flex items-center justify-center">
+                      <CheckCircle className="w-10 h-10 text-green-500" />
                     </div>
-                    <div>
-                      <label className="block text-[#1a1a2e]/70 text-sm mb-2 font-tajawal">البريد الإلكتروني *</label>
-                      <input
-                        type="email" name="email" required value={formData.email} onChange={handleChange}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-[#1a1a2e] font-tajawal placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors"
-                        placeholder="example@email.com"
-                      />
-                    </div>
+                    <h2 className="text-[#1a1a2e] font-bold text-2xl mb-4 font-tajawal">تم إرسال رسالتك بنجاح!</h2>
+                    <p className="text-[#1a1a2e]/70 text-lg mb-2 font-tajawal">
+                      شكراً لتواصلك معنا. تم حفظ رسالتك في نظامنا.
+                    </p>
+                    <p className="text-[#1a1a2e]/60 text-base mb-8 font-tajawal">
+                      سيتم إرسال تأكيد إلى بريدك الإلكتروني وسيتم الرد عليك في أقرب وقت.
+                    </p>
+                    <button
+                      onClick={() => setIsSubmitted(false)}
+                      className="px-8 py-3 bg-[#1a1a2e] text-white font-bold font-tajawal rounded-lg transition-all duration-300 hover:bg-[#2a2a4e] hover:shadow-lg"
+                    >
+                      إرسال رسالة أخرى
+                    </button>
                   </div>
+                ) : (
+                  <>
+                    <h2 className="text-[#1a1a2e] font-bold text-2xl mb-8 font-tajawal">أرسل لنا رسالة</h2>
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                      {/* Row 1: Name + Email */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[#1a1a2e]/70 text-sm mb-2 font-tajawal">الاسم الكامل *</label>
+                          <input
+                            type="text" name="name" required value={formData.name} onChange={handleChange}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-[#1a1a2e] font-tajawal placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors"
+                            placeholder="أدخل اسمك الكامل"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[#1a1a2e]/70 text-sm mb-2 font-tajawal">البريد الإلكتروني *</label>
+                          <input
+                            type="email" name="email" required value={formData.email} onChange={handleChange}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-[#1a1a2e] font-tajawal placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors"
+                            placeholder="example@email.com"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+                      </div>
 
-                  {/* Row 2: Phone + Subject */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-[#1a1a2e]/70 text-sm mb-2 font-tajawal">رقم الهاتف</label>
-                      <div className="flex gap-2">
-                        <span className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-3 text-gray-500 font-tajawal text-sm">+966</span>
-                        <input
-                          type="tel" name="phone" value={formData.phone} onChange={handleChange}
-                          className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-[#1a1a2e] font-tajawal placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors"
-                          placeholder="5XXXXXXXX"
+                      {/* Row 2: Phone + Subject */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[#1a1a2e]/70 text-sm mb-2 font-tajawal">رقم الهاتف</label>
+                          <div className="flex gap-2">
+                            <span className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-3 text-gray-500 font-tajawal text-sm">+966</span>
+                            <input
+                              type="tel" name="phone" value={formData.phone} onChange={handleChange}
+                              className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-[#1a1a2e] font-tajawal placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors"
+                              placeholder="5XXXXXXXX"
+                              disabled={isSubmitting}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-[#1a1a2e]/70 text-sm mb-2 font-tajawal">الموضوع</label>
+                          <input
+                            type="text" name="subject" value={formData.subject} onChange={handleChange}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-[#1a1a2e] font-tajawal placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors"
+                            placeholder="موضوع الرسالة"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Row 3: Message */}
+                      <div>
+                        <label className="block text-[#1a1a2e]/70 text-sm mb-2 font-tajawal">الرسالة *</label>
+                        <textarea
+                          name="message" required rows={5} value={formData.message} onChange={handleChange}
+                          className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-[#1a1a2e] font-tajawal placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors resize-none"
+                          placeholder="اكتب رسالتك هنا..."
+                          disabled={isSubmitting}
                         />
                       </div>
-                    </div>
-                    <div>
-                      <label className="block text-[#1a1a2e]/70 text-sm mb-2 font-tajawal">الموضوع</label>
-                      <input
-                        type="text" name="subject" value={formData.subject} onChange={handleChange}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-[#1a1a2e] font-tajawal placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors"
-                        placeholder="موضوع الرسالة"
-                      />
-                    </div>
-                  </div>
 
-                  {/* Row 3: Message */}
-                  <div>
-                    <label className="block text-[#1a1a2e]/70 text-sm mb-2 font-tajawal">الرسالة *</label>
-                    <textarea
-                      name="message" required rows={5} value={formData.message} onChange={handleChange}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-[#1a1a2e] font-tajawal placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors resize-none"
-                      placeholder="اكتب رسالتك هنا..."
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="flex items-center justify-center gap-3 px-8 py-4 bg-[#1a1a2e] text-white font-bold font-tajawal rounded-lg text-lg transition-all duration-300 hover:bg-[#2a2a4e] hover:shadow-lg w-full md:w-auto"
-                  >
-                    <Send className="w-5 h-5" />
-                    إرسال الرسالة
-                  </button>
-                </form>
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="flex items-center justify-center gap-3 px-8 py-4 bg-[#1a1a2e] text-white font-bold font-tajawal rounded-lg text-lg transition-all duration-300 hover:bg-[#2a2a4e] hover:shadow-lg w-full md:w-auto disabled:opacity-60 disabled:cursor-not-allowed"
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                            جاري الإرسال...
+                          </>
+                        ) : (
+                          <>
+                            <Send className="w-5 h-5" />
+                            إرسال الرسالة
+                          </>
+                        )}
+                      </button>
+                    </form>
+                  </>
+                )}
               </div>
             </div>
 

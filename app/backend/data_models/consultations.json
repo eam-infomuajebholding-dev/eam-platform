@@ -1,0 +1,45 @@
+{
+    "title": "consultations",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "Primary key, auto-increment"
+        },
+        "user_id": {
+            "type": "string",
+            "description": "User ID"
+        },
+        "name": {
+            "type": "string",
+            "description": "Full name of the client"
+        },
+        "email": {
+            "type": "string",
+            "description": "Client email address"
+        },
+        "phone": {
+            "type": "string",
+            "description": "Client phone number"
+        },
+        "consultation_type": {
+            "type": "string",
+            "description": "Type of consultation: engineering, government, other"
+        },
+        "message": {
+            "type": "string",
+            "description": "Consultation request details"
+        },
+        "status": {
+            "type": "string",
+            "description": "Request status: pending, reviewed, completed",
+            "default": "pending"
+        }
+    },
+    "required": [
+        "id",
+        "name",
+        "email",
+        "message"
+    ]
+}

@@ -1,0 +1,45 @@
+{
+    "title": "contact_messages",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "Primary key, auto-increment"
+        },
+        "user_id": {
+            "type": "string",
+            "description": "User ID"
+        },
+        "name": {
+            "type": "string",
+            "description": "Full name of the sender"
+        },
+        "email": {
+            "type": "string",
+            "description": "Sender email address"
+        },
+        "phone": {
+            "type": "string",
+            "description": "Sender phone number"
+        },
+        "subject": {
+            "type": "string",
+            "description": "Message subject"
+        },
+        "message": {
+            "type": "string",
+            "description": "Message content"
+        },
+        "status": {
+            "type": "string",
+            "description": "Message status: unread, read, replied",
+            "default": "unread"
+        }
+    },
+    "required": [
+        "id",
+        "name",
+        "email",
+        "message"
+    ]
+}
