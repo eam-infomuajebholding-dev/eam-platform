@@ -103,7 +103,7 @@ export default function Contact() {
                           <input
                             type="text" name="name" required value={formData.name} onChange={handleChange}
                             className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-[#1a1a2e] font-tajawal placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors"
-                            placeholder="أدخل اسمك الكامل"
+                            placeholder="اكتب اسمك"
                             disabled={isSubmitting}
                           />
                         </div>
@@ -122,15 +122,12 @@ export default function Contact() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-[#1a1a2e]/70 text-sm mb-2 font-tajawal">رقم الهاتف</label>
-                          <div className="flex gap-2">
-                            <span className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-3 text-gray-500 font-tajawal text-sm">+966</span>
-                            <input
-                              type="tel" name="phone" value={formData.phone} onChange={handleChange}
-                              className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-[#1a1a2e] font-tajawal placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors"
-                              placeholder="5XXXXXXXX"
-                              disabled={isSubmitting}
-                            />
-                          </div>
+                          <input
+                            type="tel" name="phone" value={formData.phone} onChange={handleChange}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-[#1a1a2e] font-tajawal placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors"
+                            placeholder="+966 50 000 0000"
+                            disabled={isSubmitting}
+                          />
                         </div>
                         <div>
                           <label className="block text-[#1a1a2e]/70 text-sm mb-2 font-tajawal">الموضوع</label>
@@ -149,7 +146,7 @@ export default function Contact() {
                         <textarea
                           name="message" required rows={5} value={formData.message} onChange={handleChange}
                           className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-[#1a1a2e] font-tajawal placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors resize-none"
-                          placeholder="اكتب رسالتك هنا..."
+                          placeholder="أخبرنا عن مشروعك..."
                           disabled={isSubmitting}
                         />
                       </div>
