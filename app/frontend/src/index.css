@@ -7,7 +7,7 @@
 
 @layer base {
   :root {
-    --background: 40 50% 98%;
+    --background: 0 0% 100%;
     --foreground: 35 25% 15%;
 
     --card: 0 0% 100%;
@@ -22,7 +22,7 @@
     --secondary: 43 50% 54%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 43 30% 94%;
+    --muted: 0 0% 96%;
     --muted-foreground: 35 15% 40%;
 
     --accent: 45 65% 73%;
@@ -37,11 +37,11 @@
 
     --radius: 0.5rem;
 
-    --sidebar-background: 40 50% 98%;
+    --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 35 25% 15%;
     --sidebar-primary: 43 50% 54%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 43 30% 94%;
+    --sidebar-accent: 0 0% 96%;
     --sidebar-accent-foreground: 35 25% 15%;
     --sidebar-border: 40 40% 85%;
     --sidebar-ring: 43 50% 54%;
@@ -99,7 +99,7 @@
   }
 
   body {
-    @apply bg-[#FFFDF7] dark:bg-dark text-[#2D2A1E] dark:text-white font-tajawal transition-colors duration-300;
+    @apply bg-white dark:bg-dark text-[#2D2A1E] dark:text-white font-tajawal transition-colors duration-300;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -107,6 +107,30 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-playfair;
   }
+}
+
+/* Theme transition - only active during toggle */
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition: background-color 0.6s ease, color 0.4s ease, border-color 0.5s ease, box-shadow 0.5s ease, fill 0.4s ease, stroke 0.4s ease !important;
+}
+
+/* Theme transition overlay effect - elegant gold shimmer */
+html.theme-transitioning::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  animation: themeFlash 0.7s ease-out forwards;
+}
+
+@keyframes themeFlash {
+  0% { background: rgba(201, 168, 76, 0.12); }
+  40% { background: rgba(201, 168, 76, 0.06); }
+  100% { background: transparent; }
 }
 
 @layer utilities {

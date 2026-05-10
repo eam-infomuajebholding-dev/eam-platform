@@ -46,13 +46,15 @@ export default function Index() {
     <Layout>
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Light mode base background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white via-gray-50 to-white dark:from-transparent dark:via-transparent dark:to-transparent" />
         {/* Background Image */}
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-60 dark:opacity-100"
           style={{ backgroundImage: `url(${HERO_IMAGE})` }}
         />
-        {/* Dark Overlay */}
-        <div className="absolute inset-0 bg-black/70" />
+        {/* Dark Overlay - lighter in light mode for white/gold aesthetic */}
+        <div className="absolute inset-0 bg-black/40 dark:bg-black/70" />
 
         {/* Content */}
         <div className="relative z-10 text-center px-4 animate-[fadeInUp_1s_ease-out]">
@@ -69,7 +71,7 @@ export default function Index() {
           <h2 className="font-tajawal text-lg md:text-2xl text-gold-light/80 mb-2">
             للاستشارات الهندسية
           </h2>
-          <p className="text-white/70 text-base md:text-xl mt-6 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-white/70 dark:text-white/70 text-base md:text-xl mt-6 max-w-2xl mx-auto leading-relaxed">
             شريكك الموثوق في الاستشارات الهندسية
           </p>
           <a
@@ -89,7 +91,7 @@ export default function Index() {
       </section>
 
       {/* About Section */}
-      <section className="py-20 md:py-28 bg-[#FDF6E3] dark:bg-dark relative overflow-hidden">
+      <section className="py-20 md:py-28 bg-gray-50 dark:bg-dark relative overflow-hidden">
         {/* Decorative Elements */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-gold/10 dark:bg-gold/5 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-gold/10 dark:bg-gold/5 rounded-full blur-3xl" />
@@ -212,7 +214,7 @@ export default function Index() {
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="py-20 md:py-28 bg-[#FDF6E3] dark:bg-dark relative overflow-hidden">
+      <section className="py-20 md:py-28 bg-gray-50 dark:bg-dark relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.05)_0%,transparent_70%)]" />
 
         <div className="container mx-auto px-4 relative z-10">

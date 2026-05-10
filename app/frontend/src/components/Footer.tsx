@@ -22,7 +22,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-[#FDF6E3] dark:bg-[#1a1a2e] border-t border-gold/30 dark:border-gold/20 py-12 transition-colors duration-300" dir="rtl">
+    <footer className="bg-gray-50 dark:bg-[#1a1a2e] border-t border-gold/30 dark:border-gold/20 py-12 transition-colors duration-300" dir="rtl">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Company Info */}

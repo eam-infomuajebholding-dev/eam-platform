@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -19,12 +19,19 @@ const navLinks = [
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isToggling, setIsToggling] = useState(false);
   const { theme, toggleTheme } = useTheme();
 
+  const handleToggleTheme = useCallback(() => {
+    setIsToggling(true);
+    toggleTheme();
+    setTimeout(() => setIsToggling(false), 600);
+  }, [toggleTheme]);
+
   return (
-    <div className="min-h-screen bg-[#FFFDF7] dark:bg-dark text-[#2D2A1E] dark:text-white font-tajawal transition-colors duration-300" dir="rtl">
+    <div className="min-h-screen bg-white dark:bg-dark text-[#2D2A1E] dark:text-white font-tajawal transition-colors duration-300" dir="rtl">
       {/* Navigation */}
-      <nav className="fixed top-0 right-0 left-0 z-50 bg-[#FFFDF7]/95 dark:bg-[#1a1a2e]/95 backdrop-blur-md border-b border-gold/30 dark:border-gold/20 transition-colors duration-300">
+      <nav className="fixed top-0 right-0 left-0 z-50 bg-white/95 dark:bg-[#1a1a2e]/95 backdrop-blur-md border-b border-gold/30 dark:border-gold/20 transition-colors duration-300">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3">
@@ -60,11 +67,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-2">
             {/* Theme Toggle */}
             <button
-              onClick={toggleTheme}
+              onClick={handleToggleTheme}
               className="relative p-2 rounded-full bg-gold/10 dark:bg-white/10 hover:bg-gold/20 dark:hover:bg-white/20 transition-all duration-300 group"
               aria-label="تبديل الوضع"
             >
-              <div className="relative w-5 h-5 overflow-hidden">
+              <div
+                className={`relative w-5 h-5 overflow-hidden transition-transform duration-600 ${
+                  isToggling ? 'rotate-[360deg] scale-110' : 'rotate-0 scale-100'
+                }`}
+                style={{ transitionDuration: '0.6s' }}
+              >
                 <Sun
                   size={20}
                   className={`absolute inset-0 text-gold transition-all duration-500 ${
@@ -97,7 +109,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-[#FFFDF7]/98 dark:bg-[#1a1a2e]/98 backdrop-blur-md border-t border-gold/20 dark:border-gold/10 transition-colors duration-300">
+          <div className="lg:hidden bg-white/98 dark:bg-[#1a1a2e]/98 backdrop-blur-md border-t border-gold/20 dark:border-gold/10 transition-colors duration-300">
             <ul className="container mx-auto px-4 py-4 flex flex-col gap-2">
               {navLinks.map((link) => (
                 <li key={link.path}>
