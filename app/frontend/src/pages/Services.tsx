@@ -41,12 +41,12 @@ const governmentServices = [
 
 function ServiceCard({ icon: Icon, name }: { icon: React.ElementType; name: string }) {
   return (
-    <div className="group relative bg-white/5 backdrop-blur-sm border border-gold/10 rounded-xl p-5 border-r-4 border-r-gold/50 transition-all duration-300 hover:scale-[1.02] hover:border-gold/30 hover:shadow-[0_0_20px_rgba(201,168,76,0.12)]">
+    <div className="group relative bg-white/5 backdrop-blur-sm border border-gold/10 rounded-xl p-5 border-r-4 border-r-gold/50 transition-all duration-300 ease-out hover:-translate-y-2 hover:border-[#C9A84C]/40 hover:shadow-[0_10px_40px_rgba(201,168,76,0.3),0_4px_15px_rgba(201,168,76,0.15)]">
       <div className="flex items-center gap-4">
-        <div className="flex-shrink-0 w-11 h-11 rounded-lg bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
+        <div className="flex-shrink-0 w-11 h-11 rounded-lg bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors duration-300">
           <Icon className="w-5 h-5 text-gold" />
         </div>
-        <h3 className="text-white font-bold font-tajawal text-sm md:text-base leading-relaxed group-hover:text-gold-light transition-colors">
+        <h3 className="text-white font-bold font-tajawal text-sm md:text-base leading-relaxed group-hover:text-gold-light transition-colors duration-300">
           {name}
         </h3>
       </div>

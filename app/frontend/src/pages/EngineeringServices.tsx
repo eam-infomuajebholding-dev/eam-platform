@@ -73,7 +73,7 @@ export default function EngineeringServices() {
                   className="group relative bg-dark-card/60 backdrop-blur-sm border border-gold/10 rounded-lg p-6 
                              border-r-4 border-r-gold/60
                              transition-all duration-300 ease-out
-                             hover:scale-[1.03] hover:border-gold/30 hover:shadow-[0_0_20px_rgba(201,168,76,0.15)]"
+                             hover:-translate-y-2 hover:border-[#C9A84C]/40 hover:shadow-[0_10px_40px_rgba(201,168,76,0.3),0_4px_15px_rgba(201,168,76,0.15)]"
                 >
                   <div className="flex items-start gap-4">
                     <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors duration-300">

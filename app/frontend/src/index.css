@@ -195,4 +195,13 @@ html.theme-transitioning::after {
     transform: scale(1);
     transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   }
+
+  /* Reusable gold hover card effect */
+  .card-hover-gold {
+    transition: all 0.3s ease-out;
+  }
+  .card-hover-gold:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 40px rgba(201, 168, 76, 0.3), 0 4px 15px rgba(201, 168, 76, 0.15);
+  }
 }

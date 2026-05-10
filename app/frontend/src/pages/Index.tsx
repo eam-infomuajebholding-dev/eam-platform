@@ -236,7 +236,7 @@ export default function Index() {
             {whyChooseUs.map((item, index) => (
               <div
                 key={item.title}
-                className={`group p-6 rounded-2xl bg-white dark:bg-white/5 backdrop-blur-md border border-gold/20 dark:border-gold/10 hover:border-gold/50 dark:hover:border-gold/40 transition-all duration-300 hover:shadow-[0_4px_20px_rgba(201,168,76,0.15)] dark:hover:shadow-[0_0_30px_rgba(201,168,76,0.1)] shadow-md shadow-gold/5 dark:shadow-none text-center ${
+                className={`group p-6 rounded-2xl bg-white dark:bg-white/5 backdrop-blur-md border border-gold/20 dark:border-gold/10 hover:border-[#C9A84C] dark:hover:border-gold/60 transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-[0_10px_40px_rgba(201,168,76,0.3),0_4px_15px_rgba(201,168,76,0.15)] dark:hover:shadow-[0_10px_40px_rgba(201,168,76,0.25),0_4px_15px_rgba(201,168,76,0.1)] shadow-md shadow-gold/5 dark:shadow-none text-center ${
                   whyCardsReveal.isVisible ? 'reveal-visible-scale' : 'reveal-hidden-scale'
                 }`}
                 style={{ transitionDelay: whyCardsReveal.isVisible ? `${index * 120}ms` : '0ms' }}
