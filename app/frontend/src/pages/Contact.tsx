@@ -220,6 +220,34 @@ export default function Contact() {
           </div>
         </div>
       </section>
+      {/* Google Maps Section */}
+      <section className="py-16 md:py-24 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-10">
+              <h2 className="text-[#1a1a2e] text-3xl md:text-4xl font-bold font-tajawal mb-4">موقعنا على الخريطة</h2>
+              <p className="text-[#1a1a2e]/60 text-lg font-tajawal">يسعدنا زيارتكم في مقر الشركة</p>
+            </div>
+            <div className="rounded-2xl overflow-hidden shadow-lg border border-gray-200">
+              <iframe
+                title="موقع إعمار الأصالة والمعاصرة"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3624.674536257489!2d46.675296!3d24.713552!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e2f03890d489399%3A0xba974d1c98e79fd5!2sRiyadh%2C%20Saudi%20Arabia!5e0!3m2!1sar!2ssa!4v1700000000000!5m2!1sar!2ssa"
+                width="100%"
+                height="450"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="w-full"
+              />
+            </div>
+            <div className="mt-6 flex items-center justify-center gap-3 text-[#1a1a2e]/70">
+              <MapPin className="w-5 h-5 text-gold" />
+              <span className="font-tajawal text-base">الرياض، المملكة العربية السعودية</span>
+            </div>
+          </div>
+        </div>
+      </section>
     </Layout>
   );
 }
