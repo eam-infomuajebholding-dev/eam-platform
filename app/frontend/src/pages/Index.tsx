@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Award, Clock, BadgeCheck, Banknote } from 'lucide-react';
 import Layout from '@/components/Layout';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 const HERO_IMAGE =
   'https://mgx-backend-cdn.metadl.com/generate/images/1200196/2026-05-07/och7hyiaagqq/hero-banner-luxury-architecture.png';
@@ -33,6 +34,14 @@ const whyChooseUs = [
 ];
 
 export default function Index() {
+  const aboutReveal = useScrollReveal({ threshold: 0.15 });
+  const servicesTitleReveal = useScrollReveal({ threshold: 0.2 });
+  const servicesCard1Reveal = useScrollReveal({ threshold: 0.15 });
+  const servicesCard2Reveal = useScrollReveal({ threshold: 0.15 });
+  const whyTitleReveal = useScrollReveal({ threshold: 0.2 });
+  const whyCardsReveal = useScrollReveal({ threshold: 0.1 });
+  const ctaReveal = useScrollReveal({ threshold: 0.15 });
+
   return (
     <Layout>
       {/* Hero Section */}
@@ -85,7 +94,12 @@ export default function Index() {
         <div className="absolute top-0 right-0 w-64 h-64 bg-gold/5 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-gold/5 rounded-full blur-3xl" />
 
-        <div className="container mx-auto px-4 relative z-10">
+        <div
+          ref={aboutReveal.ref}
+          className={`container mx-auto px-4 relative z-10 ${
+            aboutReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'
+          }`}
+        >
           <div className="max-w-4xl mx-auto text-center">
             {/* Gold Decorative Line */}
             <div className="flex items-center justify-center gap-4 mb-8">
@@ -119,57 +133,80 @@ export default function Index() {
       {/* Services Overview Section */}
       <section id="services" className="py-20 md:py-28 bg-dark-lighter relative">
         <div className="container mx-auto px-4">
-          <h2 className="font-tajawal text-3xl md:text-4xl font-bold gold-text text-center mb-16">
-            خدماتنا
-          </h2>
+          <div
+            ref={servicesTitleReveal.ref}
+            className={`${
+              servicesTitleReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'
+            }`}
+          >
+            <h2 className="font-tajawal text-3xl md:text-4xl font-bold gold-text text-center mb-16">
+              خدماتنا
+            </h2>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {/* Engineering Services Card */}
-            <Link
-              to="/engineering-services"
-              className="group relative h-80 md:h-96 rounded-2xl overflow-hidden border border-gold/20 hover:border-gold/60 transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(201,168,76,0.15)]"
+            <div
+              ref={servicesCard1Reveal.ref}
+              className={`${
+                servicesCard1Reveal.isVisible ? 'reveal-visible-right' : 'reveal-hidden-right'
+              }`}
+              style={{ transitionDelay: servicesCard1Reveal.isVisible ? '150ms' : '0ms' }}
             >
-              <div
-                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                style={{ backgroundImage: `url(${ENGINEERING_IMAGE})` }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/30" />
-              <div className="absolute inset-0 flex flex-col items-center justify-end p-8 text-center">
-                <h3 className="font-tajawal text-2xl md:text-3xl font-bold gold-text mb-3">
-                  الخدمات الهندسية
-                </h3>
-                <p className="text-white/70 text-sm md:text-base leading-relaxed max-w-sm">
-                  تصميم المخططات المعمارية والإنشائية والكهربائية والميكانيكية وفق الكود السعودي
-                  الجديد مع مناظير ثلاثية الأبعاد
-                </p>
-                <span className="mt-4 inline-flex items-center gap-2 text-gold text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  اكتشف المزيد ←
-                </span>
-              </div>
-            </Link>
+              <Link
+                to="/engineering-services"
+                className="group relative h-80 md:h-96 rounded-2xl overflow-hidden border border-gold/20 hover:border-gold/60 transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(201,168,76,0.15)] block"
+              >
+                <div
+                  className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                  style={{ backgroundImage: `url(${ENGINEERING_IMAGE})` }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/30" />
+                <div className="absolute inset-0 flex flex-col items-center justify-end p-8 text-center">
+                  <h3 className="font-tajawal text-2xl md:text-3xl font-bold gold-text mb-3">
+                    الخدمات الهندسية
+                  </h3>
+                  <p className="text-white/70 text-sm md:text-base leading-relaxed max-w-sm">
+                    تصميم المخططات المعمارية والإنشائية والكهربائية والميكانيكية وفق الكود السعودي
+                    الجديد مع مناظير ثلاثية الأبعاد
+                  </p>
+                  <span className="mt-4 inline-flex items-center gap-2 text-gold text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    اكتشف المزيد ←
+                  </span>
+                </div>
+              </Link>
+            </div>
 
             {/* Government Services Card */}
-            <Link
-              to="/government-services"
-              className="group relative h-80 md:h-96 rounded-2xl overflow-hidden border border-gold/20 hover:border-gold/60 transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(201,168,76,0.15)]"
+            <div
+              ref={servicesCard2Reveal.ref}
+              className={`${
+                servicesCard2Reveal.isVisible ? 'reveal-visible-left' : 'reveal-hidden-left'
+              }`}
+              style={{ transitionDelay: servicesCard2Reveal.isVisible ? '300ms' : '0ms' }}
             >
-              <div
-                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                style={{ backgroundImage: `url(${GOVERNMENT_IMAGE})` }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/30" />
-              <div className="absolute inset-0 flex flex-col items-center justify-end p-8 text-center">
-                <h3 className="font-tajawal text-2xl md:text-3xl font-bold gold-text mb-3">
-                  الخدمات الحكومية
-                </h3>
-                <p className="text-white/70 text-sm md:text-base leading-relaxed max-w-sm">
-                  إصدار رخص البناء وتحديث الصكوك والفرز العقاري وتصحيح المخالفات وشهادات الإشغال
-                </p>
-                <span className="mt-4 inline-flex items-center gap-2 text-gold text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  اكتشف المزيد ←
-                </span>
-              </div>
-            </Link>
+              <Link
+                to="/government-services"
+                className="group relative h-80 md:h-96 rounded-2xl overflow-hidden border border-gold/20 hover:border-gold/60 transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(201,168,76,0.15)] block"
+              >
+                <div
+                  className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                  style={{ backgroundImage: `url(${GOVERNMENT_IMAGE})` }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/30" />
+                <div className="absolute inset-0 flex flex-col items-center justify-end p-8 text-center">
+                  <h3 className="font-tajawal text-2xl md:text-3xl font-bold gold-text mb-3">
+                    الخدمات الحكومية
+                  </h3>
+                  <p className="text-white/70 text-sm md:text-base leading-relaxed max-w-sm">
+                    إصدار رخص البناء وتحديث الصكوك والفرز العقاري وتصحيح المخالفات وشهادات الإشغال
+                  </p>
+                  <span className="mt-4 inline-flex items-center gap-2 text-gold text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    اكتشف المزيد ←
+                  </span>
+                </div>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -179,15 +216,28 @@ export default function Index() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.05)_0%,transparent_70%)]" />
 
         <div className="container mx-auto px-4 relative z-10">
-          <h2 className="font-tajawal text-3xl md:text-4xl font-bold gold-text text-center mb-16">
-            لماذا تختارنا
-          </h2>
+          <div
+            ref={whyTitleReveal.ref}
+            className={`${
+              whyTitleReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'
+            }`}
+          >
+            <h2 className="font-tajawal text-3xl md:text-4xl font-bold gold-text text-center mb-16">
+              لماذا تختارنا
+            </h2>
+          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            {whyChooseUs.map((item) => (
+          <div
+            ref={whyCardsReveal.ref}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto"
+          >
+            {whyChooseUs.map((item, index) => (
               <div
                 key={item.title}
-                className="group p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-gold/10 hover:border-gold/40 transition-all duration-300 hover:bg-white/10 hover:shadow-[0_0_30px_rgba(201,168,76,0.1)] text-center"
+                className={`group p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-gold/10 hover:border-gold/40 transition-all duration-300 hover:bg-white/10 hover:shadow-[0_0_30px_rgba(201,168,76,0.1)] text-center ${
+                  whyCardsReveal.isVisible ? 'reveal-visible-scale' : 'reveal-hidden-scale'
+                }`}
+                style={{ transitionDelay: whyCardsReveal.isVisible ? `${index * 120}ms` : '0ms' }}
               >
                 <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors duration-300">
                   <item.icon className="w-8 h-8 text-gold" />
@@ -204,7 +254,12 @@ export default function Index() {
       <section className="py-20 md:py-28 bg-dark-lighter relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(201,168,76,0.08)_0%,transparent_60%)]" />
 
-        <div className="container mx-auto px-4 relative z-10 text-center">
+        <div
+          ref={ctaReveal.ref}
+          className={`container mx-auto px-4 relative z-10 text-center ${
+            ctaReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'
+          }`}
+        >
           <h2 className="font-tajawal text-3xl md:text-4xl font-bold gold-text mb-6">
             تواصل معنا اليوم
           </h2>
