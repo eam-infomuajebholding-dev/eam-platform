@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import Footer from './Footer';
+import AIChatbot from './AIChatbot';
 
 const navLinks = [
   { path: '/', label: 'الرئيسية' },
@@ -92,6 +93,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       {/* Footer */}
       <Footer />
+
+      {/* AI Chatbot */}
+      <AIChatbot />
     </div>
   );
 }
