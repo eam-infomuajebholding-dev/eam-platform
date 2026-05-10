@@ -47,11 +47,13 @@ export default function Index() {
 
         {/* Content */}
         <div className="relative z-10 text-center px-4 animate-[fadeInUp_1s_ease-out]">
-          <img
-            src="/assets/logo.jpeg"
-            alt="إعمار الأصالة والمعاصرة"
-            className="w-28 h-28 md:w-36 md:h-36 rounded-full object-cover border-4 border-gold/60 mx-auto mb-6 shadow-[0_0_40px_rgba(201,168,76,0.3)]"
-          />
+          <div className="mx-auto mb-6 w-40 h-28 md:w-52 md:h-36 rounded-xl border-4 border-gold/60 shadow-[0_0_40px_rgba(201,168,76,0.3)] overflow-hidden bg-white/10 backdrop-blur-sm flex items-center justify-center">
+            <img
+              src="/assets/logo.jpeg"
+              alt="إعمار الأصالة والمعاصرة"
+              className="w-full h-full object-contain p-2"
+            />
+          </div>
           <h1 className="font-tajawal text-3xl md:text-5xl lg:text-6xl font-bold gold-text mb-4 leading-tight">
             إعمار الأصالة والمعاصرة
           </h1>
