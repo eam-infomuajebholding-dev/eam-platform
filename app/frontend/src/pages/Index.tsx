@@ -89,10 +89,10 @@ export default function Index() {
       </section>
 
       {/* About Section */}
-      <section className="py-20 md:py-28 bg-dark relative overflow-hidden">
+      <section className="py-20 md:py-28 bg-[#FDF6E3] dark:bg-dark relative overflow-hidden">
         {/* Decorative Elements */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-gold/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-gold/5 rounded-full blur-3xl" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gold/10 dark:bg-gold/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-gold/10 dark:bg-gold/5 rounded-full blur-3xl" />
 
         <div
           ref={aboutReveal.ref}
@@ -112,8 +112,8 @@ export default function Index() {
               من نحن
             </h2>
 
-            <div className="border border-gold/20 rounded-2xl p-8 md:p-12 bg-dark-lighter/50 backdrop-blur-sm">
-              <p className="text-white/80 text-lg md:text-xl leading-loose font-tajawal">
+            <div className="border border-gold/30 dark:border-gold/20 rounded-2xl p-8 md:p-12 bg-white/80 dark:bg-dark-lighter/50 backdrop-blur-sm shadow-lg shadow-gold/5 dark:shadow-none">
+              <p className="text-[#3D3520] dark:text-white/80 text-lg md:text-xl leading-loose font-tajawal">
                 نقدم خدمات استشارية هندسية متكاملة تجمع بين الأصالة والمعاصرة، ملتزمون بأعلى معايير
                 الجودة والاحترافية في تقديم الحلول الهندسية المبتكرة. نسعى لتحقيق رؤية عملائنا
                 بأفضل المعايير الهندسية المعتمدة في المملكة العربية السعودية.
@@ -131,7 +131,7 @@ export default function Index() {
       </section>
 
       {/* Services Overview Section */}
-      <section id="services" className="py-20 md:py-28 bg-dark-lighter relative">
+      <section id="services" className="py-20 md:py-28 bg-white dark:bg-dark-lighter relative">
         <div className="container mx-auto px-4">
           <div
             ref={servicesTitleReveal.ref}
@@ -212,8 +212,8 @@ export default function Index() {
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="py-20 md:py-28 bg-dark relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.05)_0%,transparent_70%)]" />
+      <section className="py-20 md:py-28 bg-[#FDF6E3] dark:bg-dark relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.05)_0%,transparent_70%)]" />
 
         <div className="container mx-auto px-4 relative z-10">
           <div
@@ -234,7 +234,7 @@ export default function Index() {
             {whyChooseUs.map((item, index) => (
               <div
                 key={item.title}
-                className={`group p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-gold/10 hover:border-gold/40 transition-all duration-300 hover:bg-white/10 hover:shadow-[0_0_30px_rgba(201,168,76,0.1)] text-center ${
+                className={`group p-6 rounded-2xl bg-white dark:bg-white/5 backdrop-blur-md border border-gold/20 dark:border-gold/10 hover:border-gold/50 dark:hover:border-gold/40 transition-all duration-300 hover:shadow-[0_4px_20px_rgba(201,168,76,0.15)] dark:hover:shadow-[0_0_30px_rgba(201,168,76,0.1)] shadow-md shadow-gold/5 dark:shadow-none text-center ${
                   whyCardsReveal.isVisible ? 'reveal-visible-scale' : 'reveal-hidden-scale'
                 }`}
                 style={{ transitionDelay: whyCardsReveal.isVisible ? `${index * 120}ms` : '0ms' }}
@@ -243,7 +243,7 @@ export default function Index() {
                   <item.icon className="w-8 h-8 text-gold" />
                 </div>
                 <h3 className="font-tajawal text-xl font-bold text-gold mb-3">{item.title}</h3>
-                <p className="text-white/60 text-sm leading-relaxed">{item.description}</p>
+                <p className="text-gray-600 dark:text-white/60 text-sm leading-relaxed">{item.description}</p>
               </div>
             ))}
           </div>
@@ -251,8 +251,8 @@ export default function Index() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 md:py-28 bg-dark-lighter relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(201,168,76,0.08)_0%,transparent_60%)]" />
+      <section className="py-20 md:py-28 bg-white dark:bg-dark-lighter relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(201,168,76,0.06)_0%,transparent_60%)] dark:bg-[radial-gradient(ellipse_at_top,rgba(201,168,76,0.08)_0%,transparent_60%)]" />
 
         <div
           ref={ctaReveal.ref}
@@ -263,7 +263,7 @@ export default function Index() {
           <h2 className="font-tajawal text-3xl md:text-4xl font-bold gold-text mb-6">
             تواصل معنا اليوم
           </h2>
-          <p className="text-white/70 text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-gray-600 dark:text-white/70 text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
             نحن هنا لمساعدتك في تحقيق مشروعك الهندسي. تواصل معنا للحصول على استشارة مجانية
           </p>
           <Link

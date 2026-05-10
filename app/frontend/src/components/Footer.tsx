@@ -22,7 +22,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-gray-50 dark:bg-[#1a1a2e] border-t border-gold/20 py-12 transition-colors duration-300" dir="rtl">
+    <footer className="bg-[#FDF6E3] dark:bg-[#1a1a2e] border-t border-gold/30 dark:border-gold/20 py-12 transition-colors duration-300" dir="rtl">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Company Info */}
@@ -69,7 +69,7 @@ export default function Footer() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="بريدك الإلكتروني"
-                className="w-full px-4 py-3 rounded-lg bg-gray-100 dark:bg-white/10 border border-gold/30 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/40 focus:outline-none focus:border-gold transition-colors text-sm"
+                className="w-full px-4 py-3 rounded-lg bg-white dark:bg-white/10 border border-gold/30 text-[#2D2A1E] dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/40 focus:outline-none focus:border-gold transition-colors text-sm"
                 required
               />
               <button
