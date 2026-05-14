@@ -57,7 +57,7 @@ export default function Index() {
         <div className="absolute inset-0 dark:bg-black/70 mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[16px] font-normal text-[#2D2A1E] bg-[#00000066] opacity-100" />
 
         {/* Content */}
-        <div className="relative z-10 text-center px-4 animate-[fadeInUp_1s_ease-out]">
+        <div className="relative z-10 px-4 animate-[fadeInUp_1s_ease-out] mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[16px] pb-[0px] pl-[16px] rounded-none text-[16px] font-normal text-center text-[#2D2A1E] bg-[#00000000] opacity-100">
           <div className="mx-auto mb-6 w-56 h-72 md:w-72 md:h-96 rounded-xl border-4 border-gold/60 shadow-[0_0_40px_rgba(201,168,76,0.3)] overflow-hidden bg-white flex items-center justify-center">
             <img
               src="/assets/logo.jpeg"
@@ -65,7 +65,7 @@ export default function Index() {
               className="w-full h-full object-contain p-3"
             />
           </div>
-          <h1 className="font-tajawal md:text-5xl lg:text-6xl gold-text mt-[0px] mr-[0px] mb-[16px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[48px] font-bold text-center bg-[#00000000] opacity-100">
+          <h1 className="font-tajawal md:text-5xl lg:text-6xl gold-text mt-[0px] mr-[0px] mb-[16px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[24px] font-bold text-center bg-[#00000000] opacity-100">
             إعمار الأصالة والمعاصرة<br />Emmar Al Asala Wa Al Muasara<br />
           </h1>
           <h2 className="font-tajawal md:text-2xl mt-[0px] mr-[0px] mb-[8px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[24px] font-normal text-center text-[#E8D48BCC] bg-[#00000000] opacity-100">
@@ -93,7 +93,7 @@ export default function Index() {
       {/* About Section */}
       <section className="py-20 md:py-28 bg-gray-50 dark:bg-dark relative overflow-hidden">
         {/* Decorative Elements */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-gold/10 dark:bg-gold/5 rounded-full blur-3xl" />
+        
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-gold/10 dark:bg-gold/5 rounded-full blur-3xl" />
 
         <div
@@ -129,7 +129,7 @@ export default function Index() {
       </section>
 
       {/* Services Overview Section */}
-      <section id="services" className="py-20 md:py-28 bg-white dark:bg-dark-lighter relative">
+      <section id="services" className="py-20 md:py-28 dark:bg-dark-lighter relative mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[80px] pr-[0px] pb-[80px] pl-[0px] rounded-none text-[16px] font-normal text-[#2D2A1E] bg-[#FFFFFF] opacity-100">
         <div className="container mx-auto px-4">
           <div
             ref={servicesTitleReveal.ref}
