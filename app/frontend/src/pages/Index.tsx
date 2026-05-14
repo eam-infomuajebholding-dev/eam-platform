@@ -54,7 +54,7 @@ export default function Index() {
           style={{ backgroundImage: `url(${HERO_IMAGE})` }}
         />
         {/* Dark Overlay - lighter in light mode for white/gold aesthetic */}
-        <div className="absolute inset-0 bg-black/40 dark:bg-black/70" />
+        <div className="absolute inset-0 dark:bg-black/70 mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[16px] font-normal text-[#2D2A1E] bg-[#00000066] opacity-100" />
 
         {/* Content */}
         <div className="relative z-10 text-center px-4 animate-[fadeInUp_1s_ease-out]">
@@ -65,10 +65,10 @@ export default function Index() {
               className="w-full h-full object-contain p-3"
             />
           </div>
-          <h1 className="font-tajawal text-3xl md:text-5xl lg:text-6xl font-bold gold-text mb-4 leading-tight">
-            إعمار الأصالة والمعاصرة
+          <h1 className="font-tajawal md:text-5xl lg:text-6xl gold-text mt-[0px] mr-[0px] mb-[16px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[48px] font-bold text-center bg-[#00000000] opacity-100">
+            إعمار الأصالة والمعاصرة<br />Emmar Al Asala Wa Al Muasara<br />
           </h1>
-          <h2 className="font-tajawal text-lg md:text-2xl text-gold-light/80 mb-2">
+          <h2 className="font-tajawal md:text-2xl mt-[0px] mr-[0px] mb-[8px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[24px] font-normal text-center text-[#E8D48BCC] bg-[#00000000] opacity-100">
             للاستشارات الهندسية
           </h2>
           <p className="text-white/70 dark:text-white/70 text-base md:text-xl mt-6 max-w-2xl mx-auto leading-relaxed">
@@ -104,18 +104,14 @@ export default function Index() {
         >
           <div className="max-w-4xl mx-auto text-center">
             {/* Gold Decorative Line */}
-            <div className="flex items-center justify-center gap-4 mb-8">
-              <div className="h-px w-16 bg-gradient-to-r from-transparent to-gold" />
-              <div className="w-3 h-3 rotate-45 border border-gold" />
-              <div className="h-px w-16 bg-gradient-to-l from-transparent to-gold" />
-            </div>
+            
 
-            <h2 className="font-tajawal text-3xl md:text-4xl font-bold gold-text mb-8">
+            <h2 className="font-tajawal md:text-4xl gold-text mt-[0px] mr-[0px] mb-[32px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[36px] font-bold text-center bg-[#00000000] opacity-100">
               من نحن
             </h2>
 
-            <div className="border border-gold/30 dark:border-gold/20 rounded-2xl p-8 md:p-12 bg-white/80 dark:bg-dark-lighter/50 backdrop-blur-sm shadow-lg shadow-gold/5 dark:shadow-none">
-              <p className="text-[#3D3520] dark:text-white/80 text-lg md:text-xl leading-loose font-tajawal">
+            <div className="border border-gold/30 dark:border-gold/20 p-8 md:p-12 dark:bg-dark-lighter/50 backdrop-blur-sm shadow-lg shadow-gold/5 dark:shadow-none mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[48px] pr-[48px] pb-[48px] pl-[48px] rounded-2xl text-[16px] font-normal text-center text-[#2D2A1E] bg-[#FFFFFFCC] opacity-100">
+              <p className="dark:text-white/80 md:text-xl font-tajawal mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[20px] font-normal text-center text-[#3D3520] bg-[#00000000] opacity-100">
                 نقدم خدمات استشارية هندسية متكاملة تجمع بين الأصالة والمعاصرة، ملتزمون بأعلى معايير
                 الجودة والاحترافية في تقديم الحلول الهندسية المبتكرة. نسعى لتحقيق رؤية عملائنا
                 بأفضل المعايير الهندسية المعتمدة في المملكة العربية السعودية.
