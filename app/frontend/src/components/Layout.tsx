@@ -40,8 +40,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               alt="إعمار الأصالة والمعاصرة"
               className="h-12 w-auto rounded-lg object-contain border-2 border-gold/50"
             />
-            <span className="text-gold font-tajawal font-bold text-sm md:text-base hidden sm:block">
-              إعمار الأصالة والمعاصرة
+            <span className="font-tajawal md:text-base hidden sm:block mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[16px] font-bold text-[#D3B051FF] bg-[#00000000] opacity-100">
+              إعمار الأصالة والمعاصرةEmmar Al Asala Wa Al Muasara
             </span>
           </Link>
 

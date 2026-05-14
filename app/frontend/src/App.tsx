@@ -6,6 +6,10 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 import Index from './pages/Index';
 import EngineeringServices from './pages/EngineeringServices';
 import GovernmentServices from './pages/GovernmentServices';
+import ContractingServices from './pages/ContractingServices';
+import MaintenanceServices from './pages/MaintenanceServices';
+import RealEstateDevelopment from './pages/RealEstateDevelopment';
+import RealEstateMarketing from './pages/RealEstateMarketing';
 import ContactCard from './pages/ContactCard';
 import Services from './pages/Services';
 import About from './pages/About';
@@ -24,6 +28,10 @@ const AppRoutes = () => (
     <Route path="/" element={<Index />} />
     <Route path="/engineering-services" element={<EngineeringServices />} />
     <Route path="/government-services" element={<GovernmentServices />} />
+    <Route path="/services/contracting" element={<ContractingServices />} />
+    <Route path="/services/maintenance" element={<MaintenanceServices />} />
+    <Route path="/services/real-estate-development" element={<RealEstateDevelopment />} />
+    <Route path="/services/real-estate-marketing" element={<RealEstateMarketing />} />
     <Route path="/contact-card" element={<ContactCard />} />
     <Route path="/services" element={<Services />} />
     <Route path="/about" element={<About />} />

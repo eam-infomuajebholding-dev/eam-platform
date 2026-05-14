@@ -4,6 +4,7 @@ import {
   Ruler, Building2, Layers, Zap, Wind, Cpu, Box, Home, RotateCcw,
   FileSearch, PenTool, HardHat, FlaskConical, MapPin, TrendingUp, Calculator,
   FileText, Map, Key, Scissors, AlertTriangle, CheckCircle, Plus, ShieldCheck, Building, ClipboardCheck,
+  Wrench, Landmark, Megaphone, Globe,
 } from 'lucide-react';
 
 const engineeringServices = [
@@ -90,6 +91,82 @@ export default function Services() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {governmentServices.map((s, i) => <ServiceCard key={i} icon={s.icon} name={s.name} />)}
+          </div>
+        </div>
+      </section>
+
+      {/* Contracting Services */}
+      <section className="py-16 md:py-20 bg-dark">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between mb-10">
+            <h2 className="gold-text text-2xl md:text-3xl font-bold font-playfair">المقاولات</h2>
+            <Link to="/services/contracting" className="text-gold text-sm hover:underline font-tajawal">عرض التفاصيل ←</Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              { icon: HardHat, name: 'مقاولات البناء العامة' },
+              { icon: Building2, name: 'مقاولات المباني السكنية والتجارية' },
+              { icon: Landmark, name: 'إدارة مشاريع البناء' },
+              { icon: Layers, name: 'أعمال الهيكل الإنشائي والتشطيبات' },
+              { icon: ShieldCheck, name: 'التنفيذ وفق المواصفات الدولية' },
+            ].map((s, i) => <ServiceCard key={i} icon={s.icon} name={s.name} />)}
+          </div>
+        </div>
+      </section>
+
+      {/* Maintenance Services */}
+      <section className="py-16 md:py-20 bg-dark-lighter">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between mb-10">
+            <h2 className="gold-text text-2xl md:text-3xl font-bold font-playfair">الصيانة والتشغيل</h2>
+            <Link to="/services/maintenance" className="text-gold text-sm hover:underline font-tajawal">عرض التفاصيل ←</Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              { icon: Wrench, name: 'صيانة المباني الدورية والوقائية' },
+              { icon: Wind, name: 'صيانة أنظمة التكييف والتبريد' },
+              { icon: Zap, name: 'صيانة الأنظمة الكهربائية والسباكة' },
+              { icon: AlertTriangle, name: 'خدمات الطوارئ والإصلاح العاجل' },
+              { icon: ClipboardCheck, name: 'إدارة عقود الصيانة الشاملة' },
+            ].map((s, i) => <ServiceCard key={i} icon={s.icon} name={s.name} />)}
+          </div>
+        </div>
+      </section>
+
+      {/* Real Estate Development */}
+      <section className="py-16 md:py-20 bg-dark">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between mb-10">
+            <h2 className="gold-text text-2xl md:text-3xl font-bold font-playfair">التطوير العقاري</h2>
+            <Link to="/services/real-estate-development" className="text-gold text-sm hover:underline font-tajawal">عرض التفاصيل ←</Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              { icon: Building, name: 'تطوير المشاريع السكنية والتجارية' },
+              { icon: TrendingUp, name: 'دراسات الجدوى الاقتصادية' },
+              { icon: Home, name: 'تطوير المجمعات السكنية والأبراج' },
+              { icon: Landmark, name: 'تطوير المراكز التجارية والمكتبية' },
+              { icon: Calculator, name: 'الاستشارات العقارية الاستراتيجية' },
+            ].map((s, i) => <ServiceCard key={i} icon={s.icon} name={s.name} />)}
+          </div>
+        </div>
+      </section>
+
+      {/* Real Estate Marketing */}
+      <section className="py-16 md:py-20 bg-dark-lighter">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between mb-10">
+            <h2 className="gold-text text-2xl md:text-3xl font-bold font-playfair">التسويق العقاري</h2>
+            <Link to="/services/real-estate-marketing" className="text-gold text-sm hover:underline font-tajawal">عرض التفاصيل ←</Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              { icon: Globe, name: 'التسويق الرقمي للعقارات' },
+              { icon: Megaphone, name: 'إدارة حملات البيع والتأجير' },
+              { icon: MapPin, name: 'دراسات السوق العقاري' },
+              { icon: FileText, name: 'إعداد المواد التسويقية' },
+              { icon: PenTool, name: 'استراتيجيات التسعير والترويج' },
+            ].map((s, i) => <ServiceCard key={i} icon={s.icon} name={s.name} />)}
           </div>
         </div>
       </section>
