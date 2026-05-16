@@ -65,7 +65,7 @@ export default function Index() {
               className="w-full h-full object-contain p-3"
             />
           </div>
-          <h1 className="font-tajawal md:text-5xl lg:text-6xl gold-text mt-[0px] mr-[0px] mb-[16px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[24px] font-bold text-center bg-[#00000000] opacity-100">
+          <h1 className="font-tajawal md:text-5xl lg:text-6xl gold-text mt-[0px] mr-[0px] mb-[16px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[32px] font-bold text-center bg-[#00000000] opacity-100">
             إعمار الأصالة والمعاصرة<br />Emmar Al Asala Wa Al Muasara<br />
           </h1>
           <h2 className="font-tajawal md:text-2xl mt-[0px] mr-[0px] mb-[8px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[24px] font-normal text-center text-[#E8D48BCC] bg-[#00000000] opacity-100">
