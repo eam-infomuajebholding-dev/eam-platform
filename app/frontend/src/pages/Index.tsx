@@ -75,7 +75,7 @@ export default function Index() {
           <h2 className="font-tajawal md:text-2xl mt-[0px] mr-[0px] mb-[8px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[24px] font-normal text-center text-[#E8D48BCC] bg-[#00000000] opacity-100">
             للاستشارات الهندسية
           </h2>
-          <p className="dark:text-white/70 md:text-xl max-w-2xl mx-auto mt-[24px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[20px] font-normal text-center text-[#FFFFFFB3] bg-[#00000000] opacity-100">
+          <p className="dark:text-white/70 md:text-xl max-w-2xl mx-auto mt-[24px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[20px] font-normal text-left text-[#FFFFFFB3] bg-[#00000000] opacity-100">
             شريكك الموثوق في الاستشارات الهندسية
           </p>
           <a
