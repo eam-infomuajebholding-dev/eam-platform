@@ -46,15 +46,19 @@ export default function Index() {
     <Layout>
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Light mode base background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white via-gray-50 to-white dark:from-transparent dark:via-transparent dark:to-transparent" />
-        {/* Background Image */}
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-60 dark:opacity-100"
-          style={{ backgroundImage: `url(${HERO_IMAGE})` }}
-        />
-        {/* Dark Overlay - lighter in light mode for white/gold aesthetic */}
-        <div className="absolute inset-0 dark:bg-black/70 mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[16px] font-normal text-[#2D2A1E] bg-[#00000066] opacity-100" />
+    {/* Background Video */}
+<video
+  autoPlay
+  muted
+  loop
+  playsInline
+  className="absolute inset-0 w-full h-full object-cover"
+>
+  <source src="/video.mp4" type="video/mp4" />
+</video>
+
+{/* Dark Overlay */}
+<div className="absolute inset-0 bg-black/60" />
 
         {/* Content */}
         <div className="relative z-10 px-4 animate-[fadeInUp_1s_ease-out] mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[16px] pb-[0px] pl-[16px] rounded-none text-[16px] font-normal text-center text-[#2D2A1E] bg-[#00000000] opacity-100">
