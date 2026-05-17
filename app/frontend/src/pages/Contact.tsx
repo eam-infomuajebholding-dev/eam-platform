@@ -188,7 +188,7 @@ export default function Contact() {
                     </div>
                     <div>
                       <p className="text-[#1a1a2e]/60 text-sm font-tajawal mb-1">الهاتف</p>
-                      <p className="text-[#1a1a2e] font-bold font-tajawal" dir="ltr">+966 XX XXX XXXX</p>
+                      <p className="font-tajawal mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[16px] font-bold text-[#1A1A2E] bg-[#00000000] opacity-100" dir="ltr">+966 XX XXX XXXX</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
@@ -206,7 +206,7 @@ export default function Contact() {
                     </div>
                     <div>
                       <p className="text-[#1a1a2e]/60 text-sm font-tajawal mb-1">الموقع</p>
-                      <p className="text-[#1a1a2e] font-bold font-tajawal">المملكة العربية السعودية</p>
+                      <p className="font-tajawal mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[16px] font-bold text-[#1A1A2E] bg-[#00000000] opacity-100">جدة،المملكة العربية السعودية</p>
                     </div>
                   </div>
                 </div>
