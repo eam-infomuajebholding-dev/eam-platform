@@ -7,8 +7,8 @@ import AIChatbot from './AIChatbot';
 
 const navLinks = [
   { path: '/', label: 'الرئيسية' },
-  { path: '/services', label: 'خدماتنا' },
   { path: '/about', label: 'من نحن' },
+  { path: '/services', label: 'خدماتنا' },
   { path: '/projects', label: 'مشاريعنا' },
   { path: '/team', label: 'فريقنا' },
   { path: '/consultation', label: 'طلب استشارة' },
