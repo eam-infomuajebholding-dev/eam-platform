@@ -79,7 +79,7 @@ export default function Index() {
             شريكك الموثوق في الاستشارات الهندسية
           </p>
           <a
-            href="#services"
+            href="/services"
             className="inline-block mt-10 px-8 py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold text-lg rounded-lg hover:shadow-[0_0_30px_rgba(201,168,76,0.4)] transition-all duration-300 hover:scale-105"
           >
             اكتشف خدماتنا
