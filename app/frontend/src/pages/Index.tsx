@@ -111,7 +111,7 @@ export default function Index() {
 
         <div
           ref={aboutReveal.ref}
-          className={`container mx-auto px-4 absolute left-0 top-0 z-10 bg-[#00000099] w-full h-full flex flex-col items-center justify-center ${
+          className={`container mx-auto px-4 absolute left-0 top-0 z-10 bg-[#00000099] min-w-screen h-full flex flex-col items-center justify-center ${
             aboutReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'
           }`}
         >
