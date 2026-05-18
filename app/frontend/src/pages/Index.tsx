@@ -108,9 +108,11 @@ export default function Index() {
         >
         <source src="/video.mp4" type="video/mp4" />
         </video>
+
+
         <div
           ref={aboutReveal.ref}
-          className={`container mx-auto px-4 relative z-10 ${
+          className={`container mx-auto px-4 absolute z-10 bg-[#00000099] opacity-100 ${
             aboutReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'
           }`}
         >
