@@ -95,26 +95,26 @@ export default function Index() {
       </section>
 
       {/* About Section */}
-      <section className="py-20 md:py-28 bg-gray-50 dark:bg-dark relative overflow-hidden">
+      <section className="relative min-h-screen">
         {/* Decorative Elements */}
         
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-gold/10 dark:bg-gold/5 rounded-full blur-3xl" />
-
+        {/*<div className="absolute bottom-0 left-0 w-64 h-64 bg-gold/10 dark:bg-gold/5 rounded-full blur-3xl" />*/}
+        <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+        >
+        <source src="/video.mp4" type="video/mp4" />
+        </video>
         <div
           ref={aboutReveal.ref}
-          className={`container mx-auto px-4 relative z-10 relative min-h-screen ${
+          className={`container mx-auto px-4 relative z-10 ${
             aboutReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'
           }`}
         >
-            <video
-                autoPlay
-                muted
-                loop
-                playsInline
-                className="absolute inset-0 w-full h-full object-cover"
-            >
-            <source src="/video.mp4" type="video/mp4" />
-            </video>
+
           <div className="max-w-4xl mx-auto text-center">
             {/* Gold Decorative Line */}
             
