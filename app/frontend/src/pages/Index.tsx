@@ -98,7 +98,6 @@ export default function Index() {
       <section className="relative min-h-screen">
         {/* Decorative Elements */}
         
-        {/*<div className="absolute bottom-0 left-0 w-64 h-64 bg-gold/10 dark:bg-gold/5 rounded-full blur-3xl" />*/}
         <video
             autoPlay
             muted
@@ -112,7 +111,7 @@ export default function Index() {
 
         <div
           ref={aboutReveal.ref}
-          className={`container mx-auto px-4 absolute z-10 bg-[#00000099] w-full h-full flex flex-col items-center justify-center ${
+          className={`container mx-auto px-4 absolute left-0 top-0 z-10 bg-[#00000099] w-full h-full flex flex-col items-center justify-center ${
             aboutReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'
           }`}
         >
