@@ -58,7 +58,7 @@ export default function Index() {
 </video>
 
 {/* Dark Overlay */}
-<div className="absolute inset-0 mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[16px] font-normal text-[#2D2A1E] bg-[#00000099] opacity-100" />
+<div className="absolute inset-0 mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[16px] font-normal text-[#2D2A1E] bg-[#00000099] opacity-100 mt-12 mb-12" />
 
         {/* Content */}
         <div className="relative z-10 px-4 animate-[fadeInUp_1s_ease-out] mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[16px] pb-[0px] pl-[16px] rounded-none text-[16px] font-normal text-center text-[#2D2A1E] bg-[#00000000] opacity-100">
