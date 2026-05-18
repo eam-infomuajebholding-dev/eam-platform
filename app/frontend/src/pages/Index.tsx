@@ -102,10 +102,19 @@ export default function Index() {
 
         <div
           ref={aboutReveal.ref}
-          className={`container mx-auto px-4 relative z-10 ${
+          className={`container mx-auto px-4 relative z-10 relative min-h-screen ${
             aboutReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'
           }`}
         >
+            <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
+            >
+            <source src="/video.mp4" type="video/mp4" />
+            </video>
           <div className="max-w-4xl mx-auto text-center">
             {/* Gold Decorative Line */}
             
