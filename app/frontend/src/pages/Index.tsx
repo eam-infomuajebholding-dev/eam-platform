@@ -61,7 +61,7 @@ export default function Index() {
 <div className="absolute inset-0 mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[16px] font-normal text-[#2D2A1E] bg-[#00000099] opacity-100 mt-12 mb-12" />
 
         {/* Content */}
-        <div className="relative z-10 px-4 animate-[fadeInUp_1s_ease-out] mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[16px] pb-[0px] pl-[16px] rounded-none text-[16px] font-normal text-center text-[#2D2A1E] bg-[#00000000] opacity-100">
+        <div className="relative z-10 px-4 animate-[fadeInUp_1s_ease-out] mt-[25px] mr-[0px] mb-[25px] ml-[0px] pt-[0px] pr-[16px] pb-[0px] pl-[16px] rounded-none text-[16px] font-normal text-center text-[#2D2A1E] bg-[#00000000] opacity-100">
           <div className="mx-auto mb-6 w-56 h-72 md:w-72 md:h-96 rounded-xl border-4 border-gold/60 shadow-[0_0_40px_rgba(201,168,76,0.3)] overflow-hidden bg-white flex items-center justify-center">
             <img
               src="/assets/logo.jpeg"
@@ -69,8 +69,8 @@ export default function Index() {
               className="w-full h-full object-contain p-3"
             />
           </div>
-          <h1 className="font-tajawal md:text-5xl lg:text-6xl gold-text mt-[0px] mr-[0px] mb-[16px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[24px] font-bold text-center bg-[#00000000] opacity-100">
-            إعمار الأصالة والمعاصرة<br />Emmar Al Asala Wa Al Muasara<br />
+          <h1 className="font-tajawal md:text-5xl lg:text-6xl gold-text mt-[0px] mr-[0px] mb-[16px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[32px] font-bold text-center bg-[#00000000] opacity-100">
+            {"إعمار الأصالة والمعاصرة"}<br />{"Emmar Al Asala Wa Al Muasara"}<br />
           </h1>
           <h2 className="font-tajawal md:text-2xl mt-[0px] mr-[0px] mb-[8px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[24px] font-normal text-center text-[#E8D48BCC] bg-[#00000000] opacity-100">
             للاستشارات الهندسية
