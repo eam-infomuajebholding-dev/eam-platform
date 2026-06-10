@@ -11,11 +11,11 @@ const navLinks = [
   { path: '/services', label: 'خدماتنا' },
   { path: '/projects', label: 'مشاريعنا' },
   { path: '/team', label: 'فريقنا' },
-  { path: '/consultation', label: 'طلب استشارة' },
-  { path: '/market', label: 'سوقنا' },
   { path: '/careers', label: 'التوظيف' },
+  { path: '/consultation', label: 'طلب استشارة' },
   { path: '/invest', label: 'استثمر معنا' },
   { path: '/contact', label: 'اتصل بنا' },
+  { path: '/market', label: 'سوقنا' },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
