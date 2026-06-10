@@ -1,10 +1,12 @@
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Upload, Mail, User, Phone, FileText, CheckCircle, Briefcase, GraduationCap } from 'lucide-react';
+import { Briefcase, GraduationCap, Upload, Mail, CheckCircle, User, FileText, Phone } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
+import { useContent } from '@/components/ContentProvider';
 
 export default function Careers() {
+  const { content, loading } = useContent();
   const heroReveal = useScrollReveal({ threshold: 0.15 });
   const formReveal = useScrollReveal({ threshold: 0.15 });
 
@@ -12,13 +14,33 @@ export default function Careers() {
     fullName: '',
     email: '',
     phone: '',
-    type: 'job', // 'job' or 'training'
+    type: 'job',
     position: '',
     message: '',
   });
   const [fileName, setFileName] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-gold text-xl">جاري التحميل...</div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!content) {
+    return (
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-red-500 text-xl">خطأ في تحميل المحتوى</div>
+        </div>
+      </Layout>
+    );
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -37,7 +59,7 @@ export default function Careers() {
       `المنصب/المجال المطلوب: ${formData.position}\n\n` +
       `رسالة إضافية:\n${formData.message}`
     );
-    window.location.href = `mailto:hr@emmar.com?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:${content.careers.email}?subject=${subject}&body=${body}`;
     setSubmitted(true);
     setTimeout(() => setSubmitted(false), 5000);
   };
@@ -60,10 +82,10 @@ export default function Careers() {
             <Briefcase className="w-10 h-10 text-gold" />
           </div>
           <h1 className="font-tajawal text-4xl md:text-5xl font-bold gold-text mb-4">
-            انضم إلى فريقنا
+            {content.careers.title}
           </h1>
           <p className="text-white/70 text-lg max-w-2xl mx-auto leading-relaxed">
-            نرحب دائماً بالمواهب المتميزة. أرسل سيرتك الذاتية وسنتواصل معك عند توفر الفرصة المناسبة
+            {content.careers.description}
           </p>
         </div>
       </section>
@@ -179,7 +201,7 @@ export default function Careers() {
                     </div>
                   </div>
 
-                  {/* Position/Field */}
+                  {/* Position */}
                   <div>
                     <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-2">
                       <Briefcase className="w-4 h-4 inline-block ml-2 text-gold" />
