@@ -11,10 +11,10 @@ const navLinks = [
   { path: '/services', label: 'خدماتنا' },
   { path: '/projects', label: 'مشاريعنا' },
   { path: '/team', label: 'فريقنا' },
+  { path: '/consultation', label: 'طلب استشارة' },
+  { path: '/market', label: 'سوقنا' },
   { path: '/careers', label: 'التوظيف' },
   { path: '/invest', label: 'استثمر معنا' },
-  { path: '/market', label: 'سوقنا' },
-    { path: '/consultation', label: 'طلب استشارة' },
   { path: '/contact', label: 'اتصل بنا' },
 ];
 
