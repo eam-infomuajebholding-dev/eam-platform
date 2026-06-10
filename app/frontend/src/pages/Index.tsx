@@ -2,13 +2,12 @@ import { Link } from 'react-router-dom';
 import { Award, Clock, BadgeCheck, Banknote } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
+import { useContent } from '@/components/ContentProvider';
 
-const HERO_IMAGE =
-  'https://mgx-backend-cdn.metadl.com/generate/images/1200196/2026-05-07/och7hyiaagqq/hero-banner-luxury-architecture.png';
 const ENGINEERING_IMAGE =
-  'https://mgx-backend-cdn.metadl.com/generate/images/1200196/2026-05-07/och7nlqaagqa/engineering-services-blueprints.png';
+  'https://mgx-backend-cdn.metadl.com/generate/images/1200196/2026-05-07/och7hyiaagqq/hero-banner-luxury-architecture.png';
 const GOVERNMENT_IMAGE =
-  'https://mgx-backend-cdn.metadl.com/generate/images/1200196/2026-05-07/och7mxiaagpq/government-services-documents.png';
+  'https://mgx-backend-cdn.metadl.com/generate/images/1200196/2026-05-07/och7nlqaagqa/engineering-services-blueprints.png';
 
 const whyChooseUs = [
   {
@@ -34,6 +33,7 @@ const whyChooseUs = [
 ];
 
 export default function Index() {
+  const { content, loading } = useContent();
   const aboutReveal = useScrollReveal({ threshold: 0.15 });
   const servicesTitleReveal = useScrollReveal({ threshold: 0.2 });
   const servicesCard1Reveal = useScrollReveal({ threshold: 0.15 });
@@ -42,48 +42,68 @@ export default function Index() {
   const whyCardsReveal = useScrollReveal({ threshold: 0.1 });
   const ctaReveal = useScrollReveal({ threshold: 0.15 });
 
+  if (loading) {
+    return (
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-gold text-xl">جاري التحميل...</div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!content) {
+    return (
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-red-500 text-xl">خطأ في تحميل المحتوى</div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-    {/* Background Video */}
-<video
-  autoPlay
-  muted
-  loop
-  playsInline
-  className="absolute inset-0 w-full h-full object-cover"
->
-  <source src="/video.mp4" type="video/mp4" />
-</video>
+        {/* Background Video */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/video.mp4" type="video/mp4" />
+        </video>
 
-{/* Dark Overlay */}
-<div className="absolute inset-0 mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[16px] font-normal text-[#2D2A1E] bg-[#00000099] opacity-100 mt-12 mb-12" />
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-[#00000099]" />
 
         {/* Content */}
-        <div className="relative z-10 px-4 animate-[fadeInUp_1s_ease-out] mt-[25px] mr-[0px] mb-[25px] ml-[0px] pt-[0px] pr-[16px] pb-[0px] pl-[16px] rounded-none text-[16px] font-normal text-center text-[#2D2A1E] bg-[#00000000] opacity-100">
+        <div className="relative z-10 px-4 text-center">
           <div className="mx-auto mb-6 w-56 h-72 md:w-72 md:h-96 rounded-xl border-4 border-gold/60 shadow-[0_0_40px_rgba(201,168,76,0.3)] overflow-hidden bg-white flex items-center justify-center">
             <img
               src="/assets/logo.jpeg"
-              alt="إعمار الأصالة والمعاصرة"
+              alt={content.site.title}
               className="w-full h-full object-contain p-3"
             />
           </div>
-          <h1 className="font-tajawal text-3xl gold-text mt-[0px] mr-[0px] mb-[16px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[32px] font-bold text-center bg-[#00000000] opacity-100">
-            {"إعمار الأصالة والمعاصرة"}<br />{"Emmar Al Asala Wa Al Muasara"}<br />
+          <h1 className="font-tajawal text-3xl gold-text font-bold mb-4">
+            {content.hero.title}<br />{content.site.subtitle}
           </h1>
-          <h2 className="font-tajawal md:text-2xl mt-[0px] mr-[0px] mb-[8px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[24px] font-normal text-center text-[#E8D48BCC] bg-[#00000000] opacity-100">
-            للاستشارات الهندسية
+          <h2 className="font-tajawal md:text-2xl text-[#E8D48BCC] mb-2">
+            {content.hero.subtitle}
           </h2>
-          <p className="dark:text-white/70 md:text-xl mt-[24px] rounded-none text-[20px] font-normal text-center text-[#FFFFFFB3] bg-[#00000000] opacity-100">
-            شريكك الموثوق في الاستشارات الهندسية
+          <p className="dark:text-white/70 md:text-xl text-[#FFFFFFB3] mt-6">
+            {content.hero.description}
           </p>
-          <a
-            href="/services"
+          <Link
+            to="/services"
             className="inline-block mt-10 px-8 py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold text-lg rounded-lg hover:shadow-[0_0_30px_rgba(201,168,76,0.4)] transition-all duration-300 hover:scale-105"
           >
-            اكتشف خدماتنا
-          </a>
+            {content.hero.buttonText}
+          </Link>
         </div>
 
         {/* Scroll Indicator */}
@@ -96,18 +116,15 @@ export default function Index() {
 
       {/* About Section */}
       <section className="relative min-h-screen">
-        {/* Decorative Elements */}
-        
         <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
         >
-        <source src="/video.mp4" type="video/mp4" />
+          <source src="/video.mp4" type="video/mp4" />
         </video>
-
 
         <div
           ref={aboutReveal.ref}
@@ -115,20 +132,14 @@ export default function Index() {
             aboutReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'
           }`}
         >
-
           <div className="max-w-4xl mx-auto text-center">
-            {/* Gold Decorative Line */}
-            
-
-            <h2 className="font-tajawal md:text-4xl gold-text mt-[0px] mr-[0px] mb-[32px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[36px] font-bold text-center bg-[#00000000] opacity-100">
-              من نحن
+            <h2 className="font-tajawal md:text-4xl gold-text text-3xl font-bold mb-8">
+              {content.about.title}
             </h2>
 
-            <div className="border border-gold/30 dark:border-gold/20 p-8 md:p-12 dark:bg-dark-lighter/50 backdrop-blur-sm shadow-lg shadow-gold/5 dark:shadow-none mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[48px] pr-[48px] pb-[48px] pl-[48px] rounded-2xl text-[16px] font-normal text-center text-[#2D2A1E] bg-[#FFFFFFCC] opacity-100">
-              <p className="dark:text-white/80 md:text-xl font-tajawal mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[12px] font-normal text-center text-[#3D3520] bg-[#00000000] opacity-100">
-                نقدم خدمات استشارية هندسية متكاملة تجمع بين الأصالة والمعاصرة، ملتزمون بأعلى معايير
-                الجودة والاحترافية في تقديم الحلول الهندسية المبتكرة. نسعى لتحقيق رؤية عملائنا
-                بأفضل المعايير الهندسية المعتمدة في المملكة العربية السعودية.
+            <div className="border border-gold/30 dark:border-gold/20 p-8 md:p-12 dark:bg-dark-lighter/50 backdrop-blur-sm shadow-lg shadow-gold/5 dark:shadow-none rounded-2xl bg-[#FFFFFFCC]">
+              <p className="dark:text-white/80 md:text-xl font-tajawal text-[#3D3520] text-sm">
+                {content.about.text}
               </p>
             </div>
 
@@ -143,7 +154,7 @@ export default function Index() {
       </section>
 
       {/* Services Overview Section */}
-      <section id="services" className="py-20 md:py-28 dark:bg-dark-lighter relative mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[80px] pr-[0px] pb-[80px] pl-[0px] rounded-none text-[16px] font-normal text-[#2D2A1E] bg-[#FFFFFF] opacity-100">
+      <section id="services" className="py-20 md:py-28 dark:bg-dark-lighter relative bg-white">
         <div className="container mx-auto px-4">
           <div
             ref={servicesTitleReveal.ref}
@@ -286,7 +297,6 @@ export default function Index() {
           </Link>
         </div>
       </section>
-
     </Layout>
   );
 }
