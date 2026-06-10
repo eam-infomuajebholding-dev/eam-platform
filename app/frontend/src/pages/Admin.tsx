@@ -1,16 +1,16 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Save, 
-  Upload, 
   Plus, 
   Trash2, 
   LogOut, 
   Eye,
   FileText,
   Image,
-  Video,
-  Lock
+  Lock,
+  Copy,
+  X
 } from 'lucide-react';
 
 const ADMIN_PASSWORD = 'EamAdmin2024!'; // غير كلمة السر هنا
@@ -66,8 +66,9 @@ export default function Admin() {
   const [password, setPassword] = useState('');
   const [content, setContent] = useState<SiteContent | null>(null);
   const [activeTab, setActiveTab] = useState('general');
-  const [saved, setSaved] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [jsonCode, setJsonCode] = useState('');
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetch('/content.json?t=' + Date.now())
@@ -85,21 +86,31 @@ export default function Admin() {
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!content) return;
     
-    // In a real app, this would save to a server
-    // For now, we'll download the JSON file
-    const blob = new Blob([JSON.stringify(content, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'content.json';
-    a.click();
-    URL.revokeObjectURL(url);
-    
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    const jsonString = JSON.stringify(content, null, 2);
+    setJsonCode(jsonString);
+    setShowModal(true);
+    setCopied(false);
+  };
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(jsonCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      // Fallback for older browsers
+      const textarea = document.createElement('textarea');
+      textarea.value = jsonCode;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   const updateField = (section: string, field: string, value: string) => {
@@ -132,7 +143,7 @@ export default function Admin() {
       duration: '',
       description: '',
       videoUrl: '',
-      images: [],
+      images: [''],
       pdfUrl: '',
       status: 'available'
     };
@@ -145,30 +156,25 @@ export default function Admin() {
     setContent({ ...content, projects: newProjects });
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, projectIndex?: number, imageIndex?: number) => {
-    if (!e.target.files || !e.target.files[0]) return;
-    
-    const file = e.target.files[0];
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', 'EAM_uploads'); // You'll need to create this in Cloudinary
-    
-    try {
-      const response = await fetch(`https://api.cloudinary.com/v1_1/dsta3yeml/upload`, {
-        method: 'POST',
-        body: formData
-      });
-      const data = await response.json();
-      
-      if (projectIndex !== undefined && imageIndex !== undefined) {
-        const newProjects = [...content!.projects];
-        newProjects[projectIndex].images[imageIndex] = data.secure_url;
-        setContent({ ...content!, projects: newProjects });
-      }
-    } catch (error) {
-      console.error('Upload error:', error);
-      alert('خطأ في الرفع. تأكد من إعداد Cloudinary');
-    }
+  const addProjectImage = (projectIndex: number) => {
+    if (!content) return;
+    const newProjects = [...content.projects];
+    newProjects[projectIndex].images.push('');
+    setContent({ ...content, projects: newProjects });
+  };
+
+  const updateProjectImage = (projectIndex: number, imageIndex: number, value: string) => {
+    if (!content) return;
+    const newProjects = [...content.projects];
+    newProjects[projectIndex].images[imageIndex] = value;
+    setContent({ ...content, projects: newProjects });
+  };
+
+  const removeProjectImage = (projectIndex: number, imageIndex: number) => {
+    if (!content) return;
+    const newProjects = [...content.projects];
+    newProjects[projectIndex].images = newProjects[projectIndex].images.filter((_, i) => i !== imageIndex);
+    setContent({ ...content, projects: newProjects });
   };
 
   if (!isAuthenticated) {
@@ -208,9 +214,54 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-lighter" dir="rtl">
+      {/* Modal for JSON Code */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="w-full max-w-4xl bg-[#1a1a2e] border-2 border-gold rounded-2xl p-6 flex flex-col gap-4 max-h-[90vh]">
+            <div className="flex items-center justify-between">
+              <h2 className="font-tajawal text-2xl font-bold gold-text">✅ تم الحفظ!</h2>
+              <button 
+                onClick={() => setShowModal(false)}
+                className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-all"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <p className="text-white/70 text-center">
+              انسخ هذا الكود والصقه في ملف <code className="text-gold bg-gold/10 px-2 py-1 rounded">public/content.json</code>
+            </p>
+            <textarea
+              value={jsonCode}
+              readOnly
+              className="flex-1 min-h-[300px] bg-[#0f0f1e] border border-gold/30 rounded-xl text-green-400 font-mono text-xs p-4 resize-none direction-ltr text-left"
+              style={{ direction: 'ltr', textAlign: 'left' }}
+            />
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={copyToClipboard}
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${
+                  copied 
+                    ? 'bg-green-500 text-white' 
+                    : 'bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark hover:shadow-lg'
+                }`}
+              >
+                <Copy className="w-5 h-5" />
+                {copied ? '✓ تم النسخ!' : 'نسخ الكود'}
+              </button>
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-6 py-3 border border-gold/30 text-gold rounded-xl hover:bg-gold/10 transition-all font-bold"
+              >
+                إغلاق
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className="bg-white dark:bg-dark border-b border-gold/20 p-4">
-        <div className="container mx-auto flex items-center justify-between">
+        <div className="container mx-auto flex items-center justify-between flex-wrap gap-3">
           <h1 className="font-tajawal text-xl font-bold gold-text">لوحة التحكم - إعمار الأصالة والمعاصرة</h1>
           <div className="flex items-center gap-3">
             <button
@@ -236,16 +287,11 @@ export default function Admin() {
             </button>
           </div>
         </div>
-        {saved && (
-          <div className="mt-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-green-600 text-center">
-            ✅ تم حفظ الملف! انسخ content.json إلى مجلد public في مشروعك
-          </div>
-        )}
       </header>
 
       {/* Tabs */}
       <div className="container mx-auto px-4 py-6">
-        <div className="flex gap-2 mb-6 overflow-x-auto">
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
           {[
             { id: 'general', label: 'معلومات الموقع', icon: FileText },
             { id: 'hero', label: 'الصفحة الرئيسية', icon: Image },
@@ -310,6 +356,15 @@ export default function Admin() {
                     value={content.site.phone}
                     onChange={(e) => updateField('site', 'phone', e.target.value)}
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-900 dark:text-white focus:border-gold outline-none"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-2">وصف الموقع</label>
+                  <textarea
+                    value={content.site.description}
+                    onChange={(e) => updateField('site', 'description', e.target.value)}
+                    rows={2}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-900 dark:text-white focus:border-gold outline-none resize-none"
                   />
                 </div>
               </div>
@@ -379,7 +434,7 @@ export default function Admin() {
                 <textarea
                   value={content.about.text}
                   onChange={(e) => updateField('about', 'text', e.target.value)}
-                  rows={6}
+                  rows={8}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-900 dark:text-white focus:border-gold outline-none resize-none"
                 />
               </div>
@@ -462,7 +517,7 @@ export default function Admin() {
               {content.projects.map((project, index) => (
                 <div key={project.id} className="p-6 rounded-xl border border-gold/20 bg-gray-50 dark:bg-white/5 space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-gold">مشروع {index + 1}</h3>
+                    <h3 className="font-bold text-gold">مشروع {index + 1}: {project.name}</h3>
                     <button
                       onClick={() => removeProject(index)}
                       className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
@@ -543,16 +598,14 @@ export default function Admin() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-2">رابط الفيديو (YouTube أو Cloudinary)</label>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={project.videoUrl}
-                        onChange={(e) => updateProject(index, 'videoUrl', e.target.value)}
-                        placeholder="https://..."
-                        className="flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-900 dark:text-white focus:border-gold outline-none"
-                      />
-                    </div>
+                    <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-2">رابط الفيديو</label>
+                    <input
+                      type="text"
+                      value={project.videoUrl}
+                      onChange={(e) => updateProject(index, 'videoUrl', e.target.value)}
+                      placeholder="https://..."
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-900 dark:text-white focus:border-gold outline-none"
+                    />
                   </div>
                   
                   <div>
@@ -563,21 +616,20 @@ export default function Admin() {
                           <input
                             type="text"
                             value={img}
-                            onChange={(e) => {
-                              const newImages = [...project.images];
-                              newImages[imgIndex] = e.target.value;
-                              updateProject(index, 'images', JSON.stringify(newImages));
-                            }}
+                            onChange={(e) => updateProjectImage(index, imgIndex, e.target.value)}
                             placeholder={`رابط الصورة ${imgIndex + 1}`}
                             className="flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-900 dark:text-white focus:border-gold outline-none"
                           />
+                          <button
+                            onClick={() => removeProjectImage(index, imgIndex)}
+                            className="p-3 text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         </div>
                       ))}
                       <button
-                        onClick={() => {
-                          const newImages = [...project.images, ''];
-                          updateProject(index, 'images', JSON.stringify(newImages));
-                        }}
+                        onClick={() => addProjectImage(index)}
                         className="flex items-center gap-2 px-4 py-2 text-sm border border-gold/30 text-gold rounded-lg hover:bg-gold/10 transition-all"
                       >
                         <Plus className="w-4 h-4" />
