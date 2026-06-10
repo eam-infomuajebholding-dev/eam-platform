@@ -20,7 +20,8 @@ import Market from './pages/Market';
 import Contact from './pages/Contact';
 import AuthCallback from './pages/AuthCallback';
 import AuthError from './pages/AuthError';
-
+import Careers from './pages/Careers';
+import Invest from './pages/Invest';
 const queryClient = new QueryClient();
 
 const AppRoutes = () => (
@@ -42,6 +43,8 @@ const AppRoutes = () => (
     <Route path="/contact" element={<Contact />} />
     <Route path="/auth/callback" element={<AuthCallback />} />
     <Route path="/auth/error" element={<AuthError />} />
+    <Route path="/careers" element={<Careers />} />
+    <Route path="/invest" element={<Invest />} />
   </Routes>
 );
 
