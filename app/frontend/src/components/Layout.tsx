@@ -13,7 +13,7 @@ const navLinks = [
   { path: '/team', label: 'فريقنا' },
   { path: '/careers', label: 'التوظيف' },
   { path: '/consultation', label: 'طلب استشارة' },
-  { path: '/invest', label: 'استثمر معنا' },
+ { path: '/invest', label: 'استثمر معنا' },
   { path: '/contact', label: 'اتصل بنا' },
   { path: '/market', label: 'سوقنا' },
 ];
