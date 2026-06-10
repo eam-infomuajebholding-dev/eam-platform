@@ -4,6 +4,7 @@ import { Menu, X, Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import Footer from './Footer';
 import AIChatbot from './AIChatbot';
+
 const navLinks = [
   { path: '/', label: 'الرئيسية' },
   { path: '/about', label: 'من نحن' },
