@@ -18,10 +18,12 @@ import Team from './pages/Team';
 import Consultation from './pages/Consultation';
 import Market from './pages/Market';
 import Contact from './pages/Contact';
-import AuthCallback from './pages/AuthCallback';
-import AuthError from './pages/AuthError';
 import Careers from './pages/Careers';
 import Invest from './pages/Invest';
+import Admin from './pages/Admin';
+import AuthCallback from './pages/AuthCallback';
+import AuthError from './pages/AuthError';
+
 const queryClient = new QueryClient();
 
 const AppRoutes = () => (
@@ -41,10 +43,11 @@ const AppRoutes = () => (
     <Route path="/consultation" element={<Consultation />} />
     <Route path="/market" element={<Market />} />
     <Route path="/contact" element={<Contact />} />
-    <Route path="/auth/callback" element={<AuthCallback />} />
-    <Route path="/auth/error" element={<AuthError />} />
     <Route path="/careers" element={<Careers />} />
     <Route path="/invest" element={<Invest />} />
+    <Route path="/admin" element={<Admin />} />
+    <Route path="/auth/callback" element={<AuthCallback />} />
+    <Route path="/auth/error" element={<AuthError />} />
   </Routes>
 );
 
