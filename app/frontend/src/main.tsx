@@ -1,7 +1,8 @@
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
-import { loadRuntimeConfig } from './lib/config.ts';
+
+createRoot(document.getElementById('root')!).render(<App />);
 
 // Load runtime configuration before rendering the app
 async function initializeApp() {

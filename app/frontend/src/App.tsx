@@ -19,6 +19,7 @@ import Team from './pages/Team';
 import Consultation from './pages/Consultation';
 import Market from './pages/Market';
 import Contact from './pages/Contact';
+import { ContentProvider } from '@/components/ContentProvider';
 import Careers from './pages/Careers';
 import Invest from './pages/Invest';
 import Admin from './pages/Admin';
