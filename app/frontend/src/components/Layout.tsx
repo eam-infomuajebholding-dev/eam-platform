@@ -5,18 +5,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import Footer from './Footer';
 import AIChatbot from './AIChatbot';
 
-const navLinks = [
-  { path: '/', label: 'الرئيسية' },
-  { path: '/about', label: 'من نحن' },
-  { path: '/services', label: 'خدماتنا' },
-  { path: '/projects', label: 'مشاريعنا' },
-  { path: '/team', label: 'فريقنا' },
-  { path: '/careers', label: 'التوظيف' },
-  { path: '/consultation', label: 'طلب استشارة' },
-  { path: '/invest', label: 'استثمر معنا' },
-  { path: '/contact', label: 'اتصل بنا' },
-  { path: '/market', label: 'سوقنا' },
-];
+
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
