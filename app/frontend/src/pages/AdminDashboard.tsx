@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { client } from '@/lib/api';
-import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -24,7 +23,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Plus, Pencil, Trash2, LogOut, LayoutDashboard } from 'lucide-react';
+import { Plus, Pencil, Trash2, LogOut, LayoutDashboard, Lock } from 'lucide-react';
+
+const ADMIN_PASSWORD = 'eam2024';
+const AUTH_STORAGE_KEY = 'admin_authenticated';
 
 // Generic fetch helper
 async function fetchEntities(entityName: string) {
@@ -719,7 +721,61 @@ function SiteSettingsTab() {
 
 // ============ Main Admin Dashboard ============
 export default function AdminDashboard() {
-  const { user, logout } = useAuth();
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    () => localStorage.getItem(AUTH_STORAGE_KEY) === 'true'
+  );
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === ADMIN_PASSWORD) {
+      localStorage.setItem(AUTH_STORAGE_KEY, 'true');
+      setIsAuthenticated(true);
+      setError('');
+    } else {
+      setError('كلمة المرور غير صحيحة');
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    setIsAuthenticated(false);
+    setPassword('');
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div dir="rtl" className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+              <Lock className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            </div>
+            <CardTitle className="text-2xl">لوحة التحكم</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <Input
+                type="password"
+                placeholder="أدخل كلمة المرور"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setError('');
+                }}
+                className="text-center"
+              />
+              {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+              <Button type="submit" className="w-full">
+                دخول
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div dir="rtl" className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -731,8 +787,7 @@ export default function AdminDashboard() {
             <h1 className="text-xl font-bold text-gray-900 dark:text-white">لوحة التحكم</h1>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600 dark:text-gray-300">{user?.email}</span>
-            <Button variant="outline" size="sm" onClick={logout}>
+            <Button variant="outline" size="sm" onClick={handleLogout}>
               <LogOut className="h-4 w-4 ml-2" />تسجيل الخروج
             </Button>
           </div>

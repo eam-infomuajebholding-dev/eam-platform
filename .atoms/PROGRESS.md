@@ -12,3 +12,4 @@ Build an admin dashboard for the engineering consulting company website that all
 ## Progress Log
 - 2026-06-11: Starting admin dashboard implementation with full CRUD for all backend entities
 - 2026-06-11: Admin dashboard created with 6 tabs, full CRUD, React Query, Arabic RTL UI. Lint and build pass.
+- 2026-06-11: Fixed admin access - removed OIDC auth requirement, added simple password gate (eam2024) with localStorage persistence.
