@@ -3,7 +3,6 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@/contexts/ThemeContext';
-import { ContentProvider } from '@/components/ContentProvider';
 import Index from './pages/Index';
 import EngineeringServices from './pages/EngineeringServices';
 import GovernmentServices from './pages/GovernmentServices';
@@ -19,10 +18,8 @@ import Team from './pages/Team';
 import Consultation from './pages/Consultation';
 import Market from './pages/Market';
 import Contact from './pages/Contact';
-import { ContentProvider } from '@/components/ContentProvider';
 import Careers from './pages/Careers';
 import Invest from './pages/Invest';
-import Admin from './pages/Admin';
 import AuthCallback from './pages/AuthCallback';
 import AuthError from './pages/AuthError';
 
@@ -45,9 +42,8 @@ const AppRoutes = () => (
     <Route path="/consultation" element={<Consultation />} />
     <Route path="/market" element={<Market />} />
     <Route path="/contact" element={<Contact />} />
-   <Route path="/careers" element={<Careers />} />
+    <Route path="/careers" element={<Careers />} />
     <Route path="/invest" element={<Invest />} />
-    <Route path="/admin" element={<Admin />} />
     <Route path="/auth/callback" element={<AuthCallback />} />
     <Route path="/auth/error" element={<AuthError />} />
   </Routes>
@@ -57,12 +53,10 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <ThemeProvider>
-        <ContentProvider>
-          <Toaster />
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
-        </ContentProvider>
+        <Toaster />
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
       </ThemeProvider>
     </TooltipProvider>
   </QueryClientProvider>
