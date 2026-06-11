@@ -3,7 +3,96 @@ import { Link } from 'react-router-dom';
 import { TrendingUp, Play, FileText, X, ChevronLeft, MapPin, Calendar, DollarSign, Building2 } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
-import { useContent } from '@/components/ContentProvider';
+
+interface Project {
+  id: number;
+  name: string;
+  location: string;
+  type: string;
+  investmentAmount: string;
+  expectedReturn: string;
+  duration: string;
+  description: string;
+  videoUrl: string;
+  images: string[];
+  pdfUrl: string;
+  status: 'available' | 'in-progress' | 'completed';
+}
+
+const projects: Project[] = [
+  {
+    id: 1,
+    name: 'مجمع إعمار السكني',
+    location: 'الرياض - حي النرجس',
+    type: 'سكني',
+    investmentAmount: '5,000,000 ريال',
+    expectedReturn: '18% سنوياً',
+    duration: '24 شهر',
+    description: 'مجمع سكني فاخر يتكون من 50 فيلا و120 شقة، بتصميم عصري يلبي احتياجات العائلات. يقع في موقع استراتيجي قريب من الخدمات الأساسية.',
+    videoUrl: '/projects/video1.mp4',
+    images: [
+      'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800',
+      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800',
+      'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800',
+    ],
+    pdfUrl: '/projects/project1-details.pdf',
+    status: 'available',
+  },
+  {
+    id: 2,
+    name: 'برج إعمار التجاري',
+    location: 'جدة - حي الروضة',
+    type: 'تجاري',
+    investmentAmount: '12,000,000 ريال',
+    expectedReturn: '22% سنوياً',
+    duration: '36 شهر',
+    description: 'برج تجاري متكامل يتكون من 15 طابقاً، يضم مكاتب إدارية ومحلات تجارية ومرافق ترفيهية. موقع مميز في قلب النشاط التجاري.',
+    videoUrl: '/projects/video2.mp4',
+    images: [
+      'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800',
+      'https://images.unsplash.com/photo-1577495508048-b635879837f1?w=800',
+      'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800',
+    ],
+    pdfUrl: '/projects/project2-details.pdf',
+    status: 'available',
+  },
+  {
+    id: 3,
+    name: 'منتجع إعمار السياحي',
+    location: 'الخبر - كورنيش الخبر',
+    type: 'سياحي',
+    investmentAmount: '8,500,000 ريال',
+    expectedReturn: '20% سنوياً',
+    duration: '30 شهر',
+    description: 'منتجع سياحي فاخر على الواجهة البحرية يضم 80 غرفة فندقية و5 فيلات خاصة ومطاعم ومرافق ترفيهية متكاملة.',
+    videoUrl: '/projects/video3.mp4',
+    images: [
+      'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800',
+      'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800',
+      'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800',
+    ],
+    pdfUrl: '/projects/project3-details.pdf',
+    status: 'in-progress',
+  },
+  {
+    id: 4,
+    name: 'مجمع إعمار الصناعي',
+    location: 'الدمام - المدينة الصناعية الثانية',
+    type: 'صناعي',
+    investmentAmount: '15,000,000 ريال',
+    expectedReturn: '25% سنوياً',
+    duration: '48 شهر',
+    description: 'مجمع صناعي متكامل يضم 20 مصنعاً و10 مستودعات ومرافق لوجستية. يقع في المنطقة الصناعية الواعدة بالدمام.',
+    videoUrl: '/projects/video4.mp4',
+    images: [
+      'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?w=800',
+      'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800',
+      'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800',
+    ],
+    pdfUrl: '/projects/project4-details.pdf',
+    status: 'available',
+  },
+];
 
 const statusLabels = {
   available: { label: 'متاح للاستثمار', color: 'bg-green-500/10 text-green-600 border-green-500/30' },
@@ -12,39 +101,18 @@ const statusLabels = {
 };
 
 export default function Invest() {
-  const { content, loading } = useContent();
   const heroReveal = useScrollReveal({ threshold: 0.15 });
   const projectsReveal = useScrollReveal({ threshold: 0.1 });
   const ctaReveal = useScrollReveal({ threshold: 0.15 });
 
-  const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [showVideo, setShowVideo] = useState(false);
   const [filter, setFilter] = useState<'all' | 'available' | 'in-progress'>('all');
 
-  if (loading) {
-    return (
-      <Layout>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-gold text-xl">جاري التحميل...</div>
-        </div>
-      </Layout>
-    );
-  }
-
-  if (!content) {
-    return (
-      <Layout>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-red-500 text-xl">خطأ في تحميل المحتوى</div>
-        </div>
-      </Layout>
-    );
-  }
-
   const filteredProjects = filter === 'all' 
-    ? content.projects 
-    : content.projects.filter((p: any) => p.status === filter);
+    ? projects 
+    : projects.filter(p => p.status === filter);
 
   return (
     <Layout>
@@ -60,10 +128,10 @@ export default function Invest() {
             <TrendingUp className="w-10 h-10 text-gold" />
           </div>
           <h1 className="font-tajawal text-4xl md:text-5xl font-bold gold-text mb-4">
-            {content.invest.title}
+            استثمر معنا
           </h1>
           <p className="text-white/70 text-lg max-w-2xl mx-auto leading-relaxed">
-            {content.invest.description}
+            فرص استثمارية واعدة في مشاريع عقارية متنوعة. انضم إلينا وكن شريكاً في بناء المستقبل
           </p>
         </div>
       </section>
@@ -73,7 +141,7 @@ export default function Invest() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
             {[
-              { number: `${content.projects.length}+`, label: 'مشروع' },
+              { number: '15+', label: 'مشروع منجز' },
               { number: '200M+', label: 'حجم الاستثمارات' },
               { number: '20%', label: 'متوسط العائد' },
               { number: '50+', label: 'شريك نجاح' },
@@ -126,7 +194,7 @@ export default function Invest() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-              {filteredProjects.map((project: any, index: number) => (
+              {filteredProjects.map((project, index) => (
                 <div
                   key={project.id}
                   className="group rounded-2xl bg-white dark:bg-white/5 backdrop-blur-md border border-gold/20 hover:border-gold/60 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(201,168,76,0.15)] overflow-hidden"
@@ -135,14 +203,14 @@ export default function Invest() {
                   {/* Project Image */}
                   <div className="relative h-56 overflow-hidden">
                     <img
-                      src={project.images[0] || 'https://via.placeholder.com/800x400?text=No+Image'}
+                      src={project.images[0]}
                       alt={project.name}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                     <div className="absolute top-4 left-4">
-                      <span className={`px-3 py-1 text-xs rounded-full border ${statusLabels[project.status as keyof typeof statusLabels]?.color || statusLabels.available.color}`}>
-                        {statusLabels[project.status as keyof typeof statusLabels]?.label || 'متاح'}
+                      <span className={`px-3 py-1 text-xs rounded-full border ${statusLabels[project.status].color}`}>
+                        {statusLabels[project.status].label}
                       </span>
                     </div>
                     <div className="absolute bottom-4 right-4 left-4">
@@ -239,28 +307,24 @@ export default function Invest() {
             <div className="relative h-72 overflow-hidden">
               {showVideo ? (
                 <div className="w-full h-full bg-black flex items-center justify-center">
-                  {selectedProject.videoUrl ? (
-                    <video
-                      controls
-                      autoPlay
-                      className="w-full h-full object-contain"
-                    >
-                      <source src={selectedProject.videoUrl} type="video/mp4" />
-                      متصفحك لا يدعم تشغيل الفيديو
-                    </video>
-                  ) : (
-                    <p className="text-white/60">لا يوجد فيديو لهذا المشروع</p>
-                  )}
+                  <video
+                    controls
+                    autoPlay
+                    className="w-full h-full object-contain"
+                  >
+                    <source src={selectedProject.videoUrl} type="video/mp4" />
+                    متصفحك لا يدعم تشغيل الفيديو
+                  </video>
                 </div>
               ) : (
                 <>
                   <img
-                    src={selectedProject.images[activeImageIndex] || 'https://via.placeholder.com/800x400?text=No+Image'}
+                    src={selectedProject.images[activeImageIndex]}
                     alt={selectedProject.name}
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                  
+
                   {/* Play Video Button */}
                   <button
                     onClick={() => setShowVideo(true)}
@@ -271,7 +335,7 @@ export default function Invest() {
 
                   {/* Image Navigation */}
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                    {selectedProject.images.map((_: any, i: number) => (
+                    {selectedProject.images.map((_, i) => (
                       <button
                         key={i}
                         onClick={() => setActiveImageIndex(i)}
@@ -288,8 +352,8 @@ export default function Invest() {
             {/* Project Info */}
             <div className="p-8">
               <div className="flex items-center gap-3 mb-4">
-                <span className={`px-3 py-1 text-xs rounded-full border ${statusLabels[selectedProject.status as keyof typeof statusLabels]?.color || statusLabels.available.color}`}>
-                  {statusLabels[selectedProject.status as keyof typeof statusLabels]?.label || 'متاح'}
+                <span className={`px-3 py-1 text-xs rounded-full border ${statusLabels[selectedProject.status].color}`}>
+                  {statusLabels[selectedProject.status].label}
                 </span>
                 <span className="px-3 py-1 text-xs rounded-full bg-gold/10 text-gold border border-gold/20">
                   {selectedProject.type}
@@ -311,4 +375,64 @@ export default function Invest() {
                 </div>
                 <div className="p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gold/10">
                   <TrendingUp className="w-5 h-5 text-gold mb-2" />
-                  <p className="text-xs text-gray-500
+                  <p className="text-xs text-gray-500 dark:text-white/50 mb-1">العائد المتوقع</p>
+                  <p className="text-sm font-bold text-gold">{selectedProject.expectedReturn}</p>
+                </div>
+                <div className="p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gold/10">
+                  <Calendar className="w-5 h-5 text-gold mb-2" />
+                  <p className="text-xs text-gray-500 dark:text-white/50 mb-1">مدة المشروع</p>
+                  <p className="text-sm font-bold text-gray-800 dark:text-white">{selectedProject.duration}</p>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <h3 className="font-tajawal text-xl font-bold text-gold mb-3">وصف المشروع</h3>
+                <p className="text-gray-600 dark:text-white/60 leading-relaxed">{selectedProject.description}</p>
+              </div>
+
+              {/* Image Gallery */}
+              <div className="mb-6">
+                <h3 className="font-tajawal text-xl font-bold text-gold mb-3">معرض الصور</h3>
+                <div className="grid grid-cols-3 gap-3">
+                  {selectedProject.images.map((img, i) => (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        setActiveImageIndex(i);
+                        setShowVideo(false);
+                      }}
+                      className={`relative h-24 rounded-xl overflow-hidden border-2 transition-all duration-300 ${
+                        i === activeImageIndex ? 'border-gold shadow-lg shadow-gold/20' : 'border-transparent hover:border-gold/50'
+                      }`}
+                    >
+                      <img src={img} alt={`صورة ${i + 1}`} className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* PDF Download */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <a
+                  href={selectedProject.pdfUrl}
+                  download
+                  className="flex-1 py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold rounded-xl hover:shadow-[0_0_20px_rgba(201,168,76,0.3)] transition-all duration-300 flex items-center justify-center gap-2"
+                >
+                  <FileText className="w-5 h-5" />
+                  تحميل ملف تفاصيل المشروع (PDF)
+                </a>
+                <Link
+                  to="/contact"
+                  onClick={() => setSelectedProject(null)}
+                  className="flex-1 py-4 border-2 border-gold text-gold font-bold rounded-xl hover:bg-gold/10 transition-all duration-300 flex items-center justify-center gap-2"
+                >
+                  تواصل معنا للاستثمار
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </Layout>
+  );
+}
