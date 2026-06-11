@@ -11,11 +11,11 @@ const navLinks = [
   { path: '/services', label: 'خدماتنا' },
   { path: '/projects', label: 'مشاريعنا' },
   { path: '/team', label: 'فريقنا' },
-  { path: '/consultation', label: 'طلب استشارة' },
-  { { path: '/careers', label: 'التوظيف' },
+  { path: '/careers', label: 'التوظيف' },
   { path: '/invest', label: 'استثمر معنا' },
-  { path: '/contact', label: 'اتصل بنا' },
   { path: '/market', label: 'سوقنا' },
+    { path: '/consultation', label: 'طلب استشارة' },
+  { path: '/contact', label: 'اتصل بنا' },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -34,26 +34,26 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-white dark:bg-dark text-[#2D2A1E] dark:text-white font-tajawal transition-colors duration-300" dir="rtl">
       {/* Navigation */}
       <nav className="fixed top-0 right-0 left-0 z-50 bg-white/95 dark:bg-[#1a1a2e]/95 backdrop-blur-md border-b border-gold/30 dark:border-gold/20 transition-colors duration-300">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between mt-[0px] mr-[25.6px] mb-[0px] ml-[25.6px] pt-[12px] pr-[16px] pb-[12px] pl-[16px] rounded-none text-[16px] font-normal text-[#2D2A1E] bg-[#00000000] opacity-100">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-3 mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[16px] font-normal text-[#2D2A1E] bg-[#00000000] opacity-100">
             <img
               src="/assets/logo.jpeg"
               alt="إعمار الأصالة والمعاصرة"
               className="h-12 w-auto rounded-lg object-contain border-2 border-gold/50"
             />
-            <span className="font-tajawal md:text-base hidden sm:block text-[16px] font-bold text-[#D3B051]">
+            <span className="font-tajawal md:text-base hidden sm:block mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[16px] font-bold text-[#D3B051] bg-[#00000000] opacity-100">
               إعمار الأصالة والمعاصرة<br />Emmar Al Asala Wa Al Muasara
             </span>
           </Link>
 
           {/* Desktop Nav Links */}
-          <ul className="hidden lg:flex items-center gap-1 xl:gap-2">
+          <ul className="hidden lg:flex items-center gap-1 xl:gap-3">
             {navLinks.map((link) => (
               <li key={link.path}>
                 <Link
                   to={link.path}
-                  className={`px-2 py-2 rounded-md text-sm transition-colors duration-200 ${
+                  className={`px-3 py-2 rounded-md text-sm transition-colors duration-200 ${
                     location.pathname === link.path
                       ? 'text-gold font-bold border-b-2 border-gold'
                       : 'text-gray-700 dark:text-white/80 hover:text-gold hover:bg-gold/5'
