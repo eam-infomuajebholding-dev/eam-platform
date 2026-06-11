@@ -1,83 +1,71 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap');
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@layer base {
-  :root {
-    --background: 0 0% 5%;
-    --foreground: 0 0% 100%;
-
-    --card: 240 33% 13%;
-    --card-foreground: 0 0% 100%;
-
-    --popover: 240 33% 13%;
-    --popover-foreground: 0 0% 100%;
-
-    --primary: 240 28% 14%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 43 50% 54%;
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 240 10% 20%;
-    --muted-foreground: 0 0% 63%;
-
-    --accent: 45 65% 73%;
-    --accent-foreground: 240 28% 14%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 43 50% 54%;
-    --input: 240 10% 20%;
-    --ring: 43 50% 54%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 240 28% 14%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 43 50% 54%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 10% 20%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 43 50% 54%;
-    --sidebar-ring: 43 50% 54%;
-  }
+/* مثال: إذا كان عندك قسم Hero */
+.hero {
+  min-height: 100vh;
+  background: var(--bg-hero);
+  color: var(--text-primary);
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  html {
-    direction: rtl;
-  }
-
-  body {
-    @apply bg-dark text-white font-tajawal;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-playfair;
-  }
+.hero h1 {
+  color: var(--text-heading);
 }
 
-@layer utilities {
-  .gold-gradient {
-    @apply bg-gradient-to-r from-gold-dark via-gold to-gold-light;
-  }
+.hero p {
+  color: var(--text-secondary);
+}
 
-  .gold-text {
-    @apply bg-gradient-to-r from-gold-dark via-gold to-gold-light bg-clip-text text-transparent;
-  }
+/* قسم "لماذا تختارنا" */
+.why-us {
+  padding: 80px 20px;
+  text-align: center;
+  background: var(--bg-page);
+}
 
-  .gold-border {
-    @apply border-gold/30;
-  }
+.why-us h2 {
+  color: var(--text-heading);
+}
+
+/* البطاقات */
+.feature-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 45px 30px;
+  box-shadow: 0 4px 25px var(--shadow);
+}
+
+.feature-icon {
+  background: var(--bg-icon);
+  color: var(--accent-gold);
+  border: 2px solid var(--border-color);
+}
+
+.feature-card h3 {
+  color: var(--text-heading);
+}
+
+.feature-card p {
+  color: var(--text-secondary);
+}
+
+/* قسم "خدماتنا" */
+.services {
+  background: var(--bg-section);
+}
+
+.services h2 {
+  color: var(--text-heading);
+}
+
+.services-subtitle {
+  color: var(--text-secondary);
+}
+
+/* الفيديو */
+.video-overlay {
+  background: var(--overlay);
+  color: var(--text-light);
+}
+
+.video-overlay h2 {
+  color: var(--accent-gold);
 }
