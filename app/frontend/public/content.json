@@ -1,0 +1,68 @@
+{
+  "site": {
+    "title": "إعمار الأصالة والمعاصرة",
+    "logo": "/assets/logo.jpeg",
+    "email": "hr@emmar.com",
+    "phone": "0500000000"
+  },
+  "hero": {
+    "title": "إعمار الأصالة والمعاصرة",
+    "subtitle": "للاستشارات الهندسية",
+    "description": "شريكك الموثوق في الاستشارات الهندسية",
+    "video": "/video.mp4",
+    "buttonText": "اكتشف خدماتنا"
+  },
+  "about": {
+    "title": "من نحن",
+    "text": "نقدم خدمات استشارية هندسية متكاملة تجمع بين الأصالة والمعاصرة...",
+    "image": "رابط-الصورة-من-Cloudinary"
+  },
+  "services": {
+    "title": "خدماتنا",
+    "items": [
+      {
+        "title": "الخدمات الهندسية",
+        "description": "تصميم المخططات المعمارية...",
+        "image": "رابط-الصورة",
+        "link": "/engineering-services"
+      }
+    ]
+  },
+  "projects": [
+    {
+      "id": 1,
+      "name": "مجمع إعمار السكني",
+      "location": "الرياض - حي النرجس",
+      "type": "سكني",
+      "investmentAmount": "5,000,000 ريال",
+      "expectedReturn": "18% سنوياً",
+      "duration": "24 شهر",
+      "description": "مجمع سكني فاخر يتكون من 50 فيلا...",
+      "videoUrl": "رابط-الفيديو-من-Cloudinary",
+      "images": [
+        "رابط-الصورة-1",
+        "رابط-الصورة-2",
+        "رابط-الصورة-3"
+      ],
+      "pdfUrl": "رابط-PDF-من-Cloudinary",
+      "status": "available"
+    }
+  ],
+  "careers": {
+    "title": "انضم إلى فريقنا",
+    "description": "نرحب دائماً بالمواهب المتميزة...",
+    "email": "hr@emmar.com"
+  },
+  "invest": {
+    "title": "استثمر معنا",
+    "description": "فرص استثمارية واعدة في مشاريع عقارية متنوعة..."
+  },
+  "footer": {
+    "address": "الرياض، المملكة العربية السعودية",
+    "social": {
+      "twitter": "رابط",
+      "instagram": "رابط",
+      "linkedin": "رابط"
+    }
+  }
+}
