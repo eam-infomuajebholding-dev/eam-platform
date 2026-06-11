@@ -24,7 +24,6 @@ import Invest from './pages/Invest';
 import AuthCallback from './pages/AuthCallback';
 import AuthError from './pages/AuthError';
 import AdminDashboard from './pages/AdminDashboard';
-import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 
 const queryClient = new QueryClient();
 
@@ -49,7 +48,7 @@ const AppRoutes = () => (
     <Route path="/invest" element={<Invest />} />
     <Route path="/auth/callback" element={<AuthCallback />} />
     <Route path="/auth/error" element={<AuthError />} />
-    <Route path="/admin" element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>} />
+    <Route path="/admin" element={<AdminDashboard />} />
   </Routes>
 );
 
