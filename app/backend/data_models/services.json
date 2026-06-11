@@ -1,0 +1,43 @@
+{
+    "title": "services",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "Primary key, auto-increment"
+        },
+        "title": {
+            "type": "string",
+            "description": "Service title"
+        },
+        "description": {
+            "type": "string",
+            "description": "Service description"
+        },
+        "icon": {
+            "type": "string",
+            "description": "Icon name or class"
+        },
+        "image_url": {
+            "type": "string",
+            "description": "Service image URL"
+        },
+        "page_path": {
+            "type": "string",
+            "description": "Link to service detail page"
+        },
+        "sort_order": {
+            "type": "integer",
+            "description": "Display order"
+        },
+        "is_active": {
+            "type": "boolean",
+            "description": "Whether service is active"
+        }
+    },
+    "required": [
+        "id",
+        "title",
+        "description"
+    ]
+}

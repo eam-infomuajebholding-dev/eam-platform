@@ -1,0 +1,35 @@
+{
+    "title": "site_videos",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "Primary key, auto-increment"
+        },
+        "video_key": {
+            "type": "string",
+            "description": "Unique video identifier like hero_background, about_video, services_video"
+        },
+        "video_url": {
+            "type": "string",
+            "description": "Video URL or file path"
+        },
+        "title": {
+            "type": "string",
+            "description": "Video title for admin reference"
+        },
+        "page": {
+            "type": "string",
+            "description": "Which page this video belongs to"
+        },
+        "is_active": {
+            "type": "boolean",
+            "description": "Whether the video is currently active"
+        }
+    },
+    "required": [
+        "id",
+        "video_key",
+        "video_url"
+    ]
+}

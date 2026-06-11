@@ -1,0 +1,36 @@
+{
+    "title": "navigation_items",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "Primary key, auto-increment"
+        },
+        "label": {
+            "type": "string",
+            "description": "Display label in Arabic"
+        },
+        "path": {
+            "type": "string",
+            "description": "Route path like /about"
+        },
+        "parent_id": {
+            "type": "integer",
+            "description": "Parent navigation item id for submenus, null for top level"
+        },
+        "sort_order": {
+            "type": "integer",
+            "description": "Order position"
+        },
+        "is_visible": {
+            "type": "boolean",
+            "description": "Whether the item is visible"
+        }
+    },
+    "required": [
+        "id",
+        "label",
+        "path",
+        "sort_order"
+    ]
+}

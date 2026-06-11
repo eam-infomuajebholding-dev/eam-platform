@@ -3,6 +3,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { AuthProvider } from '@/contexts/AuthContext';
 import Index from './pages/Index';
 import EngineeringServices from './pages/EngineeringServices';
 import GovernmentServices from './pages/GovernmentServices';
@@ -22,6 +23,8 @@ import Careers from './pages/Careers';
 import Invest from './pages/Invest';
 import AuthCallback from './pages/AuthCallback';
 import AuthError from './pages/AuthError';
+import AdminDashboard from './pages/AdminDashboard';
+import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 
 const queryClient = new QueryClient();
 
@@ -46,6 +49,7 @@ const AppRoutes = () => (
     <Route path="/invest" element={<Invest />} />
     <Route path="/auth/callback" element={<AuthCallback />} />
     <Route path="/auth/error" element={<AuthError />} />
+    <Route path="/admin" element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>} />
   </Routes>
 );
 
@@ -53,10 +57,12 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <ThemeProvider>
-        <Toaster />
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
+        <AuthProvider>
+          <Toaster />
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </AuthProvider>
       </ThemeProvider>
     </TooltipProvider>
   </QueryClientProvider>
