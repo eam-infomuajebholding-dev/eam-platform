@@ -1,35 +1,34 @@
-// ========== في أعلى الملف ==========
-// منع فلاش الوضع الفاتح قبل تحميل React
-(function() {
-  const saved = localStorage.getItem('theme');
-  const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  if (saved === 'dark' || (!saved && systemDark)) {
-    document.documentElement.classList.add('dark');
+import { createRoot } from 'react-dom/client';
+import App from './App.tsx';
+import './index.css';
+import { loadRuntimeConfig } from './lib/config.ts';
+
+// Load runtime configuration before rendering the app
+async function initializeApp() {
+  // Prerendered blog pages are served as pure static HTML for SEO.
+  // Intentionally skip React mounting so the crawler-facing markup stays
+  // lightweight and self-contained — no client-side hydration needed.
+  if (
+    document
+      .querySelector('meta[name="prerender-static-page"]')
+      ?.getAttribute('content') === 'blog'
+  ) {
+    return;
   }
-})();
 
-// ========== داخل الكومبوننت ==========
-function App() {
-  
-  // دالة تبديل الوضع
-  const toggleTheme = () => {
-    const html = document.documentElement;
-    const isDark = html.classList.toggle('dark');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-  };
+  try {
+    await loadRuntimeConfig();
+    console.log('Runtime configuration loaded successfully');
+  } catch (error) {
+    console.warn(
+      'Failed to load runtime configuration, using defaults:',
+      error
+    );
+  }
 
-  return (
-    <div>
-      {/* زر التبديل */}
-      <button 
-        className="theme-toggle" 
-        onClick={toggleTheme}
-        aria-label="تبديل الوضع"
-      >
-        {document.documentElement.classList.contains('dark') ? '☀️' : '🌙'}
-      </button>
-
-      {/* باقي المحتوى */}
-    </div>
-  );
+  // Render the app
+  createRoot(document.getElementById('root')!).render(<App />);
 }
+
+// Initialize the app
+initializeApp();
