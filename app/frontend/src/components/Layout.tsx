@@ -11,9 +11,9 @@ const navLinks = [
   { path: '/services', label: 'خدماتنا' },
   { path: '/projects', label: 'مشاريعنا' },
   { path: '/team', label: 'فريقنا' },
-  { path: '/careers', label: 'التوظيف' },
   { path: '/consultation', label: 'طلب استشارة' },
- { path: '/invest', label: 'استثمر معنا' },
+  { { path: '/careers', label: 'التوظيف' },
+  { path: '/invest', label: 'استثمر معنا' },
   { path: '/contact', label: 'اتصل بنا' },
   { path: '/market', label: 'سوقنا' },
 ];
