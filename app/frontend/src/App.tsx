@@ -45,7 +45,7 @@ const AppRoutes = () => (
     <Route path="/consultation" element={<Consultation />} />
     <Route path="/market" element={<Market />} />
     <Route path="/contact" element={<Contact />} />
-    <Route path="/careers" element={<Careers />} />
+   <Route path="/careers" element={<Careers />} />
     <Route path="/invest" element={<Invest />} />
     <Route path="/admin" element={<Admin />} />
     <Route path="/auth/callback" element={<AuthCallback />} />
