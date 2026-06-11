@@ -1,20 +1,14 @@
----
-last_updated: 2026-05-14T09:14:20Z
----
-
 # Requirements & Progress
 
 ## Requirements Overview
-
-## User Stories
+Build an admin dashboard for the engineering consulting company website that allows content management through the existing backend APIs.
 
 ## Task Breakdown
-| ID | Task | Assignee | Status | Deps |
-|----|------|----------|--------|------|
+- [x] Create AdminDashboard page with tabs for: Page Content, Videos, Navigation, Services, Projects, Site Settings
+- [x] Wire up API calls using @metagptx/web-sdk client to existing backend endpoints
+- [x] Add admin route to App.tsx with ProtectedAdminRoute wrapper
+- [x] Run lint and build checks
 
 ## Progress Log
-
-
-> This file was auto-generated and has not been fully adapted.
-> For project details, refer to .wiki.md (may be outdated); current code is authoritative.
-> You can trigger full adaptation via the frontend at any time.
+- 2026-06-11: Starting admin dashboard implementation with full CRUD for all backend entities
+- 2026-06-11: Admin dashboard created with 6 tabs, full CRUD, React Query, Arabic RTL UI. Lint and build pass.

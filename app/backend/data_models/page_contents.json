@@ -1,0 +1,35 @@
+{
+    "title": "page_contents",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "Primary key, auto-increment"
+        },
+        "page_key": {
+            "type": "string",
+            "description": "Unique page identifier like home, about, contact, careers, invest"
+        },
+        "section_key": {
+            "type": "string",
+            "description": "Section within the page like hero, intro, details"
+        },
+        "title": {
+            "type": "string",
+            "description": "Section title"
+        },
+        "content": {
+            "type": "string",
+            "description": "Section content text"
+        },
+        "sort_order": {
+            "type": "integer",
+            "description": "Order within the page"
+        }
+    },
+    "required": [
+        "id",
+        "page_key",
+        "section_key"
+    ]
+}

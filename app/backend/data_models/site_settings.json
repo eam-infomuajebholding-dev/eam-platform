@@ -1,0 +1,27 @@
+{
+    "title": "site_settings",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "Primary key, auto-increment"
+        },
+        "setting_key": {
+            "type": "string",
+            "description": "Setting key name like primary_color, secondary_color, bg_color, text_color, font_family"
+        },
+        "setting_value": {
+            "type": "string",
+            "description": "Setting value"
+        },
+        "category": {
+            "type": "string",
+            "description": "Category: colors, fonts, general"
+        }
+    },
+    "required": [
+        "id",
+        "setting_key",
+        "setting_value"
+    ]
+}

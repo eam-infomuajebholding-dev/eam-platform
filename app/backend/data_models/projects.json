@@ -1,0 +1,55 @@
+{
+    "title": "projects",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "Primary key, auto-increment"
+        },
+        "name": {
+            "type": "string",
+            "description": "Project name"
+        },
+        "location": {
+            "type": "string",
+            "description": "Project location"
+        },
+        "type": {
+            "type": "string",
+            "description": "Project type"
+        },
+        "investment_amount": {
+            "type": "string",
+            "description": "Investment amount"
+        },
+        "expected_return": {
+            "type": "string",
+            "description": "Expected return percentage"
+        },
+        "duration": {
+            "type": "string",
+            "description": "Project duration"
+        },
+        "description": {
+            "type": "string",
+            "description": "Project description"
+        },
+        "video_url": {
+            "type": "string",
+            "description": "Project video URL"
+        },
+        "image_url": {
+            "type": "string",
+            "description": "Main project image"
+        },
+        "status": {
+            "type": "string",
+            "description": "Project status: active, completed, upcoming"
+        }
+    },
+    "required": [
+        "id",
+        "name",
+        "description"
+    ]
+}
