@@ -6,8 +6,10 @@ import Footer from './Footer';
 import AIChatbot from './AIChatbot';
 import EditToolbar from './admin/EditToolbar';
 import { GlobalEditOverlay, applySavedEdits } from './admin/InlineEditable';
+import SectionManager from './admin/SectionManager';
 import { getPageBackground, type PageBackground } from './admin/PageBackgroundEditor';
 import { getVideoFromIDB } from '@/lib/videoStorage';
+import { getCustomNavLinks, type CustomNavLink } from './admin/PageManager';
 
 const navLinks = [
   { path: '/', label: 'الرئيسية' },
@@ -28,7 +30,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [isToggling, setIsToggling] = useState(false);
   const [pageBg, setPageBg] = useState<PageBackground | null>(null);
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
+  const [customNavLinks, setCustomNavLinks] = useState<CustomNavLink[]>([]);
   const { theme, toggleTheme } = useTheme();
+
+  // Load custom nav links
+  useEffect(() => {
+    const loadCustomLinks = () => {
+      setCustomNavLinks(getCustomNavLinks());
+    };
+    loadCustomLinks();
+    window.addEventListener('nav-links-changed', loadCustomLinks);
+    return () => window.removeEventListener('nav-links-changed', loadCustomLinks);
+  }, []);
 
   // Load and listen for background changes
   useEffect(() => {
@@ -88,9 +101,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }, [toggleTheme]);
 
   return (
-    <div className="min-h-screen bg-background dark:bg-[#0c1a36] text-[#2D2A1E] dark:text-white font-tajawal transition-colors duration-300" dir="rtl">
+    <div className="min-h-screen bg-background dark:bg-[#111111] text-[#2D2A1E] dark:text-white font-tajawal transition-colors duration-300" dir="rtl">
       {/* Navigation */}
-      <nav className="fixed top-0 right-0 left-0 z-50 bg-white/95 dark:bg-[#132347]/95 backdrop-blur-md border-b border-gold/30 dark:border-gold/20 transition-colors duration-300">
+      <nav className="fixed top-0 right-0 left-0 z-50 bg-white/95 dark:bg-[#1a1a1a]/95 backdrop-blur-md border-b border-gold/30 dark:border-gold/20 transition-colors duration-300">
         <div className="container mx-auto py-3 px-4 flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[16px] font-normal text-[#2D2A1E] bg-[#00000000] opacity-100">
@@ -106,7 +119,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
           {/* Desktop Nav Links */}
           <ul className="hidden lg:flex items-center gap-1 xl:gap-3">
-            {navLinks.map((link) => (
+            {[...navLinks, ...customNavLinks].map((link) => (
               <li key={link.path}>
                 <Link
                   to={link.path}
@@ -168,9 +181,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-white/98 dark:bg-[#132347]/98 backdrop-blur-md border-t border-gold/20 dark:border-gold/10 transition-colors duration-300">
+          <div className="lg:hidden bg-white/98 dark:bg-[#1a1a1a]/98 backdrop-blur-md border-t border-gold/20 dark:border-gold/10 transition-colors duration-300">
             <ul className="container mx-auto px-4 py-4 flex flex-col gap-2">
-              {navLinks.map((link) => (
+              {[...navLinks, ...customNavLinks].map((link) => (
                 <li key={link.path}>
                   <Link
                     to={link.path}
@@ -234,6 +247,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       {/* Global Edit Overlay (event delegation approach) */}
       <GlobalEditOverlay />
+
+      {/* Section Manager (add/delete sections in edit mode) */}
+      <SectionManager />
     </div>
   );
 }

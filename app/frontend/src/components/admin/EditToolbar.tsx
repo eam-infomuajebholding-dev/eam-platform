@@ -1,12 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 import { useEditMode } from '@/contexts/EditModeContext';
-import { PenSquare, Lock, X, Paintbrush } from 'lucide-react';
+import { PenSquare, Lock, X, Paintbrush, FileText } from 'lucide-react';
 import PageBackgroundEditor from './PageBackgroundEditor';
+import PageManager from './PageManager';
 
 export default function EditToolbar() {
   const { isEditMode, isAuthenticated, toggleEditMode, login, logout } = useEditMode();
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const [showBgEditor, setShowBgEditor] = useState(false);
+  const [showPageManager, setShowPageManager] = useState(false);
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const popupRef = useRef<HTMLDivElement>(null);
@@ -108,9 +110,9 @@ export default function EditToolbar() {
         </div>
       )}
 
-      {/* Edit Mode Active Banner - fixed at top */}
+      {/* Edit Mode Active Banner - fixed below navbar */}
       {isEditMode && (
-        <div className="fixed top-0 left-0 right-0 z-[9999] bg-[#D3B051]/95 backdrop-blur-sm shadow-lg">
+        <div className="fixed top-[72px] left-0 right-0 z-[9999] bg-[#D3B051]/95 backdrop-blur-sm shadow-lg">
           <div className="container mx-auto px-4 py-2 flex items-center justify-between" dir="rtl">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-green-600 animate-pulse" />
@@ -125,6 +127,13 @@ export default function EditToolbar() {
               >
                 <Paintbrush className="h-3.5 w-3.5" />
                 خلفية الصفحة
+              </button>
+              <button
+                onClick={() => setShowPageManager(true)}
+                className="flex items-center gap-1 px-3 py-1 rounded-md bg-[#1a1a2e]/80 text-[#D3B051] text-sm font-medium hover:bg-[#1a1a2e] transition-colors"
+              >
+                <FileText className="h-3.5 w-3.5" />
+                إدارة الصفحات
               </button>
               <button
                 onClick={() => {
@@ -148,6 +157,9 @@ export default function EditToolbar() {
 
       {/* Page Background Editor */}
       <PageBackgroundEditor open={showBgEditor} onClose={() => setShowBgEditor(false)} />
+
+      {/* Page Manager */}
+      <PageManager open={showPageManager} onClose={() => setShowPageManager(false)} />
     </>
   );
 }

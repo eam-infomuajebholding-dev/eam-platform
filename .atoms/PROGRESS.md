@@ -28,3 +28,4 @@ Redesign admin dashboard as an inline "Edit Mode" overlay on the actual website,
 - 2026-06-12: Added social media icons to footer (Facebook, Instagram, X/Twitter, Snapchat, LinkedIn, TikTok, YouTube, Website) with editable links in admin edit mode
 - 2026-06-12: Unified Careers and Invest page hero sections to match About/Contact consistent style
 - 2026-06-12: Rewrote edit mode from hover-based toolbar to click-based editing - elements are now directly clickable to edit (no more disappearing toolbar)
+- 2026-06-12: Fixed all 5 reported issues: (1) Dark mode changed to gray-only shades, (2) Edit toolbar repositioned below navbar, (3) Image/video persistence via IndexedDB, (4) Section add/delete management in edit mode, (5) Page management dialog added
