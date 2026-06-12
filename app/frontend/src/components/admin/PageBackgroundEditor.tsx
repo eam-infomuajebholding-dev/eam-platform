@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { X, Palette, ImageIcon, Video } from 'lucide-react';
+import { saveVideoToIDB, removeVideoFromIDB, getIDBKey } from '@/lib/videoStorage';
 
 export interface PageBackground {
   type: 'color' | 'image' | 'video';
@@ -123,9 +124,19 @@ export default function PageBackgroundEditor({ open, onClose }: Props) {
   const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const url = URL.createObjectURL(file);
-      setVideoUrl(url);
-      save({ type: 'video', value: url, opacity: videoOpacity });
+      // Show preview immediately with object URL
+      const previewUrl = URL.createObjectURL(file);
+      setVideoUrl(previewUrl);
+
+      // Save to IndexedDB for persistence
+      const idbKey = getIDBKey(location.pathname);
+      saveVideoToIDB(idbKey, file).then(() => {
+        // Store reference in localStorage pointing to IndexedDB
+        save({ type: 'video', value: `idb://${idbKey}`, opacity: videoOpacity });
+      }).catch(() => {
+        // Fallback: still save the reference even if IDB fails
+        save({ type: 'video', value: `idb://${idbKey}`, opacity: videoOpacity });
+      });
     }
   };
 
@@ -137,6 +148,10 @@ export default function PageBackgroundEditor({ open, onClose }: Props) {
   };
 
   const handleRemoveBackground = () => {
+    // Clean up IndexedDB video if exists
+    const idbKey = getIDBKey(location.pathname);
+    removeVideoFromIDB(idbKey).catch(() => { /* ignore */ });
+
     localStorage.removeItem(getStorageKey(location.pathname));
     setImageUrl('');
     setVideoUrl('');

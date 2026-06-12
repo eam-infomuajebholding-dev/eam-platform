@@ -7,6 +7,7 @@ import AIChatbot from './AIChatbot';
 import EditToolbar from './admin/EditToolbar';
 import { GlobalEditOverlay, applySavedEdits } from './admin/InlineEditable';
 import { getPageBackground, type PageBackground } from './admin/PageBackgroundEditor';
+import { getVideoFromIDB } from '@/lib/videoStorage';
 
 const navLinks = [
   { path: '/', label: 'الرئيسية' },
@@ -26,6 +27,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
   const [pageBg, setPageBg] = useState<PageBackground | null>(null);
+  const [videoSrc, setVideoSrc] = useState<string | null>(null);
   const { theme, toggleTheme } = useTheme();
 
   // Load and listen for background changes
@@ -37,6 +39,38 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     window.addEventListener('page-bg-changed', loadBg);
     return () => window.removeEventListener('page-bg-changed', loadBg);
   }, [location.pathname]);
+
+  // Resolve video source from IndexedDB when pageBg is video
+  useEffect(() => {
+    let revoked = false;
+    let currentUrl: string | null = null;
+
+    if (pageBg && pageBg.type === 'video') {
+      if (pageBg.value.startsWith('idb://')) {
+        const idbKey = pageBg.value.replace('idb://', '');
+        getVideoFromIDB(idbKey).then((url) => {
+          if (!revoked) {
+            currentUrl = url;
+            setVideoSrc(url);
+          } else if (url) {
+            URL.revokeObjectURL(url);
+          }
+        });
+      } else {
+        // Legacy or direct URL
+        setVideoSrc(pageBg.value);
+      }
+    } else {
+      setVideoSrc(null);
+    }
+
+    return () => {
+      revoked = true;
+      if (currentUrl && currentUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(currentUrl);
+      }
+    };
+  }, [pageBg]);
 
   // Apply saved inline edits on page load and route change
   useEffect(() => {
@@ -174,11 +208,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             }}
           />
         )}
-        {pageBg && pageBg.type === 'video' && (
+        {pageBg && pageBg.type === 'video' && videoSrc && (
           <video
+            key={videoSrc}
             className="absolute inset-0 z-0 w-full h-full object-cover"
             style={{ opacity: pageBg.opacity ?? 0.4 }}
-            src={pageBg.value}
+            src={videoSrc}
             autoPlay
             loop
             muted
