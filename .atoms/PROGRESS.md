@@ -25,3 +25,4 @@ Redesign admin dashboard as an inline "Edit Mode" overlay on the actual website,
 - 2026-06-12: Unified colors across pages (Contact page bg-gray-800 → bg-gray-50 in light mode)
 - 2026-06-12: Invest page add/delete projects with localStorage persistence and admin edit mode integration
 - 2026-06-12: Fixed video background persistence - videos now stored in IndexedDB instead of temporary blob URLs, ensuring they persist across page reloads
+- 2026-06-12: Added social media icons to footer (Facebook, Instagram, X/Twitter, Snapchat, LinkedIn, TikTok, YouTube, Website) with editable links in admin edit mode
