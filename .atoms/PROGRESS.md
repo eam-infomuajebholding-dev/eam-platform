@@ -34,3 +34,5 @@ Redesign admin dashboard as an inline "Edit Mode" overlay on the actual website,
 - 2026-06-12: Enhanced all three pages (Invest, Projects, Team) with full upload support: multi-image, video, and PDF file uploads in add forms
 - 2026-06-12: Updated all hardcoded dark backgrounds across all pages to match new gray theme
 - 2026-06-12: Fixed data persistence issue - switched all three pages (Invest, Projects, Team) from localStorage (5MB limit) to IndexedDB (unlimited) so uploaded media files are saved correctly
+- 2026-06-12: Added Cloudinary cloud upload integration - files automatically upload to Cloudinary when configured (VITE_CLOUDINARY_CLOUD_NAME + VITE_CLOUDINARY_UPLOAD_PRESET), with graceful fallback to local base64/IndexedDB storage
+- 2026-06-12: Cloudinary integration completed for all upload points: Invest, Projects, Team pages + PageBackgroundEditor component. Lint and build pass cleanly.

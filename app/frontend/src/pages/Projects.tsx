@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Calendar, MapPin, Plus, X, FileText, ChevronLeft, Building2, Video, Play, Image } from 'lucide-react';
+import { Calendar, MapPin, Plus, X, FileText, ChevronLeft, Building2, Video, Play, Image, Loader2 } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { useEditMode } from '@/contexts/EditModeContext';
 import { toast } from 'sonner';
 import { savePageData, loadPageData } from '@/lib/dataStorage';
+import { isCloudinaryConfigured, uploadToCloudinary, uploadMultipleToCloudinary } from '@/lib/cloudinary';
 
 interface Project {
   id: number;
@@ -150,19 +151,45 @@ export default function Projects() {
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [uploadingPdf, setUploadingPdf] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
+    const fileArray = Array.from(files);
+    const names = fileArray.map((f) => f.name);
+
+    if (isCloudinaryConfigured()) {
+      setUploadingImages(true);
+      try {
+        const urls = await uploadMultipleToCloudinary(fileArray);
+        setFormImages(urls);
+        setFormImageNames(names);
+        setFormImage(urls[0] || '');
+        toast.success('تم رفع الصور بنجاح إلى السحابة');
+      } catch (err) {
+        console.error('Cloudinary upload error:', err);
+        toast.error('فشل الرفع إلى السحابة، جاري الحفظ محلياً...');
+        fallbackImageUpload(fileArray, names);
+      } finally {
+        setUploadingImages(false);
+      }
+    } else {
+      fallbackImageUpload(fileArray, names);
+    }
+  };
+
+  const fallbackImageUpload = (fileArray: File[], names: string[]) => {
     const results: string[] = [];
-    const names: string[] = [];
     let loaded = 0;
-    Array.from(files).forEach((file) => {
-      names.push(file.name);
+    fileArray.forEach((file) => {
       const reader = new FileReader();
       reader.onload = () => {
         results.push(reader.result as string);
         loaded++;
-        if (loaded === files.length) {
+        if (loaded === fileArray.length) {
           setFormImages(results);
           setFormImageNames(names);
           setFormImage(results[0] || '');
@@ -172,24 +199,61 @@ export default function Projects() {
     });
   };
 
-  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setFormVideoData(reader.result as string);
-      setFormVideoName(file.name);
-    };
-    reader.readAsDataURL(file);
+
+    if (isCloudinaryConfigured()) {
+      setUploadingVideo(true);
+      try {
+        const url = await uploadToCloudinary(file);
+        setFormVideoData(url);
+        setFormVideoName(file.name);
+        toast.success('تم رفع الفيديو بنجاح إلى السحابة');
+      } catch (err) {
+        console.error('Cloudinary video upload error:', err);
+        toast.error('فشل الرفع إلى السحابة، جاري الحفظ محلياً...');
+        fallbackSingleUpload(file, setFormVideoData, setFormVideoName);
+      } finally {
+        setUploadingVideo(false);
+      }
+    } else {
+      fallbackSingleUpload(file, setFormVideoData, setFormVideoName);
+    }
   };
 
-  const handlePdfUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (isCloudinaryConfigured()) {
+      setUploadingPdf(true);
+      try {
+        const url = await uploadToCloudinary(file);
+        setFormPdfData(url);
+        setFormPdfName(file.name);
+        toast.success('تم رفع الملف بنجاح إلى السحابة');
+      } catch (err) {
+        console.error('Cloudinary PDF upload error:', err);
+        toast.error('فشل الرفع إلى السحابة، جاري الحفظ محلياً...');
+        fallbackSingleUpload(file, setFormPdfData, setFormPdfName);
+      } finally {
+        setUploadingPdf(false);
+      }
+    } else {
+      fallbackSingleUpload(file, setFormPdfData, setFormPdfName);
+    }
+  };
+
+  const fallbackSingleUpload = (
+    file: File,
+    setData: (val: string) => void,
+    setName: (val: string) => void
+  ) => {
     const reader = new FileReader();
     reader.onload = () => {
-      setFormPdfData(reader.result as string);
-      setFormPdfName(file.name);
+      setData(reader.result as string);
+      setName(file.name);
     };
     reader.readAsDataURL(file);
   };
@@ -535,12 +599,12 @@ export default function Projects() {
               <div>
                 <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">صور المشروع (يمكن اختيار عدة صور)</label>
                 <div className="flex items-center gap-3">
-                  <label className="flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors">
-                    <Image className="w-5 h-5 text-gold" />
+                  <label className={`flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors ${uploadingImages ? 'opacity-60 pointer-events-none' : ''}`}>
+                    {uploadingImages ? <Loader2 className="w-5 h-5 text-gold animate-spin" /> : <Image className="w-5 h-5 text-gold" />}
                     <span className="text-sm text-gray-600 dark:text-white/60 font-tajawal">
-                      {formImageNames.length > 0 ? `تم اختيار ${formImageNames.length} صورة` : 'اختر صور'}
+                      {uploadingImages ? 'جاري الرفع...' : formImageNames.length > 0 ? `تم اختيار ${formImageNames.length} صورة` : 'اختر صور'}
                     </span>
-                    <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
+                    <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" disabled={uploadingImages} />
                   </label>
                 </div>
                 {formImages.length > 0 && (
@@ -556,12 +620,12 @@ export default function Projects() {
               <div>
                 <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">فيديو المشروع</label>
                 <div className="flex items-center gap-3">
-                  <label className="flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors">
-                    <Video className="w-5 h-5 text-gold" />
+                  <label className={`flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors ${uploadingVideo ? 'opacity-60 pointer-events-none' : ''}`}>
+                    {uploadingVideo ? <Loader2 className="w-5 h-5 text-gold animate-spin" /> : <Video className="w-5 h-5 text-gold" />}
                     <span className="text-sm text-gray-600 dark:text-white/60 font-tajawal">
-                      {formVideoName || 'اختر فيديو'}
+                      {uploadingVideo ? 'جاري الرفع...' : formVideoName || 'اختر فيديو'}
                     </span>
-                    <input type="file" accept="video/*" onChange={handleVideoUpload} className="hidden" />
+                    <input type="file" accept="video/*" onChange={handleVideoUpload} className="hidden" disabled={uploadingVideo} />
                   </label>
                 </div>
               </div>
@@ -570,12 +634,12 @@ export default function Projects() {
               <div>
                 <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">ملف PDF</label>
                 <div className="flex items-center gap-3">
-                  <label className="flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors">
-                    <FileText className="w-5 h-5 text-gold" />
+                  <label className={`flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors ${uploadingPdf ? 'opacity-60 pointer-events-none' : ''}`}>
+                    {uploadingPdf ? <Loader2 className="w-5 h-5 text-gold animate-spin" /> : <FileText className="w-5 h-5 text-gold" />}
                     <span className="text-sm text-gray-600 dark:text-white/60 font-tajawal">
-                      {formPdfName || 'اختر ملف PDF'}
+                      {uploadingPdf ? 'جاري الرفع...' : formPdfName || 'اختر ملف PDF'}
                     </span>
-                    <input type="file" accept=".pdf" onChange={handlePdfUpload} className="hidden" />
+                    <input type="file" accept=".pdf" onChange={handlePdfUpload} className="hidden" disabled={uploadingPdf} />
                   </label>
                 </div>
               </div>

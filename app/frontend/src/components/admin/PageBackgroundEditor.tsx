@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { X, Palette, ImageIcon, Video } from 'lucide-react';
+import { X, Palette, ImageIcon, Video, Loader2 } from 'lucide-react';
 import { saveVideoToIDB, removeVideoFromIDB, getIDBKey } from '@/lib/videoStorage';
+import { isCloudinaryConfigured, uploadToCloudinary } from '@/lib/cloudinary';
 
 export interface PageBackground {
   type: 'color' | 'image' | 'video';
@@ -44,6 +45,7 @@ export default function PageBackgroundEditor({ open, onClose }: Props) {
   const [imageOpacity, setImageOpacity] = useState(0.3);
   const [videoUrl, setVideoUrl] = useState('');
   const [videoOpacity, setVideoOpacity] = useState(0.4);
+  const [uploading, setUploading] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
   // Load existing settings
@@ -101,9 +103,29 @@ export default function PageBackgroundEditor({ open, onClose }: Props) {
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (!file) return;
+
+    if (isCloudinaryConfigured()) {
+      setUploading(true);
+      try {
+        const url = await uploadToCloudinary(file);
+        setImageUrl(url);
+        save({ type: 'image', value: url, opacity: imageOpacity });
+      } catch {
+        // Fallback to base64 if Cloudinary fails
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const url = ev.target?.result as string;
+          setImageUrl(url);
+          save({ type: 'image', value: url, opacity: imageOpacity });
+        };
+        reader.readAsDataURL(file);
+      } finally {
+        setUploading(false);
+      }
+    } else {
       const reader = new FileReader();
       reader.onload = (ev) => {
         const url = ev.target?.result as string;
@@ -121,9 +143,31 @@ export default function PageBackgroundEditor({ open, onClose }: Props) {
     }
   };
 
-  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (!file) return;
+
+    if (isCloudinaryConfigured()) {
+      setUploading(true);
+      // Show preview immediately
+      const previewUrl = URL.createObjectURL(file);
+      setVideoUrl(previewUrl);
+      try {
+        const url = await uploadToCloudinary(file);
+        setVideoUrl(url);
+        save({ type: 'video', value: url, opacity: videoOpacity });
+      } catch {
+        // Fallback to IndexedDB if Cloudinary fails
+        const idbKey = getIDBKey(location.pathname);
+        saveVideoToIDB(idbKey, file).then(() => {
+          save({ type: 'video', value: `idb://${idbKey}`, opacity: videoOpacity });
+        }).catch(() => {
+          save({ type: 'video', value: `idb://${idbKey}`, opacity: videoOpacity });
+        });
+      } finally {
+        setUploading(false);
+      }
+    } else {
       // Show preview immediately with object URL
       const previewUrl = URL.createObjectURL(file);
       setVideoUrl(previewUrl);
@@ -131,10 +175,8 @@ export default function PageBackgroundEditor({ open, onClose }: Props) {
       // Save to IndexedDB for persistence
       const idbKey = getIDBKey(location.pathname);
       saveVideoToIDB(idbKey, file).then(() => {
-        // Store reference in localStorage pointing to IndexedDB
         save({ type: 'video', value: `idb://${idbKey}`, opacity: videoOpacity });
       }).catch(() => {
-        // Fallback: still save the reference even if IDB fails
         save({ type: 'video', value: `idb://${idbKey}`, opacity: videoOpacity });
       });
     }
@@ -249,9 +291,16 @@ export default function PageBackgroundEditor({ open, onClose }: Props) {
                   type="file"
                   accept="image/*"
                   onChange={handleImageUpload}
-                  className="w-full text-sm text-white/60 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-[#D3B051] file:text-[#1a1a2e] hover:file:bg-[#D3B051]/80 file:cursor-pointer"
+                  disabled={uploading}
+                  className="w-full text-sm text-white/60 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-[#D3B051] file:text-[#1a1a2e] hover:file:bg-[#D3B051]/80 file:cursor-pointer disabled:opacity-50"
                 />
               </div>
+              {uploading && activeTab === 'image' && (
+                <div className="flex items-center gap-2 text-[#D3B051] text-sm">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>جاري رفع الصورة...</span>
+                </div>
+              )}
               {imageUrl && (
                 <div className="rounded-lg overflow-hidden border border-white/10">
                   <img src={imageUrl} alt="معاينة" className="w-full h-32 object-cover" />
@@ -282,9 +331,16 @@ export default function PageBackgroundEditor({ open, onClose }: Props) {
                   type="file"
                   accept="video/*"
                   onChange={handleVideoUpload}
-                  className="w-full text-sm text-white/60 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-[#D3B051] file:text-[#1a1a2e] hover:file:bg-[#D3B051]/80 file:cursor-pointer"
+                  disabled={uploading}
+                  className="w-full text-sm text-white/60 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-[#D3B051] file:text-[#1a1a2e] hover:file:bg-[#D3B051]/80 file:cursor-pointer disabled:opacity-50"
                 />
               </div>
+              {uploading && activeTab === 'video' && (
+                <div className="flex items-center gap-2 text-[#D3B051] text-sm">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>جاري رفع الفيديو...</span>
+                </div>
+              )}
               {videoUrl && (
                 <div className="rounded-lg overflow-hidden border border-white/10">
                   <video src={videoUrl} className="w-full h-32 object-cover" muted autoPlay loop />

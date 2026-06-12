@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Plus, X, FileText, Upload, User, Video, Play } from 'lucide-react';
+import { Plus, X, FileText, Upload, User, Video, Play, Loader2 } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { useEditMode } from '@/contexts/EditModeContext';
 import { toast } from 'sonner';
 import { savePageData, loadPageData } from '@/lib/dataStorage';
+import { isCloudinaryConfigured, uploadToCloudinary } from '@/lib/cloudinary';
 
 interface TeamMember {
   id: number;
@@ -115,34 +116,86 @@ export default function Team() {
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [uploadingPdf, setUploadingPdf] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setFormImage(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+
+    if (isCloudinaryConfigured()) {
+      setUploadingImage(true);
+      try {
+        const url = await uploadToCloudinary(file);
+        setFormImage(url);
+        toast.success('تم رفع الصورة بنجاح إلى السحابة');
+      } catch (err) {
+        console.error('Cloudinary upload error:', err);
+        toast.error('فشل الرفع إلى السحابة، جاري الحفظ محلياً...');
+        fallbackReadAsDataURL(file, setFormImage);
+      } finally {
+        setUploadingImage(false);
+      }
+    } else {
+      fallbackReadAsDataURL(file, setFormImage);
+    }
   };
 
-  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setFormVideoData(reader.result as string);
+
+    if (isCloudinaryConfigured()) {
+      setUploadingVideo(true);
+      try {
+        const url = await uploadToCloudinary(file);
+        setFormVideoData(url);
+        setFormVideoName(file.name);
+        toast.success('تم رفع الفيديو بنجاح إلى السحابة');
+      } catch (err) {
+        console.error('Cloudinary video upload error:', err);
+        toast.error('فشل الرفع إلى السحابة، جاري الحفظ محلياً...');
+        fallbackReadAsDataURL(file, setFormVideoData);
+        setFormVideoName(file.name);
+      } finally {
+        setUploadingVideo(false);
+      }
+    } else {
+      fallbackReadAsDataURL(file, setFormVideoData);
       setFormVideoName(file.name);
-    };
-    reader.readAsDataURL(file);
+    }
   };
 
-  const handlePdfUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (isCloudinaryConfigured()) {
+      setUploadingPdf(true);
+      try {
+        const url = await uploadToCloudinary(file);
+        setFormPdfData(url);
+        setFormPdfName(file.name);
+        toast.success('تم رفع الملف بنجاح إلى السحابة');
+      } catch (err) {
+        console.error('Cloudinary PDF upload error:', err);
+        toast.error('فشل الرفع إلى السحابة، جاري الحفظ محلياً...');
+        fallbackReadAsDataURL(file, setFormPdfData);
+        setFormPdfName(file.name);
+      } finally {
+        setUploadingPdf(false);
+      }
+    } else {
+      fallbackReadAsDataURL(file, setFormPdfData);
+      setFormPdfName(file.name);
+    }
+  };
+
+  const fallbackReadAsDataURL = (file: File, setter: (val: string) => void) => {
     const reader = new FileReader();
     reader.onload = () => {
-      setFormPdfData(reader.result as string);
-      setFormPdfName(file.name);
+      setter(reader.result as string);
     };
     reader.readAsDataURL(file);
   };
@@ -366,12 +419,12 @@ export default function Team() {
               <div>
                 <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">الصورة الشخصية</label>
                 <div className="flex items-center gap-3">
-                  <label className="flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors">
-                    <Upload className="w-5 h-5 text-gold" />
+                  <label className={`flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors ${uploadingImage ? 'opacity-60 pointer-events-none' : ''}`}>
+                    {uploadingImage ? <Loader2 className="w-5 h-5 text-gold animate-spin" /> : <Upload className="w-5 h-5 text-gold" />}
                     <span className="text-sm text-gray-600 dark:text-white/60 font-tajawal">
-                      {formImage ? 'تم اختيار صورة' : 'اختر صورة'}
+                      {uploadingImage ? 'جاري الرفع...' : formImage ? 'تم اختيار صورة' : 'اختر صورة'}
                     </span>
-                    <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                    <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" disabled={uploadingImage} />
                   </label>
                   {formImage && (
                     <img src={formImage} alt="preview" className="w-12 h-12 rounded-full object-cover border border-gold/20" />
@@ -383,12 +436,12 @@ export default function Team() {
               <div>
                 <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">فيديو تعريفي</label>
                 <div className="flex items-center gap-3">
-                  <label className="flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors">
-                    <Video className="w-5 h-5 text-gold" />
+                  <label className={`flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors ${uploadingVideo ? 'opacity-60 pointer-events-none' : ''}`}>
+                    {uploadingVideo ? <Loader2 className="w-5 h-5 text-gold animate-spin" /> : <Video className="w-5 h-5 text-gold" />}
                     <span className="text-sm text-gray-600 dark:text-white/60 font-tajawal">
-                      {formVideoName || 'اختر فيديو'}
+                      {uploadingVideo ? 'جاري الرفع...' : formVideoName || 'اختر فيديو'}
                     </span>
-                    <input type="file" accept="video/*" onChange={handleVideoUpload} className="hidden" />
+                    <input type="file" accept="video/*" onChange={handleVideoUpload} className="hidden" disabled={uploadingVideo} />
                   </label>
                 </div>
               </div>
@@ -397,12 +450,12 @@ export default function Team() {
               <div>
                 <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">السيرة الذاتية (PDF)</label>
                 <div className="flex items-center gap-3">
-                  <label className="flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors">
-                    <FileText className="w-5 h-5 text-gold" />
+                  <label className={`flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors ${uploadingPdf ? 'opacity-60 pointer-events-none' : ''}`}>
+                    {uploadingPdf ? <Loader2 className="w-5 h-5 text-gold animate-spin" /> : <FileText className="w-5 h-5 text-gold" />}
                     <span className="text-sm text-gray-600 dark:text-white/60 font-tajawal">
-                      {formPdfName || 'اختر ملف PDF'}
+                      {uploadingPdf ? 'جاري الرفع...' : formPdfName || 'اختر ملف PDF'}
                     </span>
-                    <input type="file" accept=".pdf" onChange={handlePdfUpload} className="hidden" />
+                    <input type="file" accept=".pdf" onChange={handlePdfUpload} className="hidden" disabled={uploadingPdf} />
                   </label>
                 </div>
               </div>
