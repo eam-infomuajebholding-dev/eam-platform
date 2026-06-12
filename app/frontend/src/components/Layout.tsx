@@ -1,10 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import Footer from './Footer';
 import AIChatbot from './AIChatbot';
 import EditToolbar from './admin/EditToolbar';
+import { getPageBackground, type PageBackground } from './admin/PageBackgroundEditor';
 
 const navLinks = [
   { path: '/', label: 'الرئيسية' },
@@ -23,7 +24,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
+  const [pageBg, setPageBg] = useState<PageBackground | null>(null);
   const { theme, toggleTheme } = useTheme();
+
+  // Load and listen for background changes
+  useEffect(() => {
+    const loadBg = () => {
+      setPageBg(getPageBackground(location.pathname));
+    };
+    loadBg();
+    window.addEventListener('page-bg-changed', loadBg);
+    return () => window.removeEventListener('page-bg-changed', loadBg);
+  }, [location.pathname]);
 
   const handleToggleTheme = useCallback(() => {
     setIsToggling(true);
@@ -135,7 +147,36 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </nav>
 
       {/* Main Content */}
-      <main className="pt-[72px]">{children}</main>
+      <main className="pt-[72px] relative">
+        {/* Background Layer */}
+        {pageBg && pageBg.type === 'color' && (
+          <div
+            className="absolute inset-0 z-0"
+            style={{ backgroundColor: pageBg.value }}
+          />
+        )}
+        {pageBg && pageBg.type === 'image' && (
+          <div
+            className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: `url(${pageBg.value})`,
+              opacity: pageBg.opacity ?? 0.3,
+            }}
+          />
+        )}
+        {pageBg && pageBg.type === 'video' && (
+          <video
+            className="absolute inset-0 z-0 w-full h-full object-cover"
+            style={{ opacity: pageBg.opacity ?? 0.4 }}
+            src={pageBg.value}
+            autoPlay
+            loop
+            muted
+            playsInline
+          />
+        )}
+        <div className="relative z-10">{children}</div>
+      </main>
 
       {/* Footer */}
       <Footer />

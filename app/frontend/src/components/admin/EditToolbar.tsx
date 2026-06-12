@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { useEditMode } from '@/contexts/EditModeContext';
-import { PenSquare, Lock, X } from 'lucide-react';
+import { PenSquare, Lock, X, Paintbrush } from 'lucide-react';
+import PageBackgroundEditor from './PageBackgroundEditor';
 
 export default function EditToolbar() {
   const { isEditMode, isAuthenticated, toggleEditMode, login, logout } = useEditMode();
   const [showLoginPopup, setShowLoginPopup] = useState(false);
+  const [showBgEditor, setShowBgEditor] = useState(false);
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const popupRef = useRef<HTMLDivElement>(null);
@@ -118,6 +120,13 @@ export default function EditToolbar() {
             </div>
             <div className="flex items-center gap-3">
               <button
+                onClick={() => setShowBgEditor(true)}
+                className="flex items-center gap-1 px-3 py-1 rounded-md bg-[#1a1a2e]/80 text-[#D3B051] text-sm font-medium hover:bg-[#1a1a2e] transition-colors"
+              >
+                <Paintbrush className="h-3.5 w-3.5" />
+                خلفية الصفحة
+              </button>
+              <button
                 onClick={() => {
                   logout();
                 }}
@@ -136,6 +145,9 @@ export default function EditToolbar() {
           </div>
         </div>
       )}
+
+      {/* Page Background Editor */}
+      <PageBackgroundEditor open={showBgEditor} onClose={() => setShowBgEditor(false)} />
     </>
   );
 }
