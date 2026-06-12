@@ -101,9 +101,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }, [toggleTheme]);
 
   return (
-    <div className="min-h-screen bg-background dark:bg-[#111111] text-[#2D2A1E] dark:text-white font-tajawal transition-colors duration-300" dir="rtl">
+    <div className="min-h-screen bg-background dark:bg-[#5E5E5E] text-[#2D2A1E] dark:text-white font-tajawal transition-colors duration-300" dir="rtl">
       {/* Navigation */}
-      <nav className="fixed top-0 right-0 left-0 z-50 bg-white/95 dark:bg-[#1a1a1a]/95 backdrop-blur-md border-b border-gold/30 dark:border-gold/20 transition-colors duration-300">
+      <nav className="fixed top-0 right-0 left-0 z-50 bg-white/95 dark:bg-[#6B6B6B]/95 backdrop-blur-md border-b border-gold/30 dark:border-gold/20 transition-colors duration-300">
         <div className="container mx-auto py-3 px-4 flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[16px] font-normal text-[#2D2A1E] bg-[#00000000] opacity-100">
@@ -181,7 +181,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-white/98 dark:bg-[#1a1a1a]/98 backdrop-blur-md border-t border-gold/20 dark:border-gold/10 transition-colors duration-300">
+          <div className="lg:hidden bg-white/98 dark:bg-[#6B6B6B]/98 backdrop-blur-md border-t border-gold/20 dark:border-gold/10 transition-colors duration-300">
             <ul className="container mx-auto px-4 py-4 flex flex-col gap-2">
               {[...navLinks, ...customNavLinks].map((link) => (
                 <li key={link.path}>

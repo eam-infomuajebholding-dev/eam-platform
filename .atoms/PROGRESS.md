@@ -29,3 +29,7 @@ Redesign admin dashboard as an inline "Edit Mode" overlay on the actual website,
 - 2026-06-12: Unified Careers and Invest page hero sections to match About/Contact consistent style
 - 2026-06-12: Rewrote edit mode from hover-based toolbar to click-based editing - elements are now directly clickable to edit (no more disappearing toolbar)
 - 2026-06-12: Fixed all 5 reported issues: (1) Dark mode changed to gray-only shades, (2) Edit toolbar repositioned below navbar, (3) Image/video persistence via IndexedDB, (4) Section add/delete management in edit mode, (5) Page management dialog added
+- 2026-06-12: Dark mode updated to medium gray (#5E5E5E) background with white cards per user reference image
+- 2026-06-12: PageManager simplified - removed path input, auto-generates path from timestamp, added fullscreen image/video upload for new pages
+- 2026-06-12: Enhanced all three pages (Invest, Projects, Team) with full upload support: multi-image, video, and PDF file uploads in add forms
+- 2026-06-12: Updated all hardcoded dark backgrounds across all pages to match new gray theme

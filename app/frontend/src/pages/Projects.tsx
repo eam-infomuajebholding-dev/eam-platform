@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, MapPin, Plus, X, FileText, ChevronLeft, Upload, Building2 } from 'lucide-react';
+import { Calendar, MapPin, Plus, X, FileText, ChevronLeft, Upload, Building2, Video, Play, Image } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { useEditMode } from '@/contexts/EditModeContext';
 import { toast } from 'sonner';
@@ -12,6 +12,9 @@ interface Project {
   location: string;
   year: string;
   image: string;
+  images: string[];
+  videoData: string;
+  videoName: string;
   pdfData: string;
   pdfName: string;
   status: 'active' | 'completed' | 'upcoming';
@@ -26,6 +29,9 @@ const defaultProjects: Project[] = [
     location: 'الرياض',
     year: '2024',
     image: '',
+    images: [],
+    videoData: '',
+    videoName: '',
     pdfData: '',
     pdfName: '',
     status: 'active',
@@ -38,6 +44,9 @@ const defaultProjects: Project[] = [
     location: 'جدة',
     year: '2023',
     image: '',
+    images: [],
+    videoData: '',
+    videoName: '',
     pdfData: '',
     pdfName: '',
     status: 'completed',
@@ -50,6 +59,9 @@ const defaultProjects: Project[] = [
     location: 'الدمام',
     year: '2024',
     image: '',
+    images: [],
+    videoData: '',
+    videoName: '',
     pdfData: '',
     pdfName: '',
     status: 'active',
@@ -62,6 +74,9 @@ const defaultProjects: Project[] = [
     location: 'الرياض',
     year: '2023',
     image: '',
+    images: [],
+    videoData: '',
+    videoName: '',
     pdfData: '',
     pdfName: '',
     status: 'upcoming',
@@ -122,8 +137,14 @@ export default function Projects() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [formData, setFormData] = useState<AddProjectFormData>(emptyForm);
   const [formImage, setFormImage] = useState<string>('');
+  const [formImages, setFormImages] = useState<string[]>([]);
+  const [formImageNames, setFormImageNames] = useState<string[]>([]);
+  const [formVideoData, setFormVideoData] = useState<string>('');
+  const [formVideoName, setFormVideoName] = useState<string>('');
   const [formPdfData, setFormPdfData] = useState<string>('');
   const [formPdfName, setFormPdfName] = useState<string>('');
+  const [showProjectVideo, setShowProjectVideo] = useState(false);
+  const [activeImageIdx, setActiveImageIdx] = useState(0);
 
   useEffect(() => {
     saveProjects(projects);
@@ -137,11 +158,34 @@ export default function Projects() {
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    const results: string[] = [];
+    const names: string[] = [];
+    let loaded = 0;
+    Array.from(files).forEach((file) => {
+      names.push(file.name);
+      const reader = new FileReader();
+      reader.onload = () => {
+        results.push(reader.result as string);
+        loaded++;
+        if (loaded === files.length) {
+          setFormImages(results);
+          setFormImageNames(names);
+          setFormImage(results[0] || '');
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
-      setFormImage(reader.result as string);
+      setFormVideoData(reader.result as string);
+      setFormVideoName(file.name);
     };
     reader.readAsDataURL(file);
   };
@@ -166,7 +210,10 @@ export default function Projects() {
       category: formData.category,
       location: formData.location,
       year: formData.year,
-      image: formImage,
+      image: formImage || (formImages[0] || ''),
+      images: formImages,
+      videoData: formVideoData,
+      videoName: formVideoName,
       pdfData: formPdfData,
       pdfName: formPdfName,
       status: formData.status,
@@ -174,6 +221,10 @@ export default function Projects() {
     setProjects(prev => [...prev, newProject]);
     setFormData(emptyForm);
     setFormImage('');
+    setFormImages([]);
+    setFormImageNames([]);
+    setFormVideoData('');
+    setFormVideoName('');
     setFormPdfData('');
     setFormPdfName('');
     setShowAddModal(false);
@@ -187,7 +238,7 @@ export default function Projects() {
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#111111]">
+      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#5E5E5E]">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)]" />
         <div className="relative z-10 text-center px-4">
           <h1 className="gold-text text-4xl md:text-5xl lg:text-6xl font-bold font-playfair mb-4">مشاريعنا</h1>
@@ -198,7 +249,7 @@ export default function Projects() {
       </section>
 
       {/* Projects Grid */}
-      <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a]">
+      <section className="py-16 md:py-24 bg-white dark:bg-[#6B6B6B]">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-12">
             <h2 className="gold-text text-2xl md:text-3xl font-bold font-playfair">مشاريع تصنع الفارق</h2>
@@ -284,26 +335,60 @@ export default function Projects() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
             className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-            onClick={() => setSelectedProject(null)}
+            onClick={() => { setSelectedProject(null); setShowProjectVideo(false); setActiveImageIdx(0); }}
           />
-          <div className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gold/30 shadow-2xl shadow-gold/10">
+          <div className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-white dark:bg-[#4a4a4a] rounded-2xl border border-gold/30 shadow-2xl shadow-gold/10">
             <button
-              onClick={() => setSelectedProject(null)}
+              onClick={() => { setSelectedProject(null); setShowProjectVideo(false); setActiveImageIdx(0); }}
               className="absolute top-4 left-4 z-10 w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
 
-            {/* Image Header */}
-            <div className={`relative h-64 overflow-hidden ${!selectedProject.image ? 'bg-gradient-to-br from-[#a08530] to-[#C9A84C]' : ''}`}>
-              {selectedProject.image ? (
-                <img src={selectedProject.image} alt={selectedProject.title} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Building2 className="w-20 h-20 text-white/40" />
+            {/* Image/Video Header */}
+            <div className={`relative h-64 overflow-hidden ${!selectedProject.image && (!selectedProject.images || selectedProject.images.length === 0) ? 'bg-gradient-to-br from-[#a08530] to-[#C9A84C]' : ''}`}>
+              {showProjectVideo && selectedProject.videoData ? (
+                <div className="w-full h-full bg-black flex items-center justify-center">
+                  <video controls autoPlay className="w-full h-full object-contain">
+                    <source src={selectedProject.videoData} />
+                    متصفحك لا يدعم تشغيل الفيديو
+                  </video>
                 </div>
+              ) : (
+                <>
+                  {(selectedProject.images && selectedProject.images.length > 0) ? (
+                    <img src={selectedProject.images[activeImageIdx] || selectedProject.image} alt={selectedProject.title} className="w-full h-full object-cover" />
+                  ) : selectedProject.image ? (
+                    <img src={selectedProject.image} alt={selectedProject.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Building2 className="w-20 h-20 text-white/40" />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                  {selectedProject.videoData && (
+                    <button
+                      onClick={() => setShowProjectVideo(true)}
+                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-gold/90 text-dark flex items-center justify-center hover:scale-110 transition-transform shadow-lg shadow-gold/50"
+                    >
+                      <Play className="w-7 h-7 ml-1" />
+                    </button>
+                  )}
+                  {selectedProject.images && selectedProject.images.length > 1 && (
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                      {selectedProject.images.map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setActiveImageIdx(i)}
+                          className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                            i === activeImageIdx ? 'bg-gold w-8' : 'bg-white/50 hover:bg-white/80'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </>
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
               <div className="absolute bottom-4 right-4 left-4">
                 <h2 className="font-tajawal text-2xl font-bold text-white mb-1">{selectedProject.title}</h2>
                 <div className="flex items-center gap-2 text-white/70 text-sm">
@@ -324,12 +409,12 @@ export default function Projects() {
               </div>
 
               <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gold/10">
+                <div className="p-4 rounded-xl bg-gray-50 dark:bg-white/10 border border-gold/10">
                   <MapPin className="w-5 h-5 text-gold mb-2" />
                   <p className="text-xs text-gray-500 dark:text-white/50 mb-1">الموقع</p>
                   <p className="text-sm font-bold text-gray-800 dark:text-white">{selectedProject.location}</p>
                 </div>
-                <div className="p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gold/10">
+                <div className="p-4 rounded-xl bg-gray-50 dark:bg-white/10 border border-gold/10">
                   <Calendar className="w-5 h-5 text-gold mb-2" />
                   <p className="text-xs text-gray-500 dark:text-white/50 mb-1">السنة</p>
                   <p className="text-sm font-bold text-gray-800 dark:text-white">{selectedProject.year}</p>
@@ -340,6 +425,26 @@ export default function Projects() {
                 <h3 className="font-tajawal text-xl font-bold text-gold mb-3">وصف المشروع</h3>
                 <p className="text-gray-600 dark:text-white/60 leading-relaxed">{selectedProject.description}</p>
               </div>
+
+              {/* Image Gallery */}
+              {selectedProject.images && selectedProject.images.length > 1 && (
+                <div className="mb-6">
+                  <h3 className="font-tajawal text-xl font-bold text-gold mb-3">معرض الصور</h3>
+                  <div className="grid grid-cols-3 gap-3">
+                    {selectedProject.images.map((img, i) => (
+                      <button
+                        key={i}
+                        onClick={() => { setActiveImageIdx(i); setShowProjectVideo(false); }}
+                        className={`relative h-24 rounded-xl overflow-hidden border-2 transition-all duration-300 ${
+                          i === activeImageIdx ? 'border-gold shadow-lg shadow-gold/20' : 'border-transparent hover:border-gold/50'
+                        }`}
+                      >
+                        <img src={img} alt={`صورة ${i + 1}`} className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {selectedProject.pdfData && (
                 <a
@@ -363,7 +468,7 @@ export default function Projects() {
             className="absolute inset-0 bg-black/80 backdrop-blur-sm"
             onClick={() => setShowAddModal(false)}
           />
-          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gold/30 shadow-2xl p-8">
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-[#4a4a4a] rounded-2xl border border-gold/30 shadow-2xl p-8">
             <button
               onClick={() => setShowAddModal(false)}
               className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gray-200 dark:bg-white/10 text-gray-600 dark:text-white flex items-center justify-center hover:bg-gray-300 dark:hover:bg-white/20 transition-colors"
@@ -433,20 +538,38 @@ export default function Projects() {
                 />
               </div>
 
-              {/* Image Upload */}
+              {/* Multiple Images Upload */}
               <div>
-                <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">صورة المشروع</label>
+                <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">صور المشروع (يمكن اختيار عدة صور)</label>
                 <div className="flex items-center gap-3">
                   <label className="flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors">
-                    <Upload className="w-5 h-5 text-gold" />
+                    <Image className="w-5 h-5 text-gold" />
                     <span className="text-sm text-gray-600 dark:text-white/60 font-tajawal">
-                      {formImage ? 'تم اختيار صورة' : 'اختر صورة'}
+                      {formImageNames.length > 0 ? `تم اختيار ${formImageNames.length} صورة` : 'اختر صور'}
                     </span>
-                    <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                    <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
                   </label>
-                  {formImage && (
-                    <img src={formImage} alt="preview" className="w-12 h-12 rounded-lg object-cover border border-gold/20" />
-                  )}
+                </div>
+                {formImages.length > 0 && (
+                  <div className="mt-2 grid grid-cols-4 gap-2">
+                    {formImages.map((img, i) => (
+                      <img key={i} src={img} alt={`preview ${i}`} className="w-full h-16 rounded-lg object-cover border border-gold/20" />
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Video Upload */}
+              <div>
+                <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">فيديو المشروع</label>
+                <div className="flex items-center gap-3">
+                  <label className="flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors">
+                    <Video className="w-5 h-5 text-gold" />
+                    <span className="text-sm text-gray-600 dark:text-white/60 font-tajawal">
+                      {formVideoName || 'اختر فيديو'}
+                    </span>
+                    <input type="file" accept="video/*" onChange={handleVideoUpload} className="hidden" />
+                  </label>
                 </div>
               </div>
 
