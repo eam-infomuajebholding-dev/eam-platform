@@ -49,7 +49,7 @@ export default function Careers() {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#0c1a36]">
+      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#111111]">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)]" />
         <div
           ref={heroReveal.ref}
@@ -68,7 +68,7 @@ export default function Careers() {
       </section>
 
       {/* Application Form Section */}
-      <section className="py-20 md:py-28 bg-white dark:bg-[#132347] relative">
+      <section className="py-20 md:py-28 bg-white dark:bg-[#1a1a1a] relative">
         <div className="container mx-auto px-4">
           <div
             ref={formReveal.ref}

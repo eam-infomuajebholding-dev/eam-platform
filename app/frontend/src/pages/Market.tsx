@@ -5,7 +5,7 @@ export default function Market() {
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#0c1a36]">
+      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#111111]">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)]" />
         <div className="relative z-10 text-center px-4">
           <h1 className="gold-text text-4xl md:text-5xl lg:text-6xl font-bold font-playfair mb-4">سوقنا</h1>
@@ -16,7 +16,7 @@ export default function Market() {
       </section>
 
       {/* Coming Soon */}
-      <section className="py-24 md:py-36 bg-white dark:bg-[#132347]">
+      <section className="py-24 md:py-36 bg-white dark:bg-[#1a1a1a]">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-lg mx-auto">
             <div className="w-24 h-24 mx-auto mb-8 rounded-full bg-gold/10 flex items-center justify-center">
