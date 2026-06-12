@@ -92,19 +92,19 @@ const TEXT_TAGS = new Set([
 ]);
 
 function isTextElement(el: HTMLElement): boolean {
+  // Skip elements that are too large (likely containers/sections)
+  if (el.offsetHeight > 200 && el.tagName === 'DIV') return false;
+  if (el.tagName === 'SECTION' || el.tagName === 'MAIN' || el.tagName === 'NAV' || el.tagName === 'FOOTER' || el.tagName === 'HEADER') return false;
+
   if (TEXT_TAGS.has(el.tagName)) {
-    // Must have some direct text content (not just child elements)
-    const hasDirectText = Array.from(el.childNodes).some(
-      (node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim()
-    );
-    return hasDirectText || (el.children.length === 0 && !!el.textContent?.trim());
+    // Has any text content at all (direct or nested)
+    const text = el.textContent?.trim();
+    return !!text && text.length > 0;
   }
-  // Also handle buttons and divs that have direct text
+  // Buttons and small divs with text
   if (el.tagName === 'BUTTON' || el.tagName === 'DIV') {
-    const hasDirectText = Array.from(el.childNodes).some(
-      (node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim()
-    );
-    return hasDirectText && el.children.length === 0;
+    const text = el.textContent?.trim();
+    return !!text && text.length > 0 && text.length < 500 && el.offsetHeight < 150;
   }
   return false;
 }
@@ -135,12 +135,19 @@ export function GlobalEditOverlay() {
   const [editType, setEditType] = useState<'text' | 'image' | 'video' | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const toolbarRef = useRef<HTMLDivElement>(null);
 
   const updateToolbarPosition = useCallback((el: HTMLElement) => {
     const rect = el.getBoundingClientRect();
+    // For fixed positioning, use rect directly (no scrollY needed)
+    let top = rect.top - 44;
+    // If too close to top of viewport (navbar area), position below element
+    if (top < 80) {
+      top = rect.bottom + 8;
+    }
     setToolbarPos({
-      top: rect.top + window.scrollY - 40,
-      left: rect.left + window.scrollX + rect.width / 2,
+      top,
+      left: rect.left + rect.width / 2,
     });
   }, []);
 
@@ -186,6 +193,22 @@ export function GlobalEditOverlay() {
       if (relatedTarget && isInsideEditUI(relatedTarget)) return;
       if (editingElement) return;
 
+      // Check if mouse is moving toward the toolbar
+      if (relatedTarget && toolbarRef.current) {
+        const toolbarRect = toolbarRef.current.getBoundingClientRect();
+        const mouseX = e.clientX;
+        const mouseY = e.clientY;
+        // If mouse is near the toolbar area, don't hide
+        if (
+          mouseX >= toolbarRect.left - 20 &&
+          mouseX <= toolbarRect.right + 20 &&
+          mouseY >= toolbarRect.top - 20 &&
+          mouseY <= toolbarRect.bottom + 20
+        ) {
+          return;
+        }
+      }
+
       if (hoverTimeoutRef.current) {
         clearTimeout(hoverTimeoutRef.current);
       }
@@ -194,7 +217,7 @@ export function GlobalEditOverlay() {
           setHoveredElement(null);
           setEditType(null);
         }
-      }, 100);
+      }, 300);
     };
 
     document.addEventListener('mouseover', handleMouseOver, true);
@@ -327,6 +350,7 @@ export function GlobalEditOverlay() {
       {/* Floating toolbar for hovered element */}
       {showToolbar && (
         <div
+          ref={toolbarRef}
           data-edit-toolbar="true"
           className="fixed z-[9999] flex items-center gap-1 px-2 py-1.5 rounded-lg bg-[#1a1a2e]/95 border border-[#D3B051] shadow-xl"
           style={{
