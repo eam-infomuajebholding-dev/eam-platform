@@ -4,6 +4,7 @@ import { Menu, X, Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import Footer from './Footer';
 import AIChatbot from './AIChatbot';
+import EditToolbar from './admin/EditToolbar';
 
 const navLinks = [
   { path: '/', label: 'الرئيسية' },
@@ -141,6 +142,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       {/* AI Chatbot */}
       <AIChatbot />
+
+      {/* Edit Mode Toolbar */}
+      <EditToolbar />
     </div>
   );
 }

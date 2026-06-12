@@ -1,15 +1,19 @@
 # Requirements & Progress
 
 ## Requirements Overview
-Build an admin dashboard for the engineering consulting company website that allows content management through the existing backend APIs.
+Redesign admin dashboard as an inline "Edit Mode" overlay on the actual website, allowing direct editing of all content (text, images, videos, sections) with add/delete capabilities and file upload support.
 
 ## Task Breakdown
-- [x] Create AdminDashboard page with tabs for: Page Content, Videos, Navigation, Services, Projects, Site Settings
-- [x] Wire up API calls using @metagptx/web-sdk client to existing backend endpoints
-- [x] Add admin route to App.tsx with ProtectedAdminRoute wrapper
+- [x] Create EditMode context with authentication and toggle state
+- [x] Create EditToolbar floating toolbar component
+- [x] Create InlineEditable components (text, image, video, section)
+- [x] Create FileUpload component with media-uploads bucket integration
+- [x] Create PageManager for adding/removing pages
+- [x] Create NavigationManager for managing nav items
+- [x] Integrate edit mode into Layout component
 - [x] Run lint and build checks
 
 ## Progress Log
-- 2026-06-11: Starting admin dashboard implementation with full CRUD for all backend entities
-- 2026-06-11: Admin dashboard created with 6 tabs, full CRUD, React Query, Arabic RTL UI. Lint and build pass.
-- 2026-06-11: Fixed admin access - removed OIDC auth requirement, added simple password gate (eam2024) with localStorage persistence.
+- 2026-06-11: Admin dashboard created with 6 tabs, full CRUD, React Query, Arabic RTL UI
+- 2026-06-11: Fixed admin access - removed OIDC auth requirement, added simple password gate
+- 2026-06-12: Starting inline edit mode redesign per user request
