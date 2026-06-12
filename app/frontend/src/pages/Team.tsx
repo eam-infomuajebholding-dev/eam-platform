@@ -3,6 +3,7 @@ import { Plus, X, FileText, Upload, User, Video, Play } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { useEditMode } from '@/contexts/EditModeContext';
 import { toast } from 'sonner';
+import { savePageData, loadPageData } from '@/lib/dataStorage';
 
 interface TeamMember {
   id: number;
@@ -65,20 +66,6 @@ const defaultTeamMembers: TeamMember[] = [
 
 const TEAM_STORAGE_KEY = 'team-page-data';
 
-function loadTeam(): TeamMember[] {
-  try {
-    const saved = localStorage.getItem(TEAM_STORAGE_KEY);
-    if (saved) {
-      return JSON.parse(saved);
-    }
-  } catch { /* ignore */ }
-  return defaultTeamMembers;
-}
-
-function saveTeam(members: TeamMember[]) {
-  localStorage.setItem(TEAM_STORAGE_KEY, JSON.stringify(members));
-}
-
 const gradientVariants = [
   'from-[#a08530] to-[#C9A84C]',
   'from-[#C9A84C] to-[#E8D48B]',
@@ -100,7 +87,7 @@ const emptyForm: AddMemberFormData = {
 
 export default function Team() {
   const { isEditMode } = useEditMode();
-  const [members, setMembers] = useState<TeamMember[]>(loadTeam);
+  const [members, setMembers] = useState<TeamMember[]>(defaultTeamMembers);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [formData, setFormData] = useState<AddMemberFormData>(emptyForm);
@@ -112,7 +99,13 @@ export default function Team() {
   const [showMemberVideo, setShowMemberVideo] = useState(false);
 
   useEffect(() => {
-    saveTeam(members);
+    loadPageData<TeamMember[]>(TEAM_STORAGE_KEY).then(data => {
+      if (data) setMembers(data);
+    });
+  }, []);
+
+  useEffect(() => {
+    savePageData(TEAM_STORAGE_KEY, members);
   }, [members]);
 
   const handleDeleteMember = (memberId: number) => {

@@ -5,6 +5,7 @@ import Layout from '@/components/Layout';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { useEditMode } from '@/contexts/EditModeContext';
 import { toast } from 'sonner';
+import { savePageData, loadPageData } from '@/lib/dataStorage';
 
 interface Project {
   id: number;
@@ -98,20 +99,6 @@ const defaultProjects: Project[] = [
 
 const PROJECTS_STORAGE_KEY = 'invest-projects-data';
 
-function loadProjects(): Project[] {
-  try {
-    const saved = localStorage.getItem(PROJECTS_STORAGE_KEY);
-    if (saved) {
-      return JSON.parse(saved);
-    }
-  } catch { /* ignore */ }
-  return defaultProjects;
-}
-
-function saveProjects(projectsList: Project[]) {
-  localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projectsList));
-}
-
 const statusLabels = {
   available: { label: 'متاح للاستثمار', color: 'bg-green-500/10 text-green-600 border-green-500/30' },
   'in-progress': { label: 'قيد التنفيذ', color: 'bg-blue-500/10 text-blue-600 border-blue-500/30' },
@@ -194,7 +181,7 @@ export default function Invest() {
   const ctaReveal = useScrollReveal({ threshold: 0.15 });
   const { isEditMode } = useEditMode();
 
-  const [projects, setProjects] = useState<Project[]>(loadProjects);
+  const [projects, setProjects] = useState<Project[]>(defaultProjects);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [showVideo, setShowVideo] = useState(false);
@@ -209,7 +196,13 @@ export default function Invest() {
   const [formPdfName, setFormPdfName] = useState<string>('');
 
   useEffect(() => {
-    saveProjects(projects);
+    loadPageData<Project[]>(PROJECTS_STORAGE_KEY).then(data => {
+      if (data) setProjects(data);
+    });
+  }, []);
+
+  useEffect(() => {
+    savePageData(PROJECTS_STORAGE_KEY, projects);
   }, [projects]);
 
   const filteredProjects = filter === 'all'
