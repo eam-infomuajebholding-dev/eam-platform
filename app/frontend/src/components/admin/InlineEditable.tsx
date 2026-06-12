@@ -1,442 +1,472 @@
-import { useState, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useEditMode } from '@/contexts/EditModeContext';
-import { client } from '@/lib/api';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Pencil, Trash2, Image as ImageIcon, Video, Check, X, Plus } from 'lucide-react';
+import { Pencil, Image as ImageIcon, Video, Check, X } from 'lucide-react';
 import { toast } from 'sonner';
 
-// ============ EditableText ============
+// ============ Helper Functions ============
+
+function getElementPath(el: HTMLElement): string {
+  const parts: string[] = [];
+  let current: HTMLElement | null = el;
+  while (current && current !== document.body) {
+    const tag = current.tagName.toLowerCase();
+    const parent = current.parentElement;
+    if (parent) {
+      const siblings = Array.from(parent.children).filter(
+        (c) => c.tagName === current!.tagName
+      );
+      const index = siblings.indexOf(current);
+      parts.unshift(`${tag}[${index}]`);
+    } else {
+      parts.unshift(tag);
+    }
+    current = current.parentElement;
+  }
+  return parts.join('>');
+}
+
+function getStorageKey(path: string): string {
+  const page = window.location.pathname;
+  return `edit-content-${page}-${path}`;
+}
+
+function findElementByPath(path: string): HTMLElement | null {
+  try {
+    const parts = path.split('>');
+    let current: HTMLElement = document.body;
+    for (const part of parts) {
+      const match = part.match(/^(\w+)\[(\d+)\]$/);
+      if (!match) return null;
+      const [, tag, indexStr] = match;
+      const index = parseInt(indexStr);
+      const children = Array.from(current.children).filter(
+        (c) => c.tagName.toLowerCase() === tag
+      );
+      if (!children[index]) return null;
+      current = children[index] as HTMLElement;
+    }
+    return current;
+  } catch {
+    return null;
+  }
+}
+
+// Apply all saved edits from localStorage for the current page
+export function applySavedEdits() {
+  const page = window.location.pathname;
+  const prefix = `edit-content-${page}-`;
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith(prefix)) {
+      const elementPath = key.replace(prefix, '');
+      const savedValue = localStorage.getItem(key);
+      if (!savedValue) continue;
+      try {
+        const data = JSON.parse(savedValue);
+        if (data.type === 'text') {
+          const el = findElementByPath(elementPath);
+          if (el) el.textContent = data.value;
+        } else if (data.type === 'image') {
+          const el = findElementByPath(elementPath) as HTMLImageElement;
+          if (el && el.tagName === 'IMG') el.src = data.value;
+        } else if (data.type === 'video') {
+          const el = findElementByPath(elementPath) as HTMLVideoElement;
+          if (el && el.tagName === 'VIDEO') {
+            const source = el.querySelector('source');
+            if (source) source.src = data.value;
+            else el.src = data.value;
+          }
+        }
+      } catch {
+        /* ignore parse errors */
+      }
+    }
+  }
+}
+
+// ============ Text Editable Elements ============
+const TEXT_TAGS = new Set([
+  'H1', 'H2', 'H3', 'H4', 'H5', 'H6',
+  'P', 'SPAN', 'A', 'LI', 'TD', 'TH', 'LABEL', 'BLOCKQUOTE',
+]);
+
+function isTextElement(el: HTMLElement): boolean {
+  if (TEXT_TAGS.has(el.tagName)) {
+    // Must have some direct text content (not just child elements)
+    const hasDirectText = Array.from(el.childNodes).some(
+      (node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim()
+    );
+    return hasDirectText || (el.children.length === 0 && !!el.textContent?.trim());
+  }
+  // Also handle buttons and divs that have direct text
+  if (el.tagName === 'BUTTON' || el.tagName === 'DIV') {
+    const hasDirectText = Array.from(el.childNodes).some(
+      (node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim()
+    );
+    return hasDirectText && el.children.length === 0;
+  }
+  return false;
+}
+
+function isImageElement(el: HTMLElement): boolean {
+  return el.tagName === 'IMG';
+}
+
+function isVideoElement(el: HTMLElement): boolean {
+  return el.tagName === 'VIDEO';
+}
+
+function isEditableElement(el: HTMLElement): boolean {
+  return isTextElement(el) || isImageElement(el) || isVideoElement(el);
+}
+
+// Check if element is inside the edit toolbar/overlay itself
+function isInsideEditUI(el: HTMLElement): boolean {
+  return !!el.closest('[data-edit-overlay]') || !!el.closest('[data-edit-toolbar]');
+}
+
+// ============ GlobalEditOverlay Component ============
+export function GlobalEditOverlay() {
+  const { isEditMode } = useEditMode();
+  const [hoveredElement, setHoveredElement] = useState<HTMLElement | null>(null);
+  const [editingElement, setEditingElement] = useState<HTMLElement | null>(null);
+  const [toolbarPos, setToolbarPos] = useState({ top: 0, left: 0 });
+  const [editType, setEditType] = useState<'text' | 'image' | 'video' | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const updateToolbarPosition = useCallback((el: HTMLElement) => {
+    const rect = el.getBoundingClientRect();
+    setToolbarPos({
+      top: rect.top + window.scrollY - 40,
+      left: rect.left + window.scrollX + rect.width / 2,
+    });
+  }, []);
+
+  // Handle mouseover with debounce
+  useEffect(() => {
+    if (!isEditMode) {
+      setHoveredElement(null);
+      setEditingElement(null);
+      return;
+    }
+
+    const handleMouseOver = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target || isInsideEditUI(target)) return;
+      if (editingElement) return; // Don't change hover while editing
+
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+
+      hoverTimeoutRef.current = setTimeout(() => {
+        // Walk up to find the nearest editable element
+        let el: HTMLElement | null = target;
+        while (el && el !== document.body) {
+          if (isInsideEditUI(el)) return;
+          if (isEditableElement(el)) {
+            setHoveredElement(el);
+            updateToolbarPosition(el);
+            if (isTextElement(el)) setEditType('text');
+            else if (isImageElement(el)) setEditType('image');
+            else if (isVideoElement(el)) setEditType('video');
+            return;
+          }
+          el = el.parentElement;
+        }
+        setHoveredElement(null);
+        setEditType(null);
+      }, 50);
+    };
+
+    const handleMouseOut = (e: MouseEvent) => {
+      const relatedTarget = e.relatedTarget as HTMLElement | null;
+      if (relatedTarget && isInsideEditUI(relatedTarget)) return;
+      if (editingElement) return;
+
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+      hoverTimeoutRef.current = setTimeout(() => {
+        if (!editingElement) {
+          setHoveredElement(null);
+          setEditType(null);
+        }
+      }, 100);
+    };
+
+    document.addEventListener('mouseover', handleMouseOver, true);
+    document.addEventListener('mouseout', handleMouseOut, true);
+
+    return () => {
+      document.removeEventListener('mouseover', handleMouseOver, true);
+      document.removeEventListener('mouseout', handleMouseOut, true);
+      if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    };
+  }, [isEditMode, editingElement, updateToolbarPosition]);
+
+  // Add/remove outline on hovered element
+  useEffect(() => {
+    if (!hoveredElement) return;
+    hoveredElement.style.outline = '2px dashed #D3B051';
+    hoveredElement.style.outlineOffset = '2px';
+    hoveredElement.style.borderRadius = '4px';
+
+    return () => {
+      hoveredElement.style.outline = '';
+      hoveredElement.style.outlineOffset = '';
+      hoveredElement.style.borderRadius = '';
+    };
+  }, [hoveredElement]);
+
+  // Start editing text
+  const startTextEdit = useCallback(() => {
+    if (!hoveredElement) return;
+    setEditingElement(hoveredElement);
+    hoveredElement.contentEditable = 'true';
+    hoveredElement.focus();
+    hoveredElement.style.outline = '2px solid #D3B051';
+    hoveredElement.style.backgroundColor = 'rgba(211, 176, 81, 0.1)';
+  }, [hoveredElement]);
+
+  // Save text edit
+  const saveTextEdit = useCallback(() => {
+    if (!editingElement) return;
+    const newText = editingElement.textContent || '';
+    const path = getElementPath(editingElement);
+    const key = getStorageKey(path);
+    localStorage.setItem(key, JSON.stringify({ type: 'text', value: newText }));
+    editingElement.contentEditable = 'false';
+    editingElement.style.backgroundColor = '';
+    editingElement.style.outline = '';
+    setEditingElement(null);
+    setHoveredElement(null);
+    toast.success('تم حفظ التعديل');
+  }, [editingElement]);
+
+  // Cancel text edit
+  const cancelTextEdit = useCallback(() => {
+    if (!editingElement) return;
+    // Restore original text from localStorage or leave as is
+    const path = getElementPath(editingElement);
+    const key = getStorageKey(path);
+    const saved = localStorage.getItem(key);
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        editingElement.textContent = data.value;
+      } catch { /* ignore */ }
+    }
+    editingElement.contentEditable = 'false';
+    editingElement.style.backgroundColor = '';
+    editingElement.style.outline = '';
+    setEditingElement(null);
+    setHoveredElement(null);
+  }, [editingElement]);
+
+  // Handle image replacement
+  const handleImageReplace = useCallback(() => {
+    if (!hoveredElement || !isImageElement(hoveredElement)) return;
+    setEditingElement(hoveredElement);
+    fileInputRef.current?.click();
+  }, [hoveredElement]);
+
+  // Handle video replacement
+  const handleVideoReplace = useCallback(() => {
+    if (!hoveredElement || !isVideoElement(hoveredElement)) return;
+    setEditingElement(hoveredElement);
+    fileInputRef.current?.click();
+  }, [hoveredElement]);
+
+  // Handle file selection
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file || !editingElement) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result as string;
+        const path = getElementPath(editingElement);
+        const key = getStorageKey(path);
+
+        if (isImageElement(editingElement)) {
+          (editingElement as HTMLImageElement).src = dataUrl;
+          localStorage.setItem(key, JSON.stringify({ type: 'image', value: dataUrl }));
+          toast.success('تم تحديث الصورة');
+        } else if (isVideoElement(editingElement)) {
+          const videoEl = editingElement as HTMLVideoElement;
+          const source = videoEl.querySelector('source');
+          if (source) source.src = dataUrl;
+          else videoEl.src = dataUrl;
+          videoEl.load();
+          localStorage.setItem(key, JSON.stringify({ type: 'video', value: dataUrl }));
+          toast.success('تم تحديث الفيديو');
+        }
+
+        setEditingElement(null);
+        setHoveredElement(null);
+      };
+      reader.readAsDataURL(file);
+
+      // Reset file input
+      e.target.value = '';
+    },
+    [editingElement]
+  );
+
+  if (!isEditMode) return null;
+
+  const showToolbar = hoveredElement && !editingElement;
+  const showEditControls = editingElement && editType === 'text';
+
+  return createPortal(
+    <div data-edit-overlay="true" style={{ pointerEvents: 'none' }}>
+      {/* Floating toolbar for hovered element */}
+      {showToolbar && (
+        <div
+          data-edit-toolbar="true"
+          className="fixed z-[9999] flex items-center gap-1 px-2 py-1.5 rounded-lg bg-[#1a1a2e]/95 border border-[#D3B051] shadow-xl"
+          style={{
+            top: `${toolbarPos.top}px`,
+            left: `${toolbarPos.left}px`,
+            transform: 'translateX(-50%)',
+            pointerEvents: 'auto',
+          }}
+        >
+          {editType === 'text' && (
+            <button
+              onClick={startTextEdit}
+              className="flex items-center gap-1.5 px-2 py-1 rounded text-xs font-bold text-[#D3B051] hover:bg-[#D3B051]/20 transition-colors"
+            >
+              <Pencil className="h-3 w-3" />
+              تحرير
+            </button>
+          )}
+          {editType === 'image' && (
+            <button
+              onClick={handleImageReplace}
+              className="flex items-center gap-1.5 px-2 py-1 rounded text-xs font-bold text-[#D3B051] hover:bg-[#D3B051]/20 transition-colors"
+            >
+              <ImageIcon className="h-3 w-3" />
+              استبدال الصورة
+            </button>
+          )}
+          {editType === 'video' && (
+            <button
+              onClick={handleVideoReplace}
+              className="flex items-center gap-1.5 px-2 py-1 rounded text-xs font-bold text-[#D3B051] hover:bg-[#D3B051]/20 transition-colors"
+            >
+              <Video className="h-3 w-3" />
+              استبدال الفيديو
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Save/Cancel controls for text editing */}
+      {showEditControls && (
+        <div
+          data-edit-toolbar="true"
+          className="fixed z-[9999] flex items-center gap-1 px-2 py-1.5 rounded-lg bg-[#1a1a2e]/95 border border-[#D3B051] shadow-xl"
+          style={{
+            top: `${toolbarPos.top}px`,
+            left: `${toolbarPos.left}px`,
+            transform: 'translateX(-50%)',
+            pointerEvents: 'auto',
+          }}
+        >
+          <button
+            onClick={saveTextEdit}
+            className="flex items-center gap-1 px-2 py-1 rounded text-xs font-bold text-green-400 hover:bg-green-500/20 transition-colors"
+          >
+            <Check className="h-3 w-3" />
+            حفظ
+          </button>
+          <button
+            onClick={cancelTextEdit}
+            className="flex items-center gap-1 px-2 py-1 rounded text-xs font-bold text-red-400 hover:bg-red-500/20 transition-colors"
+          >
+            <X className="h-3 w-3" />
+            إلغاء
+          </button>
+        </div>
+      )}
+
+      {/* Hidden file input for image/video replacement */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={editType === 'image' ? 'image/*' : 'video/*'}
+        onChange={handleFileChange}
+        className="hidden"
+        style={{ pointerEvents: 'auto' }}
+      />
+    </div>,
+    document.body
+  );
+}
+
+// ============ Legacy Exports (pass-through wrappers) ============
+// These are kept so existing imports don't break, but they just render children directly.
+
 interface EditableTextProps {
   children: React.ReactNode;
-  entityName: string;
-  entityId: number | string;
-  field: string;
-  value: string;
+  entityName?: string;
+  entityId?: number | string;
+  field?: string;
+  value?: string;
   className?: string;
   as?: 'p' | 'h1' | 'h2' | 'h3' | 'h4' | 'span' | 'div';
   multiline?: boolean;
 }
 
-export function EditableText({
-  children,
-  entityName,
-  entityId,
-  field,
-  value,
-  className = '',
-  as: Tag = 'span',
-  multiline = false,
-}: EditableTextProps) {
-  const { isEditMode } = useEditMode();
-  const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState(value);
-  const [isHovered, setIsHovered] = useState(false);
-  const queryClient = useQueryClient();
-  const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement>(null);
-
-  const updateMutation = useMutation({
-    mutationFn: async (newValue: string) => {
-      await client.from(entityName).update(entityId, { [field]: newValue });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [entityName] });
-      toast.success('تم الحفظ بنجاح');
-      setIsEditing(false);
-    },
-    onError: () => {
-      toast.error('حدث خطأ أثناء الحفظ');
-    },
-  });
-
-  const handleSave = () => {
-    if (editValue !== value) {
-      updateMutation.mutate(editValue);
-    } else {
-      setIsEditing(false);
-    }
-  };
-
-  const handleCancel = () => {
-    setEditValue(value);
-    setIsEditing(false);
-  };
-
-  if (!isEditMode) {
-    return <Tag className={className}>{children}</Tag>;
-  }
-
-  if (isEditing) {
-    return (
-      <div className="relative inline-block w-full">
-        {multiline ? (
-          <textarea
-            ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            className="w-full p-2 bg-[#1a1a2e]/90 border border-[#D3B051] rounded-md text-white resize-y min-h-[60px] focus:outline-none focus:ring-2 focus:ring-[#D3B051]/50"
-            dir="rtl"
-            autoFocus
-          />
-        ) : (
-          <input
-            ref={inputRef as React.RefObject<HTMLInputElement>}
-            type="text"
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            className="w-full p-2 bg-[#1a1a2e]/90 border border-[#D3B051] rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#D3B051]/50"
-            dir="rtl"
-            autoFocus
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') handleSave();
-              if (e.key === 'Escape') handleCancel();
-            }}
-          />
-        )}
-        <div className="flex gap-1 mt-1 justify-end">
-          <button
-            onClick={handleSave}
-            disabled={updateMutation.isPending}
-            className="p-1.5 rounded bg-green-600 hover:bg-green-700 text-white transition-colors"
-          >
-            <Check className="h-4 w-4" />
-          </button>
-          <button
-            onClick={handleCancel}
-            className="p-1.5 rounded bg-red-600 hover:bg-red-700 text-white transition-colors"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div
-      className="relative inline-block"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {/* Floating toolbar above element */}
-      <div
-        className={`absolute -top-9 right-0 z-20 flex items-center gap-1 px-2 py-1 rounded-md bg-[#D3B051] shadow-lg transition-all duration-200 ${
-          isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1 pointer-events-none'
-        }`}
-      >
-        <Pencil className="h-3 w-3 text-[#1a1a2e]" />
-        <button
-          onClick={() => {
-            setEditValue(value);
-            setIsEditing(true);
-          }}
-          className="text-[#1a1a2e] text-xs font-bold hover:underline"
-        >
-          تحرير
-        </button>
-      </div>
-
-      {/* Element with gold dashed border on hover */}
-      <Tag
-        className={`${className} transition-all duration-200 cursor-pointer ${
-          isHovered ? 'outline outline-1 outline-dashed outline-[#D3B051]/60 rounded' : ''
-        }`}
-        onClick={() => {
-          setEditValue(value);
-          setIsEditing(true);
-        }}
-      >
-        {children}
-      </Tag>
-    </div>
-  );
+export function EditableText({ children, className = '', as: Tag = 'span' }: EditableTextProps) {
+  return <Tag className={className}>{children}</Tag>;
 }
 
-// ============ EditableImage ============
 interface EditableImageProps {
   src: string;
   alt?: string;
-  entityName: string;
-  entityId: number | string;
-  field: string;
+  entityName?: string;
+  entityId?: number | string;
+  field?: string;
   className?: string;
 }
 
-export function EditableImage({
-  src,
-  alt = '',
-  entityName,
-  entityId,
-  field,
-  className = '',
-}: EditableImageProps) {
-  const { isEditMode } = useEditMode();
-  const [isHovered, setIsHovered] = useState(false);
-  const queryClient = useQueryClient();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const updateMutation = useMutation({
-    mutationFn: async (newUrl: string) => {
-      await client.from(entityName).update(entityId, { [field]: newUrl });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [entityName] });
-      toast.success('تم تحديث الصورة بنجاح');
-    },
-    onError: () => {
-      toast.error('حدث خطأ أثناء تحديث الصورة');
-    },
-  });
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      const filename = `images/${Date.now()}-${file.name}`;
-      const result = await client.storage.from('media-uploads').upload(filename, file);
-      if (result?.url) {
-        updateMutation.mutate(result.url);
-      }
-    } catch {
-      toast.error('حدث خطأ أثناء رفع الصورة');
-    }
-  };
-
-  if (!isEditMode) {
-    return <img src={src} alt={alt} className={className} />;
-  }
-
-  return (
-    <div
-      className="relative inline-block"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <img
-        src={src}
-        alt={alt}
-        className={`${className} transition-all duration-200 ${
-          isHovered ? 'outline outline-2 outline-dashed outline-[#D3B051]/60 rounded' : ''
-        }`}
-      />
-
-      {/* Overlay on hover */}
-      <div
-        className={`absolute inset-0 flex items-center justify-center bg-black/40 rounded transition-all duration-200 ${
-          isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
-      >
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          className="flex items-center gap-2 px-3 py-2 rounded-md bg-[#D3B051] text-[#1a1a2e] font-bold text-sm shadow-lg hover:bg-[#D3B051]/80 transition-colors"
-        >
-          <ImageIcon className="h-4 w-4" />
-          استبدال الصورة
-        </button>
-      </div>
-
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/jpeg,image/png,image/webp"
-        onChange={handleFileChange}
-        className="hidden"
-      />
-    </div>
-  );
+export function EditableImage({ src, alt = '', className = '' }: EditableImageProps) {
+  return <img src={src} alt={alt} className={className} />;
 }
 
-// ============ EditableVideo ============
 interface EditableVideoProps {
   src: string;
-  entityName: string;
-  entityId: number | string;
-  field: string;
+  entityName?: string;
+  entityId?: number | string;
+  field?: string;
   className?: string;
   poster?: string;
 }
 
-export function EditableVideo({
-  src,
-  entityName,
-  entityId,
-  field,
-  className = '',
-  poster,
-}: EditableVideoProps) {
-  const { isEditMode } = useEditMode();
-  const [isHovered, setIsHovered] = useState(false);
-  const queryClient = useQueryClient();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const updateMutation = useMutation({
-    mutationFn: async (newUrl: string) => {
-      await client.from(entityName).update(entityId, { [field]: newUrl });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [entityName] });
-      toast.success('تم تحديث الفيديو بنجاح');
-    },
-    onError: () => {
-      toast.error('حدث خطأ أثناء تحديث الفيديو');
-    },
-  });
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      const filename = `videos/${Date.now()}-${file.name}`;
-      const result = await client.storage.from('media-uploads').upload(filename, file);
-      if (result?.url) {
-        updateMutation.mutate(result.url);
-      }
-    } catch {
-      toast.error('حدث خطأ أثناء رفع الفيديو');
-    }
-  };
-
-  if (!isEditMode) {
-    return (
-      <video src={src} className={className} poster={poster} controls>
-        <track kind="captions" />
-      </video>
-    );
-  }
-
+export function EditableVideo({ src, className = '', poster }: EditableVideoProps) {
   return (
-    <div
-      className="relative inline-block"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <video
-        src={src}
-        className={`${className} transition-all duration-200 ${
-          isHovered ? 'outline outline-2 outline-dashed outline-[#D3B051]/60 rounded' : ''
-        }`}
-        poster={poster}
-        controls
-      >
-        <track kind="captions" />
-      </video>
-
-      {/* Overlay on hover */}
-      <div
-        className={`absolute inset-0 flex items-center justify-center bg-black/40 rounded transition-all duration-200 ${
-          isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
-      >
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          className="flex items-center gap-2 px-3 py-2 rounded-md bg-[#D3B051] text-[#1a1a2e] font-bold text-sm shadow-lg hover:bg-[#D3B051]/80 transition-colors"
-        >
-          <Video className="h-4 w-4" />
-          استبدال الفيديو
-        </button>
-      </div>
-
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="video/mp4,video/webm"
-        onChange={handleFileChange}
-        className="hidden"
-      />
-    </div>
+    <video src={src} className={className} poster={poster} controls>
+      <track kind="captions" />
+    </video>
   );
 }
 
-// ============ EditableSection ============
 interface EditableSectionProps {
   children: React.ReactNode;
-  entityName: string;
-  entityId: number | string;
+  entityName?: string;
+  entityId?: number | string;
   className?: string;
   onDelete?: () => void;
   onAddAbove?: () => void;
   onAddBelow?: () => void;
 }
 
-export function EditableSection({
-  children,
-  entityName,
-  entityId,
-  className = '',
-  onDelete,
-  onAddAbove,
-  onAddBelow,
-}: EditableSectionProps) {
-  const { isEditMode } = useEditMode();
-  const [isHovered, setIsHovered] = useState(false);
-  const queryClient = useQueryClient();
-
-  const deleteMutation = useMutation({
-    mutationFn: async () => {
-      await client.from(entityName).delete(entityId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [entityName] });
-      toast.success('تم حذف القسم بنجاح');
-      onDelete?.();
-    },
-    onError: () => {
-      toast.error('حدث خطأ أثناء الحذف');
-    },
-  });
-
-  if (!isEditMode) {
-    return <div className={className}>{children}</div>;
-  }
-
-  return (
-    <div
-      className={`relative ${className} transition-all duration-200 ${
-        isHovered ? 'outline outline-1 outline-dashed outline-[#D3B051]/40 rounded-lg' : ''
-      }`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {/* Floating toolbar at top of section */}
-      <div
-        className={`absolute -top-10 right-2 z-20 flex items-center gap-1 px-2 py-1.5 rounded-md bg-[#1a1a2e]/95 border border-[#D3B051]/40 shadow-lg transition-all duration-200 ${
-          isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1 pointer-events-none'
-        }`}
-        dir="rtl"
-      >
-        <button
-          onClick={() => {
-            if (confirm('هل أنت متأكد من حذف هذا القسم؟')) {
-              deleteMutation.mutate();
-            }
-          }}
-          className="flex items-center gap-1 px-2 py-1 rounded text-xs font-bold text-red-400 hover:bg-red-500/20 transition-colors"
-        >
-          <Trash2 className="h-3 w-3" />
-          حذف القسم
-        </button>
-        {onAddAbove && (
-          <button
-            onClick={onAddAbove}
-            className="flex items-center gap-1 px-2 py-1 rounded text-xs font-bold text-[#D3B051] hover:bg-[#D3B051]/20 transition-colors"
-          >
-            <Plus className="h-3 w-3" />
-            إضافة أعلى
-          </button>
-        )}
-        {onAddBelow && (
-          <button
-            onClick={onAddBelow}
-            className="flex items-center gap-1 px-2 py-1 rounded text-xs font-bold text-[#D3B051] hover:bg-[#D3B051]/20 transition-colors"
-          >
-            <Plus className="h-3 w-3" />
-            إضافة أسفل
-          </button>
-        )}
-      </div>
-
-      {children}
-    </div>
-  );
+export function EditableSection({ children, className = '' }: EditableSectionProps) {
+  return <div className={className}>{children}</div>;
 }
