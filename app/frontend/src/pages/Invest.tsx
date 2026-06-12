@@ -198,9 +198,8 @@ export default function Invest() {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.15)_0%,transparent_70%)]" />
+      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#0c1a36]">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)]" />
         <div
           ref={heroReveal.ref}
           className={`relative z-10 px-4 text-center ${heroReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}
@@ -211,7 +210,7 @@ export default function Invest() {
           <h1 className="font-tajawal text-4xl md:text-5xl font-bold gold-text mb-4">
             استثمر معنا
           </h1>
-          <p className="text-white/70 text-lg max-w-2xl mx-auto leading-relaxed">
+          <p className="text-gray-600 dark:text-white/70 text-lg max-w-2xl mx-auto leading-relaxed">
             فرص استثمارية واعدة في مشاريع عقارية متنوعة. انضم إلينا وكن شريكاً في بناء المستقبل
           </p>
         </div>
