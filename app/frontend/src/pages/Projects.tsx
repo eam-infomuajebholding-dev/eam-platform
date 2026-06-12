@@ -40,7 +40,7 @@ export default function Projects() {
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#0c1a36]">
+      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#111111]">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)]" />
         <div className="relative z-10 text-center px-4">
           <h1 className="gold-text text-4xl md:text-5xl lg:text-6xl font-bold font-playfair mb-4">مشاريعنا</h1>
@@ -51,7 +51,7 @@ export default function Projects() {
       </section>
 
       {/* Projects Grid */}
-      <section className="py-16 md:py-24 bg-white dark:bg-[#132347]">
+      <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a]">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-12">
             <h2 className="gold-text text-2xl md:text-3xl font-bold font-playfair">مشاريع تصنع الفارق</h2>

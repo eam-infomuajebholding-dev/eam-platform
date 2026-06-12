@@ -198,7 +198,7 @@ export default function Invest() {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#0c1a36]">
+      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#111111]">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)]" />
         <div
           ref={heroReveal.ref}
@@ -217,7 +217,7 @@ export default function Invest() {
       </section>
 
       {/* Statistics Section */}
-      <section className="py-16 bg-white dark:bg-[#132347] border-b border-gold/10">
+      <section className="py-16 bg-white dark:bg-[#1a1a1a] border-b border-gold/10">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
             {[
@@ -236,7 +236,7 @@ export default function Invest() {
       </section>
 
       {/* Projects Section */}
-      <section className="py-20 md:py-28 bg-gray-50 dark:bg-[#0c1a36] relative overflow-hidden">
+      <section className="py-20 md:py-28 bg-gray-50 dark:bg-[#111111] relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.06)_0%,transparent_70%)]" />
         <div className="container mx-auto px-4 relative z-10">
           <div
@@ -371,7 +371,7 @@ export default function Invest() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 md:py-28 bg-white dark:bg-[#132347] relative">
+      <section className="py-20 md:py-28 bg-white dark:bg-[#1a1a1a] relative">
         <div
           ref={ctaReveal.ref}
           className={`container mx-auto px-4 text-center ${ctaReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}
@@ -398,7 +398,7 @@ export default function Invest() {
             className="absolute inset-0 bg-black/80 backdrop-blur-sm"
             onClick={() => setSelectedProject(null)}
           />
-          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-[#132347] rounded-2xl border border-gold/30 shadow-2xl shadow-gold/10">
+          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gold/30 shadow-2xl shadow-gold/10">
             <button
               onClick={() => setSelectedProject(null)}
               className="absolute top-4 left-4 z-10 w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
@@ -529,7 +529,7 @@ export default function Invest() {
             className="absolute inset-0 bg-black/80 backdrop-blur-sm"
             onClick={() => setShowAddModal(false)}
           />
-          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-[#132347] rounded-2xl border border-gold/30 shadow-2xl p-8">
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gold/30 shadow-2xl p-8">
             <button
               onClick={() => setShowAddModal(false)}
               className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gray-200 dark:bg-white/10 text-gray-600 dark:text-white flex items-center justify-center hover:bg-gray-300 dark:hover:bg-white/20 transition-colors"

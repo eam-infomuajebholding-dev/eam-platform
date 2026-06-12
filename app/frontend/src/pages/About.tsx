@@ -31,7 +31,7 @@ export default function About() {
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#0c1a36]">
+      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#111111]">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)]" />
         <div className="relative z-10 text-center px-4">
           <h1 className="gold-text text-4xl md:text-5xl lg:text-6xl font-bold font-playfair mb-4">من نحن</h1>
@@ -42,7 +42,7 @@ export default function About() {
       </section>
 
       {/* Company Intro */}
-      <section className="py-16 md:py-24 bg-white dark:bg-[#132347]">
+      <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a]">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="border border-gold/20 rounded-2xl p-8 md:p-12 bg-gray-50 dark:bg-white/5 backdrop-blur-sm">
@@ -69,7 +69,7 @@ export default function About() {
       </section>
 
       {/* Values */}
-      <section className="py-16 md:py-24 bg-gray-50 dark:bg-[#0c1a36]">
+      <section className="py-16 md:py-24 bg-gray-50 dark:bg-[#111111]">
         <div className="container mx-auto px-4">
           <h2 className="gold-text text-3xl md:text-4xl font-bold font-playfair text-center mb-14">قيمنا</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">

@@ -56,7 +56,7 @@ export default function Consultation() {
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#0c1a36]">
+      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#111111]">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)]" />
         <div className="relative z-10 text-center px-4">
           <h1 className="gold-text text-4xl md:text-5xl lg:text-6xl font-bold font-playfair mb-4">طلب استشارة</h1>
@@ -67,7 +67,7 @@ export default function Consultation() {
       </section>
 
       {/* Form */}
-      <section className="py-16 md:py-24 bg-white dark:bg-[#132347]">
+      <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a]">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto">
             {isSubmitted ? (
@@ -137,10 +137,10 @@ export default function Consultation() {
                     className="w-full bg-white dark:bg-white/10 border border-gray-200 dark:border-gold/20 rounded-lg px-4 py-3 text-gray-800 dark:text-white font-tajawal focus:outline-none focus:border-gold/60 transition-colors"
                     disabled={isSubmitting}
                   >
-                    <option value="" className="bg-white dark:bg-[#132347]">اختر نوع الاستشارة</option>
-                    <option value="engineering" className="bg-white dark:bg-[#132347]">استشارة هندسية</option>
-                    <option value="government" className="bg-white dark:bg-[#132347]">استشارة حكومية</option>
-                    <option value="other" className="bg-white dark:bg-[#132347]">أخرى</option>
+                    <option value="" className="bg-white dark:bg-[#1a1a1a]">اختر نوع الاستشارة</option>
+                    <option value="engineering" className="bg-white dark:bg-[#1a1a1a]">استشارة هندسية</option>
+                    <option value="government" className="bg-white dark:bg-[#1a1a1a]">استشارة حكومية</option>
+                    <option value="other" className="bg-white dark:bg-[#1a1a1a]">أخرى</option>
                   </select>
                 </div>
 
