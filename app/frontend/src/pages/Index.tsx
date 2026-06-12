@@ -111,12 +111,12 @@ export default function Index() {
 
         <div
           ref={aboutReveal.ref}
-          className={`container mx-auto px-4 absolute left-0 top-0 z-10 bg-[#00000099] min-w-screen h-full flex flex-col items-center justify-center ${
+          className={`absolute inset-0 z-10 bg-[#00000099] w-full h-full flex flex-col items-center justify-center ${
             aboutReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'
           }`}
         >
 
-          <div className="max-w-4xl mx-auto text-center">
+          <div className="max-w-4xl mx-auto text-center px-4">
             {/* Gold Decorative Line */}
             
 
@@ -143,7 +143,7 @@ export default function Index() {
       </section>
 
       {/* Services Overview Section */}
-      <section id="services" className="py-20 md:py-28 dark:bg-dark-lighter relative mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[80px] pr-[0px] pb-[80px] pl-[0px] rounded-none text-[16px] font-normal text-[#2D2A1E] bg-[#FFFFFF] opacity-100">
+      <section id="services" className="py-20 md:py-28 bg-white dark:bg-dark-lighter relative mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[80px] pr-[0px] pb-[80px] pl-[0px] rounded-none text-[16px] font-normal text-[#2D2A1E] opacity-100">
         <div className="container mx-auto px-4">
           <div
             ref={servicesTitleReveal.ref}
