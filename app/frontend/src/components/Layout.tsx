@@ -5,6 +5,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import Footer from './Footer';
 import AIChatbot from './AIChatbot';
 import EditToolbar from './admin/EditToolbar';
+import { GlobalEditOverlay, applySavedEdits } from './admin/InlineEditable';
 import { getPageBackground, type PageBackground } from './admin/PageBackgroundEditor';
 
 const navLinks = [
@@ -35,6 +36,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     loadBg();
     window.addEventListener('page-bg-changed', loadBg);
     return () => window.removeEventListener('page-bg-changed', loadBg);
+  }, [location.pathname]);
+
+  // Apply saved inline edits on page load and route change
+  useEffect(() => {
+    // Small delay to ensure DOM is rendered
+    const timer = setTimeout(() => {
+      applySavedEdits();
+    }, 100);
+    return () => clearTimeout(timer);
   }, [location.pathname]);
 
   const handleToggleTheme = useCallback(() => {
@@ -186,6 +196,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       {/* Edit Mode Toolbar */}
       <EditToolbar />
+
+      {/* Global Edit Overlay (event delegation approach) */}
+      <GlobalEditOverlay />
     </div>
   );
 }
