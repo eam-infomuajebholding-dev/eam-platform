@@ -26,3 +26,5 @@ Redesign admin dashboard as an inline "Edit Mode" overlay on the actual website,
 - 2026-06-12: Invest page add/delete projects with localStorage persistence and admin edit mode integration
 - 2026-06-12: Fixed video background persistence - videos now stored in IndexedDB instead of temporary blob URLs, ensuring they persist across page reloads
 - 2026-06-12: Added social media icons to footer (Facebook, Instagram, X/Twitter, Snapchat, LinkedIn, TikTok, YouTube, Website) with editable links in admin edit mode
+- 2026-06-12: Unified Careers and Invest page hero sections to match About/Contact consistent style
+- 2026-06-12: Rewrote edit mode from hover-based toolbar to click-based editing - elements are now directly clickable to edit (no more disappearing toolbar)

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useEditMode } from '@/contexts/EditModeContext';
-import { Pencil, Image as ImageIcon, Video, Check, X } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 // ============ Helper Functions ============
@@ -132,16 +132,52 @@ export function GlobalEditOverlay() {
   const [hoveredElement, setHoveredElement] = useState<HTMLElement | null>(null);
   const [editingElement, setEditingElement] = useState<HTMLElement | null>(null);
   const [toolbarPos, setToolbarPos] = useState({ top: 0, left: 0 });
-  const [editType, setEditType] = useState<'text' | 'image' | 'video' | null>(null);
+  const [fileAccept, setFileAccept] = useState<string>('image/*');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const toolbarRef = useRef<HTMLDivElement>(null);
+  const originalTextRef = useRef<string>('');
+  const styleSheetRef = useRef<HTMLStyleElement | null>(null);
+
+  // Inject global cursor style for editable elements in edit mode
+  useEffect(() => {
+    if (isEditMode) {
+      const style = document.createElement('style');
+      style.setAttribute('data-edit-cursor', 'true');
+      style.textContent = `
+        body[data-edit-mode="true"] h1, body[data-edit-mode="true"] h2,
+        body[data-edit-mode="true"] h3, body[data-edit-mode="true"] h4,
+        body[data-edit-mode="true"] h5, body[data-edit-mode="true"] h6,
+        body[data-edit-mode="true"] p, body[data-edit-mode="true"] span,
+        body[data-edit-mode="true"] a, body[data-edit-mode="true"] li,
+        body[data-edit-mode="true"] td, body[data-edit-mode="true"] th,
+        body[data-edit-mode="true"] label, body[data-edit-mode="true"] blockquote,
+        body[data-edit-mode="true"] button, body[data-edit-mode="true"] img,
+        body[data-edit-mode="true"] video {
+          cursor: pointer !important;
+        }
+      `;
+      document.head.appendChild(style);
+      document.body.setAttribute('data-edit-mode', 'true');
+      styleSheetRef.current = style;
+    } else {
+      document.body.removeAttribute('data-edit-mode');
+      if (styleSheetRef.current) {
+        styleSheetRef.current.remove();
+        styleSheetRef.current = null;
+      }
+    }
+
+    return () => {
+      document.body.removeAttribute('data-edit-mode');
+      if (styleSheetRef.current) {
+        styleSheetRef.current.remove();
+        styleSheetRef.current = null;
+      }
+    };
+  }, [isEditMode]);
 
   const updateToolbarPosition = useCallback((el: HTMLElement) => {
     const rect = el.getBoundingClientRect();
-    // For fixed positioning, use rect directly (no scrollY needed)
     let top = rect.top - 44;
-    // If too close to top of viewport (navbar area), position below element
     if (top < 80) {
       top = rect.bottom + 8;
     }
@@ -151,7 +187,7 @@ export function GlobalEditOverlay() {
     });
   }, []);
 
-  // Handle mouseover with debounce
+  // Handle hover for visual feedback only (dashed outline, no toolbar)
   useEffect(() => {
     if (!isEditMode) {
       setHoveredElement(null);
@@ -162,62 +198,26 @@ export function GlobalEditOverlay() {
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (!target || isInsideEditUI(target)) return;
-      if (editingElement) return; // Don't change hover while editing
+      if (editingElement) return;
 
-      if (hoverTimeoutRef.current) {
-        clearTimeout(hoverTimeoutRef.current);
-      }
-
-      hoverTimeoutRef.current = setTimeout(() => {
-        // Walk up to find the nearest editable element
-        let el: HTMLElement | null = target;
-        while (el && el !== document.body) {
-          if (isInsideEditUI(el)) return;
-          if (isEditableElement(el)) {
-            setHoveredElement(el);
-            updateToolbarPosition(el);
-            if (isTextElement(el)) setEditType('text');
-            else if (isImageElement(el)) setEditType('image');
-            else if (isVideoElement(el)) setEditType('video');
-            return;
-          }
-          el = el.parentElement;
+      // Walk up to find the nearest editable element
+      let el: HTMLElement | null = target;
+      while (el && el !== document.body) {
+        if (isInsideEditUI(el)) return;
+        if (isEditableElement(el)) {
+          setHoveredElement(el);
+          return;
         }
-        setHoveredElement(null);
-        setEditType(null);
-      }, 50);
+        el = el.parentElement;
+      }
+      setHoveredElement(null);
     };
 
     const handleMouseOut = (e: MouseEvent) => {
       const relatedTarget = e.relatedTarget as HTMLElement | null;
       if (relatedTarget && isInsideEditUI(relatedTarget)) return;
       if (editingElement) return;
-
-      // Check if mouse is moving toward the toolbar
-      if (relatedTarget && toolbarRef.current) {
-        const toolbarRect = toolbarRef.current.getBoundingClientRect();
-        const mouseX = e.clientX;
-        const mouseY = e.clientY;
-        // If mouse is near the toolbar area, don't hide
-        if (
-          mouseX >= toolbarRect.left - 20 &&
-          mouseX <= toolbarRect.right + 20 &&
-          mouseY >= toolbarRect.top - 20 &&
-          mouseY <= toolbarRect.bottom + 20
-        ) {
-          return;
-        }
-      }
-
-      if (hoverTimeoutRef.current) {
-        clearTimeout(hoverTimeoutRef.current);
-      }
-      hoverTimeoutRef.current = setTimeout(() => {
-        if (!editingElement) {
-          setHoveredElement(null);
-          setEditType(null);
-        }
-      }, 300);
+      setHoveredElement(null);
     };
 
     document.addEventListener('mouseover', handleMouseOver, true);
@@ -226,13 +226,63 @@ export function GlobalEditOverlay() {
     return () => {
       document.removeEventListener('mouseover', handleMouseOver, true);
       document.removeEventListener('mouseout', handleMouseOut, true);
-      if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    };
+  }, [isEditMode, editingElement]);
+
+  // Handle click to start editing
+  useEffect(() => {
+    if (!isEditMode) return;
+
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target || isInsideEditUI(target)) return;
+      if (editingElement) return; // Already editing something
+
+      // Walk up to find the nearest editable element
+      let el: HTMLElement | null = target;
+      while (el && el !== document.body) {
+        if (isInsideEditUI(el)) return;
+        if (isEditableElement(el)) {
+          e.preventDefault();
+          e.stopPropagation();
+
+          if (isTextElement(el)) {
+            // Start inline text editing
+            originalTextRef.current = el.textContent || '';
+            setEditingElement(el);
+            el.contentEditable = 'true';
+            el.focus();
+            el.style.outline = '2px solid #D3B051';
+            el.style.outlineOffset = '2px';
+            el.style.backgroundColor = 'rgba(211, 176, 81, 0.1)';
+            updateToolbarPosition(el);
+          } else if (isImageElement(el)) {
+            // Open file picker for image
+            setEditingElement(el);
+            setFileAccept('image/*');
+            setTimeout(() => fileInputRef.current?.click(), 0);
+          } else if (isVideoElement(el)) {
+            // Open file picker for video
+            setEditingElement(el);
+            setFileAccept('video/*');
+            setTimeout(() => fileInputRef.current?.click(), 0);
+          }
+          return;
+        }
+        el = el.parentElement;
+      }
+    };
+
+    document.addEventListener('click', handleClick, true);
+
+    return () => {
+      document.removeEventListener('click', handleClick, true);
     };
   }, [isEditMode, editingElement, updateToolbarPosition]);
 
-  // Add/remove outline on hovered element
+  // Add/remove dashed outline on hovered element (visual feedback only)
   useEffect(() => {
-    if (!hoveredElement) return;
+    if (!hoveredElement || editingElement) return;
     hoveredElement.style.outline = '2px dashed #D3B051';
     hoveredElement.style.outlineOffset = '2px';
     hoveredElement.style.borderRadius = '4px';
@@ -242,17 +292,7 @@ export function GlobalEditOverlay() {
       hoveredElement.style.outlineOffset = '';
       hoveredElement.style.borderRadius = '';
     };
-  }, [hoveredElement]);
-
-  // Start editing text
-  const startTextEdit = useCallback(() => {
-    if (!hoveredElement) return;
-    setEditingElement(hoveredElement);
-    hoveredElement.contentEditable = 'true';
-    hoveredElement.focus();
-    hoveredElement.style.outline = '2px solid #D3B051';
-    hoveredElement.style.backgroundColor = 'rgba(211, 176, 81, 0.1)';
-  }, [hoveredElement]);
+  }, [hoveredElement, editingElement]);
 
   // Save text edit
   const saveTextEdit = useCallback(() => {
@@ -264,6 +304,7 @@ export function GlobalEditOverlay() {
     editingElement.contentEditable = 'false';
     editingElement.style.backgroundColor = '';
     editingElement.style.outline = '';
+    editingElement.style.outlineOffset = '';
     setEditingElement(null);
     setHoveredElement(null);
     toast.success('تم حفظ التعديل');
@@ -272,42 +313,23 @@ export function GlobalEditOverlay() {
   // Cancel text edit
   const cancelTextEdit = useCallback(() => {
     if (!editingElement) return;
-    // Restore original text from localStorage or leave as is
-    const path = getElementPath(editingElement);
-    const key = getStorageKey(path);
-    const saved = localStorage.getItem(key);
-    if (saved) {
-      try {
-        const data = JSON.parse(saved);
-        editingElement.textContent = data.value;
-      } catch { /* ignore */ }
-    }
+    editingElement.textContent = originalTextRef.current;
     editingElement.contentEditable = 'false';
     editingElement.style.backgroundColor = '';
     editingElement.style.outline = '';
+    editingElement.style.outlineOffset = '';
     setEditingElement(null);
     setHoveredElement(null);
   }, [editingElement]);
 
-  // Handle image replacement
-  const handleImageReplace = useCallback(() => {
-    if (!hoveredElement || !isImageElement(hoveredElement)) return;
-    setEditingElement(hoveredElement);
-    fileInputRef.current?.click();
-  }, [hoveredElement]);
-
-  // Handle video replacement
-  const handleVideoReplace = useCallback(() => {
-    if (!hoveredElement || !isVideoElement(hoveredElement)) return;
-    setEditingElement(hoveredElement);
-    fileInputRef.current?.click();
-  }, [hoveredElement]);
-
-  // Handle file selection
+  // Handle file selection for image/video
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
-      if (!file || !editingElement) return;
+      if (!file || !editingElement) {
+        setEditingElement(null);
+        return;
+      }
 
       const reader = new FileReader();
       reader.onload = () => {
@@ -342,55 +364,11 @@ export function GlobalEditOverlay() {
 
   if (!isEditMode) return null;
 
-  const showToolbar = hoveredElement && !editingElement;
-  const showEditControls = editingElement && editType === 'text';
+  const showEditControls = editingElement && isTextElement(editingElement);
 
   return createPortal(
     <div data-edit-overlay="true" style={{ pointerEvents: 'none' }}>
-      {/* Floating toolbar for hovered element */}
-      {showToolbar && (
-        <div
-          ref={toolbarRef}
-          data-edit-toolbar="true"
-          className="fixed z-[9999] flex items-center gap-1 px-2 py-1.5 rounded-lg bg-[#1a1a2e]/95 border border-[#D3B051] shadow-xl"
-          style={{
-            top: `${toolbarPos.top}px`,
-            left: `${toolbarPos.left}px`,
-            transform: 'translateX(-50%)',
-            pointerEvents: 'auto',
-          }}
-        >
-          {editType === 'text' && (
-            <button
-              onClick={startTextEdit}
-              className="flex items-center gap-1.5 px-2 py-1 rounded text-xs font-bold text-[#D3B051] hover:bg-[#D3B051]/20 transition-colors"
-            >
-              <Pencil className="h-3 w-3" />
-              تحرير
-            </button>
-          )}
-          {editType === 'image' && (
-            <button
-              onClick={handleImageReplace}
-              className="flex items-center gap-1.5 px-2 py-1 rounded text-xs font-bold text-[#D3B051] hover:bg-[#D3B051]/20 transition-colors"
-            >
-              <ImageIcon className="h-3 w-3" />
-              استبدال الصورة
-            </button>
-          )}
-          {editType === 'video' && (
-            <button
-              onClick={handleVideoReplace}
-              className="flex items-center gap-1.5 px-2 py-1 rounded text-xs font-bold text-[#D3B051] hover:bg-[#D3B051]/20 transition-colors"
-            >
-              <Video className="h-3 w-3" />
-              استبدال الفيديو
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* Save/Cancel controls for text editing */}
+      {/* Save/Cancel controls for text editing - appears after clicking a text element */}
       {showEditControls && (
         <div
           data-edit-toolbar="true"
@@ -423,7 +401,7 @@ export function GlobalEditOverlay() {
       <input
         ref={fileInputRef}
         type="file"
-        accept={editType === 'image' ? 'image/*' : 'video/*'}
+        accept={fileAccept}
         onChange={handleFileChange}
         className="hidden"
         style={{ pointerEvents: 'auto' }}
