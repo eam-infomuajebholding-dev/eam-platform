@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { EditModeProvider } from '@/contexts/EditModeContext';
 import Index from './pages/Index';
 import EngineeringServices from './pages/EngineeringServices';
 import GovernmentServices from './pages/GovernmentServices';
@@ -57,9 +58,11 @@ const App = () => (
     <TooltipProvider>
       <ThemeProvider>
         <AuthProvider>
-          <Toaster />
           <BrowserRouter>
-            <AppRoutes />
+            <EditModeProvider>
+              <Toaster />
+              <AppRoutes />
+            </EditModeProvider>
           </BrowserRouter>
         </AuthProvider>
       </ThemeProvider>
