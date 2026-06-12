@@ -90,7 +90,7 @@ export default function SectionManager() {
     if (!allSections[afterIndex]) return;
 
     const newSection = document.createElement('section');
-    newSection.className = 'py-16 px-4 bg-gray-50 dark:bg-[#1a1a1a]';
+    newSection.className = 'py-16 px-4 bg-gray-50 dark:bg-[#6B6B6B]';
     newSection.setAttribute('data-custom-section', String(afterIndex));
     newSection.innerHTML = `
       <div class="container mx-auto text-center">

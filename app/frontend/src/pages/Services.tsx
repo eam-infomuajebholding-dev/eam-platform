@@ -59,7 +59,7 @@ export default function Services() {
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#111111]">
+      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#5E5E5E]">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)]" />
         <div className="relative z-10 text-center px-4">
           <h1 className="gold-text text-4xl md:text-5xl lg:text-6xl font-bold font-playfair mb-4">خدماتنا</h1>
@@ -70,7 +70,7 @@ export default function Services() {
       </section>
 
       {/* Engineering Services */}
-      <section className="py-16 md:py-20 bg-white dark:bg-[#1a1a1a]">
+      <section className="py-16 md:py-20 bg-white dark:bg-[#6B6B6B]">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-10">
             <h2 className="gold-text text-2xl md:text-3xl font-bold font-playfair">الخدمات الهندسية</h2>
@@ -83,7 +83,7 @@ export default function Services() {
       </section>
 
       {/* Government Services */}
-      <section className="py-16 md:py-20 bg-gray-50 dark:bg-[#111111]">
+      <section className="py-16 md:py-20 bg-gray-50 dark:bg-[#5E5E5E]">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-10">
             <h2 className="gold-text text-2xl md:text-3xl font-bold font-playfair">الخدمات الحكومية</h2>
@@ -96,7 +96,7 @@ export default function Services() {
       </section>
 
       {/* Contracting Services */}
-      <section className="py-16 md:py-20 bg-white dark:bg-[#1a1a1a]">
+      <section className="py-16 md:py-20 bg-white dark:bg-[#6B6B6B]">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-10">
             <h2 className="gold-text text-2xl md:text-3xl font-bold font-playfair">المقاولات</h2>
@@ -115,7 +115,7 @@ export default function Services() {
       </section>
 
       {/* Maintenance Services */}
-      <section className="py-16 md:py-20 bg-gray-50 dark:bg-[#111111]">
+      <section className="py-16 md:py-20 bg-gray-50 dark:bg-[#5E5E5E]">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-10">
             <h2 className="gold-text text-2xl md:text-3xl font-bold font-playfair">الصيانة والتشغيل</h2>
@@ -134,7 +134,7 @@ export default function Services() {
       </section>
 
       {/* Real Estate Development */}
-      <section className="py-16 md:py-20 bg-white dark:bg-[#1a1a1a]">
+      <section className="py-16 md:py-20 bg-white dark:bg-[#6B6B6B]">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-10">
             <h2 className="gold-text text-2xl md:text-3xl font-bold font-playfair">التطوير العقاري</h2>
@@ -153,7 +153,7 @@ export default function Services() {
       </section>
 
       {/* Real Estate Marketing */}
-      <section className="py-16 md:py-20 bg-gray-50 dark:bg-[#111111]">
+      <section className="py-16 md:py-20 bg-gray-50 dark:bg-[#5E5E5E]">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-10">
             <h2 className="gold-text text-2xl md:text-3xl font-bold font-playfair">التسويق العقاري</h2>
@@ -172,7 +172,7 @@ export default function Services() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 bg-white dark:bg-[#1a1a1a]">
+      <section className="py-16 bg-white dark:bg-[#6B6B6B]">
         <div className="container mx-auto px-4 text-center">
           <h2 className="gold-text text-3xl md:text-4xl font-bold font-playfair mb-6">هل تحتاج إلى خدماتنا؟</h2>
           <p className="text-gray-600 dark:text-white/70 text-lg mb-8 max-w-xl mx-auto font-tajawal">تواصل معنا اليوم للحصول على استشارة مجانية</p>

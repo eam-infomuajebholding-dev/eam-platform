@@ -59,7 +59,7 @@ export default function Contact() {
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#111111]">
+      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#5E5E5E]">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)]" />
         <div className="relative z-10 text-center px-4">
           <h1 className="gold-text text-4xl md:text-5xl lg:text-6xl font-bold font-playfair mb-4">اتصل بنا</h1>
@@ -70,7 +70,7 @@ export default function Contact() {
       </section>
 
       {/* Contact Form Section */}
-      <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a]">
+      <section className="py-16 md:py-24 bg-white dark:bg-[#6B6B6B]">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 max-w-6xl mx-auto">
             {/* Form */}
@@ -212,7 +212,7 @@ export default function Contact() {
                 </div>
               </div>
 
-              <div className="bg-gray-50 dark:bg-[#111111] rounded-2xl p-8 text-center border border-gold/20">
+              <div className="bg-gray-50 dark:bg-[#5E5E5E] rounded-2xl p-8 text-center border border-gold/20">
                 <h3 className="text-gold font-bold text-lg mb-3 font-tajawal">ساعات العمل</h3>
                 <p className="text-gray-600 dark:text-white/70 text-sm font-tajawal leading-relaxed">
                   الأحد - الخميس<br />
@@ -224,7 +224,7 @@ export default function Contact() {
         </div>
       </section>
       {/* Google Maps Section */}
-      <section className="py-16 md:py-24 bg-gray-50 dark:bg-[#111111]">
+      <section className="py-16 md:py-24 bg-gray-50 dark:bg-[#5E5E5E]">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-10">

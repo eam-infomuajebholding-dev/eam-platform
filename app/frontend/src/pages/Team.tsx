@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, X, FileText, Upload, User } from 'lucide-react';
+import { Plus, X, FileText, Upload, User, Video, Play } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { useEditMode } from '@/contexts/EditModeContext';
 import { toast } from 'sonner';
@@ -10,6 +10,8 @@ interface TeamMember {
   title: string;
   description: string;
   image: string;
+  videoData: string;
+  videoName: string;
   pdfData: string;
   pdfName: string;
 }
@@ -21,6 +23,8 @@ const defaultTeamMembers: TeamMember[] = [
     title: 'المدير العام',
     description: 'خبرة تزيد عن 20 عاماً في إدارة المشاريع الهندسية الكبرى والاستشارات الهندسية',
     image: '',
+    videoData: '',
+    videoName: '',
     pdfData: '',
     pdfName: '',
   },
@@ -30,6 +34,8 @@ const defaultTeamMembers: TeamMember[] = [
     title: 'مدير الخدمات الهندسية',
     description: 'متخصص في التصميم المعماري والإنشائي بخبرة 15 عاماً في المشاريع السكنية والتجارية',
     image: '',
+    videoData: '',
+    videoName: '',
     pdfData: '',
     pdfName: '',
   },
@@ -39,6 +45,8 @@ const defaultTeamMembers: TeamMember[] = [
     title: 'مديرة الخدمات الحكومية',
     description: 'خبيرة في الإجراءات الحكومية والتراخيص مع خبرة واسعة في التعامل مع الجهات الرسمية',
     image: '',
+    videoData: '',
+    videoName: '',
     pdfData: '',
     pdfName: '',
   },
@@ -48,6 +56,8 @@ const defaultTeamMembers: TeamMember[] = [
     title: 'مدير المشاريع',
     description: 'مهندس مدني متخصص في إدارة وتنفيذ المشاريع الكبرى مع سجل حافل بالإنجازات',
     image: '',
+    videoData: '',
+    videoName: '',
     pdfData: '',
     pdfName: '',
   },
@@ -95,8 +105,11 @@ export default function Team() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [formData, setFormData] = useState<AddMemberFormData>(emptyForm);
   const [formImage, setFormImage] = useState<string>('');
+  const [formVideoData, setFormVideoData] = useState<string>('');
+  const [formVideoName, setFormVideoName] = useState<string>('');
   const [formPdfData, setFormPdfData] = useState<string>('');
   const [formPdfName, setFormPdfName] = useState<string>('');
+  const [showMemberVideo, setShowMemberVideo] = useState(false);
 
   useEffect(() => {
     saveTeam(members);
@@ -115,6 +128,17 @@ export default function Team() {
     const reader = new FileReader();
     reader.onload = () => {
       setFormImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setFormVideoData(reader.result as string);
+      setFormVideoName(file.name);
     };
     reader.readAsDataURL(file);
   };
@@ -138,12 +162,16 @@ export default function Team() {
       title: formData.title,
       description: formData.description,
       image: formImage,
+      videoData: formVideoData,
+      videoName: formVideoName,
       pdfData: formPdfData,
       pdfName: formPdfName,
     };
     setMembers(prev => [...prev, newMember]);
     setFormData(emptyForm);
     setFormImage('');
+    setFormVideoData('');
+    setFormVideoName('');
     setFormPdfData('');
     setFormPdfName('');
     setShowAddModal(false);
@@ -157,7 +185,7 @@ export default function Team() {
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#111111]">
+      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#5E5E5E]">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)]" />
         <div className="relative z-10 text-center px-4">
           <h1 className="gold-text text-4xl md:text-5xl lg:text-6xl font-bold font-playfair mb-4">فريقنا</h1>
@@ -168,7 +196,7 @@ export default function Team() {
       </section>
 
       {/* Team Grid */}
-      <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a]">
+      <section className="py-16 md:py-24 bg-white dark:bg-[#6B6B6B]">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center mb-14">
             <p className="text-gray-600 dark:text-white/70 text-lg font-tajawal leading-relaxed">
@@ -232,18 +260,18 @@ export default function Team() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
             className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-            onClick={() => setSelectedMember(null)}
+            onClick={() => { setSelectedMember(null); setShowMemberVideo(false); }}
           />
-          <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gold/30 shadow-2xl shadow-gold/10 p-8">
+          <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white dark:bg-[#4a4a4a] rounded-2xl border border-gold/30 shadow-2xl shadow-gold/10 p-8">
             <button
-              onClick={() => setSelectedMember(null)}
+              onClick={() => { setSelectedMember(null); setShowMemberVideo(false); }}
               className="absolute top-4 left-4 z-10 w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="text-center mb-6">
-              <div className={`w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden ${!selectedMember.image ? 'bg-gradient-to-br from-[#a08530] to-[#C9A84C]' : ''} flex items-center justify-center`}>
+              <div className={`relative w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden ${!selectedMember.image ? 'bg-gradient-to-br from-[#a08530] to-[#C9A84C]' : ''} flex items-center justify-center`}>
                 {selectedMember.image ? (
                   <img src={selectedMember.image} alt={selectedMember.name} className="w-full h-full object-cover" />
                 ) : (
@@ -258,6 +286,29 @@ export default function Team() {
               <h3 className="font-tajawal text-lg font-bold text-gold mb-3">نبذة</h3>
               <p className="text-gray-600 dark:text-white/60 leading-relaxed font-tajawal">{selectedMember.description}</p>
             </div>
+
+            {/* Video Section */}
+            {selectedMember.videoData && (
+              <div className="mb-6">
+                <h3 className="font-tajawal text-lg font-bold text-gold mb-3">فيديو تعريفي</h3>
+                {showMemberVideo ? (
+                  <div className="rounded-xl overflow-hidden bg-black">
+                    <video controls autoPlay className="w-full h-48 object-contain">
+                      <source src={selectedMember.videoData} />
+                      متصفحك لا يدعم تشغيل الفيديو
+                    </video>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setShowMemberVideo(true)}
+                    className="w-full py-3 rounded-xl bg-gray-100 dark:bg-white/10 border border-gold/20 flex items-center justify-center gap-2 text-gold font-bold hover:bg-gold/10 transition-colors"
+                  >
+                    <Play className="w-5 h-5" />
+                    تشغيل الفيديو
+                  </button>
+                )}
+              </div>
+            )}
 
             {selectedMember.pdfData && (
               <a
@@ -280,7 +331,7 @@ export default function Team() {
             className="absolute inset-0 bg-black/80 backdrop-blur-sm"
             onClick={() => setShowAddModal(false)}
           />
-          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gold/30 shadow-2xl p-8">
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-[#4a4a4a] rounded-2xl border border-gold/30 shadow-2xl p-8">
             <button
               onClick={() => setShowAddModal(false)}
               className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gray-200 dark:bg-white/10 text-gray-600 dark:text-white flex items-center justify-center hover:bg-gray-300 dark:hover:bg-white/20 transition-colors"
@@ -332,6 +383,20 @@ export default function Team() {
                   {formImage && (
                     <img src={formImage} alt="preview" className="w-12 h-12 rounded-full object-cover border border-gold/20" />
                   )}
+                </div>
+              </div>
+
+              {/* Video Upload */}
+              <div>
+                <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">فيديو تعريفي</label>
+                <div className="flex items-center gap-3">
+                  <label className="flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors">
+                    <Video className="w-5 h-5 text-gold" />
+                    <span className="text-sm text-gray-600 dark:text-white/60 font-tajawal">
+                      {formVideoName || 'اختر فيديو'}
+                    </span>
+                    <input type="file" accept="video/*" onChange={handleVideoUpload} className="hidden" />
+                  </label>
                 </div>
               </div>
 

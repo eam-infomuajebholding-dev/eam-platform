@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingUp, Play, FileText, X, ChevronLeft, MapPin, Calendar, DollarSign, Building2, Plus } from 'lucide-react';
+import { TrendingUp, Play, FileText, X, ChevronLeft, MapPin, Calendar, DollarSign, Building2, Plus, Upload, Video } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { useEditMode } from '@/contexts/EditModeContext';
@@ -140,6 +140,54 @@ const emptyForm: AddProjectFormData = {
   status: 'available',
 };
 
+function FileUploadField({ label, accept, multiple, onFiles, fileNames }: {
+  label: string;
+  accept: string;
+  multiple?: boolean;
+  onFiles: (files: string[], names: string[]) => void;
+  fileNames: string[];
+}) {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    const results: string[] = [];
+    const names: string[] = [];
+    let loaded = 0;
+    Array.from(files).forEach((file) => {
+      names.push(file.name);
+      const reader = new FileReader();
+      reader.onload = () => {
+        results.push(reader.result as string);
+        loaded++;
+        if (loaded === files.length) {
+          onFiles(results, names);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  return (
+    <div>
+      <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">{label}</label>
+      <label className="flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors">
+        <Upload className="w-5 h-5 text-gold" />
+        <span className="text-sm text-gray-600 dark:text-white/60 font-tajawal">
+          {fileNames.length > 0 ? `تم اختيار ${fileNames.length} ملف` : 'اختر ملف'}
+        </span>
+        <input type="file" accept={accept} multiple={multiple} onChange={handleChange} className="hidden" />
+      </label>
+      {fileNames.length > 0 && (
+        <div className="mt-1 flex flex-wrap gap-1">
+          {fileNames.map((name, i) => (
+            <span key={i} className="text-xs bg-gold/10 text-gold px-2 py-0.5 rounded">{name}</span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Invest() {
   const heroReveal = useScrollReveal({ threshold: 0.15 });
   const projectsReveal = useScrollReveal({ threshold: 0.1 });
@@ -153,6 +201,12 @@ export default function Invest() {
   const [filter, setFilter] = useState<'all' | 'available' | 'in-progress'>('all');
   const [showAddModal, setShowAddModal] = useState(false);
   const [formData, setFormData] = useState<AddProjectFormData>(emptyForm);
+  const [formImages, setFormImages] = useState<string[]>([]);
+  const [formImageNames, setFormImageNames] = useState<string[]>([]);
+  const [formVideoData, setFormVideoData] = useState<string>('');
+  const [formVideoName, setFormVideoName] = useState<string>('');
+  const [formPdfData, setFormPdfData] = useState<string>('');
+  const [formPdfName, setFormPdfName] = useState<string>('');
 
   useEffect(() => {
     saveProjects(projects);
@@ -180,13 +234,19 @@ export default function Invest() {
       expectedReturn: formData.expectedReturn,
       duration: formData.duration,
       description: formData.description,
-      videoUrl: '',
-      images: ['https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800'],
-      pdfUrl: '',
+      videoUrl: formVideoData,
+      images: formImages.length > 0 ? formImages : ['https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800'],
+      pdfUrl: formPdfData,
       status: formData.status,
     };
     setProjects(prev => [...prev, newProject]);
     setFormData(emptyForm);
+    setFormImages([]);
+    setFormImageNames([]);
+    setFormVideoData('');
+    setFormVideoName('');
+    setFormPdfData('');
+    setFormPdfName('');
     setShowAddModal(false);
     toast.success('تم إضافة المشروع بنجاح');
   };
@@ -198,7 +258,7 @@ export default function Invest() {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#111111]">
+      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#5E5E5E]">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)]" />
         <div
           ref={heroReveal.ref}
@@ -217,7 +277,7 @@ export default function Invest() {
       </section>
 
       {/* Statistics Section */}
-      <section className="py-16 bg-white dark:bg-[#1a1a1a] border-b border-gold/10">
+      <section className="py-16 bg-white dark:bg-[#6B6B6B] border-b border-gold/10">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
             {[
@@ -236,7 +296,7 @@ export default function Invest() {
       </section>
 
       {/* Projects Section */}
-      <section className="py-20 md:py-28 bg-gray-50 dark:bg-[#111111] relative overflow-hidden">
+      <section className="py-20 md:py-28 bg-gray-50 dark:bg-[#5E5E5E] relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.06)_0%,transparent_70%)]" />
         <div className="container mx-auto px-4 relative z-10">
           <div
@@ -371,7 +431,7 @@ export default function Invest() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 md:py-28 bg-white dark:bg-[#1a1a1a] relative">
+      <section className="py-20 md:py-28 bg-white dark:bg-[#6B6B6B] relative">
         <div
           ref={ctaReveal.ref}
           className={`container mx-auto px-4 text-center ${ctaReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}
@@ -398,7 +458,7 @@ export default function Invest() {
             className="absolute inset-0 bg-black/80 backdrop-blur-sm"
             onClick={() => setSelectedProject(null)}
           />
-          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gold/30 shadow-2xl shadow-gold/10">
+          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-[#4a4a4a] rounded-2xl border border-gold/30 shadow-2xl shadow-gold/10">
             <button
               onClick={() => setSelectedProject(null)}
               className="absolute top-4 left-4 z-10 w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
@@ -529,7 +589,7 @@ export default function Invest() {
             className="absolute inset-0 bg-black/80 backdrop-blur-sm"
             onClick={() => setShowAddModal(false)}
           />
-          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gold/30 shadow-2xl p-8">
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-[#4a4a4a] rounded-2xl border border-gold/30 shadow-2xl p-8">
             <button
               onClick={() => setShowAddModal(false)}
               className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gray-200 dark:bg-white/10 text-gray-600 dark:text-white flex items-center justify-center hover:bg-gray-300 dark:hover:bg-white/20 transition-colors"
@@ -617,6 +677,38 @@ export default function Invest() {
                   placeholder="اكتب وصفاً تفصيلياً للمشروع..."
                 />
               </div>
+
+              {/* File Uploads */}
+              <FileUploadField
+                label="صور المشروع (يمكن اختيار عدة صور)"
+                accept="image/*"
+                multiple
+                onFiles={(files, names) => { setFormImages(files); setFormImageNames(names); }}
+                fileNames={formImageNames}
+              />
+
+              <FileUploadField
+                label="فيديو المشروع"
+                accept="video/*"
+                onFiles={(files, names) => { setFormVideoData(files[0] || ''); setFormVideoName(names[0] || ''); }}
+                fileNames={formVideoName ? [formVideoName] : []}
+              />
+
+              <FileUploadField
+                label="ملف PDF (تفاصيل المشروع)"
+                accept=".pdf"
+                onFiles={(files, names) => { setFormPdfData(files[0] || ''); setFormPdfName(names[0] || ''); }}
+                fileNames={formPdfName ? [formPdfName] : []}
+              />
+
+              {/* Image Previews */}
+              {formImages.length > 0 && (
+                <div className="grid grid-cols-4 gap-2">
+                  {formImages.map((img, i) => (
+                    <img key={i} src={img} alt={`preview ${i}`} className="w-full h-16 rounded-lg object-cover border border-gold/20" />
+                  ))}
+                </div>
+              )}
 
               <button
                 type="submit"
