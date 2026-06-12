@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { useEditMode } from '@/contexts/EditModeContext';
 import { client } from '@/lib/api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Pencil, Trash2, Image as ImageIcon, Video, Check, X } from 'lucide-react';
+import { Pencil, Trash2, Image as ImageIcon, Video, Check, X, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
 // ============ EditableText ============
@@ -30,6 +30,7 @@ export function EditableText({
   const { isEditMode } = useEditMode();
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value);
+  const [isHovered, setIsHovered] = useState(false);
   const queryClient = useQueryClient();
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement>(null);
 
@@ -95,13 +96,13 @@ export function EditableText({
           <button
             onClick={handleSave}
             disabled={updateMutation.isPending}
-            className="p-1 rounded bg-green-600 hover:bg-green-700 text-white transition-colors"
+            className="p-1.5 rounded bg-green-600 hover:bg-green-700 text-white transition-colors"
           >
             <Check className="h-4 w-4" />
           </button>
           <button
             onClick={handleCancel}
-            className="p-1 rounded bg-red-600 hover:bg-red-700 text-white transition-colors"
+            className="p-1.5 rounded bg-red-600 hover:bg-red-700 text-white transition-colors"
           >
             <X className="h-4 w-4" />
           </button>
@@ -111,9 +112,34 @@ export function EditableText({
   }
 
   return (
-    <div className="group/editable relative inline-block">
+    <div
+      className="relative inline-block"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Floating toolbar above element */}
+      <div
+        className={`absolute -top-9 right-0 z-20 flex items-center gap-1 px-2 py-1 rounded-md bg-[#D3B051] shadow-lg transition-all duration-200 ${
+          isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1 pointer-events-none'
+        }`}
+      >
+        <Pencil className="h-3 w-3 text-[#1a1a2e]" />
+        <button
+          onClick={() => {
+            setEditValue(value);
+            setIsEditing(true);
+          }}
+          className="text-[#1a1a2e] text-xs font-bold hover:underline"
+        >
+          تحرير
+        </button>
+      </div>
+
+      {/* Element with gold dashed border on hover */}
       <Tag
-        className={`${className} cursor-pointer ring-1 ring-transparent group-hover/editable:ring-[#D3B051]/50 rounded transition-all`}
+        className={`${className} transition-all duration-200 cursor-pointer ${
+          isHovered ? 'outline outline-1 outline-dashed outline-[#D3B051]/60 rounded' : ''
+        }`}
         onClick={() => {
           setEditValue(value);
           setIsEditing(true);
@@ -121,15 +147,6 @@ export function EditableText({
       >
         {children}
       </Tag>
-      <button
-        onClick={() => {
-          setEditValue(value);
-          setIsEditing(true);
-        }}
-        className="absolute -top-2 -left-2 opacity-0 group-hover/editable:opacity-100 p-1 rounded-full bg-[#D3B051] text-[#1a1a2e] shadow-lg transition-all duration-200 hover:scale-110 z-10"
-      >
-        <Pencil className="h-3 w-3" />
-      </button>
     </div>
   );
 }
@@ -153,6 +170,7 @@ export function EditableImage({
   className = '',
 }: EditableImageProps) {
   const { isEditMode } = useEditMode();
+  const [isHovered, setIsHovered] = useState(false);
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -189,18 +207,34 @@ export function EditableImage({
   }
 
   return (
-    <div className="group/editable-img relative inline-block">
+    <div
+      className="relative inline-block"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <img
         src={src}
         alt={alt}
-        className={`${className} ring-2 ring-transparent group-hover/editable-img:ring-[#D3B051]/50 rounded transition-all`}
+        className={`${className} transition-all duration-200 ${
+          isHovered ? 'outline outline-2 outline-dashed outline-[#D3B051]/60 rounded' : ''
+        }`}
       />
-      <button
-        onClick={() => fileInputRef.current?.click()}
-        className="absolute top-2 left-2 opacity-0 group-hover/editable-img:opacity-100 p-2 rounded-full bg-[#D3B051] text-[#1a1a2e] shadow-lg transition-all duration-200 hover:scale-110 z-10"
+
+      {/* Overlay on hover */}
+      <div
+        className={`absolute inset-0 flex items-center justify-center bg-black/40 rounded transition-all duration-200 ${
+          isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
       >
-        <ImageIcon className="h-4 w-4" />
-      </button>
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className="flex items-center gap-2 px-3 py-2 rounded-md bg-[#D3B051] text-[#1a1a2e] font-bold text-sm shadow-lg hover:bg-[#D3B051]/80 transition-colors"
+        >
+          <ImageIcon className="h-4 w-4" />
+          استبدال الصورة
+        </button>
+      </div>
+
       <input
         ref={fileInputRef}
         type="file"
@@ -231,6 +265,7 @@ export function EditableVideo({
   poster,
 }: EditableVideoProps) {
   const { isEditMode } = useEditMode();
+  const [isHovered, setIsHovered] = useState(false);
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -271,16 +306,37 @@ export function EditableVideo({
   }
 
   return (
-    <div className="group/editable-vid relative inline-block">
-      <video src={src} className={`${className} ring-2 ring-transparent group-hover/editable-vid:ring-[#D3B051]/50 rounded transition-all`} poster={poster} controls>
+    <div
+      className="relative inline-block"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <video
+        src={src}
+        className={`${className} transition-all duration-200 ${
+          isHovered ? 'outline outline-2 outline-dashed outline-[#D3B051]/60 rounded' : ''
+        }`}
+        poster={poster}
+        controls
+      >
         <track kind="captions" />
       </video>
-      <button
-        onClick={() => fileInputRef.current?.click()}
-        className="absolute top-2 left-2 opacity-0 group-hover/editable-vid:opacity-100 p-2 rounded-full bg-[#D3B051] text-[#1a1a2e] shadow-lg transition-all duration-200 hover:scale-110 z-10"
+
+      {/* Overlay on hover */}
+      <div
+        className={`absolute inset-0 flex items-center justify-center bg-black/40 rounded transition-all duration-200 ${
+          isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
       >
-        <Video className="h-4 w-4" />
-      </button>
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className="flex items-center gap-2 px-3 py-2 rounded-md bg-[#D3B051] text-[#1a1a2e] font-bold text-sm shadow-lg hover:bg-[#D3B051]/80 transition-colors"
+        >
+          <Video className="h-4 w-4" />
+          استبدال الفيديو
+        </button>
+      </div>
+
       <input
         ref={fileInputRef}
         type="file"
@@ -299,6 +355,8 @@ interface EditableSectionProps {
   entityId: number | string;
   className?: string;
   onDelete?: () => void;
+  onAddAbove?: () => void;
+  onAddBelow?: () => void;
 }
 
 export function EditableSection({
@@ -307,8 +365,11 @@ export function EditableSection({
   entityId,
   className = '',
   onDelete,
+  onAddAbove,
+  onAddBelow,
 }: EditableSectionProps) {
   const { isEditMode } = useEditMode();
+  const [isHovered, setIsHovered] = useState(false);
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
@@ -330,20 +391,52 @@ export function EditableSection({
   }
 
   return (
-    <div className={`group/editable-section relative ${className} ring-1 ring-transparent hover:ring-[#D3B051]/30 rounded-lg transition-all`}>
-      {children}
-      <div className="absolute top-2 left-2 opacity-0 group-hover/editable-section:opacity-100 flex gap-1 transition-all duration-200 z-10">
+    <div
+      className={`relative ${className} transition-all duration-200 ${
+        isHovered ? 'outline outline-1 outline-dashed outline-[#D3B051]/40 rounded-lg' : ''
+      }`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Floating toolbar at top of section */}
+      <div
+        className={`absolute -top-10 right-2 z-20 flex items-center gap-1 px-2 py-1.5 rounded-md bg-[#1a1a2e]/95 border border-[#D3B051]/40 shadow-lg transition-all duration-200 ${
+          isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1 pointer-events-none'
+        }`}
+        dir="rtl"
+      >
         <button
           onClick={() => {
             if (confirm('هل أنت متأكد من حذف هذا القسم؟')) {
               deleteMutation.mutate();
             }
           }}
-          className="p-2 rounded-full bg-red-600 text-white shadow-lg hover:bg-red-700 hover:scale-110 transition-all"
+          className="flex items-center gap-1 px-2 py-1 rounded text-xs font-bold text-red-400 hover:bg-red-500/20 transition-colors"
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash2 className="h-3 w-3" />
+          حذف القسم
         </button>
+        {onAddAbove && (
+          <button
+            onClick={onAddAbove}
+            className="flex items-center gap-1 px-2 py-1 rounded text-xs font-bold text-[#D3B051] hover:bg-[#D3B051]/20 transition-colors"
+          >
+            <Plus className="h-3 w-3" />
+            إضافة أعلى
+          </button>
+        )}
+        {onAddBelow && (
+          <button
+            onClick={onAddBelow}
+            className="flex items-center gap-1 px-2 py-1 rounded text-xs font-bold text-[#D3B051] hover:bg-[#D3B051]/20 transition-colors"
+          >
+            <Plus className="h-3 w-3" />
+            إضافة أسفل
+          </button>
+        )}
       </div>
+
+      {children}
     </div>
   );
 }
