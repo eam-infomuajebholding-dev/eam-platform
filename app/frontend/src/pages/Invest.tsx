@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingUp, Play, FileText, X, ChevronLeft, MapPin, Calendar, DollarSign, Building2, Plus, Upload, Video } from 'lucide-react';
+import { TrendingUp, Play, FileText, X, ChevronLeft, MapPin, Calendar, DollarSign, Building2, Plus, Upload, Video, Loader2 } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { useEditMode } from '@/contexts/EditModeContext';
 import { toast } from 'sonner';
 import { savePageData, loadPageData } from '@/lib/dataStorage';
+import { isCloudinaryConfigured, uploadMultipleToCloudinary } from '@/lib/cloudinary';
 
 interface Project {
   id: number;
@@ -134,19 +135,45 @@ function FileUploadField({ label, accept, multiple, onFiles, fileNames }: {
   onFiles: (files: string[], names: string[]) => void;
   fileNames: string[];
 }) {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [uploading, setUploading] = useState(false);
+
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
+
+    const fileArray = Array.from(files);
+    const names = fileArray.map((f) => f.name);
+
+    if (isCloudinaryConfigured()) {
+      // Upload to Cloudinary
+      setUploading(true);
+      try {
+        const urls = await uploadMultipleToCloudinary(fileArray);
+        onFiles(urls, names);
+        toast.success('تم رفع الملفات بنجاح إلى السحابة');
+      } catch (err) {
+        console.error('Cloudinary upload error:', err);
+        toast.error('فشل الرفع إلى السحابة، جاري الحفظ محلياً...');
+        // Fallback to base64
+        fallbackToBase64(fileArray, names);
+      } finally {
+        setUploading(false);
+      }
+    } else {
+      // Fallback to base64 (FileReader)
+      fallbackToBase64(fileArray, names);
+    }
+  };
+
+  const fallbackToBase64 = (fileArray: File[], names: string[]) => {
     const results: string[] = [];
-    const names: string[] = [];
     let loaded = 0;
-    Array.from(files).forEach((file) => {
-      names.push(file.name);
+    fileArray.forEach((file) => {
       const reader = new FileReader();
       reader.onload = () => {
         results.push(reader.result as string);
         loaded++;
-        if (loaded === files.length) {
+        if (loaded === fileArray.length) {
           onFiles(results, names);
         }
       };
@@ -157,12 +184,16 @@ function FileUploadField({ label, accept, multiple, onFiles, fileNames }: {
   return (
     <div>
       <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">{label}</label>
-      <label className="flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors">
-        <Upload className="w-5 h-5 text-gold" />
+      <label className={`flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors ${uploading ? 'opacity-60 pointer-events-none' : ''}`}>
+        {uploading ? (
+          <Loader2 className="w-5 h-5 text-gold animate-spin" />
+        ) : (
+          <Upload className="w-5 h-5 text-gold" />
+        )}
         <span className="text-sm text-gray-600 dark:text-white/60 font-tajawal">
-          {fileNames.length > 0 ? `تم اختيار ${fileNames.length} ملف` : 'اختر ملف'}
+          {uploading ? 'جاري الرفع...' : fileNames.length > 0 ? `تم اختيار ${fileNames.length} ملف` : 'اختر ملف'}
         </span>
-        <input type="file" accept={accept} multiple={multiple} onChange={handleChange} className="hidden" />
+        <input type="file" accept={accept} multiple={multiple} onChange={handleChange} className="hidden" disabled={uploading} />
       </label>
       {fileNames.length > 0 && (
         <div className="mt-1 flex flex-wrap gap-1">
