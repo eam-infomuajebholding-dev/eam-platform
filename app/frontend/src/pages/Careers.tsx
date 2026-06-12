@@ -69,7 +69,7 @@ export default function Careers() {
       </section>
 
       {/* Application Form Section */}
-      <section className="py-20 md:py-28 bg-white dark:bg-dark-lighter relative">
+      <section className="py-20 md:py-28 bg-white dark:bg-[#132347] relative">
         <div className="container mx-auto px-4">
           <div
             ref={formReveal.ref}

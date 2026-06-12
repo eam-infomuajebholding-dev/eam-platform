@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingUp, Play, FileText, X, ChevronLeft, MapPin, Calendar, DollarSign, Building2 } from 'lucide-react';
+import { TrendingUp, Play, FileText, X, ChevronLeft, MapPin, Calendar, DollarSign, Building2, Plus } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
+import { useEditMode } from '@/contexts/EditModeContext';
+import { toast } from 'sonner';
 
 interface Project {
   id: number;
@@ -19,7 +21,7 @@ interface Project {
   status: 'available' | 'in-progress' | 'completed';
 }
 
-const projects: Project[] = [
+const defaultProjects: Project[] = [
   {
     id: 1,
     name: 'مجمع إعمار السكني',
@@ -94,25 +96,104 @@ const projects: Project[] = [
   },
 ];
 
+const PROJECTS_STORAGE_KEY = 'invest-projects-data';
+
+function loadProjects(): Project[] {
+  try {
+    const saved = localStorage.getItem(PROJECTS_STORAGE_KEY);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch { /* ignore */ }
+  return defaultProjects;
+}
+
+function saveProjects(projectsList: Project[]) {
+  localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projectsList));
+}
+
 const statusLabels = {
   available: { label: 'متاح للاستثمار', color: 'bg-green-500/10 text-green-600 border-green-500/30' },
   'in-progress': { label: 'قيد التنفيذ', color: 'bg-blue-500/10 text-blue-600 border-blue-500/30' },
   completed: { label: 'مكتمل', color: 'bg-gray-500/10 text-gray-600 border-gray-500/30' },
 };
 
+interface AddProjectFormData {
+  name: string;
+  location: string;
+  type: string;
+  investmentAmount: string;
+  expectedReturn: string;
+  duration: string;
+  description: string;
+  status: 'available' | 'in-progress' | 'completed';
+}
+
+const emptyForm: AddProjectFormData = {
+  name: '',
+  location: '',
+  type: '',
+  investmentAmount: '',
+  expectedReturn: '',
+  duration: '',
+  description: '',
+  status: 'available',
+};
+
 export default function Invest() {
   const heroReveal = useScrollReveal({ threshold: 0.15 });
   const projectsReveal = useScrollReveal({ threshold: 0.1 });
   const ctaReveal = useScrollReveal({ threshold: 0.15 });
+  const { isEditMode } = useEditMode();
 
+  const [projects, setProjects] = useState<Project[]>(loadProjects);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [showVideo, setShowVideo] = useState(false);
   const [filter, setFilter] = useState<'all' | 'available' | 'in-progress'>('all');
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [formData, setFormData] = useState<AddProjectFormData>(emptyForm);
 
-  const filteredProjects = filter === 'all' 
-    ? projects 
+  useEffect(() => {
+    saveProjects(projects);
+  }, [projects]);
+
+  const filteredProjects = filter === 'all'
+    ? projects
     : projects.filter(p => p.status === filter);
+
+  const handleDeleteProject = (projectId: number) => {
+    if (window.confirm('هل أنت متأكد من حذف هذا المشروع؟')) {
+      setProjects(prev => prev.filter(p => p.id !== projectId));
+      toast.success('تم حذف المشروع بنجاح');
+    }
+  };
+
+  const handleAddProject = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newProject: Project = {
+      id: Date.now(),
+      name: formData.name,
+      location: formData.location,
+      type: formData.type,
+      investmentAmount: formData.investmentAmount,
+      expectedReturn: formData.expectedReturn,
+      duration: formData.duration,
+      description: formData.description,
+      videoUrl: '',
+      images: ['https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800'],
+      pdfUrl: '',
+      status: formData.status,
+    };
+    setProjects(prev => [...prev, newProject]);
+    setFormData(emptyForm);
+    setShowAddModal(false);
+    toast.success('تم إضافة المشروع بنجاح');
+  };
+
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   return (
     <Layout>
@@ -137,7 +218,7 @@ export default function Invest() {
       </section>
 
       {/* Statistics Section */}
-      <section className="py-16 bg-white dark:bg-dark-lighter border-b border-gold/10">
+      <section className="py-16 bg-white dark:bg-[#132347] border-b border-gold/10">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
             {[
@@ -156,7 +237,7 @@ export default function Invest() {
       </section>
 
       {/* Projects Section */}
-      <section className="py-20 md:py-28 bg-gray-50 dark:bg-dark relative overflow-hidden">
+      <section className="py-20 md:py-28 bg-gray-50 dark:bg-[#0c1a36] relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.06)_0%,transparent_70%)]" />
         <div className="container mx-auto px-4 relative z-10">
           <div
@@ -180,7 +261,7 @@ export default function Invest() {
                 ].map((f) => (
                   <button
                     key={f.key}
-                    onClick={() => setFilter(f.key as any)}
+                    onClick={() => setFilter(f.key as 'all' | 'available' | 'in-progress')}
                     className={`px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 ${
                       filter === f.key
                         ? 'bg-gold text-dark shadow-lg shadow-gold/30'
@@ -193,13 +274,37 @@ export default function Invest() {
               </div>
             </div>
 
+            {/* Add Project Button (Edit Mode) */}
+            {isEditMode && (
+              <div className="flex justify-center mb-8">
+                <button
+                  onClick={() => setShowAddModal(true)}
+                  className="flex items-center gap-2 px-6 py-3 bg-gold text-dark font-bold rounded-xl hover:shadow-[0_0_20px_rgba(201,168,76,0.3)] transition-all duration-300"
+                >
+                  <Plus className="w-5 h-5" />
+                  إضافة مشروع جديد
+                </button>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
               {filteredProjects.map((project, index) => (
                 <div
                   key={project.id}
-                  className="group rounded-2xl bg-white dark:bg-white/5 backdrop-blur-md border border-gold/20 hover:border-gold/60 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(201,168,76,0.15)] overflow-hidden"
+                  className="group relative rounded-2xl bg-white dark:bg-white/5 backdrop-blur-md border border-gold/20 hover:border-gold/60 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(201,168,76,0.15)] overflow-hidden"
                   style={{ transitionDelay: `${index * 100}ms` }}
                 >
+                  {/* Delete Button (Edit Mode) */}
+                  {isEditMode && (
+                    <button
+                      onClick={() => handleDeleteProject(project.id)}
+                      className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg"
+                      title="حذف المشروع"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+
                   {/* Project Image */}
                   <div className="relative h-56 overflow-hidden">
                     <img
@@ -267,7 +372,7 @@ export default function Invest() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 md:py-28 bg-white dark:bg-dark-lighter relative">
+      <section className="py-20 md:py-28 bg-white dark:bg-[#132347] relative">
         <div
           ref={ctaReveal.ref}
           className={`container mx-auto px-4 text-center ${ctaReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}
@@ -290,12 +395,11 @@ export default function Invest() {
       {/* Project Details Modal */}
       {selectedProject && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div 
+          <div
             className="absolute inset-0 bg-black/80 backdrop-blur-sm"
             onClick={() => setSelectedProject(null)}
           />
-          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-dark-lighter rounded-2xl border border-gold/30 shadow-2xl shadow-gold/10">
-            {/* Close Button */}
+          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-[#132347] rounded-2xl border border-gold/30 shadow-2xl shadow-gold/10">
             <button
               onClick={() => setSelectedProject(null)}
               className="absolute top-4 left-4 z-10 w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
@@ -303,15 +407,10 @@ export default function Invest() {
               <X className="w-5 h-5" />
             </button>
 
-            {/* Project Header */}
             <div className="relative h-72 overflow-hidden">
               {showVideo ? (
                 <div className="w-full h-full bg-black flex items-center justify-center">
-                  <video
-                    controls
-                    autoPlay
-                    className="w-full h-full object-contain"
-                  >
+                  <video controls autoPlay className="w-full h-full object-contain">
                     <source src={selectedProject.videoUrl} type="video/mp4" />
                     متصفحك لا يدعم تشغيل الفيديو
                   </video>
@@ -324,16 +423,12 @@ export default function Invest() {
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-
-                  {/* Play Video Button */}
                   <button
                     onClick={() => setShowVideo(true)}
                     className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-gold/90 text-dark flex items-center justify-center hover:scale-110 transition-transform shadow-lg shadow-gold/50"
                   >
                     <Play className="w-8 h-8 ml-1" />
                   </button>
-
-                  {/* Image Navigation */}
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
                     {selectedProject.images.map((_, i) => (
                       <button
@@ -349,7 +444,6 @@ export default function Invest() {
               )}
             </div>
 
-            {/* Project Info */}
             <div className="p-8">
               <div className="flex items-center gap-3 mb-4">
                 <span className={`px-3 py-1 text-xs rounded-full border ${statusLabels[selectedProject.status].color}`}>
@@ -390,17 +484,13 @@ export default function Invest() {
                 <p className="text-gray-600 dark:text-white/60 leading-relaxed">{selectedProject.description}</p>
               </div>
 
-              {/* Image Gallery */}
               <div className="mb-6">
                 <h3 className="font-tajawal text-xl font-bold text-gold mb-3">معرض الصور</h3>
                 <div className="grid grid-cols-3 gap-3">
                   {selectedProject.images.map((img, i) => (
                     <button
                       key={i}
-                      onClick={() => {
-                        setActiveImageIndex(i);
-                        setShowVideo(false);
-                      }}
+                      onClick={() => { setActiveImageIndex(i); setShowVideo(false); }}
                       className={`relative h-24 rounded-xl overflow-hidden border-2 transition-all duration-300 ${
                         i === activeImageIndex ? 'border-gold shadow-lg shadow-gold/20' : 'border-transparent hover:border-gold/50'
                       }`}
@@ -411,7 +501,6 @@ export default function Invest() {
                 </div>
               </div>
 
-              {/* PDF Download */}
               <div className="flex flex-col sm:flex-row gap-4">
                 <a
                   href={selectedProject.pdfUrl}
@@ -430,6 +519,114 @@ export default function Invest() {
                 </Link>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Project Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            onClick={() => setShowAddModal(false)}
+          />
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-[#132347] rounded-2xl border border-gold/30 shadow-2xl p-8">
+            <button
+              onClick={() => setShowAddModal(false)}
+              className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gray-200 dark:bg-white/10 text-gray-600 dark:text-white flex items-center justify-center hover:bg-gray-300 dark:hover:bg-white/20 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <h2 className="font-tajawal text-2xl font-bold gold-text mb-6">إضافة مشروع جديد</h2>
+
+            <form onSubmit={handleAddProject} className="space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">اسم المشروع *</label>
+                <input
+                  type="text" name="name" required value={formData.name} onChange={handleFormChange}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gold/20 bg-white dark:bg-white/5 text-gray-800 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none font-tajawal"
+                  placeholder="مثال: مجمع إعمار السكني"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">الموقع *</label>
+                  <input
+                    type="text" name="location" required value={formData.location} onChange={handleFormChange}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gold/20 bg-white dark:bg-white/5 text-gray-800 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none font-tajawal"
+                    placeholder="مثال: الرياض - حي النرجس"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">نوع المشروع *</label>
+                  <input
+                    type="text" name="type" required value={formData.type} onChange={handleFormChange}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gold/20 bg-white dark:bg-white/5 text-gray-800 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none font-tajawal"
+                    placeholder="مثال: سكني، تجاري، صناعي"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">مبلغ الاستثمار *</label>
+                  <input
+                    type="text" name="investmentAmount" required value={formData.investmentAmount} onChange={handleFormChange}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gold/20 bg-white dark:bg-white/5 text-gray-800 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none font-tajawal"
+                    placeholder="مثال: 5,000,000 ريال"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">العائد المتوقع *</label>
+                  <input
+                    type="text" name="expectedReturn" required value={formData.expectedReturn} onChange={handleFormChange}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gold/20 bg-white dark:bg-white/5 text-gray-800 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none font-tajawal"
+                    placeholder="مثال: 18% سنوياً"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">مدة المشروع *</label>
+                  <input
+                    type="text" name="duration" required value={formData.duration} onChange={handleFormChange}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gold/20 bg-white dark:bg-white/5 text-gray-800 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none font-tajawal"
+                    placeholder="مثال: 24 شهر"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">حالة المشروع</label>
+                  <select
+                    name="status" value={formData.status} onChange={handleFormChange}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gold/20 bg-white dark:bg-white/5 text-gray-800 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none font-tajawal"
+                  >
+                    <option value="available">متاح للاستثمار</option>
+                    <option value="in-progress">قيد التنفيذ</option>
+                    <option value="completed">مكتمل</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">وصف المشروع *</label>
+                <textarea
+                  name="description" required rows={4} value={formData.description} onChange={handleFormChange}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gold/20 bg-white dark:bg-white/5 text-gray-800 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none font-tajawal resize-none"
+                  placeholder="اكتب وصفاً تفصيلياً للمشروع..."
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold text-lg rounded-xl hover:shadow-[0_0_30px_rgba(201,168,76,0.4)] transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2"
+              >
+                <Plus className="w-5 h-5" />
+                إضافة المشروع
+              </button>
+            </form>
           </div>
         </div>
       )}

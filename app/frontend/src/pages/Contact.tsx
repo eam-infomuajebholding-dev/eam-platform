@@ -59,62 +59,62 @@ export default function Contact() {
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-dark-lighter">
+      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#0c1a36]">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)]" />
         <div className="relative z-10 text-center px-4">
           <h1 className="gold-text text-4xl md:text-5xl lg:text-6xl font-bold font-playfair mb-4">اتصل بنا</h1>
-          <p className="text-white/70 text-lg md:text-xl max-w-2xl mx-auto font-tajawal">
+          <p className="text-gray-600 dark:text-white/70 text-lg md:text-xl max-w-2xl mx-auto font-tajawal">
             نسعد بتواصلكم معنا في أي وقت
           </p>
         </div>
       </section>
 
       {/* Contact Form Section */}
-      <section className="py-16 md:py-24 bg-[#f5f5f5]">
+      <section className="py-16 md:py-24 bg-white dark:bg-[#132347]">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 max-w-6xl mx-auto">
             {/* Form */}
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-2xl shadow-lg p-8 md:p-10">
+              <div className="bg-gray-50 dark:bg-white/5 rounded-2xl shadow-lg border border-gold/20 p-8 md:p-10">
                 {isSubmitted ? (
                   <div className="text-center py-8">
-                    <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-100 flex items-center justify-center">
+                    <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-100 dark:bg-green-500/20 flex items-center justify-center">
                       <CheckCircle className="w-10 h-10 text-green-500" />
                     </div>
-                    <h2 className="text-[#1a1a2e] font-bold text-2xl mb-4 font-tajawal">تم إرسال رسالتك بنجاح!</h2>
-                    <p className="text-[#1a1a2e]/70 text-lg mb-2 font-tajawal">
+                    <h2 className="text-gray-800 dark:text-white font-bold text-2xl mb-4 font-tajawal">تم إرسال رسالتك بنجاح!</h2>
+                    <p className="text-gray-600 dark:text-white/70 text-lg mb-2 font-tajawal">
                       شكراً لتواصلك معنا. تم حفظ رسالتك في نظامنا.
                     </p>
-                    <p className="text-[#1a1a2e]/60 text-base mb-8 font-tajawal">
+                    <p className="text-gray-500 dark:text-white/60 text-base mb-8 font-tajawal">
                       سيتم إرسال تأكيد إلى بريدك الإلكتروني وسيتم الرد عليك في أقرب وقت.
                     </p>
                     <button
                       onClick={() => setIsSubmitted(false)}
-                      className="px-8 py-3 bg-[#1a1a2e] text-white font-bold font-tajawal rounded-lg transition-all duration-300 hover:bg-[#2a2a4e] hover:shadow-lg"
+                      className="px-8 py-3 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold font-tajawal rounded-lg transition-all duration-300 hover:shadow-[0_0_20px_rgba(201,168,76,0.3)] hover:scale-[1.02]"
                     >
                       إرسال رسالة أخرى
                     </button>
                   </div>
                 ) : (
                   <>
-                    <h2 className="text-[#1a1a2e] font-bold text-2xl mb-8 font-tajawal">أرسل لنا رسالة</h2>
+                    <h2 className="text-gray-800 dark:text-white font-bold text-2xl mb-8 font-tajawal">أرسل لنا رسالة</h2>
                     <form onSubmit={handleSubmit} className="space-y-6">
                       {/* Row 1: Name + Email */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-[#1a1a2e]/70 text-sm mb-2 font-tajawal">الاسم الكامل *</label>
+                          <label className="block text-gray-700 dark:text-white/70 text-sm mb-2 font-tajawal">الاسم الكامل *</label>
                           <input
                             type="text" name="name" required value={formData.name} onChange={handleChange}
-                            className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-[#1a1a2e] font-tajawal placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors"
+                            className="w-full bg-white dark:bg-white/10 border border-gray-200 dark:border-gold/20 rounded-lg px-4 py-3 text-gray-800 dark:text-white font-tajawal placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors"
                             placeholder="اكتب اسمك"
                             disabled={isSubmitting}
                           />
                         </div>
                         <div>
-                          <label className="block text-[#1a1a2e]/70 text-sm mb-2 font-tajawal">البريد الإلكتروني *</label>
+                          <label className="block text-gray-700 dark:text-white/70 text-sm mb-2 font-tajawal">البريد الإلكتروني *</label>
                           <input
                             type="email" name="email" required value={formData.email} onChange={handleChange}
-                            className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-[#1a1a2e] font-tajawal placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors"
+                            className="w-full bg-white dark:bg-white/10 border border-gray-200 dark:border-gold/20 rounded-lg px-4 py-3 text-gray-800 dark:text-white font-tajawal placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors"
                             placeholder="example@email.com"
                             disabled={isSubmitting}
                           />
@@ -124,19 +124,19 @@ export default function Contact() {
                       {/* Row 2: Phone + Subject */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-[#1a1a2e]/70 text-sm mb-2 font-tajawal">رقم الهاتف</label>
+                          <label className="block text-gray-700 dark:text-white/70 text-sm mb-2 font-tajawal">رقم الهاتف</label>
                           <input
                             type="tel" name="phone" value={formData.phone} onChange={handleChange}
-                            className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-[#1a1a2e] font-tajawal placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors"
+                            className="w-full bg-white dark:bg-white/10 border border-gray-200 dark:border-gold/20 rounded-lg px-4 py-3 text-gray-800 dark:text-white font-tajawal placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors"
                             placeholder="+966 50 000 0000"
                             disabled={isSubmitting}
                           />
                         </div>
                         <div>
-                          <label className="block text-[#1a1a2e]/70 text-sm mb-2 font-tajawal">الموضوع</label>
+                          <label className="block text-gray-700 dark:text-white/70 text-sm mb-2 font-tajawal">الموضوع</label>
                           <input
                             type="text" name="subject" value={formData.subject} onChange={handleChange}
-                            className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-[#1a1a2e] font-tajawal placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors"
+                            className="w-full bg-white dark:bg-white/10 border border-gray-200 dark:border-gold/20 rounded-lg px-4 py-3 text-gray-800 dark:text-white font-tajawal placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors"
                             placeholder="موضوع الرسالة"
                             disabled={isSubmitting}
                           />
@@ -145,10 +145,10 @@ export default function Contact() {
 
                       {/* Row 3: Message */}
                       <div>
-                        <label className="block text-[#1a1a2e]/70 text-sm mb-2 font-tajawal">الرسالة *</label>
+                        <label className="block text-gray-700 dark:text-white/70 text-sm mb-2 font-tajawal">الرسالة *</label>
                         <textarea
                           name="message" required rows={5} value={formData.message} onChange={handleChange}
-                          className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-[#1a1a2e] font-tajawal placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors resize-none"
+                          className="w-full bg-white dark:bg-white/10 border border-gray-200 dark:border-gold/20 rounded-lg px-4 py-3 text-gray-800 dark:text-white font-tajawal placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors resize-none"
                           placeholder="أخبرنا عن مشروعك..."
                           disabled={isSubmitting}
                         />
@@ -157,7 +157,7 @@ export default function Contact() {
                       <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="flex items-center justify-center gap-3 px-8 py-4 bg-[#1a1a2e] text-white font-bold font-tajawal rounded-lg text-lg transition-all duration-300 hover:bg-[#2a2a4e] hover:shadow-lg w-full md:w-auto disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold font-tajawal rounded-lg text-lg transition-all duration-300 hover:shadow-[0_0_20px_rgba(201,168,76,0.3)] hover:scale-[1.02] w-full md:w-auto disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         {isSubmitting ? (
                           <>
@@ -179,16 +179,16 @@ export default function Contact() {
 
             {/* Contact Info Sidebar */}
             <div className="space-y-6">
-              <div className="bg-white rounded-2xl shadow-lg p-8">
-                <h3 className="text-[#1a1a2e] font-bold text-xl mb-6 font-tajawal">معلومات التواصل</h3>
+              <div className="bg-gray-50 dark:bg-white/5 rounded-2xl shadow-lg border border-gold/20 p-8">
+                <h3 className="text-gray-800 dark:text-white font-bold text-xl mb-6 font-tajawal">معلومات التواصل</h3>
                 <div className="space-y-5">
                   <div className="flex items-start gap-4">
                     <div className="w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center flex-shrink-0">
                       <Phone className="w-5 h-5 text-gold" />
                     </div>
                     <div>
-                      <p className="text-[#1a1a2e]/60 text-sm font-tajawal mb-1">الهاتف</p>
-                      <p className="font-tajawal mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[16px] font-bold text-[#1A1A2E] bg-[#00000000] opacity-100" dir="ltr">+966 599555437</p>
+                      <p className="text-gray-500 dark:text-white/60 text-sm font-tajawal mb-1">الهاتف</p>
+                      <p className="font-tajawal text-base font-bold text-gray-800 dark:text-white" dir="ltr">+966 599555437</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
@@ -196,8 +196,8 @@ export default function Contact() {
                       <Mail className="w-5 h-5 text-gold" />
                     </div>
                     <div>
-                      <p className="text-[#1a1a2e]/60 text-sm font-tajawal mb-1">البريد الإلكتروني</p>
-                      <p className="text-[#1a1a2e] font-bold font-tajawal">info@eam.sa</p>
+                      <p className="text-gray-500 dark:text-white/60 text-sm font-tajawal mb-1">البريد الإلكتروني</p>
+                      <p className="text-gray-800 dark:text-white font-bold font-tajawal">info@eam.sa</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
@@ -205,16 +205,16 @@ export default function Contact() {
                       <MapPin className="w-5 h-5 text-gold" />
                     </div>
                     <div>
-                      <p className="text-[#1a1a2e]/60 text-sm font-tajawal mb-1">الموقع</p>
-                      <p className="font-tajawal mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[16px] font-bold text-[#1A1A2E] bg-[#00000000] opacity-100">جدة،المملكة العربية السعودية</p>
+                      <p className="text-gray-500 dark:text-white/60 text-sm font-tajawal mb-1">الموقع</p>
+                      <p className="font-tajawal text-base font-bold text-gray-800 dark:text-white">جدة،المملكة العربية السعودية</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-[#1a1a2e] rounded-2xl p-8 text-center">
+              <div className="bg-gray-50 dark:bg-[#0c1a36] rounded-2xl p-8 text-center border border-gold/20">
                 <h3 className="text-gold font-bold text-lg mb-3 font-tajawal">ساعات العمل</h3>
-                <p className="text-white/70 text-sm font-tajawal leading-relaxed">
+                <p className="text-gray-600 dark:text-white/70 text-sm font-tajawal leading-relaxed">
                   الأحد - الخميس<br />
                   8:00 صباحاً - 5:00 مساءً
                 </p>
@@ -224,14 +224,14 @@ export default function Contact() {
         </div>
       </section>
       {/* Google Maps Section */}
-      <section className="py-16 md:py-24 bg-white">
+      <section className="py-16 md:py-24 bg-gray-50 dark:bg-[#0c1a36]">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-10">
-              <h2 className="text-[#1a1a2e] text-3xl md:text-4xl font-bold font-tajawal mb-4">موقعنا على الخريطة</h2>
-              <p className="text-[#1a1a2e]/60 text-lg font-tajawal">يسعدنا زيارتكم في مقر الشركة</p>
+              <h2 className="text-gray-800 dark:text-white text-3xl md:text-4xl font-bold font-tajawal mb-4">موقعنا على الخريطة</h2>
+              <p className="text-gray-600 dark:text-white/60 text-lg font-tajawal">يسعدنا زيارتكم في مقر الشركة</p>
             </div>
-            <div className="rounded-2xl overflow-hidden shadow-lg border border-gray-200">
+            <div className="rounded-2xl overflow-hidden shadow-lg border border-gold/20">
               <iframe
                 title="موقع إعمار الأصالة والمعاصرة"
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3624.674536257489!2d46.675296!3d24.713552!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e2f03890d489399%3A0xba974d1c98e79fd5!2sRiyadh%2C%20Saudi%20Arabia!5e0!3m2!1sar!2ssa!4v1700000000000!5m2!1sar!2ssa"
@@ -244,7 +244,7 @@ export default function Contact() {
                 className="w-full"
               />
             </div>
-            <div className="mt-6 flex items-center justify-center gap-3 text-[#1a1a2e]/70">
+            <div className="mt-6 flex items-center justify-center gap-3 text-gray-600 dark:text-white/70">
               <MapPin className="w-5 h-5 text-gold" />
               <span className="font-tajawal text-base">الرياض، المملكة العربية السعودية</span>
             </div>

@@ -42,12 +42,12 @@ const governmentServices = [
 
 function ServiceCard({ icon: Icon, name }: { icon: React.ElementType; name: string }) {
   return (
-    <div className="group relative bg-white/5 backdrop-blur-sm border border-gold/10 rounded-xl p-5 border-r-4 border-r-gold/50 transition-all duration-300 ease-out hover:-translate-y-2 hover:border-[#C9A84C]/40 hover:shadow-[0_10px_40px_rgba(201,168,76,0.3),0_4px_15px_rgba(201,168,76,0.15)]">
+    <div className="group relative bg-white dark:bg-white/5 backdrop-blur-sm border border-gold/20 rounded-xl p-5 border-r-4 border-r-gold/50 transition-all duration-300 ease-out hover:-translate-y-2 hover:border-[#C9A84C]/40 hover:shadow-[0_10px_40px_rgba(201,168,76,0.3),0_4px_15px_rgba(201,168,76,0.15)]">
       <div className="flex items-center gap-4">
         <div className="flex-shrink-0 w-11 h-11 rounded-lg bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors duration-300">
           <Icon className="w-5 h-5 text-gold" />
         </div>
-        <h3 className="text-white font-bold font-tajawal text-sm md:text-base leading-relaxed group-hover:text-gold-light transition-colors duration-300">
+        <h3 className="text-gray-800 dark:text-white font-bold font-tajawal text-sm md:text-base leading-relaxed group-hover:text-gold-light transition-colors duration-300">
           {name}
         </h3>
       </div>
@@ -59,18 +59,18 @@ export default function Services() {
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-dark-lighter">
+      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#0c1a36]">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)]" />
         <div className="relative z-10 text-center px-4">
           <h1 className="gold-text text-4xl md:text-5xl lg:text-6xl font-bold font-playfair mb-4">خدماتنا</h1>
-          <p className="text-white/70 text-lg md:text-xl max-w-2xl mx-auto font-tajawal">
+          <p className="text-gray-600 dark:text-white/70 text-lg md:text-xl max-w-2xl mx-auto font-tajawal">
             حلول هندسية وحكومية متكاملة تحت سقف واحد
           </p>
         </div>
       </section>
 
       {/* Engineering Services */}
-      <section className="py-16 md:py-20 bg-dark">
+      <section className="py-16 md:py-20 bg-white dark:bg-[#132347]">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-10">
             <h2 className="gold-text text-2xl md:text-3xl font-bold font-playfair">الخدمات الهندسية</h2>
@@ -83,7 +83,7 @@ export default function Services() {
       </section>
 
       {/* Government Services */}
-      <section className="py-16 md:py-20 bg-dark-lighter">
+      <section className="py-16 md:py-20 bg-gray-50 dark:bg-[#0c1a36]">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-10">
             <h2 className="gold-text text-2xl md:text-3xl font-bold font-playfair">الخدمات الحكومية</h2>
@@ -96,7 +96,7 @@ export default function Services() {
       </section>
 
       {/* Contracting Services */}
-      <section className="py-16 md:py-20 bg-dark">
+      <section className="py-16 md:py-20 bg-white dark:bg-[#132347]">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-10">
             <h2 className="gold-text text-2xl md:text-3xl font-bold font-playfair">المقاولات</h2>
@@ -115,7 +115,7 @@ export default function Services() {
       </section>
 
       {/* Maintenance Services */}
-      <section className="py-16 md:py-20 bg-dark-lighter">
+      <section className="py-16 md:py-20 bg-gray-50 dark:bg-[#0c1a36]">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-10">
             <h2 className="gold-text text-2xl md:text-3xl font-bold font-playfair">الصيانة والتشغيل</h2>
@@ -134,7 +134,7 @@ export default function Services() {
       </section>
 
       {/* Real Estate Development */}
-      <section className="py-16 md:py-20 bg-dark">
+      <section className="py-16 md:py-20 bg-white dark:bg-[#132347]">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-10">
             <h2 className="gold-text text-2xl md:text-3xl font-bold font-playfair">التطوير العقاري</h2>
@@ -153,7 +153,7 @@ export default function Services() {
       </section>
 
       {/* Real Estate Marketing */}
-      <section className="py-16 md:py-20 bg-dark-lighter">
+      <section className="py-16 md:py-20 bg-gray-50 dark:bg-[#0c1a36]">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-10">
             <h2 className="gold-text text-2xl md:text-3xl font-bold font-playfair">التسويق العقاري</h2>
@@ -172,10 +172,10 @@ export default function Services() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 bg-dark">
+      <section className="py-16 bg-white dark:bg-[#132347]">
         <div className="container mx-auto px-4 text-center">
           <h2 className="gold-text text-3xl md:text-4xl font-bold font-playfair mb-6">هل تحتاج إلى خدماتنا؟</h2>
-          <p className="text-white/70 text-lg mb-8 max-w-xl mx-auto font-tajawal">تواصل معنا اليوم للحصول على استشارة مجانية</p>
+          <p className="text-gray-600 dark:text-white/70 text-lg mb-8 max-w-xl mx-auto font-tajawal">تواصل معنا اليوم للحصول على استشارة مجانية</p>
           <Link to="/consultation" className="inline-block px-8 py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold font-tajawal rounded-lg text-lg transition-all duration-300 hover:shadow-[0_0_30px_rgba(201,168,76,0.4)] hover:scale-105">
             طلب استشارة
           </Link>
