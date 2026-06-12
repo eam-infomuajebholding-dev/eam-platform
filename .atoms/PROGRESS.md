@@ -33,3 +33,4 @@ Redesign admin dashboard as an inline "Edit Mode" overlay on the actual website,
 - 2026-06-12: PageManager simplified - removed path input, auto-generates path from timestamp, added fullscreen image/video upload for new pages
 - 2026-06-12: Enhanced all three pages (Invest, Projects, Team) with full upload support: multi-image, video, and PDF file uploads in add forms
 - 2026-06-12: Updated all hardcoded dark backgrounds across all pages to match new gray theme
+- 2026-06-12: Fixed data persistence issue - switched all three pages (Invest, Projects, Team) from localStorage (5MB limit) to IndexedDB (unlimited) so uploaded media files are saved correctly

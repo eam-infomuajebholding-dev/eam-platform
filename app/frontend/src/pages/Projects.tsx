@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Calendar, MapPin, Plus, X, FileText, ChevronLeft, Upload, Building2, Video, Play, Image } from 'lucide-react';
+import { Calendar, MapPin, Plus, X, FileText, ChevronLeft, Building2, Video, Play, Image } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { useEditMode } from '@/contexts/EditModeContext';
 import { toast } from 'sonner';
+import { savePageData, loadPageData } from '@/lib/dataStorage';
 
 interface Project {
   id: number;
@@ -85,20 +86,6 @@ const defaultProjects: Project[] = [
 
 const PROJECTS_STORAGE_KEY = 'projects-page-data';
 
-function loadProjects(): Project[] {
-  try {
-    const saved = localStorage.getItem(PROJECTS_STORAGE_KEY);
-    if (saved) {
-      return JSON.parse(saved);
-    }
-  } catch { /* ignore */ }
-  return defaultProjects;
-}
-
-function saveProjects(projectsList: Project[]) {
-  localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projectsList));
-}
-
 const statusLabels = {
   active: { label: 'قيد التنفيذ', color: 'bg-gold/10 text-gold border-gold/30' },
   completed: { label: 'مكتمل', color: 'bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/30' },
@@ -132,7 +119,7 @@ const emptyForm: AddProjectFormData = {
 
 export default function Projects() {
   const { isEditMode } = useEditMode();
-  const [projects, setProjects] = useState<Project[]>(loadProjects);
+  const [projects, setProjects] = useState<Project[]>(defaultProjects);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [formData, setFormData] = useState<AddProjectFormData>(emptyForm);
@@ -147,7 +134,13 @@ export default function Projects() {
   const [activeImageIdx, setActiveImageIdx] = useState(0);
 
   useEffect(() => {
-    saveProjects(projects);
+    loadPageData<Project[]>(PROJECTS_STORAGE_KEY).then(data => {
+      if (data) setProjects(data);
+    });
+  }, []);
+
+  useEffect(() => {
+    savePageData(PROJECTS_STORAGE_KEY, projects);
   }, [projects]);
 
   const handleDeleteProject = (projectId: number) => {
