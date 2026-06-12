@@ -18,3 +18,4 @@ Redesign admin dashboard as an inline "Edit Mode" overlay on the actual website,
 - 2026-06-11: Fixed admin access - removed OIDC auth requirement, added simple password gate
 - 2026-06-12: Starting inline edit mode redesign per user request
 - 2026-06-12: Simplified edit mode - removed complex toolbar, editing options now appear directly on each element on hover
+- 2026-06-12: Added page background editor - admins can change each page's background to a color, image, or video
