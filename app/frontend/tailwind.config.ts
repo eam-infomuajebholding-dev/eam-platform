@@ -71,9 +71,9 @@ export default {
           dark: '#a08530',
         },
         dark: {
-          DEFAULT: '#0c1a36',
-          lighter: '#132347',
-          card: '#101e3d',
+          DEFAULT: '#111111',
+          lighter: '#1a1a1a',
+          card: '#1e1e1e',
         },
       },
       fontFamily: {

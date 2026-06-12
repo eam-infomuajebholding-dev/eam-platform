@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useEditMode } from '@/contexts/EditModeContext';
 import { Check, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { saveMediaToIDB, getMediaFromIDB } from '@/lib/mediaStorage';
 
 // ============ Helper Functions ============
 
@@ -69,13 +70,36 @@ export function applySavedEdits() {
           if (el) el.textContent = data.value;
         } else if (data.type === 'image') {
           const el = findElementByPath(elementPath) as HTMLImageElement;
-          if (el && el.tagName === 'IMG') el.src = data.value;
+          if (el && el.tagName === 'IMG') {
+            if (data.value.startsWith('idb://')) {
+              // Load from IndexedDB
+              const idbKey = data.value.replace('idb://', '');
+              getMediaFromIDB(idbKey).then((dataUrl) => {
+                if (dataUrl) el.src = dataUrl;
+              });
+            } else {
+              el.src = data.value;
+            }
+          }
         } else if (data.type === 'video') {
           const el = findElementByPath(elementPath) as HTMLVideoElement;
           if (el && el.tagName === 'VIDEO') {
-            const source = el.querySelector('source');
-            if (source) source.src = data.value;
-            else el.src = data.value;
+            if (data.value.startsWith('idb://')) {
+              // Load from IndexedDB
+              const idbKey = data.value.replace('idb://', '');
+              getMediaFromIDB(idbKey).then((dataUrl) => {
+                if (dataUrl) {
+                  const source = el.querySelector('source');
+                  if (source) source.src = dataUrl;
+                  else el.src = dataUrl;
+                  el.load();
+                }
+              });
+            } else {
+              const source = el.querySelector('source');
+              if (source) source.src = data.value;
+              else el.src = data.value;
+            }
           }
         }
       } catch {
@@ -332,23 +356,34 @@ export function GlobalEditOverlay() {
       }
 
       const reader = new FileReader();
-      reader.onload = () => {
+      reader.onload = async () => {
         const dataUrl = reader.result as string;
         const path = getElementPath(editingElement);
-        const key = getStorageKey(path);
+        const storageKey = getStorageKey(path);
+        const idbKey = `media-${storageKey}`;
 
-        if (isImageElement(editingElement)) {
-          (editingElement as HTMLImageElement).src = dataUrl;
-          localStorage.setItem(key, JSON.stringify({ type: 'image', value: dataUrl }));
-          toast.success('تم تحديث الصورة');
-        } else if (isVideoElement(editingElement)) {
-          const videoEl = editingElement as HTMLVideoElement;
-          const source = videoEl.querySelector('source');
-          if (source) source.src = dataUrl;
-          else videoEl.src = dataUrl;
-          videoEl.load();
-          localStorage.setItem(key, JSON.stringify({ type: 'video', value: dataUrl }));
-          toast.success('تم تحديث الفيديو');
+        try {
+          if (isImageElement(editingElement)) {
+            (editingElement as HTMLImageElement).src = dataUrl;
+            // Save to IndexedDB (handles large files)
+            await saveMediaToIDB(idbKey, dataUrl);
+            // Store reference in localStorage
+            localStorage.setItem(storageKey, JSON.stringify({ type: 'image', value: `idb://${idbKey}` }));
+            toast.success('تم تحديث الصورة');
+          } else if (isVideoElement(editingElement)) {
+            const videoEl = editingElement as HTMLVideoElement;
+            const source = videoEl.querySelector('source');
+            if (source) source.src = dataUrl;
+            else videoEl.src = dataUrl;
+            videoEl.load();
+            // Save to IndexedDB (handles large files)
+            await saveMediaToIDB(idbKey, dataUrl);
+            // Store reference in localStorage
+            localStorage.setItem(storageKey, JSON.stringify({ type: 'video', value: `idb://${idbKey}` }));
+            toast.success('تم تحديث الفيديو');
+          }
+        } catch {
+          toast.error('حدث خطأ أثناء حفظ الملف');
         }
 
         setEditingElement(null);
