@@ -4,109 +4,175 @@ import { useEditMode } from '@/contexts/EditModeContext';
 import { Check, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { saveMediaToIDB, getMediaFromIDB } from '@/lib/mediaStorage';
+import { isCloudinaryConfigured, uploadToCloudinary } from '@/lib/cloudinary';
 
-// ============ Helper Functions ============
+// ============ Stable Key Functions ============
 
-function getElementPath(el: HTMLElement): string {
-  const parts: string[] = [];
-  let current: HTMLElement | null = el;
-  while (current && current !== document.body) {
-    const tag = current.tagName.toLowerCase();
-    const parent = current.parentElement;
-    if (parent) {
-      const siblings = Array.from(parent.children).filter(
-        (c) => c.tagName === current!.tagName
-      );
-      const index = siblings.indexOf(current);
-      parts.unshift(`${tag}[${index}]`);
-    } else {
-      parts.unshift(tag);
-    }
-    current = current.parentElement;
+/**
+ * Get a stable storage key for an element.
+ * Priority:
+ * 1. data-editable-id attribute on the element or a close ancestor
+ * 2. Fallback: page path + tag + first 30 chars of text/src content
+ */
+function getStableKey(el: HTMLElement): string {
+  // Check for explicit data-editable-id
+  const editableId = el.getAttribute('data-editable-id') || el.closest('[data-editable-id]')?.getAttribute('data-editable-id');
+  if (editableId) {
+    return editableId;
   }
-  return parts.join('>');
+
+  // Fallback: generate a key from tag + content
+  const tag = el.tagName.toLowerCase();
+  if (el.tagName === 'IMG') {
+    const src = (el as HTMLImageElement).getAttribute('src') || '';
+    const srcKey = src.replace(/[^a-zA-Z0-9]/g, '').slice(0, 40);
+    return `${tag}-${srcKey}`;
+  }
+  if (el.tagName === 'VIDEO') {
+    const source = el.querySelector('source');
+    const src = source?.getAttribute('src') || (el as HTMLVideoElement).getAttribute('src') || '';
+    const srcKey = src.replace(/[^a-zA-Z0-9]/g, '').slice(0, 40);
+    return `${tag}-${srcKey}`;
+  }
+  // Text element
+  const text = (el.textContent || '').trim().slice(0, 30).replace(/[^a-zA-Z0-9\u0600-\u06FF]/g, '');
+  return `${tag}-${text}`;
 }
 
-function getStorageKey(path: string): string {
+function getStorageKey(stableKey: string): string {
   const page = window.location.pathname;
-  return `edit-content-${page}-${path}`;
+  return `edit-v2-${page}-${stableKey}`;
 }
 
-function findElementByPath(path: string): HTMLElement | null {
-  try {
-    const parts = path.split('>');
-    let current: HTMLElement = document.body;
-    for (const part of parts) {
-      const match = part.match(/^(\w+)\[(\d+)\]$/);
-      if (!match) return null;
-      const [, tag, indexStr] = match;
-      const index = parseInt(indexStr);
-      const children = Array.from(current.children).filter(
-        (c) => c.tagName.toLowerCase() === tag
-      );
-      if (!children[index]) return null;
-      current = children[index] as HTMLElement;
-    }
-    return current;
-  } catch {
-    return null;
-  }
-}
+// ============ Apply Saved Edits ============
 
-// Apply all saved edits from localStorage for the current page
+/**
+ * Apply all saved edits from localStorage for the current page.
+ * Uses data-editable-id attributes for precise element matching,
+ * with fallback matching by tag+content for elements without explicit IDs.
+ */
 export function applySavedEdits() {
   const page = window.location.pathname;
-  const prefix = `edit-content-${page}-`;
+  const prefix = `edit-v2-${page}-`;
+
+  // Collect all saved edits for this page
+  const savedEdits: { key: string; stableKey: string; data: { type: string; value: string } }[] = [];
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
     if (key && key.startsWith(prefix)) {
-      const elementPath = key.replace(prefix, '');
-      const savedValue = localStorage.getItem(key);
-      if (!savedValue) continue;
+      const stableKey = key.replace(prefix, '');
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
       try {
-        const data = JSON.parse(savedValue);
-        if (data.type === 'text') {
-          const el = findElementByPath(elementPath);
-          if (el) el.textContent = data.value;
-        } else if (data.type === 'image') {
-          const el = findElementByPath(elementPath) as HTMLImageElement;
-          if (el && el.tagName === 'IMG') {
-            if (data.value.startsWith('idb://')) {
-              // Load from IndexedDB
-              const idbKey = data.value.replace('idb://', '');
-              getMediaFromIDB(idbKey).then((dataUrl) => {
-                if (dataUrl) el.src = dataUrl;
-              });
-            } else {
-              el.src = data.value;
-            }
-          }
-        } else if (data.type === 'video') {
-          const el = findElementByPath(elementPath) as HTMLVideoElement;
-          if (el && el.tagName === 'VIDEO') {
-            if (data.value.startsWith('idb://')) {
-              // Load from IndexedDB
-              const idbKey = data.value.replace('idb://', '');
-              getMediaFromIDB(idbKey).then((dataUrl) => {
-                if (dataUrl) {
-                  const source = el.querySelector('source');
-                  if (source) source.src = dataUrl;
-                  else el.src = dataUrl;
-                  el.load();
-                }
-              });
-            } else {
-              const source = el.querySelector('source');
-              if (source) source.src = data.value;
-              else el.src = data.value;
-            }
-          }
-        }
+        const data = JSON.parse(raw);
+        savedEdits.push({ key, stableKey, data });
       } catch {
         /* ignore parse errors */
       }
     }
   }
+
+  if (savedEdits.length === 0) return;
+
+  // Apply edits with retry logic to handle React rendering delays
+  const applyOnce = () => {
+    for (const edit of savedEdits) {
+      const { stableKey, data } = edit;
+
+      // Strategy 1: Find by data-editable-id
+      let el: HTMLElement | null = document.querySelector(`[data-editable-id="${stableKey}"]`);
+
+      // Strategy 2: If not found by ID, try fallback matching
+      if (!el && stableKey.includes('-')) {
+        const dashIndex = stableKey.indexOf('-');
+        const tag = stableKey.slice(0, dashIndex);
+        const contentHint = stableKey.slice(dashIndex + 1);
+
+        if (data.type === 'text' && contentHint) {
+          // Find text elements by tag that contain similar text
+          const candidates = document.querySelectorAll(tag);
+          for (const candidate of candidates) {
+            const candidateText = (candidate.textContent || '').trim().slice(0, 30).replace(/[^a-zA-Z0-9\u0600-\u06FF]/g, '');
+            if (candidateText === contentHint) {
+              el = candidate as HTMLElement;
+              break;
+            }
+          }
+        } else if (data.type === 'image' && tag === 'img') {
+          // Find images by src hint
+          const images = document.querySelectorAll('img');
+          for (const img of images) {
+            const srcKey = (img.getAttribute('src') || '').replace(/[^a-zA-Z0-9]/g, '').slice(0, 40);
+            if (srcKey === contentHint) {
+              el = img as HTMLElement;
+              break;
+            }
+          }
+        } else if (data.type === 'video' && tag === 'video') {
+          const videos = document.querySelectorAll('video');
+          for (const video of videos) {
+            const source = video.querySelector('source');
+            const src = source?.getAttribute('src') || video.getAttribute('src') || '';
+            const srcKey = src.replace(/[^a-zA-Z0-9]/g, '').slice(0, 40);
+            if (srcKey === contentHint) {
+              el = video as HTMLElement;
+              break;
+            }
+          }
+        }
+      }
+
+      if (!el) continue;
+
+      // Apply the edit
+      try {
+        if (data.type === 'text') {
+          el.textContent = data.value;
+        } else if (data.type === 'image') {
+          const imgEl = el as HTMLImageElement;
+          if (imgEl.tagName === 'IMG') {
+            if (data.value.startsWith('idb://')) {
+              const idbKey = data.value.replace('idb://', '');
+              getMediaFromIDB(idbKey).then((dataUrl) => {
+                if (dataUrl) imgEl.src = dataUrl;
+              });
+            } else {
+              imgEl.src = data.value;
+            }
+          }
+        } else if (data.type === 'video') {
+          const videoEl = el as HTMLVideoElement;
+          if (videoEl.tagName === 'VIDEO') {
+            if (data.value.startsWith('idb://')) {
+              const idbKey = data.value.replace('idb://', '');
+              getMediaFromIDB(idbKey).then((dataUrl) => {
+                if (dataUrl) {
+                  const source = videoEl.querySelector('source');
+                  if (source) source.src = dataUrl;
+                  else videoEl.src = dataUrl;
+                  videoEl.load();
+                }
+              });
+            } else {
+              const source = videoEl.querySelector('source');
+              if (source) source.src = data.value;
+              else videoEl.src = data.value;
+              videoEl.load();
+            }
+          }
+        }
+      } catch {
+        /* ignore apply errors */
+      }
+    }
+  };
+
+  // Apply immediately
+  applyOnce();
+
+  // Retry after a short delay to catch late-rendered elements
+  setTimeout(applyOnce, 300);
+  setTimeout(applyOnce, 800);
 }
 
 // ============ Text Editable Elements ============
@@ -157,8 +223,10 @@ export function GlobalEditOverlay() {
   const [editingElement, setEditingElement] = useState<HTMLElement | null>(null);
   const [toolbarPos, setToolbarPos] = useState({ top: 0, left: 0 });
   const [fileAccept, setFileAccept] = useState<string>('image/*');
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const originalTextRef = useRef<string>('');
+  const originalKeyRef = useRef<string>('');
   const styleSheetRef = useRef<HTMLStyleElement | null>(null);
 
   // Inject global cursor style for editable elements in edit mode
@@ -271,8 +339,9 @@ export function GlobalEditOverlay() {
           e.stopPropagation();
 
           if (isTextElement(el)) {
-            // Start inline text editing
+            // Store original text and stable key BEFORE editing starts
             originalTextRef.current = el.textContent || '';
+            originalKeyRef.current = getStableKey(el);
             setEditingElement(el);
             el.contentEditable = 'true';
             el.focus();
@@ -281,12 +350,14 @@ export function GlobalEditOverlay() {
             el.style.backgroundColor = 'rgba(211, 176, 81, 0.1)';
             updateToolbarPosition(el);
           } else if (isImageElement(el)) {
-            // Open file picker for image
+            // Store stable key before file picker
+            originalKeyRef.current = getStableKey(el);
             setEditingElement(el);
             setFileAccept('image/*');
             setTimeout(() => fileInputRef.current?.click(), 0);
           } else if (isVideoElement(el)) {
-            // Open file picker for video
+            // Store stable key before file picker
+            originalKeyRef.current = getStableKey(el);
             setEditingElement(el);
             setFileAccept('video/*');
             setTimeout(() => fileInputRef.current?.click(), 0);
@@ -322,9 +393,10 @@ export function GlobalEditOverlay() {
   const saveTextEdit = useCallback(() => {
     if (!editingElement) return;
     const newText = editingElement.textContent || '';
-    const path = getElementPath(editingElement);
-    const key = getStorageKey(path);
-    localStorage.setItem(key, JSON.stringify({ type: 'text', value: newText }));
+    // Use the stable key captured at click time (before text was modified)
+    const stableKey = originalKeyRef.current;
+    const storageKey = getStorageKey(stableKey);
+    localStorage.setItem(storageKey, JSON.stringify({ type: 'text', value: newText }));
     editingElement.contentEditable = 'false';
     editingElement.style.backgroundColor = '';
     editingElement.style.outline = '';
@@ -348,48 +420,84 @@ export function GlobalEditOverlay() {
 
   // Handle file selection for image/video
   const handleFileChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (!file || !editingElement) {
         setEditingElement(null);
         return;
       }
 
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const dataUrl = reader.result as string;
-        const path = getElementPath(editingElement);
-        const storageKey = getStorageKey(path);
-        const idbKey = `media-${storageKey}`;
+      const stableKey = originalKeyRef.current;
+      const storageKey = getStorageKey(stableKey);
+      setIsUploading(true);
 
-        try {
-          if (isImageElement(editingElement)) {
-            (editingElement as HTMLImageElement).src = dataUrl;
-            // Save to IndexedDB (handles large files)
-            await saveMediaToIDB(idbKey, dataUrl);
-            // Store reference in localStorage
-            localStorage.setItem(storageKey, JSON.stringify({ type: 'image', value: `idb://${idbKey}` }));
-            toast.success('تم تحديث الصورة');
-          } else if (isVideoElement(editingElement)) {
-            const videoEl = editingElement as HTMLVideoElement;
-            const source = videoEl.querySelector('source');
-            if (source) source.src = dataUrl;
-            else videoEl.src = dataUrl;
-            videoEl.load();
-            // Save to IndexedDB (handles large files)
-            await saveMediaToIDB(idbKey, dataUrl);
-            // Store reference in localStorage
-            localStorage.setItem(storageKey, JSON.stringify({ type: 'video', value: `idb://${idbKey}` }));
-            toast.success('تم تحديث الفيديو');
+      try {
+        // Try Cloudinary first
+        if (isCloudinaryConfigured()) {
+          try {
+            const cloudinaryUrl = await uploadToCloudinary(file);
+
+            if (isImageElement(editingElement)) {
+              (editingElement as HTMLImageElement).src = cloudinaryUrl;
+              localStorage.setItem(storageKey, JSON.stringify({ type: 'image', value: cloudinaryUrl }));
+              toast.success('تم تحديث الصورة');
+            } else if (isVideoElement(editingElement)) {
+              const videoEl = editingElement as HTMLVideoElement;
+              const source = videoEl.querySelector('source');
+              if (source) source.src = cloudinaryUrl;
+              else videoEl.src = cloudinaryUrl;
+              videoEl.load();
+              localStorage.setItem(storageKey, JSON.stringify({ type: 'video', value: cloudinaryUrl }));
+              toast.success('تم تحديث الفيديو');
+            }
+
+            setIsUploading(false);
+            setEditingElement(null);
+            setHoveredElement(null);
+            e.target.value = '';
+            return;
+          } catch (cloudinaryError) {
+            console.warn('Cloudinary upload failed, falling back to IndexedDB:', cloudinaryError);
+            // Fall through to IndexedDB approach
           }
-        } catch {
-          toast.error('حدث خطأ أثناء حفظ الملف');
         }
 
+        // Fallback: Read as data URL and store in IndexedDB
+        const reader = new FileReader();
+        reader.onload = async () => {
+          const dataUrl = reader.result as string;
+          const idbKey = `media-${storageKey}`;
+
+          try {
+            if (isImageElement(editingElement)) {
+              (editingElement as HTMLImageElement).src = dataUrl;
+              await saveMediaToIDB(idbKey, dataUrl);
+              localStorage.setItem(storageKey, JSON.stringify({ type: 'image', value: `idb://${idbKey}` }));
+              toast.success('تم تحديث الصورة');
+            } else if (isVideoElement(editingElement)) {
+              const videoEl = editingElement as HTMLVideoElement;
+              const source = videoEl.querySelector('source');
+              if (source) source.src = dataUrl;
+              else videoEl.src = dataUrl;
+              videoEl.load();
+              await saveMediaToIDB(idbKey, dataUrl);
+              localStorage.setItem(storageKey, JSON.stringify({ type: 'video', value: `idb://${idbKey}` }));
+              toast.success('تم تحديث الفيديو');
+            }
+          } catch {
+            toast.error('حدث خطأ أثناء حفظ الملف');
+          }
+
+          setIsUploading(false);
+          setEditingElement(null);
+          setHoveredElement(null);
+        };
+        reader.readAsDataURL(file);
+      } catch {
+        toast.error('حدث خطأ أثناء رفع الملف');
+        setIsUploading(false);
         setEditingElement(null);
-        setHoveredElement(null);
-      };
-      reader.readAsDataURL(file);
+      }
 
       // Reset file input
       e.target.value = '';
@@ -429,6 +537,21 @@ export function GlobalEditOverlay() {
             <X className="h-3 w-3" />
             إلغاء
           </button>
+        </div>
+      )}
+
+      {/* Upload indicator */}
+      {isUploading && (
+        <div
+          className="fixed z-[9999] px-4 py-2 rounded-lg bg-[#1a1a2e]/95 border border-[#D3B051] shadow-xl text-white text-sm"
+          style={{
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            pointerEvents: 'none',
+          }}
+        >
+          جاري الرفع...
         </div>
       )}
 

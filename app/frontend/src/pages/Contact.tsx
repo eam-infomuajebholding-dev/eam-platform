@@ -62,8 +62,8 @@ export default function Contact() {
       <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#5E5E5E]">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)]" />
         <div className="relative z-10 text-center px-4">
-          <h1 className="gold-text text-4xl md:text-5xl lg:text-6xl font-bold font-playfair mb-4">اتصل بنا</h1>
-          <p className="text-gray-600 dark:text-white/70 text-lg md:text-xl max-w-2xl mx-auto font-tajawal">
+          <h1 data-editable-id="contact-hero-title" className="gold-text text-4xl md:text-5xl lg:text-6xl font-bold font-playfair mb-4">اتصل بنا</h1>
+          <p data-editable-id="contact-hero-desc" className="text-gray-600 dark:text-white/70 text-lg md:text-xl max-w-2xl mx-auto font-tajawal">
             نسعد بتواصلكم معنا في أي وقت
           </p>
         </div>

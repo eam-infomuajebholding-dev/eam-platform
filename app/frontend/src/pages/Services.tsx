@@ -62,8 +62,8 @@ export default function Services() {
       <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#5E5E5E]">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)]" />
         <div className="relative z-10 text-center px-4">
-          <h1 className="gold-text text-4xl md:text-5xl lg:text-6xl font-bold font-playfair mb-4">خدماتنا</h1>
-          <p className="text-gray-600 dark:text-white/70 text-lg md:text-xl max-w-2xl mx-auto font-tajawal">
+          <h1 data-editable-id="services-hero-title" className="gold-text text-4xl md:text-5xl lg:text-6xl font-bold font-playfair mb-4">خدماتنا</h1>
+          <p data-editable-id="services-hero-desc" className="text-gray-600 dark:text-white/70 text-lg md:text-xl max-w-2xl mx-auto font-tajawal">
             حلول هندسية وحكومية متكاملة تحت سقف واحد
           </p>
         </div>
@@ -174,8 +174,8 @@ export default function Services() {
       {/* CTA */}
       <section className="py-16 bg-white dark:bg-[#6B6B6B]">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="gold-text text-3xl md:text-4xl font-bold font-playfair mb-6">هل تحتاج إلى خدماتنا؟</h2>
-          <p className="text-gray-600 dark:text-white/70 text-lg mb-8 max-w-xl mx-auto font-tajawal">تواصل معنا اليوم للحصول على استشارة مجانية</p>
+          <h2 data-editable-id="services-cta-title" className="gold-text text-3xl md:text-4xl font-bold font-playfair mb-6">هل تحتاج إلى خدماتنا؟</h2>
+          <p data-editable-id="services-cta-desc" className="text-gray-600 dark:text-white/70 text-lg mb-8 max-w-xl mx-auto font-tajawal">تواصل معنا اليوم للحصول على استشارة مجانية</p>
           <Link to="/consultation" className="inline-block px-8 py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold font-tajawal rounded-lg text-lg transition-all duration-300 hover:shadow-[0_0_30px_rgba(201,168,76,0.4)] hover:scale-105">
             طلب استشارة
           </Link>

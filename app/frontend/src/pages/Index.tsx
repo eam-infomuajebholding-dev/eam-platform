@@ -69,13 +69,13 @@ export default function Index() {
               className="w-full h-full object-contain p-3"
             />
           </div>
-          <h1 className="font-tajawal text-3xl gold-text mt-[0px] mr-[0px] mb-[16px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[32px] font-bold text-center bg-[#00000000] opacity-100">
+          <h1 data-editable-id="home-hero-title" className="font-tajawal text-3xl gold-text mt-[0px] mr-[0px] mb-[16px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[32px] font-bold text-center bg-[#00000000] opacity-100">
             {"إعمار الأصالة والمعاصرة"}<br />{"Emmar Al Asala Wa Al Muasara"}<br />
           </h1>
-          <h2 className="font-tajawal md:text-2xl mt-[0px] mr-[0px] mb-[8px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[24px] font-normal text-center text-[#E8D48BCC] bg-[#00000000] opacity-100">
+          <h2 data-editable-id="home-hero-subtitle" className="font-tajawal md:text-2xl mt-[0px] mr-[0px] mb-[8px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[24px] font-normal text-center text-[#E8D48BCC] bg-[#00000000] opacity-100">
             للاستشارات الهندسية
           </h2>
-          <p className="dark:text-white/70 md:text-xl mt-[24px] rounded-none text-[20px] font-normal text-center text-[#FFFFFFB3] bg-[#00000000] opacity-100">
+          <p data-editable-id="home-hero-desc" className="dark:text-white/70 md:text-xl mt-[24px] rounded-none text-[20px] font-normal text-center text-[#FFFFFFB3] bg-[#00000000] opacity-100">
             شريكك الموثوق في الاستشارات الهندسية
           </p>
           <a
@@ -120,12 +120,12 @@ export default function Index() {
             {/* Gold Decorative Line */}
             
 
-            <h2 className="font-tajawal md:text-4xl gold-text mt-[0px] mr-[0px] mb-[32px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[36px] font-bold text-center bg-[#00000000] opacity-100">
+            <h2 data-editable-id="home-about-title" className="font-tajawal md:text-4xl gold-text mt-[0px] mr-[0px] mb-[32px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[36px] font-bold text-center bg-[#00000000] opacity-100">
               من نحن
             </h2>
 
             <div className="border border-gold/30 dark:border-gold/20 p-8 md:p-12 dark:bg-dark-lighter/50 backdrop-blur-sm shadow-lg shadow-gold/5 dark:shadow-none mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[48px] pr-[48px] pb-[48px] pl-[48px] rounded-2xl text-[16px] font-normal text-center text-[#2D2A1E] bg-[#FFFFFFCC] opacity-100">
-              <p className="dark:text-white/80 md:text-xl font-tajawal mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[12px] font-normal text-center text-[#3D3520] bg-[#00000000] opacity-100">
+              <p data-editable-id="home-about-desc" className="dark:text-white/80 md:text-xl font-tajawal mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[12px] font-normal text-center text-[#3D3520] bg-[#00000000] opacity-100">
                 نقدم خدمات استشارية هندسية متكاملة تجمع بين الأصالة والمعاصرة، ملتزمون بأعلى معايير
                 الجودة والاحترافية في تقديم الحلول الهندسية المبتكرة. نسعى لتحقيق رؤية عملائنا
                 بأفضل المعايير الهندسية المعتمدة في المملكة العربية السعودية.
@@ -151,7 +151,7 @@ export default function Index() {
               servicesTitleReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'
             }`}
           >
-            <h2 className="font-tajawal text-3xl md:text-4xl font-bold gold-text text-center mb-16">
+            <h2 data-editable-id="home-services-title" className="font-tajawal text-3xl md:text-4xl font-bold gold-text text-center mb-16">
               خدماتنا
             </h2>
           </div>
@@ -234,7 +234,7 @@ export default function Index() {
               whyTitleReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'
             }`}
           >
-            <h2 className="font-tajawal text-3xl md:text-4xl font-bold gold-text text-center mb-16">
+            <h2 data-editable-id="home-why-title" className="font-tajawal text-3xl md:text-4xl font-bold gold-text text-center mb-16">
               لماذا تختارنا
             </h2>
           </div>
@@ -272,10 +272,10 @@ export default function Index() {
             ctaReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'
           }`}
         >
-          <h2 className="font-tajawal text-3xl md:text-4xl font-bold gold-text mb-6">
+          <h2 data-editable-id="home-cta-title" className="font-tajawal text-3xl md:text-4xl font-bold gold-text mb-6">
             تواصل معنا اليوم
           </h2>
-          <p className="text-gray-600 dark:text-white/70 text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p data-editable-id="home-cta-desc" className="text-gray-600 dark:text-white/70 text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
             نحن هنا لمساعدتك في تحقيق مشروعك الهندسي. تواصل معنا للحصول على استشارة مجانية
           </p>
           <Link
