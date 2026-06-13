@@ -34,8 +34,8 @@ export default function About() {
       <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#5E5E5E]">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)]" />
         <div className="relative z-10 text-center px-4">
-          <h1 className="gold-text text-4xl md:text-5xl lg:text-6xl font-bold font-playfair mb-4">من نحن</h1>
-          <p className="text-gray-600 dark:text-white/70 text-lg md:text-xl max-w-2xl mx-auto font-tajawal">
+          <h1 data-editable-id="about-hero-title" className="gold-text text-4xl md:text-5xl lg:text-6xl font-bold font-playfair mb-4">من نحن</h1>
+          <p data-editable-id="about-hero-desc" className="text-gray-600 dark:text-white/70 text-lg md:text-xl max-w-2xl mx-auto font-tajawal">
             تعرّف على قصتنا ورؤيتنا وقيمنا
           </p>
         </div>
@@ -46,7 +46,7 @@ export default function About() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="border border-gold/20 rounded-2xl p-8 md:p-12 bg-gray-50 dark:bg-white/5 backdrop-blur-sm">
-              <p className="text-gray-700 dark:text-white/85 text-lg md:text-xl leading-loose font-tajawal mb-8">
+              <p data-editable-id="about-intro-text" className="text-gray-700 dark:text-white/85 text-lg md:text-xl leading-loose font-tajawal mb-8">
                 تأسست شركة <span className="text-gold font-bold">إعمار الأصالة والمعاصرة للاستشارات الهندسية</span> عام
                 <span className="text-gold font-bold"> ٢٠٠٥</span> لتكون نموذجاً يحتذى به في تقديم الاستشارات الهندسية
                 المتكاملة، نمزج بين أصالة الموروث المعماري وحداثة التصميم العصري، بفريق من أفضل المهندسين والاستشاريين
@@ -71,7 +71,7 @@ export default function About() {
       {/* Values */}
       <section className="py-16 md:py-24 bg-gray-50 dark:bg-[#5E5E5E]">
         <div className="container mx-auto px-4">
-          <h2 className="gold-text text-3xl md:text-4xl font-bold font-playfair text-center mb-14">قيمنا</h2>
+          <h2 data-editable-id="about-values-title" className="gold-text text-3xl md:text-4xl font-bold font-playfair text-center mb-14">قيمنا</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {values.map((v) => (
               <div key={v.title} className="text-center group">

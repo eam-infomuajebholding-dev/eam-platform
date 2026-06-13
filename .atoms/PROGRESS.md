@@ -36,3 +36,4 @@ Redesign admin dashboard as an inline "Edit Mode" overlay on the actual website,
 - 2026-06-12: Fixed data persistence issue - switched all three pages (Invest, Projects, Team) from localStorage (5MB limit) to IndexedDB (unlimited) so uploaded media files are saved correctly
 - 2026-06-12: Added Cloudinary cloud upload integration - files automatically upload to Cloudinary when configured (VITE_CLOUDINARY_CLOUD_NAME + VITE_CLOUDINARY_UPLOAD_PRESET), with graceful fallback to local base64/IndexedDB storage
 - 2026-06-12: Cloudinary integration completed for all upload points: Invest, Projects, Team pages + PageBackgroundEditor component. Lint and build pass cleanly.
+- 2026-06-13: Fixed inline edit persistence - replaced fragile DOM-path-based storage with stable data-editable-id system. Added retry logic for applySavedEdits(), Cloudinary-first media uploads, and data-editable-id attributes to all main pages (Index, About, Services, Contact, Careers).

@@ -58,10 +58,10 @@ export default function Careers() {
           <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gold/10 flex items-center justify-center">
             <Briefcase className="w-10 h-10 text-gold" />
           </div>
-          <h1 className="font-tajawal text-4xl md:text-5xl font-bold gold-text mb-4">
+          <h1 data-editable-id="careers-hero-title" className="font-tajawal text-4xl md:text-5xl font-bold gold-text mb-4">
             انضم إلى فريقنا
           </h1>
-          <p className="text-gray-600 dark:text-white/70 text-lg max-w-2xl mx-auto leading-relaxed">
+          <p data-editable-id="careers-hero-desc" className="text-gray-600 dark:text-white/70 text-lg max-w-2xl mx-auto leading-relaxed">
             نرحب دائماً بالمواهب المتميزة. أرسل سيرتك الذاتية وسنتواصل معك عند توفر الفرصة المناسبة
           </p>
         </div>
@@ -78,10 +78,10 @@ export default function Careers() {
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gold/10 flex items-center justify-center">
                 <FileText className="w-8 h-8 text-gold" />
               </div>
-              <h2 className="font-tajawal text-3xl md:text-4xl font-bold gold-text mb-4">
+              <h2 data-editable-id="careers-form-title" className="font-tajawal text-3xl md:text-4xl font-bold gold-text mb-4">
                 قدم طلبك الآن
               </h2>
-              <p className="text-gray-600 dark:text-white/60">
+              <p data-editable-id="careers-form-desc" className="text-gray-600 dark:text-white/60">
                 املأ النموذج أدناه وارفع سيرتك الذاتية
               </p>
             </div>

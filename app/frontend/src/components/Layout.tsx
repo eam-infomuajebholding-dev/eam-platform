@@ -87,11 +87,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   // Apply saved inline edits on page load and route change
   useEffect(() => {
-    // Small delay to ensure DOM is rendered
-    const timer = setTimeout(() => {
-      applySavedEdits();
-    }, 100);
-    return () => clearTimeout(timer);
+    // applySavedEdits now has its own internal retry logic (0ms, 300ms, 800ms)
+    applySavedEdits();
   }, [location.pathname]);
 
   const handleToggleTheme = useCallback(() => {
