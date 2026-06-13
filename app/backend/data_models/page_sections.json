@@ -1,0 +1,27 @@
+{
+    "title": "page_sections",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "Primary key, auto-increment"
+        },
+        "page_name": {
+            "type": "string",
+            "description": "Name of the page this section belongs to"
+        },
+        "section_data": {
+            "type": "string",
+            "description": "JSON string containing section data"
+        },
+        "sort_order": {
+            "type": "integer",
+            "description": "Order of the section on the page"
+        }
+    },
+    "required": [
+        "id",
+        "page_name",
+        "section_data"
+    ]
+}

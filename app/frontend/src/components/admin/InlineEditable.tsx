@@ -3,8 +3,9 @@ import { createPortal } from 'react-dom';
 import { useEditMode } from '@/contexts/EditModeContext';
 import { Check, X } from 'lucide-react';
 import { toast } from 'sonner';
-import { saveMediaToIDB, getMediaFromIDB } from '@/lib/mediaStorage';
 import { isCloudinaryConfigured, uploadToCloudinary } from '@/lib/cloudinary';
+import { loadEditsForPage, saveEdit, uploadMedia } from '@/lib/dbService';
+import { getMediaFromIDB } from '@/lib/mediaStorage';
 
 // ============ Stable Key Functions ============
 
@@ -39,45 +40,29 @@ function getStableKey(el: HTMLElement): string {
   return `${tag}-${text}`;
 }
 
-function getStorageKey(stableKey: string): string {
-  const page = window.location.pathname;
-  return `edit-v2-${page}-${stableKey}`;
-}
-
 // ============ Apply Saved Edits ============
 
 /**
- * Apply all saved edits from localStorage for the current page.
+ * Apply all saved edits from the database for the current page.
  * Uses data-editable-id attributes for precise element matching,
  * with fallback matching by tag+content for elements without explicit IDs.
  */
-export function applySavedEdits() {
+export async function applySavedEdits() {
   const page = window.location.pathname;
-  const prefix = `edit-v2-${page}-`;
 
-  // Collect all saved edits for this page
-  const savedEdits: { key: string; stableKey: string; data: { type: string; value: string } }[] = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key && key.startsWith(prefix)) {
-      const stableKey = key.replace(prefix, '');
-      const raw = localStorage.getItem(key);
-      if (!raw) continue;
-      try {
-        const data = JSON.parse(raw);
-        savedEdits.push({ key, stableKey, data });
-      } catch {
-        /* ignore parse errors */
-      }
-    }
+  // Load edits from database
+  const savedEdits = await loadEditsForPage(page);
+
+  if (savedEdits.length === 0) {
+    // Also try to migrate any old localStorage edits
+    migrateLocalStorageEdits(page);
+    return;
   }
-
-  if (savedEdits.length === 0) return;
 
   // Apply edits with retry logic to handle React rendering delays
   const applyOnce = () => {
     for (const edit of savedEdits) {
-      const { stableKey, data } = edit;
+      const { element_key: stableKey, edit_type, value } = edit;
 
       // Strategy 1: Find by data-editable-id
       let el: HTMLElement | null = document.querySelector(`[data-editable-id="${stableKey}"]`);
@@ -88,7 +73,7 @@ export function applySavedEdits() {
         const tag = stableKey.slice(0, dashIndex);
         const contentHint = stableKey.slice(dashIndex + 1);
 
-        if (data.type === 'text' && contentHint) {
+        if (edit_type === 'text' && contentHint) {
           // Find text elements by tag that contain similar text
           const candidates = document.querySelectorAll(tag);
           for (const candidate of candidates) {
@@ -98,7 +83,7 @@ export function applySavedEdits() {
               break;
             }
           }
-        } else if (data.type === 'image' && tag === 'img') {
+        } else if (edit_type === 'image' && tag === 'img') {
           // Find images by src hint
           const images = document.querySelectorAll('img');
           for (const img of images) {
@@ -108,7 +93,7 @@ export function applySavedEdits() {
               break;
             }
           }
-        } else if (data.type === 'video' && tag === 'video') {
+        } else if (edit_type === 'video' && tag === 'video') {
           const videos = document.querySelectorAll('video');
           for (const video of videos) {
             const source = video.querySelector('source');
@@ -126,25 +111,27 @@ export function applySavedEdits() {
 
       // Apply the edit
       try {
-        if (data.type === 'text') {
-          el.textContent = data.value;
-        } else if (data.type === 'image') {
+        if (edit_type === 'text') {
+          el.textContent = value;
+        } else if (edit_type === 'image') {
           const imgEl = el as HTMLImageElement;
           if (imgEl.tagName === 'IMG') {
-            if (data.value.startsWith('idb://')) {
-              const idbKey = data.value.replace('idb://', '');
+            // Handle legacy idb:// references (transitional)
+            if (value.startsWith('idb://')) {
+              const idbKey = value.replace('idb://', '');
               getMediaFromIDB(idbKey).then((dataUrl) => {
                 if (dataUrl) imgEl.src = dataUrl;
               });
             } else {
-              imgEl.src = data.value;
+              imgEl.src = value;
             }
           }
-        } else if (data.type === 'video') {
+        } else if (edit_type === 'video') {
           const videoEl = el as HTMLVideoElement;
           if (videoEl.tagName === 'VIDEO') {
-            if (data.value.startsWith('idb://')) {
-              const idbKey = data.value.replace('idb://', '');
+            // Handle legacy idb:// references (transitional)
+            if (value.startsWith('idb://')) {
+              const idbKey = value.replace('idb://', '');
               getMediaFromIDB(idbKey).then((dataUrl) => {
                 if (dataUrl) {
                   const source = videoEl.querySelector('source');
@@ -155,8 +142,8 @@ export function applySavedEdits() {
               });
             } else {
               const source = videoEl.querySelector('source');
-              if (source) source.src = data.value;
-              else videoEl.src = data.value;
+              if (source) source.src = value;
+              else videoEl.src = value;
               videoEl.load();
             }
           }
@@ -173,6 +160,52 @@ export function applySavedEdits() {
   // Retry after a short delay to catch late-rendered elements
   setTimeout(applyOnce, 300);
   setTimeout(applyOnce, 800);
+}
+
+/**
+ * One-time migration: read old localStorage edits and save them to the database.
+ * After migration, remove the localStorage keys.
+ */
+async function migrateLocalStorageEdits(page: string) {
+  const prefix = `edit-v2-${page}-`;
+  const editsToMigrate: { stableKey: string; type: string; value: string; lsKey: string }[] = [];
+
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith(prefix)) {
+      const stableKey = key.replace(prefix, '');
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+      try {
+        const data = JSON.parse(raw);
+        editsToMigrate.push({ stableKey, type: data.type, value: data.value, lsKey: key });
+      } catch {
+        /* ignore parse errors */
+      }
+    }
+  }
+
+  if (editsToMigrate.length === 0) return;
+
+  // Migrate each edit to the database
+  for (const edit of editsToMigrate) {
+    try {
+      await saveEdit(page, edit.stableKey, edit.type, edit.value);
+      // Remove from localStorage after successful migration
+      localStorage.removeItem(edit.lsKey);
+    } catch {
+      // Keep in localStorage if migration fails - will retry next time
+    }
+  }
+
+  // If any were migrated, re-apply from database
+  if (editsToMigrate.length > 0) {
+    const edits = await loadEditsForPage(page);
+    if (edits.length > 0) {
+      // Trigger a re-apply
+      applySavedEdits();
+    }
+  }
 }
 
 // ============ Text Editable Elements ============
@@ -390,20 +423,25 @@ export function GlobalEditOverlay() {
   }, [hoveredElement, editingElement]);
 
   // Save text edit
-  const saveTextEdit = useCallback(() => {
+  const saveTextEdit = useCallback(async () => {
     if (!editingElement) return;
     const newText = editingElement.textContent || '';
-    // Use the stable key captured at click time (before text was modified)
     const stableKey = originalKeyRef.current;
-    const storageKey = getStorageKey(stableKey);
-    localStorage.setItem(storageKey, JSON.stringify({ type: 'text', value: newText }));
+    const page = window.location.pathname;
+
+    try {
+      await saveEdit(page, stableKey, 'text', newText);
+      toast.success('تم حفظ التعديل');
+    } catch {
+      toast.error('حدث خطأ أثناء حفظ التعديل');
+    }
+
     editingElement.contentEditable = 'false';
     editingElement.style.backgroundColor = '';
     editingElement.style.outline = '';
     editingElement.style.outlineOffset = '';
     setEditingElement(null);
     setHoveredElement(null);
-    toast.success('تم حفظ التعديل');
   }, [editingElement]);
 
   // Cancel text edit
@@ -428,77 +466,54 @@ export function GlobalEditOverlay() {
       }
 
       const stableKey = originalKeyRef.current;
-      const storageKey = getStorageKey(stableKey);
+      const page = window.location.pathname;
       setIsUploading(true);
 
       try {
-        // Try Cloudinary first
+        let mediaUrl: string | null = null;
+
+        // Try Cloudinary first if configured
         if (isCloudinaryConfigured()) {
           try {
-            const cloudinaryUrl = await uploadToCloudinary(file);
-
-            if (isImageElement(editingElement)) {
-              (editingElement as HTMLImageElement).src = cloudinaryUrl;
-              localStorage.setItem(storageKey, JSON.stringify({ type: 'image', value: cloudinaryUrl }));
-              toast.success('تم تحديث الصورة');
-            } else if (isVideoElement(editingElement)) {
-              const videoEl = editingElement as HTMLVideoElement;
-              const source = videoEl.querySelector('source');
-              if (source) source.src = cloudinaryUrl;
-              else videoEl.src = cloudinaryUrl;
-              videoEl.load();
-              localStorage.setItem(storageKey, JSON.stringify({ type: 'video', value: cloudinaryUrl }));
-              toast.success('تم تحديث الفيديو');
-            }
-
-            setIsUploading(false);
-            setEditingElement(null);
-            setHoveredElement(null);
-            e.target.value = '';
-            return;
+            mediaUrl = await uploadToCloudinary(file);
           } catch (cloudinaryError) {
-            console.warn('Cloudinary upload failed, falling back to IndexedDB:', cloudinaryError);
-            // Fall through to IndexedDB approach
+            console.warn('Cloudinary upload failed, falling back to object storage:', cloudinaryError);
           }
         }
 
-        // Fallback: Read as data URL and store in IndexedDB
-        const reader = new FileReader();
-        reader.onload = async () => {
-          const dataUrl = reader.result as string;
-          const idbKey = `media-${storageKey}`;
-
+        // Fallback: upload to object storage
+        if (!mediaUrl) {
           try {
-            if (isImageElement(editingElement)) {
-              (editingElement as HTMLImageElement).src = dataUrl;
-              await saveMediaToIDB(idbKey, dataUrl);
-              localStorage.setItem(storageKey, JSON.stringify({ type: 'image', value: `idb://${idbKey}` }));
-              toast.success('تم تحديث الصورة');
-            } else if (isVideoElement(editingElement)) {
-              const videoEl = editingElement as HTMLVideoElement;
-              const source = videoEl.querySelector('source');
-              if (source) source.src = dataUrl;
-              else videoEl.src = dataUrl;
-              videoEl.load();
-              await saveMediaToIDB(idbKey, dataUrl);
-              localStorage.setItem(storageKey, JSON.stringify({ type: 'video', value: `idb://${idbKey}` }));
-              toast.success('تم تحديث الفيديو');
-            }
-          } catch {
-            toast.error('حدث خطأ أثناء حفظ الملف');
+            mediaUrl = await uploadMedia(file);
+          } catch (storageError) {
+            console.warn('Object storage upload failed:', storageError);
+            // Last resort: read as data URL (not persistent across devices but works locally)
+            mediaUrl = await readFileAsDataUrl(file);
           }
+        }
 
-          setIsUploading(false);
-          setEditingElement(null);
-          setHoveredElement(null);
-        };
-        reader.readAsDataURL(file);
+        if (mediaUrl) {
+          if (isImageElement(editingElement)) {
+            (editingElement as HTMLImageElement).src = mediaUrl;
+            await saveEdit(page, stableKey, 'image', mediaUrl);
+            toast.success('تم تحديث الصورة');
+          } else if (isVideoElement(editingElement)) {
+            const videoEl = editingElement as HTMLVideoElement;
+            const source = videoEl.querySelector('source');
+            if (source) source.src = mediaUrl;
+            else videoEl.src = mediaUrl;
+            videoEl.load();
+            await saveEdit(page, stableKey, 'video', mediaUrl);
+            toast.success('تم تحديث الفيديو');
+          }
+        }
       } catch {
         toast.error('حدث خطأ أثناء رفع الملف');
-        setIsUploading(false);
-        setEditingElement(null);
       }
 
+      setIsUploading(false);
+      setEditingElement(null);
+      setHoveredElement(null);
       // Reset file input
       e.target.value = '';
     },
@@ -567,6 +582,16 @@ export function GlobalEditOverlay() {
     </div>,
     document.body
   );
+}
+
+// Helper: read a file as data URL (last resort fallback)
+function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
 }
 
 // ============ Legacy Exports (pass-through wrappers) ============

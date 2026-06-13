@@ -1,0 +1,31 @@
+{
+    "title": "social_links",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "Primary key, auto-increment"
+        },
+        "platform": {
+            "type": "string",
+            "description": "Social media platform name"
+        },
+        "url": {
+            "type": "string",
+            "description": "Link URL"
+        },
+        "icon": {
+            "type": "string",
+            "description": "Icon identifier"
+        },
+        "sort_order": {
+            "type": "integer",
+            "description": "Display order"
+        }
+    },
+    "required": [
+        "id",
+        "platform",
+        "url"
+    ]
+}

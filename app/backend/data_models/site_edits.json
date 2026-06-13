@@ -1,0 +1,33 @@
+{
+    "title": "site_edits",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "Primary key, auto-increment"
+        },
+        "page": {
+            "type": "string",
+            "description": "Page path where the edit was made"
+        },
+        "element_key": {
+            "type": "string",
+            "description": "Stable key identifying the editable element"
+        },
+        "edit_type": {
+            "type": "string",
+            "description": "Type of edit: text, image, or video"
+        },
+        "value": {
+            "type": "string",
+            "description": "The edited value (text content or media URL)"
+        }
+    },
+    "required": [
+        "id",
+        "page",
+        "element_key",
+        "edit_type",
+        "value"
+    ]
+}
