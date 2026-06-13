@@ -1,0 +1,31 @@
+{
+    "title": "site_pages",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "Primary key, auto-increment"
+        },
+        "title": {
+            "type": "string",
+            "description": "Page title"
+        },
+        "path": {
+            "type": "string",
+            "description": "Page URL path"
+        },
+        "background_type": {
+            "type": "string",
+            "description": "Background type: color, image, or video"
+        },
+        "background_value": {
+            "type": "string",
+            "description": "Background value (hex color, image URL, or video URL)"
+        }
+    },
+    "required": [
+        "id",
+        "title",
+        "path"
+    ]
+}
