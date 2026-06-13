@@ -47,8 +47,8 @@ export default function About() {
           <div className="max-w-4xl mx-auto">
             <div className="border border-gold/20 rounded-2xl p-8 md:p-12 bg-gray-50 dark:bg-white/5 backdrop-blur-sm">
               <p data-editable-id="about-intro-text" className="text-gray-700 dark:text-white/85 text-lg md:text-xl leading-loose font-tajawal mb-8">
-                تأسست شركة <span className="text-gold font-bold">إعمار الأصالة والمعاصرة للاستشارات الهندسية</span> عام
-                <span className="text-gold font-bold"> ٢٠٠٥</span> لتكون نموذجاً يحتذى به في تقديم الاستشارات الهندسية
+                تأسست شركة <span className="text-gold font-bold">إعمار الأصالة والمعاصرة للاستشارات الهندسية</span> 
+                <span className="text-gold font-bold"> </span> لتكون نموذجاً يحتذى به في تقديم الاستشارات الهندسية
                 المتكاملة، نمزج بين أصالة الموروث المعماري وحداثة التصميم العصري، بفريق من أفضل المهندسين والاستشاريين
                 المتخصصين، ونعمل بشغف لتحويل رؤى عملائنا إلى مشاريع رائدة على أرض الواقع.
               </p>
