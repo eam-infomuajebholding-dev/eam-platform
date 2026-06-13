@@ -12,15 +12,15 @@
         },
         "element_key": {
             "type": "string",
-            "description": "Stable key identifying the editable element"
+            "description": "Unique identifier for the editable element"
         },
         "edit_type": {
             "type": "string",
-            "description": "Type of edit: text, image, or video"
+            "description": "Type of edit: text, image, video, html"
         },
         "value": {
             "type": "string",
-            "description": "The edited value (text content or media URL)"
+            "description": "The edited content value"
         }
     },
     "required": [
