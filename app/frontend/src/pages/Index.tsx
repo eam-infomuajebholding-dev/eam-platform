@@ -126,7 +126,7 @@ export default function Index() {
 
             <div className="border border-gold/30 dark:border-gold/20 p-8 md:p-12 dark:bg-dark-lighter/50 backdrop-blur-sm shadow-lg shadow-gold/5 dark:shadow-none mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[48px] pr-[48px] pb-[48px] pl-[48px] rounded-2xl text-[16px] font-normal text-center text-[#2D2A1E] bg-[#FFFFFFCC] opacity-100">
               <p data-editable-id="home-about-desc" className="dark:text-white/80 md:text-xl font-tajawal mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[12px] font-normal text-center text-[#3D3520] bg-[#00000000] opacity-100">
-                نقدم خدمات استشارية هندسية متكاملة تجمع بين الأصالة والمعاصرة، ملتزمون بأعلى معايير
+                نقدم خدمات استشارية هندسية متكاملة، ملتزمون بأعلى معايير
                 الجودة والاحترافية في تقديم الحلول الهندسية المبتكرة. نسعى لتحقيق رؤية عملائنا
                 بأفضل المعايير الهندسية المعتمدة في المملكة العربية السعودية.
               </p>
