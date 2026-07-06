@@ -74,7 +74,7 @@ export default function Index() {
     {/* Main Title */}
     <h1
       data-editable-id="home-hero-title"
-      className="md:text-6xl gold-text mt-[0px] mr-[0px] mb-[24px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[56px] font-normal text-center font-serif bg-[#00000000] opacity-100"
+      className="md:text-6xl gold-text font-serif mt-[0px] mr-[0px] mb-[24px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[40px] font-light text-center bg-[#00000000] opacity-100"
     >
       {"حلول هندسية متكاملة"}<br />{"لتحقيق مشاريع أكثر نجاحاً."}
     </h1>
