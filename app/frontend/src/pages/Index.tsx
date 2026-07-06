@@ -77,16 +77,16 @@ export default function Index() {
 </>
           </h1>
           <h2 data-editable-id="home-hero-subtitle" className="font-tajawal md:text-2xl mt-[0px] mr-[0px] mb-[8px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[24px] font-normal text-center text-[#E8D48BCC] bg-[#00000000] opacity-100">
-            للاستشارات الهندسية
+            إعمار الأصالة والمعاصرة
           </h2>
           <p data-editable-id="home-hero-desc" className="dark:text-white/70 md:text-xl mt-[24px] rounded-none text-[20px] font-normal text-center text-[#FFFFFFB3] bg-[#00000000] opacity-100">
-            شريكك الموثوق في الاستشارات الهندسية
+            نقدم خدمات الاستشارات الهندسية وإدارة المشاريع والإشراف على التنفيذ، لتمكين الجهات الحكومية والقطاع الخاص من تنفيذ مشاريع ناجحة ومستدامة وفق أعلى المعايير المهنية.
           </p>
           <a
             href="/services"
             className="inline-block mt-10 px-8 py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold text-lg rounded-lg hover:shadow-[0_0_30px_rgba(201,168,76,0.4)] transition-all duration-300 hover:scale-105"
           >
-            اكتشف خدماتنا
+            تعرف على خدماتنا
           </a>
         </div>
 
