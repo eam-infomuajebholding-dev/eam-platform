@@ -3,8 +3,6 @@ import { Award, Clock, BadgeCheck, Banknote } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 
-const HERO_IMAGE =
-  'https://mgx-backend-cdn.metadl.com/generate/images/1200196/2026-05-07/och7hyiaagqq/hero-banner-luxury-architecture.png';
 const ENGINEERING_IMAGE =
   'https://mgx-backend-cdn.metadl.com/generate/images/1200196/2026-05-07/och7nlqaagqa/engineering-services-blueprints.png';
 const GOVERNMENT_IMAGE =
@@ -62,7 +60,7 @@ export default function Index() {
   <div className="absolute inset-0 bg-black/60" />
 
   {/* Content */}
-  <div className="relative z-10 px-4 text-center animate-[fadeInUp_1s_ease-out]">
+  <div className="relative z-10 max-w-5xl mx-auto px-4 text-center animate-[fadeInUp_1s_ease-out]">
 
     {/* Logo */}
     <div className="mx-auto mb-6 w-44 h-56 md:w-56 md:h-72 rounded-xl border-4 border-gold/60 shadow-[0_0_40px_rgba(201,168,76,0.3)] overflow-hidden bg-white flex items-center justify-center">
@@ -107,7 +105,7 @@ export default function Index() {
     </p>
 
     {/* Buttons */}
-    <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">
+    <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
 
       <Link
         to="/services"
@@ -136,6 +134,62 @@ export default function Index() {
 
 </section>
 
+
+{/* About Section */}
+<section className="relative min-h-screen overflow-hidden">
+
+  <video
+    autoPlay
+    muted
+    loop
+    playsInline
+    className="absolute inset-0 w-full h-full object-cover"
+  >
+    <source src="/video.mp4" type="video/mp4" />
+  </video>
+
+  <div
+    ref={aboutReveal.ref}
+    className={`absolute inset-0 z-10 bg-[#00000099] w-full h-full flex flex-col items-center justify-center ${
+      aboutReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'
+    }`}
+  >
+
+    <div className="max-w-4xl mx-auto text-center px-4">
+
+      <h2
+        data-editable-id="home-about-title"
+        className="font-tajawal md:text-4xl gold-text text-[36px] font-bold text-center mb-8"
+      >
+        من نحن
+      </h2>
+
+      <div className="max-w-3xl mx-auto border border-gold/30 p-8 md:p-12 rounded-2xl bg-white/90 backdrop-blur-sm">
+
+        <p
+          data-editable-id="home-about-desc"
+          className="text-[#3D3520] md:text-xl leading-8"
+        >
+          نقدم خدمات استشارية هندسية متكاملة، ملتزمون بأعلى معايير الجودة
+          والاحترافية في تقديم الحلول الهندسية المبتكرة. نسعى لتحقيق رؤية
+          عملائنا بأفضل المعايير الهندسية المعتمدة في المملكة العربية السعودية.
+        </p>
+
+      </div>
+
+      <div className="flex items-center justify-center gap-4 mt-8">
+        <div className="h-px w-16 bg-gradient-to-r from-transparent to-gold" />
+        <div className="w-3 h-3 rotate-45 border border-gold" />
+        <div className="h-px w-16 bg-gradient-to-l from-transparent to-gold" />
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
       {/* Services Overview Section */}
       <section id="services" className="py-20 md:py-28 bg-white dark:bg-dark-lighter relative mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[80px] pr-[0px] pb-[80px] pl-[0px] rounded-none text-[16px] font-normal text-[#2D2A1E] opacity-100">
         <div className="container mx-auto px-4">
@@ -161,7 +215,7 @@ export default function Index() {
             >
               <Link
                 to="/engineering-services"
-                className="group relative h-80 md:h-96 rounded-2xl overflow-hidden border border-gold/20 hover:border-gold/60 transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(201,168,76,0.15)] block"
+                className="group relative cursor-pointer h-80 md:h-96 rounded-2xl overflow-hidden border border-gold/20 hover:border-gold/60 transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(201,168,76,0.15)] block"
               >
                 <div
                   className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
@@ -193,13 +247,13 @@ export default function Index() {
             >
               <Link
                 to="/government-services"
-                className="group relative h-80 md:h-96 rounded-2xl overflow-hidden border border-gold/20 hover:border-gold/60 transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(201,168,76,0.15)] block"
+                className="group relative cursor-pointer h-80 md:h-96 rounded-2xl overflow-hidden border border-gold/20 hover:border-gold/60 transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(201,168,76,0.15)] block"
               >
                 <div
                   className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
                   style={{ backgroundImage: `url(${GOVERNMENT_IMAGE})` }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/30" />
+                <div className="absolute inset-0 bg-black/60" />
                 <div className="absolute inset-0 flex flex-col items-center justify-end p-8 text-center">
                   <h3 className="font-tajawal text-2xl md:text-3xl font-bold gold-text mb-3">
                     الخدمات الحكومية
@@ -229,7 +283,7 @@ export default function Index() {
             }`}
           >
             <h2 data-editable-id="home-why-title" className="font-tajawal text-3xl md:text-4xl font-bold gold-text text-center mb-16">
-              لماذا تختارن��
+              لماذا تختارنا
             </h2>
           </div>
 
@@ -269,8 +323,14 @@ export default function Index() {
           <h2 data-editable-id="home-cta-title" className="font-tajawal text-3xl md:text-4xl font-bold gold-text mb-6">
             تواصل معنا اليوم
           </h2>
-          <p data-editable-id="home-cta-desc" className="text-gray-600 dark:text-white/70 text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
-            نحن هنا لمساعدتك في تحقيق مشروعك الهندسي. تواصل معنا للحصول على استشارة مجانية
+          <p
+  data-editable-id="home-cta-desc"
+  className="text-gray-600 dark:text-white/70 text-lg max-w-2xl mx-auto mb-10 leading-relaxed"
+>
+  نقدم حلولاً هندسية متكاملة تدعم الجهات الحكومية والقطاع الخاص والمستثمرين
+  في تنفيذ مشاريعهم بكفاءة وجودة وفق أعلى المعايير المهنية.
+  <br />
+  تواصل معنا لنناقش احتياجات مشروعك ونقدم الحلول المناسبة.
           </p>
           <Link
             to="/contact-card"
