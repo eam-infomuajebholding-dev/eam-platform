@@ -147,14 +147,14 @@ END:VCARD`;
   };
 
   return (
-    <div
-      className="min-h-screen bg-gradient-to-br from-[#F8F7F3] via-white to-[#F5F2E9] flex items-center justify-center p-6"
-      dir="rtl"
-    >
+     <div
+     className="min-h-screen bg-gradient-to-br from-white via-[#FCFCFC] to-[#F8F8F8] flex items-center justify-center p-6"
+     dir="rtl"
+     >
       {/* Card Container */}
       <div className="w-full max-w-lg">
         {/* Main Card */}
-        <div className="relative bg-[#1E2436] rounded-3xl border border-[#C9A84C]/30 shadow-[0_20px_60px_rgba(0,0,0,0.35)] overflow-hidden">
+        <div className="relative bg-[#1E2436] rounded-3xl border border-[#C9A84C]/30 shadow-[0_20px_60px_rgba(0,0,0,0.15)] overflow-hidden">
           {/* Gold accent top bar */}
           <div className="h-2 bg-gradient-to-l from-[#c9a84c] via-[#e8c84c] to-[#c9a84c]" />
 
