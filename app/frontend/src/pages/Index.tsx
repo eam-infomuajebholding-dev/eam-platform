@@ -74,11 +74,9 @@ export default function Index() {
     {/* Main Title */}
     <h1
       data-editable-id="home-hero-title"
-      className="font-tajawal text-6xl md:text-6xl font-bold text-center gold-text mb-6"
+      className="md:text-6xl gold-text mt-[0px] mr-[0px] mb-[24px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[56px] font-normal text-center font-serif bg-[#00000000] opacity-100"
     >
-      حلول هندسية متكاملة
-      <br />
-      لتحقيق مشاريع أكثر نجاحاً.
+      {"حلول هندسية متكاملة"}<br />{"لتحقيق مشاريع أكثر نجاحاً."}
     </h1>
 
     {/* Company Name */}
