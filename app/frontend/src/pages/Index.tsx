@@ -74,7 +74,7 @@ export default function Index() {
     {/* Main Title */}
     <h1
       data-editable-id="home-hero-title"
-      className="font-tajawal text-4xl md:text-6xl font-bold text-center gold-text mb-4"
+      className="font-tajawal text-6xl md:text-6xl font-bold text-center gold-text mb-6"
     >
       حلول هندسية متكاملة
       <br />
