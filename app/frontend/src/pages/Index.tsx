@@ -44,114 +44,97 @@ export default function Index() {
 
   return (
     <Layout>
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-    {/* Background Video */}
-<video
-  autoPlay
-  muted
-  loop
-  playsInline
-  className="absolute inset-0 w-full h-full object-cover"
->
-  <source src="/video.mp4" type="video/mp4" />
-</video>
+  {/* Hero Section */}
+<section className="relative min-h-screen flex items-center justify-center overflow-hidden">
 
-{/* Dark Overlay */}
-<div className="absolute inset-0 mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[16px] font-normal text-[#2D2A1E] bg-[#00000099] opacity-100 mt-12 mb-12" />
+  {/* Background Video */}
+  <video
+    autoPlay
+    muted
+    loop
+    playsInline
+    className="absolute inset-0 w-full h-full object-cover"
+  >
+    <source src="/video.mp4" type="video/mp4" />
+  </video>
 
-        {/* Content */}
-        <div className="relative z-10 px-4 animate-[fadeInUp_1s_ease-out] mt-[25px] mr-[0px] mb-[25px] ml-[0px] pt-[0px] pr-[16px] pb-[0px] pl-[16px] rounded-none text-[16px] font-normal text-center text-[#2D2A1E] bg-[#00000000] opacity-100">
-          <div className="mx-auto mb-6 w-44 h-56 md:w-56 md:h-72 rounded-xl border-4 border-gold/60 shadow-[0_0_40px_rgba(201,168,76,0.3)] overflow-hidden bg-white flex items-center justify-center">
-            <img
-              src="/assets/logo.jpeg"
-              alt="إعمار الأصالة والمعاصرة"
-              className="w-full h-full object-contain p-3"
-            />
-          </div>
-          <h1 
-          data-editable-id="home-hero-title"
-  className="font-tajawal text-4xl md:text-6xl gold-text mt-[0px] mr-[0px] mb-[16px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[32px] font-bold text-center bg-[#00000000] opacity-100"
->
-  حلول هندسية متكاملة
-  <br />
-  لتحقيق مشاريع أكثر نجاحاً.
-          </h1>
-          <h2 data-editable-id="home-hero-subtitle" className="font-tajawal md:text-2xl mt-[0px] mr-[0px] mb-[8px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[24px] font-normal text-center text-[#E8D48BCC] bg-[#00000000] opacity-100">
-            إعمار الأصالة والمعاصرة
-          </h2>
-          <p 
-  data-editable-id="home-hero-desc"
-  className="dark:text-white/70 text-lg md:text-xl leading-8 mt-6 text-center text-[#FFFFFFB3]" bg-[#00000000] opacity-100"
->
-  نقدم خدمات الاستشارات الهندسية وإدارة المشاريع والإشراف على التنفيذ،
-  <br />
-  لتمكين الجهات الحكومية والقطاع الخاص من تنفيذ مشاريع ناجحة ومستدامة وفق أعلى المعايير المهنية.
-</p>
+  {/* Dark Overlay */}
+  <div className="absolute inset-0 bg-black/60" />
 
-<a
-  href="/services"
-            className="inline-block mt-10 px-8 py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold text-lg rounded-lg hover:shadow-[0_0_30px_rgba(201,168,76,0.4)] transition-all duration-300 hover:scale-105"
-          >
-            تعرف على خدماتنا
-          </a>
-        </div>
+  {/* Content */}
+  <div className="relative z-10 px-4 text-center animate-[fadeInUp_1s_ease-out]">
 
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-gold/50 rounded-full flex items-start justify-center pt-2">
-            <div className="w-1.5 h-3 bg-gold rounded-full animate-[fadeInUp_1.5s_ease-in-out_infinite]" />
-          </div>
-        </div>
-      </section>
+    {/* Logo */}
+    <div className="mx-auto mb-6 w-44 h-56 md:w-56 md:h-72 rounded-xl border-4 border-gold/60 shadow-[0_0_40px_rgba(201,168,76,0.3)] overflow-hidden bg-white flex items-center justify-center">
+      <img
+        src="/assets/logo.jpeg"
+        alt="إعمار الأصالة والمعاصرة"
+        className="w-full h-full object-contain p-3"
+      />
+    </div>
 
-      {/* About Section */}
-      <section className="relative min-h-screen">
-        {/* Decorative Elements */}
-        
-        <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover"
-        >
-        <source src="/video.mp4" type="video/mp4" />
-        </video>
+    {/* Main Title */}
+    <h1
+      data-editable-id="home-hero-title"
+      className="font-tajawal text-4xl md:text-6xl font-bold text-center gold-text mb-4"
+    >
+      حلول هندسية متكاملة
+      <br />
+      لتحقيق مشاريع أكثر نجاحاً.
+    </h1>
 
+    {/* Company Name */}
+    <h2
+      data-editable-id="home-hero-subtitle"
+      className="font-tajawal text-xl md:text-2xl font-semibold text-[#E8D48BCC] mb-6"
+    >
+      إعمار الأصالة والمعاصرة
+    </h2>
 
-        <div
-          ref={aboutReveal.ref}
-          className={`absolute inset-0 z-10 bg-[#00000099] w-full h-full flex flex-col items-center justify-center ${
-            aboutReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'
-          }`}
-        >
+    {/* Description */}
+    <p
+      data-editable-id="home-hero-desc"
+      className="max-w-4xl mx-auto text-lg md:text-xl leading-8 text-white/75"
+    >
+      نقدم خدمات الاستشارات الهندسية وإدارة المشاريع والإشراف على التنفيذ،
+      <br />
+      لتمكين الجهات الحكومية والقطاع الخاص من تنفيذ مشاريع ناجحة ومستدامة وفق أعلى المعايير المهنية.
+    </p>
 
-          <div className="max-w-4xl mx-auto text-center px-4">
-            {/* Gold Decorative Line */}
-            
+    {/* Tagline */}
+    <p className="mt-6 text-gold text-lg md:text-xl font-semibold tracking-wide">
+      نقود المشاريع... ونبني الثقة.
+    </p>
 
-            <h2 data-editable-id="home-about-title" className="font-tajawal md:text-4xl gold-text mt-[0px] mr-[0px] mb-[32px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[36px] font-bold text-center bg-[#00000000] opacity-100">
-              من نحن
-            </h2>
+    {/* Buttons */}
+    <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">
 
-            <div className="border border-gold/30 dark:border-gold/20 p-8 md:p-12 dark:bg-dark-lighter/50 backdrop-blur-sm shadow-lg shadow-gold/5 dark:shadow-none mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[48px] pr-[48px] pb-[48px] pl-[48px] rounded-2xl text-[16px] font-normal text-center text-[#2D2A1E] bg-[#FFFFFFCC] opacity-100">
-              <p data-editable-id="home-about-desc" className="dark:text-white/80 md:text-xl font-tajawal mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[12px] font-normal text-center text-[#3D3520] bg-[#00000000] opacity-100">
-                نقدم خدمات استشارية هندسية متكاملة، ملتزمون بأعلى معايير
-                الجودة والاحترافية في تقديم الحلول الهندسية المبتكرة. نسعى لتحقيق رؤية عملائنا
-                بأفضل المعايير الهندسية المعتمدة في المملكة العربية السعودية.
-              </p>
-            </div>
+      <Link
+        to="/services"
+        className="px-8 py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold rounded-lg hover:shadow-[0_0_30px_rgba(201,168,76,0.4)] transition-all duration-300 hover:scale-105"
+      >
+        تعرف على خدماتنا
+      </Link>
 
-            {/* Gold Decorative Line */}
-            <div className="flex items-center justify-center gap-4 mt-8">
-              <div className="h-px w-16 bg-gradient-to-r from-transparent to-gold" />
-              <div className="w-3 h-3 rotate-45 border border-gold" />
-              <div className="h-px w-16 bg-gradient-to-l from-transparent to-gold" />
-            </div>
-          </div>
-        </div>
-      </section>
+      <Link
+        to="/consultation"
+        className="px-8 py-4 border-2 border-gold text-gold font-bold rounded-lg hover:bg-gold hover:text-dark transition-all duration-300"
+      >
+        احجز استشارة
+      </Link>
+
+    </div>
+
+  </div>
+
+  {/* Scroll Indicator */}
+  <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+    <div className="w-6 h-10 border-2 border-gold/50 rounded-full flex items-start justify-center pt-2">
+      <div className="w-1.5 h-3 bg-gold rounded-full animate-[fadeInUp_1.5s_ease-in-out_infinite]" />
+    </div>
+  </div>
+
+</section>
 
       {/* Services Overview Section */}
       <section id="services" className="py-20 md:py-28 bg-white dark:bg-dark-lighter relative mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[80px] pr-[0px] pb-[80px] pl-[0px] rounded-none text-[16px] font-normal text-[#2D2A1E] opacity-100">
@@ -184,7 +167,7 @@ export default function Index() {
                   className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
                   style={{ backgroundImage: `url(${ENGINEERING_IMAGE})` }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/30" />
+                <div className="absolute inset-0 bg-black/60" />
                 <div className="absolute inset-0 flex flex-col items-center justify-end p-8 text-center">
                   <h3 className="font-tajawal text-2xl md:text-3xl font-bold gold-text mb-3">
                     الخدمات الهندسية
@@ -246,7 +229,7 @@ export default function Index() {
             }`}
           >
             <h2 data-editable-id="home-why-title" className="font-tajawal text-3xl md:text-4xl font-bold gold-text text-center mb-16">
-              لماذا تختارنا
+              لماذا تختارن��
             </h2>
           </div>
 
