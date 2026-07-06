@@ -62,28 +62,35 @@ export default function Index() {
 
         {/* Content */}
         <div className="relative z-10 px-4 animate-[fadeInUp_1s_ease-out] mt-[25px] mr-[0px] mb-[25px] ml-[0px] pt-[0px] pr-[16px] pb-[0px] pl-[16px] rounded-none text-[16px] font-normal text-center text-[#2D2A1E] bg-[#00000000] opacity-100">
-          <div className="mx-auto mb-6 w-56 h-72 md:w-72 md:h-96 rounded-xl border-4 border-gold/60 shadow-[0_0_40px_rgba(201,168,76,0.3)] overflow-hidden bg-white flex items-center justify-center">
+          <div className="mx-auto mb-6 w-44 h-56 md:w-56 md:h-72 rounded-xl border-4 border-gold/60 shadow-[0_0_40px_rgba(201,168,76,0.3)] overflow-hidden bg-white flex items-center justify-center">
             <img
               src="/assets/logo.jpeg"
               alt="إعمار الأصالة والمعاصرة"
               className="w-full h-full object-contain p-3"
             />
           </div>
-          <h1 data-editable-id="home-hero-title" className="font-tajawal text-3xl gold-text mt-[0px] mr-[0px] mb-[16px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[32px] font-bold text-center bg-[#00000000] opacity-100">
-            <>
+          <h1 
+          data-editable-id="home-hero-title"
+  className="font-tajawal text-4xl md:text-6xl gold-text mt-[0px] mr-[0px] mb-[16px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[32px] font-bold text-center bg-[#00000000] opacity-100"
+>
   حلول هندسية متكاملة
   <br />
   لتحقيق مشاريع أكثر نجاحاً.
-</>
           </h1>
           <h2 data-editable-id="home-hero-subtitle" className="font-tajawal md:text-2xl mt-[0px] mr-[0px] mb-[8px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[24px] font-normal text-center text-[#E8D48BCC] bg-[#00000000] opacity-100">
             إعمار الأصالة والمعاصرة
           </h2>
-          <p data-editable-id="home-hero-desc" className="dark:text-white/70 md:text-xl mt-[24px] rounded-none text-[20px] font-normal text-center text-[#FFFFFFB3] bg-[#00000000] opacity-100">
-            نقدم خدمات الاستشارات الهندسية وإدارة المشاريع والإشراف على التنفيذ، لتمكين الجهات الحكومية والقطاع الخاص من تنفيذ مشاريع ناجحة ومستدامة وفق أعلى المعايير المهنية.
-          </p>
-          <a
-            href="/services"
+          <p 
+  data-editable-id="home-hero-desc"
+  className="dark:text-white/70 text-lg md:text-xl leading-8 mt-6 text-center text-[#FFFFFFB3]" bg-[#00000000] opacity-100"
+>
+  نقدم خدمات الاستشارات الهندسية وإدارة المشاريع والإشراف على التنفيذ،
+  <br />
+  لتمكين الجهات الحكومية والقطاع الخاص من تنفيذ مشاريع ناجحة ومستدامة وفق أعلى المعايير المهنية.
+</p>
+
+<a
+  href="/services"
             className="inline-block mt-10 px-8 py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold text-lg rounded-lg hover:shadow-[0_0_30px_rgba(201,168,76,0.4)] transition-all duration-300 hover:scale-105"
           >
             تعرف على خدماتنا
