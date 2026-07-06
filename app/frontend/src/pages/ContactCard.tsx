@@ -48,6 +48,7 @@ function TikTokIcon({ className }: { className?: string }) {
     </svg>
   );
 }
+
 const CONTACT_INFO = {
   phone: '+966 59 955 5437',
   email: 'majeb.alzh@gmail.com',
@@ -90,8 +91,6 @@ export default function ContactCard() {
       }
     } else {
       await navigator.clipboard.writeText(window.location.href);
-      setShared(true);
-      setTimeout(() => setShared(false), 2000);
     }
   };
 
@@ -148,49 +147,47 @@ END:VCARD`;
   };
 
   return (
-         <div
-         className="min-h-screen bg-gradient-to-br from-[#F8F7F3] via-white to-[#F5F2E9] flex items-center justify-center p-6"
-         dir="rtl"
-       >
+    <div
+      className="min-h-screen bg-gradient-to-br from-[#F8F7F3] via-white to-[#F5F2E9] flex items-center justify-center p-6"
+      dir="rtl"
+    >
       {/* Card Container */}
       <div className="w-full max-w-lg">
         {/* Main Card */}
-         <div className="relative bg-[#1E2436] rounded-3xl border border-[#C9A84C]/30 shadow-[0_20px_60px_rgba(0,0,0,0.35)] overflow-hidden">
+        <div className="relative bg-[#1E2436] rounded-3xl border border-[#C9A84C]/30 shadow-[0_20px_60px_rgba(0,0,0,0.35)] overflow-hidden">
           {/* Gold accent top bar */}
           <div className="h-2 bg-gradient-to-l from-[#c9a84c] via-[#e8c84c] to-[#c9a84c]" />
 
           {/* Header Section */}
           <div className="flex flex-col items-center pt-8 pb-6 px-6">
             {/* Logo */}
-          <div className="mb-8 w-[260px] md:w-[320px] bg-white rounded-2xl border-2 border-[#C9A84C] shadow-[0_0_40px_rgba(201,168,76,0.35)] p-5">
-          <img
-           src="/assets/logo.png"
-           alt={CONTACT_INFO.companyName}
-           className="w-full h-auto object-contain"
-            />
+            <div className="mb-8 w-[260px] md:w-[320px] bg-white rounded-2xl border-2 border-[#C9A84C] shadow-[0_0_40px_rgba(201,168,76,0.35)] p-5">
+              <img
+                src="/assets/logo.png"
+                alt={CONTACT_INFO.companyName}
+                className="w-full h-auto object-contain"
+              />
+            </div>
+            {/* Company Name */}
+            <h1 className="text-3xl md:text-3xl font-bold text-white text-center font-tajawal leading-tight">
+              {CONTACT_INFO.companyName}
+            </h1>
+
+            <p className="mt-2 text-[#D7B95E] text-base tracking-wide font-semibold font-tajawal">
+              {CONTACT_INFO.title}
+            </p>
+
+            <p className="mt-6 text-center text-white/75 leading-7 font-tajawal text-sm max-w-sm">
+              يسعدنا مناقشة احتياجات مشروعكم وتقديم الحلول الهندسية المناسبة.
+            </p>
           </div>
-          {/* Company Name */}
-          <h1 className="text-3xl md:text-3xl font-bold text-white text-center font-tajawal leading-tight">
-          {CONTACT_INFO.companyName}
-          </h1>
 
-          <p className="mt-2 text-[#D7B95E] text-base tracking-wide font-semibold font-tajawal">
-          {CONTACT_INFO.title}
-          </p>
-
-             <p className="mt-6 text-center text-white/75 leading-7 font-tajawal text-sm max-w-sm">
-               يسعدنا مناقشة احتياجات مشروعكم وتقديم الحلول الهندسية المناسبة.
-             </p>
-
-             </div>
-
-             {/* Contact Info Section */}
-             <div className="px-6 pb-4 space-y-3">
+          {/* Contact Info Section */}
+          <div className="px-6 pb-4 space-y-3">
             {/* Phone */}
             <a
               href={`tel:${CONTACT_INFO.phone.replace(/\s/g, '')}`}
-              className="flex items-center gap-4 p-5 rounded-xl bg-white/10
-               border-[#C9A84C]/20 border border-white/10 hover:bg-white/10 hover:border-[#c9a84c]/40 transition-all duration-300 group"
+              className="flex items-center gap-4 p-5 rounded-xl bg-white/10 border-[#C9A84C]/20 border border-white/10 hover:bg-white/10 hover:border-[#c9a84c]/40 transition-all duration-300 group"
             >
               <div className="w-10 h-10 rounded-full bg-[#c9a84c]/20 flex items-center justify-center group-hover:bg-[#c9a84c]/30 transition-colors">
                 <Phone className="w-5 h-5 text-[#c9a84c]" />
@@ -204,8 +201,7 @@ END:VCARD`;
             {/* Email */}
             <a
               href={`mailto:${CONTACT_INFO.email}`}
-              className="flex items-center gap-4 p-5 rounded-xl bg-white/10
-              border-[#C9A84C]/20 border border-white/10 hover:bg-white/10 hover:border-[#c9a84c]/40 transition-all duration-300 group"
+              className="flex items-center gap-4 p-5 rounded-xl bg-white/10 border-[#C9A84C]/20 border border-white/10 hover:bg-white/10 hover:border-[#c9a84c]/40 transition-all duration-300 group"
             >
               <div className="w-10 h-10 rounded-full bg-[#c9a84c]/20 flex items-center justify-center group-hover:bg-[#c9a84c]/30 transition-colors">
                 <Mail className="w-5 h-5 text-[#c9a84c]" />
@@ -217,8 +213,7 @@ END:VCARD`;
             </a>
 
             {/* Location */}
-            <div className="flex items-center gap-4 p-5 rounded-xl bg-white/10
-             border-[#C9A84C]/20 border border-white/10">
+            <div className="flex items-center gap-4 p-5 rounded-xl bg-white/10 border-[#C9A84C]/20 border border-white/10">
               <div className="w-10 h-10 rounded-full bg-[#c9a84c]/20 flex items-center justify-center">
                 <MapPin className="w-5 h-5 text-[#c9a84c]" />
               </div>
@@ -240,8 +235,7 @@ END:VCARD`;
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex flex-col items-center gap-1.5 p-5 rounded-xl bg-white/10
-                    border-[#C9A84C]/20 border border-white/10 hover:bg-[#c9a84c]/10 hover:border-[#c9a84c]/40 transition-all duration-300 group"
+                    className="flex flex-col items-center gap-1.5 p-5 rounded-xl bg-white/10 border-[#C9A84C]/20 border border-white/10 hover:bg-[#c9a84c]/10 hover:border-[#c9a84c]/40 transition-all duration-300 group"
                     title={getPlatformLabel(platform)}
                   >
                     <div className="text-white/70 group-hover:text-[#c9a84c] transition-colors">
@@ -264,8 +258,7 @@ END:VCARD`;
                 {Object.keys(socialLinks).map((platform) => (
                   <div
                     key={platform}
-                    className="flex flex-col items-center gap-1.5 p-5 rounded-xl bg-white/10
-                    border-[#C9A84C]/20 border border-white/10 opacity-50"
+                    className="flex flex-col items-center gap-1.5 p-5 rounded-xl bg-white/10 border-[#C9A84C]/20 border border-white/10 opacity-50"
                     title={getPlatformLabel(platform)}
                   >
                     <div className="text-white/70">
@@ -281,58 +274,54 @@ END:VCARD`;
           )}
 
           {/* Action Buttons */}
-<div className="px-6 pb-8 space-y-3">
-
-  {/* Save Contact */}
-  <button
-    onClick={handleDownloadVCard}
-    className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-l from-[#C9A84C] to-[#E0C36D] text-[#1E2436] font-bold font-tajawal hover:shadow-[0_0_25px_rgba(201,168,76,0.35)] transition-all duration-300"
-  >
-    <Download className="w-5 h-5" />
-    حفظ بيانات التواصل
-  </button>
-
-  <div className="grid grid-cols-2 gap-3">
-
-    {/* WhatsApp */}
-    <a
-      href="https://wa.me/966599555437"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex items-center justify-center py-4 rounded-xl border border-[#C9A84C]/40 bg-white/10 text-white font-semibold font-tajawal hover:bg-[#C9A84C]/15 hover:border-[#C9A84C] transition-all duration-300"
-    >
-      واتساب
-    </a>
-
-    {/* Call */}
-    <a
-      href="tel:+966599555437"
-      className="flex items-center justify-center py-4 rounded-xl border border-[#C9A84C]/40 bg-white/10 text-white font-semibold font-tajawal hover:bg-[#C9A84C]/15 hover:border-[#C9A84C] transition-all duration-300"
-    >
-      اتصال مباشر
-    </a>
-
-  </div>
-
-</div> 
+          <div className="px-6 pb-8 space-y-3">
+            {/* Save Contact */}
+            <button
+              onClick={handleDownloadVCard}
+              className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-l from-[#C9A84C] to-[#E0C36D] text-[#1E2436] font-bold font-tajawal hover:shadow-[0_0_25px_rgba(201,168,76,0.35)] transition-all duration-300"
+            >
+              <Download className="w-5 h-5" />
+              حفظ بيانات التواصل
             </button>
+
+            <div className="grid grid-cols-2 gap-3">
+              {/* WhatsApp */}
+              <a
+                href="https://wa.me/966599555437"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center py-4 rounded-xl border border-[#C9A84C]/40 bg-white/10 text-white font-semibold font-tajawal hover:bg-[#C9A84C]/15 hover:border-[#C9A84C] transition-all duration-300"
+              >
+                واتساب
+              </a>
+
+              {/* Call */}
+              <a
+                href="tel:+966599555437"
+                className="flex items-center justify-center py-4 rounded-xl border border-[#C9A84C]/40 bg-white/10 text-white font-semibold font-tajawal hover:bg-[#C9A84C]/15 hover:border-[#C9A84C] transition-all duration-300"
+              >
+                اتصال مباشر
+              </a>
+            </div>
+
+            {/* Share */}
             <button
               onClick={handleShare}
-              className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/10 border border-white/20 text-white font-tajawal text-sm hover:bg-white/20 transition-all"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-white/10 border border-white/20 text-white font-tajawal text-sm hover:bg-white/20 transition-all"
             >
               <Share2 className="w-4 h-4" />
-              {shared ? 'تم النسخ!' : 'مشاركة'}
+              مشاركة
             </button>
           </div>
         </div>
 
-        
-       {/* Footer */}
-       <div className="mt-8 text-center">
-        <div className="w-24 h-px bg-gradient-to-r from-transparent via-[#C9A84C] to-transparent mx-auto mb-3" />
-       <p className="text-xs tracking-[0.08em] text-[#A9965A] font-tajawal">
-         © {new Date().getFullYear()} إعمار الأصالة والمعاصرة للاستشارات الهندسية
-       </p>
+        {/* Footer */}
+        <div className="mt-8 text-center">
+          <div className="w-24 h-px bg-gradient-to-r from-transparent via-[#C9A84C] to-transparent mx-auto mb-3" />
+          <p className="text-xs tracking-[0.08em] text-[#A9965A] font-tajawal">
+            © {new Date().getFullYear()} إعمار الأصالة والمعاصرة للاستشارات الهندسية
+          </p>
+        </div>
       </div>
     </div>
   );
