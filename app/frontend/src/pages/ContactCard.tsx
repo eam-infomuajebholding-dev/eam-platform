@@ -191,12 +191,12 @@ END:VCARD`;
               href={`tel:${CONTACT_INFO.phone.replace(/\s/g, '')}`}
               className="flex items-center gap-4 p-5 rounded-2xl bg-[#FAFAFA] border border-[#E9D9A7] hover:border-[#C9A84C] hover:shadow-lg transition-all duration-300 group"
             >
-              <div className="w-10 h-10 rounded-full bg-[#c9a84c]/20 flex items-center justify-center group-hover:bg-[#c9a84c]/30 transition-colors">
+              <div className="w-10 h-10 rounded-full bg-[#F8F2DE] flex items-center justify-center group-hover:bg-[#EED88A] transition-all duration-300">
                 <Phone className="w-5 h-5 text-[#c9a84c]" />
               </div>
               <div className="flex-1">
-                <p className="text-white/50 text-xs font-tajawal">الهاتف</p>
-                <p className="text-white font-tajawal text-sm" dir="ltr">{CONTACT_INFO.phone}</p>
+                <p className="text-[#A58A45] text-xs font-medium font-tajawal">الهاتف</p>
+                <p className="text-[#1F2433] font-semibold font-tajawal text-sm"> dir="ltr">{CONTACT_INFO.phone}</p>
               </div>
             </a>
 
@@ -209,8 +209,8 @@ END:VCARD`;
                 <Mail className="w-5 h-5 text-[#c9a84c]" />
               </div>
               <div className="flex-1">
-                <p className="text-white/50 text-xs font-tajawal">البريد الإلكتروني</p>
-                <p className="text-white font-tajawal text-sm" dir="ltr">{CONTACT_INFO.email}</p>
+                <p className="text-[#A58A45] text-xs font-medium font-tajawal">البريد الإلكتروني</p>
+                <p className="text-[#1F2433] font-semibold font-tajawal text-sm"> dir="ltr">{CONTACT_INFO.email}</p>
               </div>
             </a>
 
@@ -225,21 +225,21 @@ END:VCARD`;
               </div>
             </div>
           </div>
-
+         <div className="mx-6 my-6 h-px bg-gradient-to-r from-transparent via-[#C9A84C] to-transparent" />
           {/* Social Media Section */}
           {activeSocialLinks.length > 0 && (
             <div className="px-6 pb-6">
-              <p className="text-[#A58A45] text-sm font-semibold font-tajawal mb-4 text-center"">
+              <p className="text-[#A58A45] text-sm font-semibold font-tajawal mb-4 text-center">
               منصاتنا الرقمية
               </p>
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-4 gap-5">
                 {activeSocialLinks.map(([platform, url]) => (
                   <a
                     key={platform}
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white border border-[#E7D7A4] hover:bg-[#FFF8E8] hover:border-[#C9A84C] hover:scale-105 hover:shadow-lg transition-all duration-300 group"
+                    className="flex flex-col items-center gap-2 p-5 rounded-xl bg-white border border-[#E7D7A4] hover:bg-[#FFF8E8] hover:border-[#C9A84C] hover:scale-105 hover:shadow-lg transition-all duration-300 group"
                     title={getPlatformLabel(platform)}
                   >
                     <div className="text-[#C9A84C] group-hover:text-[#B99128] transition-all duration-300">
@@ -258,17 +258,17 @@ END:VCARD`;
           {activeSocialLinks.length === 0 && (
             <div className="px-6 pb-6">
               <p className="text-white/40 text-xs font-tajawal mb-3 text-center">تابعنا على</p>
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-4 gap-5">
                 {Object.keys(socialLinks).map((platform) => (
                   <div
                     key={platform}
-                    className="flex flex-col items-center gap-1.5 p-5 rounded-xl bg-white/10 border-[#C9A84C]/20 border border-white/10 opacity-50"
+                    className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white border border-[#C9A84C]/20 hover:border-[#C9A84C] hover:shadow-[0_0_20px_rgba(201,168,76,0.35)] hover:-translate-y-1 transition-all duration-300 group"
                     title={getPlatformLabel(platform)}
                   >
-                    <div className="text-white/70">
+                    <div className=<div className="text-[#B9912F] group-hover:text-[#D9BE69] transition-colors">
                       {getSocialIcon(platform)}
                     </div>
-                    <span className="text-[10px] text-white/50 font-tajawal">
+                    <span className="text-[10px] text-[#7A6A3A] group-hover:text-[#B9912F] font-tajawal transition-colors">
                       {getPlatformLabel(platform)}
                     </span>
                   </div>
@@ -278,40 +278,45 @@ END:VCARD`;
           )}
 
           {/* Action Buttons */}
-          <div className="px-6 pb-8 space-y-3">
-            {/* Save Contact */}
-            <button
-              onClick={handleDownloadVCard}
-              className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-l from-[#C9A84C] to-[#E0C36D] text-[#1E2436] font-bold font-tajawal hover:shadow-[0_0_25px_rgba(201,168,76,0.35)] transition-all duration-300"
-            >
-              <Download className="w-5 h-5" />
-              حفظ بيانات التواصل
-            </button>
+<div className="px-6 pb-8 space-y-3">
 
-            <div className="grid grid-cols-2 gap-3">
-              {/* WhatsApp */}
-              <a
-                href="https://wa.me/966599555437"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center py-4 rounded-xl border border-[#C9A84C]/40 bg-white/10 text-white font-semibold font-tajawal hover:bg-[#C9A84C]/15 hover:border-[#C9A84C] transition-all duration-300"
-              >
-                واتساب
-              </a>
+  {/* Save Contact */}
+  <button
+    onClick={handleDownloadVCard}
+    className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-r from-[#B9912F] via-[#C9A84C] to-[#D9BE69] text-white font-bold font-tajawal hover:shadow-[0_0_20px_rgba(201,168,76,0.35)] transition-all duration-300"
+  >
+    <Download className="w-5 h-5" />
+    حفظ بيانات التواصل
+  </button>
 
-              {/* Call */}
-              <a
-                href="tel:+966599555437"
-                className="flex items-center justify-center py-4 rounded-xl border border-[#C9A84C]/40 bg-white/10 text-white font-semibold font-tajawal hover:bg-[#C9A84C]/15 hover:border-[#C9A84C] transition-all duration-300"
-              >
-                اتصال مباشر
-              </a>
-            </div>
+  <div className="grid grid-cols-2 gap-3">
+
+    <a
+      href="https://wa.me/966599555437"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center justify-center gap-2 py-4 rounded-xl border border-[#C9A84C]/40 bg-white hover:bg-[#C9A84C] hover:text-white text-[#B9912F] font-bold transition-all duration-300"
+    >
+      <Phone className="w-5 h-5" />
+      واتساب
+    </a>
+
+    <a
+      href="tel:+966599555437"
+      className="flex items-center justify-center gap-2 py-4 rounded-xl border border-[#C9A84C]/40 bg-white hover:bg-[#C9A84C] hover:text-white text-[#B9912F] font-bold transition-all duration-300"
+    >
+      <Phone className="w-5 h-5" />
+      اتصال مباشر
+    </a>
+
+  </div>
+
+</div>
 
             {/* Share */}
             <button
               onClick={handleShare}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-white/10 border border-white/20 text-white font-tajawal text-sm hover:bg-white/20 transition-all"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-white border border-[#C9A84C] text-[#1F2433] font-semibold font-tajawal hover:bg-[#FFF8E8] transition-all duration-300"
             >
               <Share2 className="w-4 h-4" />
               مشاركة
