@@ -148,15 +148,17 @@ END:VCARD`;
 
   return (
      <div
-     className="min-h-screen bg-gradient-to-br from-white via-[#FCFCFC] to-[#F8F8F8] flex items-center justify-center p-6"
-     dir="rtl"
+       className="min-h-screen bg-gradient-to-br from-[#FAFAF8] via-white to-[#F8F6F1] flex items-center justify-center p-6"
+        dir="rtl"
      >
-      {/* Card Container */}
+       {/* Card Container */}
       <div className="w-full max-w-lg">
-        {/* Main Card */}
-        <div className="relative bg-[#1E2436] rounded-3xl border border-[#C9A84C]/30 shadow-[0_20px_60px_rgba(0,0,0,0.15)] overflow-hidden">
-          {/* Gold accent top bar */}
-          <div className="h-2 bg-gradient-to-l from-[#c9a84c] via-[#e8c84c] to-[#c9a84c]" />
+        
+       {/* Main Card */}
+      <div className="relative bg-white rounded-3xl border-2 border-[#C9A84C] shadow-[0_20px_60px_rgba(201,168,76,0.18)] overflow-hidden">
+
+        {/* Gold accent top bar */}
+        <div className="h-2 bg-gradient-to-l from-[#C9A84C] via-[#E8C84C] to-[#C9A84C]" />
 
           {/* Header Section */}
           <div className="flex flex-col items-center pt-8 pb-6 px-6">
@@ -169,15 +171,15 @@ END:VCARD`;
               />
             </div>
             {/* Company Name */}
-            <h1 className="text-3xl md:text-3xl font-bold text-white text-center font-tajawal leading-tight">
+            <h1 className="text-2xl md:text-3xl font-bold text-[#1F2433] text-center font-tajawal leading-tight">
               {CONTACT_INFO.companyName}
             </h1>
 
-            <p className="mt-2 text-[#D7B95E] text-base tracking-wide font-semibold font-tajawal">
+            <p className="mt-2 text-[#C9A84C] text-base tracking-wide font-semibold font-tajawal">
               {CONTACT_INFO.title}
             </p>
 
-            <p className="mt-6 text-center text-white/75 leading-7 font-tajawal text-sm max-w-sm">
+            <p className="mt-6 text-center text-[#666666] leading-8 font-tajawal text-sm max-w-sm">
               يسعدنا مناقشة احتياجات مشروعكم وتقديم الحلول الهندسية المناسبة.
             </p>
           </div>
@@ -187,7 +189,7 @@ END:VCARD`;
             {/* Phone */}
             <a
               href={`tel:${CONTACT_INFO.phone.replace(/\s/g, '')}`}
-              className="flex items-center gap-4 p-5 rounded-xl bg-white/10 border-[#C9A84C]/20 border border-white/10 hover:bg-white/10 hover:border-[#c9a84c]/40 transition-all duration-300 group"
+              className="flex items-center gap-4 p-5 rounded-2xl bg-[#FAFAFA] border border-[#E9D9A7] hover:border-[#C9A84C] hover:shadow-lg transition-all duration-300 group"
             >
               <div className="w-10 h-10 rounded-full bg-[#c9a84c]/20 flex items-center justify-center group-hover:bg-[#c9a84c]/30 transition-colors">
                 <Phone className="w-5 h-5 text-[#c9a84c]" />
@@ -201,7 +203,7 @@ END:VCARD`;
             {/* Email */}
             <a
               href={`mailto:${CONTACT_INFO.email}`}
-              className="flex items-center gap-4 p-5 rounded-xl bg-white/10 border-[#C9A84C]/20 border border-white/10 hover:bg-white/10 hover:border-[#c9a84c]/40 transition-all duration-300 group"
+              className="flex items-center gap-4 p-5 rounded-2xl bg-[#FAFAFA] border border-[#E9D9A7] hover:border-[#C9A84C] hover:shadow-lg transition-all duration-300 group"
             >
               <div className="w-10 h-10 rounded-full bg-[#c9a84c]/20 flex items-center justify-center group-hover:bg-[#c9a84c]/30 transition-colors">
                 <Mail className="w-5 h-5 text-[#c9a84c]" />
@@ -213,13 +215,13 @@ END:VCARD`;
             </a>
 
             {/* Location */}
-            <div className="flex items-center gap-4 p-5 rounded-xl bg-white/10 border-[#C9A84C]/20 border border-white/10">
+            <div className="flex items-center gap-4 p-5 rounded-2xl bg-[#FAFAFA] border border-[#E9D9A7] hover:border-[#C9A84C] hover:shadow-lg transition-all duration-300 group"
               <div className="w-10 h-10 rounded-full bg-[#c9a84c]/20 flex items-center justify-center">
                 <MapPin className="w-5 h-5 text-[#c9a84c]" />
               </div>
               <div className="flex-1">
-                <p className="text-white/50 text-xs font-tajawal">الموقع</p>
-                <p className="text-white font-tajawal text-sm">{CONTACT_INFO.address}</p>
+                <p className="text-[#A58A45] text-xs font-medium font-tajawal">الموقع</p>
+                <p className="text-[#1F2433] font-semibold font-tajawal text-sm">{CONTACT_INFO.address}</p>
               </div>
             </div>
           </div>
@@ -227,7 +229,9 @@ END:VCARD`;
           {/* Social Media Section */}
           {activeSocialLinks.length > 0 && (
             <div className="px-6 pb-6">
-              <p className="text-white/40 text-xs font-tajawal mb-3 text-center">منصاتنا الرقمية</p>
+              <p className="text-[#A58A45] text-sm font-semibold font-tajawal mb-4 text-center"">
+              منصاتنا الرقمية
+              </p>
               <div className="grid grid-cols-4 gap-3">
                 {activeSocialLinks.map(([platform, url]) => (
                   <a
@@ -235,13 +239,13 @@ END:VCARD`;
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex flex-col items-center gap-1.5 p-5 rounded-xl bg-white/10 border-[#C9A84C]/20 border border-white/10 hover:bg-[#c9a84c]/10 hover:border-[#c9a84c]/40 transition-all duration-300 group"
+                    className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white border border-[#E7D7A4] hover:bg-[#FFF8E8] hover:border-[#C9A84C] hover:scale-105 hover:shadow-lg transition-all duration-300 group"
                     title={getPlatformLabel(platform)}
                   >
-                    <div className="text-white/70 group-hover:text-[#c9a84c] transition-colors">
+                    <div className="text-[#C9A84C] group-hover:text-[#B99128] transition-all duration-300">
                       {getSocialIcon(platform)}
                     </div>
-                    <span className="text-[10px] text-white/50 group-hover:text-[#c9a84c]/80 font-tajawal transition-colors">
+                    <span className="text-[10px] text-[#7A7A7A] group-hover:text-[#B99128] font-tajawal transition-colors">
                       {getPlatformLabel(platform)}
                     </span>
                   </a>
