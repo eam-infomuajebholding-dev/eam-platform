@@ -171,7 +171,7 @@ export default function Footer() {
           {/* Company Info */}
           <div className="flex flex-col items-start gap-4">
             <img
-              src="/assets/logo.jpeg"
+              src="/assets/logo.png"
               alt="إعمار الأصالة والمعاصرة"
               className="h-16 w-auto rounded-lg object-contain border-2 border-gold/50"
             />
