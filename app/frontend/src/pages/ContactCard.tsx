@@ -147,18 +147,18 @@ END:VCARD`;
   };
 
   return (
-     <div
-       className="min-h-screen bg-gradient-to-br from-[#FAFAF8] via-white to-[#F8F6F1] flex items-center justify-center p-6"
-        dir="rtl"
-     >
-       {/* Card Container */}
+    <div
+      className="min-h-screen bg-gradient-to-br from-[#FAFAF8] via-white to-[#F8F6F1] flex items-center justify-center p-6"
+      dir="rtl"
+    >
+      {/* Card Container */}
       <div className="w-full max-w-lg">
-        
-       {/* Main Card */}
-      <div className="relative bg-white rounded-3xl border-2 border-[#C9A84C] shadow-[0_20px_60px_rgba(201,168,76,0.18)] overflow-hidden">
 
-        {/* Gold accent top bar */}
-        <div className="h-2 bg-gradient-to-l from-[#C9A84C] via-[#E8C84C] to-[#C9A84C]" />
+        {/* Main Card */}
+        <div className="relative bg-white rounded-3xl border-2 border-[#C9A84C] shadow-[0_20px_60px_rgba(201,168,76,0.18)] overflow-hidden">
+
+          {/* Gold accent top bar */}
+          <div className="h-2 bg-gradient-to-l from-[#C9A84C] via-[#E8C84C] to-[#C9A84C]" />
 
           {/* Header Section */}
           <div className="flex flex-col items-center pt-8 pb-6 px-6">
@@ -196,7 +196,7 @@ END:VCARD`;
               </div>
               <div className="flex-1">
                 <p className="text-[#A58A45] text-xs font-medium font-tajawal">الهاتف</p>
-                <p className="text-[#1F2433] font-semibold font-tajawal text-sm"> dir="ltr">{CONTACT_INFO.phone}</p>
+                <p className="text-[#1F2433] font-semibold font-tajawal text-sm" dir="ltr">{CONTACT_INFO.phone}</p>
               </div>
             </a>
 
@@ -205,18 +205,18 @@ END:VCARD`;
               href={`mailto:${CONTACT_INFO.email}`}
               className="flex items-center gap-4 p-5 rounded-2xl bg-[#FAFAFA] border border-[#E9D9A7] hover:border-[#C9A84C] hover:shadow-lg transition-all duration-300 group"
             >
-              <div className="w-10 h-10 rounded-full bg-[#c9a84c]/20 flex items-center justify-center group-hover:bg-[#c9a84c]/30 transition-colors">
+              <div className="w-10 h-10 rounded-full bg-[#F8F2DE] flex items-center justify-center group-hover:bg-[#EED88A] transition-all duration-300">
                 <Mail className="w-5 h-5 text-[#c9a84c]" />
               </div>
               <div className="flex-1">
                 <p className="text-[#A58A45] text-xs font-medium font-tajawal">البريد الإلكتروني</p>
-                <p className="text-[#1F2433] font-semibold font-tajawal text-sm"> dir="ltr">{CONTACT_INFO.email}</p>
+                <p className="text-[#1F2433] font-semibold font-tajawal text-sm" dir="ltr">{CONTACT_INFO.email}</p>
               </div>
             </a>
 
             {/* Location */}
-            <div className="flex items-center gap-4 p-5 rounded-2xl bg-[#FAFAFA] border border-[#E9D9A7] hover:border-[#C9A84C] hover:shadow-lg transition-all duration-300 group"
-              <div className="w-10 h-10 rounded-full bg-[#c9a84c]/20 flex items-center justify-center">
+            <div className="flex items-center gap-4 p-5 rounded-2xl bg-[#FAFAFA] border border-[#E9D9A7] hover:border-[#C9A84C] hover:shadow-lg transition-all duration-300 group">
+              <div className="w-10 h-10 rounded-full bg-[#F8F2DE] flex items-center justify-center group-hover:bg-[#EED88A] transition-all duration-300">
                 <MapPin className="w-5 h-5 text-[#c9a84c]" />
               </div>
               <div className="flex-1">
@@ -225,12 +225,15 @@ END:VCARD`;
               </div>
             </div>
           </div>
-         <div className="mx-6 my-6 h-px bg-gradient-to-r from-transparent via-[#C9A84C] to-transparent" />
+
+          {/* Divider */}
+          <div className="mx-6 my-6 h-px bg-gradient-to-r from-transparent via-[#C9A84C] to-transparent" />
+
           {/* Social Media Section */}
           {activeSocialLinks.length > 0 && (
             <div className="px-6 pb-6">
               <p className="text-[#A58A45] text-sm font-semibold font-tajawal mb-4 text-center">
-              منصاتنا الرقمية
+                منصاتنا الرقمية
               </p>
               <div className="grid grid-cols-4 gap-5">
                 {activeSocialLinks.map(([platform, url]) => (
@@ -257,7 +260,7 @@ END:VCARD`;
           {/* If no social links configured, show all platforms as placeholders */}
           {activeSocialLinks.length === 0 && (
             <div className="px-6 pb-6">
-              <p className="text-white/40 text-xs font-tajawal mb-3 text-center">تابعنا على</p>
+              <p className="text-[#A58A45] text-sm font-semibold font-tajawal mb-4 text-center">تابعنا على</p>
               <div className="grid grid-cols-4 gap-5">
                 {Object.keys(socialLinks).map((platform) => (
                   <div
@@ -265,7 +268,7 @@ END:VCARD`;
                     className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white border border-[#C9A84C]/20 hover:border-[#C9A84C] hover:shadow-[0_0_20px_rgba(201,168,76,0.35)] hover:-translate-y-1 transition-all duration-300 group"
                     title={getPlatformLabel(platform)}
                   >
-                    <div className=<div className="text-[#B9912F] group-hover:text-[#D9BE69] transition-colors">
+                    <div className="text-[#B9912F] group-hover:text-[#D9BE69] transition-colors">
                       {getSocialIcon(platform)}
                     </div>
                     <span className="text-[10px] text-[#7A6A3A] group-hover:text-[#B9912F] font-tajawal transition-colors">
@@ -278,40 +281,37 @@ END:VCARD`;
           )}
 
           {/* Action Buttons */}
-<div className="px-6 pb-8 space-y-3">
+          <div className="px-6 pb-8 space-y-3">
+            {/* Save Contact */}
+            <button
+              onClick={handleDownloadVCard}
+              className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-r from-[#B9912F] via-[#C9A84C] to-[#D9BE69] text-white font-bold font-tajawal hover:shadow-[0_0_20px_rgba(201,168,76,0.35)] transition-all duration-300"
+            >
+              <Download className="w-5 h-5" />
+              حفظ بيانات التواصل
+            </button>
 
-  {/* Save Contact */}
-  <button
-    onClick={handleDownloadVCard}
-    className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-r from-[#B9912F] via-[#C9A84C] to-[#D9BE69] text-white font-bold font-tajawal hover:shadow-[0_0_20px_rgba(201,168,76,0.35)] transition-all duration-300"
-  >
-    <Download className="w-5 h-5" />
-    حفظ بيانات التواصل
-  </button>
+            <div className="grid grid-cols-2 gap-3">
+              {/* WhatsApp */}
+              <a
+                href="https://wa.me/966599555437"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 py-4 rounded-xl border border-[#C9A84C]/40 bg-white hover:bg-[#C9A84C] hover:text-white text-[#B9912F] font-bold transition-all duration-300"
+              >
+                <Phone className="w-5 h-5" />
+                واتساب
+              </a>
 
-  <div className="grid grid-cols-2 gap-3">
-
-    <a
-      href="https://wa.me/966599555437"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex items-center justify-center gap-2 py-4 rounded-xl border border-[#C9A84C]/40 bg-white hover:bg-[#C9A84C] hover:text-white text-[#B9912F] font-bold transition-all duration-300"
-    >
-      <Phone className="w-5 h-5" />
-      واتساب
-    </a>
-
-    <a
-      href="tel:+966599555437"
-      className="flex items-center justify-center gap-2 py-4 rounded-xl border border-[#C9A84C]/40 bg-white hover:bg-[#C9A84C] hover:text-white text-[#B9912F] font-bold transition-all duration-300"
-    >
-      <Phone className="w-5 h-5" />
-      اتصال مباشر
-    </a>
-
-  </div>
-
-</div>
+              {/* Call */}
+              <a
+                href="tel:+966599555437"
+                className="flex items-center justify-center gap-2 py-4 rounded-xl border border-[#C9A84C]/40 bg-white hover:bg-[#C9A84C] hover:text-white text-[#B9912F] font-bold transition-all duration-300"
+              >
+                <Phone className="w-5 h-5" />
+                اتصال مباشر
+              </a>
+            </div>
 
             {/* Share */}
             <button
