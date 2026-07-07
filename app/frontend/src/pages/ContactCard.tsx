@@ -196,7 +196,7 @@ END:VCARD`;
               </div>
               <div className="flex-1">
                 <p className="text-[#A58A45] text-xs font-medium font-tajawal">الهاتف</p>
-                <p className="text-[#1F2433] font-semibold font-tajawal text-sm" dir="ltr">{CONTACT_INFO.phone}</p>
+                <p className="text-[#1F2433] font-semibold font-tajawal text-sm">{CONTACT_INFO.phone}</p>
               </div>
             </a>
 
@@ -210,7 +210,7 @@ END:VCARD`;
               </div>
               <div className="flex-1">
                 <p className="text-[#A58A45] text-xs font-medium font-tajawal">البريد الإلكتروني</p>
-                <p className="text-[#1F2433] font-semibold font-tajawal text-sm" dir="ltr">{CONTACT_INFO.email}</p>
+                <p className="text-[#1F2433] font-semibold font-tajawal text-sm">{CONTACT_INFO.email}</p>
               </div>
             </a>
 
@@ -316,9 +316,9 @@ END:VCARD`;
             {/* Share */}
             <button
               onClick={handleShare}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-white border border-[#C9A84C] text-[#1F2433] font-semibold font-tajawal hover:bg-[#FFF8E8] transition-all duration-300"
+              className="w-full flex items-center justify-center gap-2 py-4 rounded-xl border border-[#C9A84C]/40 bg-white hover:bg-[#C9A84C] hover:text-white text-[#B9912F] font-bold transition-all duration-300"
             >
-              <Share2 className="w-4 h-4" />
+              <Share2 className="w-5 h-5" />
               مشاركة
             </button>
           </div>
