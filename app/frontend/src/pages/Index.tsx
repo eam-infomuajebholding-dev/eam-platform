@@ -65,7 +65,7 @@ export default function Index() {
     {/* Logo */}
     <div className="mx-auto mb-6 w-44 h-56 md:w-56 md:h-72 rounded-xl border-4 border-gold/60 shadow-[0_0_40px_rgba(201,168,76,0.3)] overflow-hidden bg-white flex items-center justify-center">
       <img
-        src="/assets/logo.jpeg"
+        src="/assets/logo.png"
         alt="إعمار الأصالة والمعاصرة"
         className="w-full h-full object-contain p-3"
       />
