@@ -42,20 +42,44 @@ def _local_patch(url: str) -> str:
     return patched_url
 
 
+_LOCAL_HOSTNAMES = frozenset({"localhost", "127.0.0.1", "0.0.0.0", "::1", "[::1]"})
+
+
+def _is_local_host(effective_host: str) -> bool:
+    """Return True when the request host is a local development host."""
+    hostname = effective_host.rsplit(":", 1)[0] if ":" in effective_host else effective_host
+    hostname = hostname.strip().lower()
+    return hostname in _LOCAL_HOSTNAMES or hostname.endswith(".localhost")
+
+
 def get_dynamic_backend_url(request: Request) -> str:
     """Get backend URL dynamically from request headers.
 
     Priority: mgx-external-domain > x-forwarded-host > host > settings.backend_url
+
+    Scheme resolution:
+      1. `x-forwarded-proto` when a reverse proxy provides it (production).
+      2. `http` when the host is a local development host. A browser talking
+         straight to uvicorn sends no `x-forwarded-proto`, so defaulting to
+         https produced an https redirect_uri that the OIDC provider rejects.
+      3. `https` otherwise, preserving the previous production behaviour.
     """
     mgx_external_domain = request.headers.get("mgx-external-domain")
     x_forwarded_host = request.headers.get("x-forwarded-host")
     host = request.headers.get("host")
-    scheme = request.headers.get("x-forwarded-proto", "https")
 
     effective_host = mgx_external_domain or x_forwarded_host or host
     if not effective_host:
         logger.warning("[get_dynamic_backend_url] No host found, fallback to %s", settings.backend_url)
         return settings.backend_url
+
+    forwarded_proto = request.headers.get("x-forwarded-proto")
+    if forwarded_proto:
+        scheme = forwarded_proto
+    elif _is_local_host(effective_host):
+        scheme = "http"
+    else:
+        scheme = "https"
 
     dynamic_url = _local_patch(f"{scheme}://{effective_host}")
     logger.debug(

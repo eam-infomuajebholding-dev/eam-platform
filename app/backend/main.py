@@ -203,25 +203,17 @@ def run_in_debug_mode(app: FastAPI):
     This function handles the special case of running in a debugger (PyCharm, VS Code, etc.)
     where asyncio is patched, causing conflicts with uvicorn's asyncio_run.
 
-    It loads environment variables from ../.env and uses asyncio.run() directly
-    to avoid uvicorn's asyncio_run conflicts.
+    Environment variables are NOT loaded here anymore. `core.config` loads
+    ../.env (and ./.env) at import time, which runs before `settings` is built
+    and therefore applies to every run mode, not only the debugger. Keeping a
+    second loader here would create two competing sources of truth.
 
     Args:
         app: The FastAPI application instance
     """
     import asyncio
-    from pathlib import Path
 
     import uvicorn
-    from dotenv import load_dotenv
-
-    # Load environment variables from ../.env in debug mode
-    # If `LOCAL_DEBUG=true` is set, then MetaGPT's `ProjectBuilder.build()` will generate the `.env` file
-    env_path = Path(__file__).parent.parent / ".env"
-    if env_path.exists():
-        load_dotenv(env_path, override=True)
-        logger = logging.getLogger(__name__)
-        logger.info(f"Loaded environment variables from {env_path}")
 
     # In debug mode, use asyncio.run() directly to avoid uvicorn's asyncio_run conflicts
     config = uvicorn.Config(

@@ -1,10 +1,36 @@
 import logging
 import os
+from pathlib import Path
 from typing import Any
 
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 
 logger = logging.getLogger(__name__)
+
+
+def _load_env_files() -> None:
+    """Load .env files at import time so every run mode sees them.
+
+    Previously .env was only loaded inside main.run_in_debug_mode(), which meant
+    a normal `uvicorn` start never picked up secrets such as OIDC_CLIENT_SECRET.
+    Loading here guarantees the values exist before Settings is instantiated.
+
+    override=False is intentional: real OS environment variables (for example the
+    ones Atoms Cloud injects in production) always win over file contents.
+    """
+    backend_dir = Path(__file__).resolve().parent.parent
+    candidates = [
+        backend_dir / ".env",  # app/backend/.env - backend-only overrides
+        backend_dir.parent / ".env",  # app/.env - shared project secrets
+    ]
+    for env_path in candidates:
+        if env_path.is_file():
+            load_dotenv(env_path, override=False)
+            logger.info("Loaded environment variables from %s", env_path)
+
+
+_load_env_files()
 
 
 class Settings(BaseSettings):
