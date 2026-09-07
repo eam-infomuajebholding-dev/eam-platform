@@ -11,3 +11,7 @@ vite.config.ts.timestamp-*
 .env.*
 !.env.example
 *.env.backup
+
+# Local workspace backups - large binaries, never track
+.atoms/backups/
+backups/
