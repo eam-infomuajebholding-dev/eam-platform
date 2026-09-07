@@ -9,6 +9,7 @@ import base64
 import io
 import json
 import logging
+import os
 from pathlib import Path
 from typing import AsyncGenerator, Optional
 
@@ -90,10 +91,12 @@ class AIHubService:
 
     def __init__(self):
         self.client: Optional[AsyncOpenAI] = None
-        if settings.app_ai_base_url and settings.app_ai_key:
+        base_url = os.environ.get("APP_AI_BASE_URL")
+        api_key = os.environ.get("APP_AI_KEY")
+        if base_url and api_key:
             self.client = AsyncOpenAI(
-                api_key=settings.app_ai_key,
-                base_url=settings.app_ai_base_url.rstrip("/"),
+                api_key=api_key,
+                base_url=base_url.rstrip("/"),
             )
 
     def _require_ai_client(self) -> AsyncOpenAI:

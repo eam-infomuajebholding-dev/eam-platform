@@ -1,35 +1,67 @@
-import { Link } from 'react-router-dom';
-import { Award, Clock, BadgeCheck, Banknote } from 'lucide-react';
-import Layout from '@/components/Layout';
-import { useScrollReveal } from '@/hooks/useScrollReveal';
+import { Link } from "react-router-dom";
+import { Award, Clock, BadgeCheck, Banknote } from "lucide-react";
+
+import Layout from "@/components/Layout";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
+
+import HeroBackground from "@/components/home/HeroBackground";
+import HeroHeader from "@/components/sections/Hero/HeroHeader";
+import HeroChat from "@/components/sections/Hero/HeroChat";
+import QuickActions from "@/components/home/QuickActions";
+import SectionTitle from "@/components/EAM-ui/SectionTitle";
+import { WorkspaceProvider, useWorkspace } from "@/ai/WorkspaceContext";
+import { BUILD_VILLA_QUICK_ACTION_LABEL } from "@/ai/types";
 
 const ENGINEERING_IMAGE =
-  'https://mgx-backend-cdn.metadl.com/generate/images/1200196/2026-05-07/och7nlqaagqa/engineering-services-blueprints.png';
+  "https://mgx-backend-cdn.metadl.com/generate/images/1200196/2026-05-07/och7nlqaagqa/engineering-services-blueprints.png";
+
 const GOVERNMENT_IMAGE =
-  'https://mgx-backend-cdn.metadl.com/generate/images/1200196/2026-05-07/och7mxiaagpq/government-services-documents.png';
+  "https://mgx-backend-cdn.metadl.com/generate/images/1200196/2026-05-07/och7mxiaagpq/government-services-documents.png";
 
 const whyChooseUs = [
   {
     icon: Award,
-    title: 'خبرة واسعة',
-    description: 'فريق من المهندسين المتخصصين بخبرة تمتد لسنوات في مختلف المجالات الهندسية',
+    title: "خبرة واسعة",
+    description:
+      "فريق من المهندسين المتخصصين بخبرة تمتد لسنوات في مختلف المجالات الهندسية",
   },
   {
     icon: BadgeCheck,
-    title: 'جودة عالية',
-    description: 'نلتزم بأعلى معايير الجودة العالمية والمحلية في جميع مشاريعنا',
+    title: "جودة عالية",
+    description:
+      "نلتزم بأعلى معايير الجودة العالمية والمحلية في جميع مشاريعنا",
   },
   {
     icon: Clock,
-    title: 'التزام بالمواعيد',
-    description: 'نحرص على تسليم المشاريع في الوقت المحدد دون أي تأخير',
+    title: "الالتزام بالمواعيد",
+    description:
+      "نحرص على تسليم المشاريع في الوقت المحدد دون أي تأخير",
   },
   {
     icon: Banknote,
-    title: 'أسعار تنافسية',
-    description: 'نقدم أفضل الأسعار مع الحفاظ على أعلى مستويات الجودة',
+    title: "أسعار تنافسية",
+    description:
+      "نقدم أفضل الأسعار مع الحفاظ على أعلى مستويات الجودة",
   },
 ];
+
+function HomepageWorkspace() {
+  const { startBuildVillaFromQuickAction } = useWorkspace();
+
+  return (
+    <>
+      <HeroHeader />
+      <HeroChat />
+      <QuickActions
+        onSelect={(label) => {
+          if (label === BUILD_VILLA_QUICK_ACTION_LABEL) {
+            void startBuildVillaFromQuickAction();
+          }
+        }}
+      />
+    </>
+  );
+}
 
 export default function Index() {
   const aboutReveal = useScrollReveal({ threshold: 0.15 });
@@ -42,301 +74,308 @@ export default function Index() {
 
   return (
     <Layout>
-  {/* Hero Section */}
-<section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+          {/* ===========================
+          EAM AI Workspace
+      ============================ */}
 
-  {/* Background Video */}
-  <video
-    autoPlay
-    muted
-    loop
-    playsInline
-    className="absolute inset-0 w-full h-full object-cover"
-  >
-    <source src="/video.mp4" type="video/mp4" />
-  </video>
+        <section className="relative overflow-hidden bg-background pt-0 pb-2">
+  
+        <HeroBackground />
+  
+         <div className="relative z-10 mx-auto max-w-7xl px-6">
+  
+            <WorkspaceProvider>
+              <HomepageWorkspace />
+            </WorkspaceProvider>
+  
+        </div>
+  
+      </section>
+  
+      {/* ========================= */}
+      {/* About Section */}
+      {/* ========================= */}
 
-  {/* Dark Overlay */}
-  <div className="absolute inset-0 bg-black/60" />
+<section className="relative overflow-hidden py-20 bg-background">
 
-  {/* Content */}
-  <div className="relative z-10 max-w-5xl mx-auto px-4 text-center animate-[fadeInUp_1s_ease-out]">
-
-    {/* Logo */}
-    <div className="mx-auto mb-6 w-44 h-56 md:w-56 md:h-72 rounded-xl border-4 border-gold/60 shadow-[0_0_40px_rgba(201,168,76,0.3)] overflow-hidden bg-white flex items-center justify-center">
-      <img
-        src="/assets/logo.png"
-        alt="إعمار الأصالة والمعاصرة"
-        className="w-full h-full object-contain p-3"
-      />
-    </div>
-
-    {/* Main Title */}
-    <h1
-      data-editable-id="home-hero-title"
-      className="md:text-6xl gold-text font-serif mt-[0px] mr-[0px] mb-[24px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[40px] font-light text-center bg-[#00000000] opacity-100"
-    >
-      {"حلول هندسية متكاملة"}<br />{"لتحقيق مشاريع أكثر نجاحاً."}
-    </h1>
-
-    {/* Company Name */}
-    <h2
-      data-editable-id="home-hero-subtitle"
-      className="font-tajawal text-xl md:text-2xl font-semibold text-[#E8D48BCC] mb-6"
-    >
-      إعمار الأصالة والمعاصرة
-    </h2>
-
-    {/* Description */}
-    <p
-      data-editable-id="home-hero-desc"
-      className="max-w-4xl mx-auto text-lg md:text-xl leading-8 text-white/75"
-    >
-      نقدم خدمات الاستشارات الهندسية وإدارة المشاريع والإشراف على التنفيذ،
-      <br />
-      لتمكين الجهات الحكومية والقطاع الخاص من تنفيذ مشاريع ناجحة ومستدامة وفق أعلى المعايير المهنية.
-    </p>
-
-    {/* Tagline */}
-    <p className="mt-6 text-gold text-lg md:text-xl font-semibold tracking-wide">
-      نقود المشاريع... ونبني الثقة.
-    </p>
-
-    {/* Buttons */}
-    <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
-
-      <Link
-        to="/services"
-        className="px-8 py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold rounded-lg hover:shadow-[0_0_30px_rgba(201,168,76,0.4)] transition-all duration-300 hover:scale-105"
-      >
-        تعرف على خدماتنا
-      </Link>
-
-      <Link
-        to="/consultation"
-        className="px-8 py-4 border-2 border-gold text-gold font-bold rounded-lg hover:bg-gold hover:text-dark transition-all duration-300"
-      >
-        احجز استشارة
-      </Link>
-
-    </div>
-
-  </div>
-
-  {/* Scroll Indicator */}
-  <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-    <div className="w-6 h-10 border-2 border-gold/50 rounded-full flex items-start justify-center pt-2">
-      <div className="w-1.5 h-3 bg-gold rounded-full animate-[fadeInUp_1.5s_ease-in-out_infinite]" />
-    </div>
-  </div>
-
-</section>
-
-
-{/* About Section */}
-<section className="relative min-h-screen overflow-hidden">
-
-  <video
-    autoPlay
-    muted
-    loop
-    playsInline
-    className="absolute inset-0 w-full h-full object-cover"
-  >
-    <source src="/video.mp4" type="video/mp4" />
-  </video>
+<div className="container mx-auto px-4">
 
   <div
     ref={aboutReveal.ref}
-    className={`absolute inset-0 z-10 bg-[#00000099] w-full h-full flex flex-col items-center justify-center ${
-      aboutReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'
+    className={`${
+      aboutReveal.isVisible
+        ? "reveal-visible"
+        : "reveal-hidden"
     }`}
   >
 
-    <div className="max-w-4xl mx-auto text-center px-4">
+    <div className="max-w-4xl mx-auto text-center">
 
-      <h2
-        data-editable-id="home-about-title"
-        className="font-tajawal md:text-4xl gold-text text-[36px] font-bold text-center mb-8"
-      >
-        من نحن
-      </h2>
+    <SectionTitle>
+    <span data-editable-id="home-about-title">
+      من نحن
+    </span>
+  </SectionTitle>
 
-      <div className="max-w-3xl mx-auto border border-gold/30 p-8 md:p-12 rounded-2xl bg-white/90 backdrop-blur-sm">
-
-        <p
+  <div className="mx-auto max-w-4xl rounded-3xl border border-[#E5E7EB] bg-white p-10 md:p-14 shadow-lg">
+                   <p
           data-editable-id="home-about-desc"
-          className="text-[#3D3520] md:text-xl leading-8"
+          className="font-tajawal text-[20px] md:text-[22px] leading-10 text-[#4B5563] font-normal"
         >
-          نقدم خدمات استشارية هندسية متكاملة، ملتزمون بأعلى معايير الجودة
-          والاحترافية في تقديم الحلول الهندسية المبتكرة. نسعى لتحقيق رؤية
-          عملائنا بأفضل المعايير الهندسية المعتمدة في المملكة العربية السعودية.
+          نقدم خدمات استشارية هندسية متكاملة، ملتزمون بأعلى معايير
+          الجودة والاحترافية في تقديم الحلول الهندسية المبتكرة.
+          نسعى لتحقيق رؤية عملائنا وفق أعلى المعايير الهندسية
+          المعتمدة في المملكة العربية السعودية.
         </p>
 
       </div>
 
-      <div className="flex items-center justify-center gap-4 mt-8">
-        <div className="h-px w-16 bg-gradient-to-r from-transparent to-gold" />
-        <div className="w-3 h-3 rotate-45 border border-gold" />
-        <div className="h-px w-16 bg-gradient-to-l from-transparent to-gold" />
+      <div className="mt-10 flex items-center justify-center gap-4">
       </div>
 
     </div>
 
   </div>
 
+</div>
+
 </section>
 
-
-      {/* Services Overview Section */}
-      <section id="services" className="py-20 md:py-28 bg-white dark:bg-dark-lighter relative mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[80px] pr-[0px] pb-[80px] pl-[0px] rounded-none text-[16px] font-normal text-[#2D2A1E] opacity-100">
+{/* ========================= */}
+{/* Services Section */}
+{/* ========================= */}
+<section
+        id="services"
+        className="py-20 md:py-28 bg-background"
+      >
         <div className="container mx-auto px-4">
+
           <div
             ref={servicesTitleReveal.ref}
             className={`${
-              servicesTitleReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'
+              servicesTitleReveal.isVisible
+                ? "reveal-visible"
+                : "reveal-hidden"
             }`}
           >
-            <h2 data-editable-id="home-services-title" className="font-tajawal text-3xl md:text-4xl font-bold gold-text text-center mb-16">
+            <h2
+              data-editable-id="home-services-title"
+              className="mb-10 text-center font-tajawal text-4xl md:text-5xl font-bold text-[#2F3645]"            >
               خدماتنا
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {/* Engineering Services Card */}
+
             <div
               ref={servicesCard1Reveal.ref}
               className={`${
-                servicesCard1Reveal.isVisible ? 'reveal-visible-right' : 'reveal-hidden-right'
+                servicesCard1Reveal.isVisible
+                  ? "reveal-visible-right"
+                  : "reveal-hidden-right"
               }`}
-              style={{ transitionDelay: servicesCard1Reveal.isVisible ? '150ms' : '0ms' }}
             >
               <Link
                 to="/engineering-services"
-                className="group relative cursor-pointer h-80 md:h-96 rounded-2xl overflow-hidden border border-gold/20 hover:border-gold/60 transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(201,168,76,0.15)] block"
+                className="group relative block h-80 md:h-96 overflow-hidden rounded-2xl border border-gold/20 transition-all duration-500 hover:scale-[1.02] hover:border-gold/60"
               >
                 <div
                   className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                  style={{ backgroundImage: `url(${ENGINEERING_IMAGE})` }}
+                  style={{
+                    backgroundImage: `url(${ENGINEERING_IMAGE})`,
+                  }}
                 />
+
                 <div className="absolute inset-0 bg-black/60" />
+
                 <div className="absolute inset-0 flex flex-col items-center justify-end p-8 text-center">
-                  <h3 className="font-tajawal text-2xl md:text-3xl font-bold gold-text mb-3">
+
+                  <h3 className="font-tajawal text-3xl font-bold gold-text mb-3">
                     الخدمات الهندسية
                   </h3>
-                  <p className="text-white/70 text-sm md:text-base leading-relaxed max-w-sm">
-                    تصميم المخططات المعمارية والإنشائية والكهربائية والميكانيكية وفق الكود السعودي
-                    الجديد مع مناظير ثلاثية الأبعاد
+
+                  <p className="text-white/70 leading-7">
+                    تصميم المخططات المعمارية والإنشائية والكهربائية
+                    والميكانيكية وفق الكود السعودي مع مناظير ثلاثية
+                    الأبعاد.
                   </p>
-                  <span className="mt-4 inline-flex items-center gap-2 text-gold text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    اكتشف المزيد ←
+
+                  <span className="mt-5 text-gold font-bold opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                    اكتشف المزيد →
                   </span>
+
                 </div>
+
               </Link>
             </div>
 
-            {/* Government Services Card */}
             <div
               ref={servicesCard2Reveal.ref}
               className={`${
-                servicesCard2Reveal.isVisible ? 'reveal-visible-left' : 'reveal-hidden-left'
+                servicesCard2Reveal.isVisible
+                  ? "reveal-visible-left"
+                  : "reveal-hidden-left"
               }`}
-              style={{ transitionDelay: servicesCard2Reveal.isVisible ? '300ms' : '0ms' }}
             >
               <Link
                 to="/government-services"
-                className="group relative cursor-pointer h-80 md:h-96 rounded-2xl overflow-hidden border border-gold/20 hover:border-gold/60 transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(201,168,76,0.15)] block"
+                className="group relative block h-80 md:h-96 overflow-hidden rounded-2xl border border-gold/20 transition-all duration-500 hover:scale-[1.02] hover:border-gold/60"
               >
                 <div
                   className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                  style={{ backgroundImage: `url(${GOVERNMENT_IMAGE})` }}
+                  style={{
+                    backgroundImage: `url(${GOVERNMENT_IMAGE})`,
+                  }}
                 />
+
                 <div className="absolute inset-0 bg-black/60" />
+
                 <div className="absolute inset-0 flex flex-col items-center justify-end p-8 text-center">
-                  <h3 className="font-tajawal text-2xl md:text-3xl font-bold gold-text mb-3">
+
+                  <h3 className="font-tajawal text-3xl font-bold gold-text mb-3">
                     الخدمات الحكومية
                   </h3>
-                  <p className="text-white/70 text-sm md:text-base leading-relaxed max-w-sm">
-                    إصدار رخص البناء وتحديث الصكوك والفرز العقاري وتصحيح المخالفات وشهادات الإشغال
+
+                  <p className="text-white/70 leading-7">
+                    إصدار رخص البناء، تحديث الصكوك، الفرز العقاري،
+                    تصحيح المخالفات، وشهادات الإشغال.
                   </p>
-                  <span className="mt-4 inline-flex items-center gap-2 text-gold text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    اكتشف المزيد ←
+
+                  <span className="mt-5 text-gold font-bold opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                    اكتشف المزيد →
                   </span>
+
                 </div>
+
               </Link>
             </div>
+
           </div>
+
         </div>
+
       </section>
 
-      {/* Why Choose Us Section */}
-      <section className="py-20 md:py-28 bg-gray-50 dark:bg-dark relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.05)_0%,transparent_70%)]" />
+      {/* ========================= */}
+      {/* Why Choose Us */}
+      {/* ========================= */}
+      <section className="relative overflow-hidden bg-gray-800 py-20 md:py-28 dark:bg-dark">
 
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)]" />
+
+        <div className="container relative z-10 mx-auto px-4">
+
           <div
             ref={whyTitleReveal.ref}
             className={`${
-              whyTitleReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'
+              whyTitleReveal.isVisible
+                ? "reveal-visible"
+                : "reveal-hidden"
             }`}
           >
-            <h2 data-editable-id="home-why-title" className="font-tajawal text-3xl md:text-4xl font-bold gold-text text-center mb-16">
+            <h2
+              data-editable-id="home-why-title"
+              className="mb-16 text-center font-tajawal text-3xl font-bold gold-text md:text-4xl"
+            >
               لماذا تختارنا
             </h2>
           </div>
 
           <div
             ref={whyCardsReveal.ref}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto"
+            className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
           >
+
             {whyChooseUs.map((item, index) => (
+
               <div
                 key={item.title}
-                className={`group p-6 rounded-2xl bg-white dark:bg-white/5 backdrop-blur-md border border-gold/20 dark:border-gold/10 hover:border-[#C9A84C] dark:hover:border-gold/60 transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-[0_10px_40px_rgba(201,168,76,0.3),0_4px_15px_rgba(201,168,76,0.15)] dark:hover:shadow-[0_10px_40px_rgba(201,168,76,0.25),0_4px_15px_rgba(201,168,76,0.1)] shadow-md shadow-gold/5 dark:shadow-none text-center ${
-                  whyCardsReveal.isVisible ? 'reveal-visible-scale' : 'reveal-hidden-scale'
+                className={`group rounded-2xl border border-gold/20  p-6 text-center shadow-md shadow-gold/5 transition-all duration-300 hover:-translate-y-2 hover:border-gold hover:shadow-[0_10px_40px_rgba(201,168,76,0.25)]
+                ${
+                  whyCardsReveal.isVisible
+                    ? "reveal-visible-scale"
+                    : "reveal-hidden-scale"
                 }`}
-                style={{ transitionDelay: whyCardsReveal.isVisible ? `${index * 120}ms` : '0ms' }}
+                style={{
+                  transitionDelay: whyCardsReveal.isVisible
+                    ? `${index * 120}ms`
+                    : "0ms",
+                }}
               >
-                <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors duration-300">
-                  <item.icon className="w-8 h-8 text-gold" />
+
+                <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-gold/10">
+
+                  <item.icon className="h-8 w-8 text-gold" />
+
                 </div>
-                <h3 className="font-tajawal text-xl font-bold text-gold mb-3">{item.title}</h3>
-                <p className="text-gray-600 dark:text-white/60 text-sm leading-relaxed">{item.description}</p>
+
+                <h3 className="mb-3 font-tajawal text-xl font-bold text-gold">
+                  {item.title}
+                </h3>
+
+                <p className="leading-7 text-gray-600">
+                  {item.description}
+                </p>
+
               </div>
+
             ))}
+
           </div>
+
         </div>
+
       </section>
 
+      {/* ========================= */}
       {/* CTA Section */}
-      <section className="py-20 md:py-28 bg-white dark:bg-dark-lighter relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(201,168,76,0.06)_0%,transparent_60%)] dark:bg-[radial-gradient(ellipse_at_top,rgba(201,168,76,0.08)_0%,transparent_60%)]" />
+      {/* ========================= */}
+      <section className="relative overflow-hidden bg-white py-20 md:py-28 dark:bg-dark-lighter">
+
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(201,168,76,0.06)_0%,transparent_60%)]" />
 
         <div
           ref={ctaReveal.ref}
-          className={`container mx-auto px-4 relative z-10 text-center ${
-            ctaReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'
+          className={`container relative z-10 mx-auto px-4 text-center ${
+            ctaReveal.isVisible
+              ? "reveal-visible"
+              : "reveal-hidden"
           }`}
         >
-          <h2 data-editable-id="home-cta-title" className="font-tajawal text-3xl md:text-4xl font-bold gold-text mb-6">
+
+          <h2
+            data-editable-id="home-cta-title"
+            className="mb-6 font-tajawal text-3xl font-bold gold-text md:text-4xl"
+          >
             تواصل معنا اليوم
           </h2>
+
           <p
-  data-editable-id="home-cta-desc"
-  className="text-gray-600 dark:text-white/70 text-lg max-w-2xl mx-auto mb-10 leading-relaxed"
->
-  نقدم حلولاً هندسية متكاملة تدعم الجهات الحكومية والقطاع الخاص والمستثمرين
-  في تنفيذ مشاريعهم بكفاءة وجودة وفق أعلى المعايير المهنية.
-  <br />
-  تواصل معنا لنناقش احتياجات مشروعك ونقدم الحلول المناسبة.
-          </p>
-          <Link
-            to="/contact-card"
-            className="inline-block px-10 py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold text-lg rounded-lg hover:shadow-[0_0_30px_rgba(201,168,76,0.4)] transition-all duration-300 hover:scale-105"
+            data-editable-id="home-cta-desc"
+            className="mx-auto mb-10 max-w-2xl text-lg leading-8 text-gray-600 dark:text-white/70"
           >
-            بطاقة التواصل
-          </Link>
+            نقدم حلولاً هندسية متكاملة تدعم الجهات الحكومية والقطاع الخاص
+            والمستثمرين في تنفيذ مشاريعهم بكفاءة وجودة وفق أعلى المعايير
+            المهنية.
+            <br />
+            <br />
+            تواصل معنا لنناقش احتياجات مشروعك ونقدم الحلول المناسبة.
+          </p>
+
+          <div className="flex flex-col justify-center gap-4 sm:flex-row">
+
+          
+            <Link
+              to="/contact"
+              className="rounded-xl border-2 border-[#C9A84C] px-8 py-4 font-bold text-[#C9A84C] transition hover:bg-[#C9A84C] hover:text-white"
+            >
+              تواصل معنا
+            </Link>
+
+          </div>
+
         </div>
+
       </section>
 
     </Layout>

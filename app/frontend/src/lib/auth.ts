@@ -1,6 +1,38 @@
 import axios, { AxiosInstance } from 'axios';
 import { getAPIBaseURL } from './config';
 
+const WEB_SDK_TOKEN_STORAGE_KEY = 'token';
+
+const WEB_SDK_LOGOUT_MANUAL_KEY = 'isLougOutManual';
+
+function persistWebSdkToken(token: string): boolean {
+  try {
+    window.localStorage.setItem(WEB_SDK_TOKEN_STORAGE_KEY, token);
+    window.localStorage.setItem(WEB_SDK_LOGOUT_MANUAL_KEY, 'false');
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function readCallbackToken(): string | undefined {
+  const token = new URLSearchParams(window.location.search).get('token');
+  return token?.trim() ? token : undefined;
+}
+
+function getWebSdkBearerToken(): string | undefined {
+  if (typeof window === 'undefined') {
+    return undefined;
+  }
+
+  try {
+    const token = window.localStorage.getItem(WEB_SDK_TOKEN_STORAGE_KEY);
+    return token?.trim() ? token : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 class RPApi {
   private client: AxiosInstance;
 
@@ -17,11 +49,20 @@ class RPApi {
     return getAPIBaseURL();
   }
 
+  private authHeaders(): Record<string, string> {
+    const token = getWebSdkBearerToken();
+    if (!token) {
+      return {};
+    }
+
+    return { Authorization: `Bearer ${token}` };
+  }
+
   async getCurrentUser() {
     try {
-      const response = await this.client.get(
-        `${this.getBaseURL()}/api/v1/auth/me`
-      );
+      const response = await this.client.get(`${this.getBaseURL()}/api/v1/auth/me`, {
+        headers: this.authHeaders(),
+      });
       return response.data;
     } catch (error) {
       if (error.response?.status === 401) {
@@ -62,3 +103,5 @@ class RPApi {
 }
 
 export const authApi = new RPApi();
+
+export { persistWebSdkToken, readCallbackToken };

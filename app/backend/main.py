@@ -6,7 +6,9 @@ import traceback
 from contextlib import asynccontextmanager
 from datetime import datetime
 
-from core.config import settings
+from core.config import load_project_env, settings
+
+load_project_env()
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -16,6 +18,8 @@ from fastapi.routing import APIRouter
 from services.database import initialize_database, close_database
 from services.mock_data import initialize_mock_data
 from services.auth import initialize_admin_user
+from services.jos_seed import initialize_jos_definitions
+from core.database import db_manager
 # MODULE_IMPORTS_END
 
 
@@ -69,6 +73,8 @@ async def lifespan(app: FastAPI):
     await initialize_database()
     await initialize_mock_data()
     await initialize_admin_user()
+    async with db_manager.async_session_maker() as session:
+        await initialize_jos_definitions(session)
     # MODULE_STARTUP_END
 
     logger.info("=== Application startup completed successfully ===")
@@ -208,18 +214,11 @@ def run_in_debug_mode(app: FastAPI):
         app: The FastAPI application instance
     """
     import asyncio
-    from pathlib import Path
 
     import uvicorn
-    from dotenv import load_dotenv
 
-    # Load environment variables from ../.env in debug mode
-    # If `LOCAL_DEBUG=true` is set, then MetaGPT's `ProjectBuilder.build()` will generate the `.env` file
-    env_path = Path(__file__).parent.parent / ".env"
-    if env_path.exists():
-        load_dotenv(env_path, override=True)
-        logger = logging.getLogger(__name__)
-        logger.info(f"Loaded environment variables from {env_path}")
+    load_project_env()
+    logger = logging.getLogger(__name__)
 
     # In debug mode, use asyncio.run() directly to avoid uvicorn's asyncio_run conflicts
     config = uvicorn.Config(

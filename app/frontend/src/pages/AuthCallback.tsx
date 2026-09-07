@@ -1,10 +1,26 @@
 import { useEffect } from 'react';
-import { client } from '../lib/api';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { persistWebSdkToken, readCallbackToken } from '../lib/auth';
 
 export default function AuthCallback() {
+  const navigate = useNavigate();
+  const { refetch } = useAuth();
+
   useEffect(() => {
-    client.auth.login();
-  }, []);
+    async function run() {
+      const token = readCallbackToken();
+      if (!token || !persistWebSdkToken(token)) {
+        navigate('/auth/error', { replace: true });
+        return;
+      }
+
+      await refetch();
+      navigate('/', { replace: true });
+    }
+
+    void run();
+  }, [navigate, refetch]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">

@@ -4,20 +4,29 @@
 
 import asyncio
 import importlib
+import os
 import pkgutil
 from logging.config import fileConfig
 
 import models
 from alembic import context
-from core.database import Base
+from core.config import load_project_env
+from core.database import Base, DatabaseManager
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import create_async_engine
+
+load_project_env()
 
 # Automatically import all ORM models under Models
 for _, module_name, _ in pkgutil.iter_modules(models.__path__):
     importlib.import_module(f"{models.__name__}.{module_name}")
 
 config = context.config
+
+database_url = os.environ.get("DATABASE_URL", "")
+if database_url:
+    normalized_url = DatabaseManager()._normalize_async_database_url(database_url)
+    config.set_main_option("sqlalchemy.url", normalized_url)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)

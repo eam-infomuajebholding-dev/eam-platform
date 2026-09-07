@@ -1,10 +1,28 @@
 import logging
 import os
+from pathlib import Path
 from typing import Any
 
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 
 logger = logging.getLogger(__name__)
+
+PROJECT_ENV_FILE = Path(__file__).resolve().parents[2] / ".env"
+
+
+def load_project_env() -> Path | None:
+    """Load app/.env for all startup paths. OS environment takes precedence."""
+    if not PROJECT_ENV_FILE.exists():
+        logger.warning("Environment file not found at %s", PROJECT_ENV_FILE)
+        return None
+
+    load_dotenv(PROJECT_ENV_FILE, override=False)
+    logger.info("Loaded environment from %s", PROJECT_ENV_FILE)
+    return PROJECT_ENV_FILE
+
+
+load_project_env()
 
 
 class Settings(BaseSettings):

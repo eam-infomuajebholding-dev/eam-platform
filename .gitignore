@@ -5,3 +5,19 @@ build/
 __pycache__
 dist
 vite.config.ts.timestamp-*
+
+# Local secrets and runtime data
+.env
+.env.*
+!*.env.example
+app/.env
+app/frontend/.env
+app/backend/.env
+app/backend/eam.db
+
+# Recovery artifacts (local only)
+.recovery/
+.git-filter-replace.txt
+
+# Test artifacts
+app/frontend/test-results/

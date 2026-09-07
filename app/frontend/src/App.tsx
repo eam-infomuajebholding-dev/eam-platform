@@ -25,6 +25,12 @@ import Invest from './pages/Invest';
 import AuthCallback from './pages/AuthCallback';
 import AuthError from './pages/AuthError';
 import AdminDashboard from './pages/AdminDashboard';
+import CustomerWorkspace from './pages/CustomerWorkspace';
+import ServiceRequestDetail from './pages/ServiceRequestDetail';
+import ProtectedRoute from './components/ProtectedRoute';
+import BuildVillaJourneyPage from './jos/journeys/buildVilla/BuildVillaJourneyPage';
+import BlogRoutes from './blog-routes';
+import { JourneyProvider } from './jos/JourneyContext';
 
 const queryClient = new QueryClient();
 
@@ -50,6 +56,24 @@ const AppRoutes = () => (
     <Route path="/auth/callback" element={<AuthCallback />} />
     <Route path="/auth/error" element={<AuthError />} />
     <Route path="/admin" element={<AdminDashboard />} />
+    <Route path="/blog/*" element={<BlogRoutes />} />
+    <Route path="/journeys/build-villa" element={<BuildVillaJourneyPage />} />
+    <Route
+      path="/my-requests"
+      element={
+        <ProtectedRoute>
+          <CustomerWorkspace />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/my-requests/:id"
+      element={
+        <ProtectedRoute>
+          <ServiceRequestDetail />
+        </ProtectedRoute>
+      }
+    />
   </Routes>
 );
 
@@ -59,10 +83,12 @@ const App = () => (
       <ThemeProvider>
         <AuthProvider>
           <BrowserRouter>
-            <EditModeProvider>
-              <Toaster />
-              <AppRoutes />
-            </EditModeProvider>
+            <JourneyProvider>
+              <EditModeProvider>
+                <Toaster />
+                <AppRoutes />
+              </EditModeProvider>
+            </JourneyProvider>
           </BrowserRouter>
         </AuthProvider>
       </ThemeProvider>
