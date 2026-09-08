@@ -74,21 +74,15 @@ async def lifespan(app: FastAPI):
     await initialize_mock_data()
     await initialize_admin_user()
 
-    try:
-        await db_manager.ensure_initialized()
-        if db_manager.async_session_maker is None:
-            logger.error(
-                "JOS startup skipped: async_session_maker is unavailable after database initialization"
-            )
-        else:
-            async with db_manager.async_session_maker() as session:
-                await initialize_jos_definitions(session)
-    except Exception as exc:
+    await db_manager.ensure_initialized()
+    if db_manager.async_session_maker is None:
         logger.error(
-            "JOS startup skipped: database manager could not be initialized: %s",
-            exc,
-            exc_info=True,
+            "Startup failed: async_session_maker unavailable after database initialization"
         )
+        raise RuntimeError("Database session maker unavailable after initialization")
+
+    async with db_manager.async_session_maker() as session:
+        await initialize_jos_definitions(session)
     # MODULE_STARTUP_END
 
     logger.info("=== Application startup completed successfully ===")
