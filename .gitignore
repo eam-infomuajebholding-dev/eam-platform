@@ -21,3 +21,11 @@ app/backend/eam.db
 
 # Test artifacts
 app/frontend/test-results/
+app/frontend/test-screenshots/
+
+# Local build/test logs (disposable — WO-019A)
+app/frontend/build-log.txt
+app/frontend/lint-log.txt
+app/frontend/pw-log.txt
+app/frontend/pw-full-log.txt
+app/frontend/pw-full-log-wo014.txt
