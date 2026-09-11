@@ -131,6 +131,26 @@ import {
   type RealEstateMarketingContext,
 } from '@/features/journeys/real-estate-marketing/types';
 import {
+  buildAdvanceInput as buildBmAdvanceInput,
+  extractFieldErrors as extractBmFieldErrors,
+  getErrorMessage as getBmErrorMessage,
+  type BuildingMaterialsStepValues,
+} from '@/features/journeys/building-materials/errors';
+import {
+  BUILDING_MATERIALS_JOURNEY_TYPE,
+  type BuildingMaterialsContext,
+} from '@/features/journeys/building-materials/types';
+import {
+  buildAdvanceInput as buildEqAdvanceInput,
+  extractFieldErrors as extractEqFieldErrors,
+  getErrorMessage as getEqErrorMessage,
+  type EquipmentStepValues,
+} from '@/features/journeys/equipment/errors';
+import {
+  EQUIPMENT_JOURNEY_TYPE,
+  type EquipmentContext,
+} from '@/features/journeys/equipment/types';
+import {
   ENGINEERING_CONSULTING_JOURNEY_TYPE,
   type EngineeringConsultingContext,
 } from '@/features/journeys/engineering-consulting/types';
@@ -149,6 +169,8 @@ const SUPPORTED_JOURNEY_TYPES = new Set([
   GOVERNMENT_SERVICES_JOURNEY_TYPE,
   REAL_ESTATE_DEVELOPMENT_JOURNEY_TYPE,
   REAL_ESTATE_MARKETING_JOURNEY_TYPE,
+  BUILDING_MATERIALS_JOURNEY_TYPE,
+  EQUIPMENT_JOURNEY_TYPE,
 ]);
 
 interface CompletionNotice {
@@ -186,6 +208,10 @@ interface WorkspaceContextValue {
   setRedStepValues: (values: RealEstateDevelopmentStepValues) => void;
   rmStepValues: RealEstateMarketingStepValues;
   setRmStepValues: (values: RealEstateMarketingStepValues) => void;
+  bmStepValues: BuildingMaterialsStepValues;
+  setBmStepValues: (values: BuildingMaterialsStepValues) => void;
+  eqStepValues: EquipmentStepValues;
+  setEqStepValues: (values: EquipmentStepValues) => void;
   fieldErrors: FieldValidationErrorDetail[];
   formError: string | null;
   sendMessage: (message: string) => Promise<void>;
@@ -307,6 +333,36 @@ const emptyRmStepValues = (): RealEstateMarketingStepValues => ({
   targetTimeline: '',
   urgency: '',
   budgetContext: '',
+  scopeConfirmed: false,
+  submitConfirmed: false,
+});
+
+const emptyBmStepValues = (): BuildingMaterialsStepValues => ({
+  procurementGoal: '',
+  materialCategory: '',
+  projectContext: '',
+  deliveryLocation: '',
+  quantityScope: '',
+  specificationsContext: '',
+  targetTimeline: '',
+  urgency: '',
+  budgetContext: '',
+  supplierContext: '',
+  scopeConfirmed: false,
+  submitConfirmed: false,
+});
+
+const emptyEqStepValues = (): EquipmentStepValues => ({
+  equipmentNeed: '',
+  equipmentCategory: '',
+  usageContext: '',
+  location: '',
+  engagementType: '',
+  specificationsContext: '',
+  targetTimeline: '',
+  urgency: '',
+  budgetContext: '',
+  readinessContext: '',
   scopeConfirmed: false,
   submitConfirmed: false,
 });
@@ -498,6 +554,42 @@ function syncRmStepValuesFromContext(
   };
 }
 
+function syncBmStepValuesFromContext(
+  context: BuildingMaterialsContext,
+): BuildingMaterialsStepValues {
+  return {
+    procurementGoal: context.procurement_goal ?? '',
+    materialCategory: context.material_category ?? '',
+    projectContext: context.project_context ?? '',
+    deliveryLocation: context.delivery_location ?? '',
+    quantityScope: context.quantity_scope ?? '',
+    specificationsContext: context.specifications_context ?? '',
+    targetTimeline: context.target_timeline ?? '',
+    urgency: context.urgency ?? '',
+    budgetContext: context.budget_context ?? '',
+    supplierContext: context.supplier_context ?? '',
+    scopeConfirmed: context.scope_confirmed ?? false,
+    submitConfirmed: context.submit_confirmed ?? false,
+  };
+}
+
+function syncEqStepValuesFromContext(context: EquipmentContext): EquipmentStepValues {
+  return {
+    equipmentNeed: context.equipment_need ?? '',
+    equipmentCategory: context.equipment_category ?? '',
+    usageContext: context.usage_context ?? '',
+    location: context.location ?? '',
+    engagementType: context.engagement_type ?? '',
+    specificationsContext: context.specifications_context ?? '',
+    targetTimeline: context.target_timeline ?? '',
+    urgency: context.urgency ?? '',
+    budgetContext: context.budget_context ?? '',
+    readinessContext: context.readiness_context ?? '',
+    scopeConfirmed: context.scope_confirmed ?? false,
+    submitConfirmed: context.submit_confirmed ?? false,
+  };
+}
+
 function syncPmStepValuesFromContext(context: ProjectManagementContext): ProjectManagementStepValues {
   return {
     projectType: context.project_type ?? '',
@@ -581,6 +673,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [gsStepValues, setGsStepValues] = useState<GovernmentServicesStepValues>(emptyGsStepValues);
   const [redStepValues, setRedStepValues] = useState<RealEstateDevelopmentStepValues>(emptyRedStepValues);
   const [rmStepValues, setRmStepValues] = useState<RealEstateMarketingStepValues>(emptyRmStepValues);
+  const [bmStepValues, setBmStepValues] = useState<BuildingMaterialsStepValues>(emptyBmStepValues);
+  const [eqStepValues, setEqStepValues] = useState<EquipmentStepValues>(emptyEqStepValues);
   const [fieldErrors, setFieldErrors] = useState<FieldValidationErrorDetail[]>([]);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -595,6 +689,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const gsContext = (currentInstance?.context ?? {}) as GovernmentServicesContext;
   const redContext = (currentInstance?.context ?? {}) as RealEstateDevelopmentContext;
   const rmContext = (currentInstance?.context ?? {}) as RealEstateMarketingContext;
+  const bmContext = (currentInstance?.context ?? {}) as BuildingMaterialsContext;
+  const eqContext = (currentInstance?.context ?? {}) as EquipmentContext;
 
   const isJourneyActive =
     currentInstance != null &&
@@ -639,6 +735,12 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     if (currentInstance.journey_type === REAL_ESTATE_MARKETING_JOURNEY_TYPE) {
       setRmStepValues(syncRmStepValuesFromContext(rmContext));
     }
+    if (currentInstance.journey_type === BUILDING_MATERIALS_JOURNEY_TYPE) {
+      setBmStepValues(syncBmStepValuesFromContext(bmContext));
+    }
+    if (currentInstance.journey_type === EQUIPMENT_JOURNEY_TYPE) {
+      setEqStepValues(syncEqStepValuesFromContext(eqContext));
+    }
 
     if (currentInstance.status === 'active' || currentInstance.status === 'paused') {
       setMode('journey');
@@ -646,7 +748,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     if (currentInstance.status === 'completed') {
       setMode('chat');
     }
-  }, [currentInstance, bvContext, ecContext, ctContext, rvContext, smContext, pmContext, frContext, fmContext, gsContext, redContext, rmContext]);
+  }, [currentInstance, bvContext, ecContext, ctContext, rvContext, smContext, pmContext, frContext, fmContext, gsContext, redContext, rmContext, bmContext, eqContext]);
 
   const handoffToJourney = useCallback(
     async (
@@ -841,6 +943,10 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       input = buildRedAdvanceInput(currentInstance.current_step_key, redStepValues);
     } else if (currentInstance.journey_type === REAL_ESTATE_MARKETING_JOURNEY_TYPE) {
       input = buildRmAdvanceInput(currentInstance.current_step_key, rmStepValues);
+    } else if (currentInstance.journey_type === BUILDING_MATERIALS_JOURNEY_TYPE) {
+      input = buildBmAdvanceInput(currentInstance.current_step_key, bmStepValues);
+    } else if (currentInstance.journey_type === EQUIPMENT_JOURNEY_TYPE) {
+      input = buildEqAdvanceInput(currentInstance.current_step_key, eqStepValues);
     } else {
       input = buildBvAdvanceInput(currentInstance.current_step_key, stepValues);
     }
@@ -880,6 +986,12 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       } else if (currentInstance.journey_type === REAL_ESTATE_MARKETING_JOURNEY_TYPE) {
         errors = extractRmFieldErrors(error);
         message = getRmErrorMessage(errors, message);
+      } else if (currentInstance.journey_type === BUILDING_MATERIALS_JOURNEY_TYPE) {
+        errors = extractBmFieldErrors(error);
+        message = getBmErrorMessage(errors, message);
+      } else if (currentInstance.journey_type === EQUIPMENT_JOURNEY_TYPE) {
+        errors = extractEqFieldErrors(error);
+        message = getEqErrorMessage(errors, message);
       }
       setFieldErrors(errors);
       setFormError(message);
@@ -887,7 +999,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsBusy(false);
     }
-  }, [advance, currentInstance, ctStepValues, ecStepValues, fmStepValues, frStepValues, gsStepValues, redStepValues, rmStepValues, isBusy, pmStepValues, rvStepValues, smStepValues, stepValues]);
+  }, [advance, currentInstance, ctStepValues, ecStepValues, fmStepValues, frStepValues, gsStepValues, redStepValues, rmStepValues, bmStepValues, eqStepValues, isBusy, pmStepValues, rvStepValues, smStepValues, stepValues]);
 
   const revisitCurrentSection = useCallback(
     async (targetStep: string) => {
@@ -974,6 +1086,10 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       setRedStepValues,
       rmStepValues,
       setRmStepValues,
+      bmStepValues,
+      setBmStepValues,
+      eqStepValues,
+      setEqStepValues,
       fieldErrors,
       formError,
       sendMessage,
@@ -1001,6 +1117,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       gsStepValues,
       redStepValues,
       rmStepValues,
+      bmStepValues,
+      eqStepValues,
       fieldErrors,
       formError,
       sendMessage,

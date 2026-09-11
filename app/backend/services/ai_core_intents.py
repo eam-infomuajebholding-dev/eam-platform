@@ -16,6 +16,8 @@ FACILITY_MANAGEMENT_JOURNEY_TYPE = "facility_management"
 GOVERNMENT_SERVICES_JOURNEY_TYPE = "government_services"
 REAL_ESTATE_DEVELOPMENT_JOURNEY_TYPE = "real_estate_development"
 REAL_ESTATE_MARKETING_JOURNEY_TYPE = "real_estate_marketing"
+BUILDING_MATERIALS_JOURNEY_TYPE = "building_materials"
+EQUIPMENT_JOURNEY_TYPE = "equipment"
 BUILD_VILLA_QUICK_ACTION_LABEL = "أبني منزلًا"
 ENGINEERING_CONSULTING_LABEL = "استشارة هندسية"
 
@@ -32,6 +34,8 @@ M1_JOURNEY_INTENTS = frozenset(
         GOVERNMENT_SERVICES_JOURNEY_TYPE,
         REAL_ESTATE_DEVELOPMENT_JOURNEY_TYPE,
         REAL_ESTATE_MARKETING_JOURNEY_TYPE,
+        BUILDING_MATERIALS_JOURNEY_TYPE,
+        EQUIPMENT_JOURNEY_TYPE,
     }
 )
 
@@ -133,6 +137,19 @@ def resolve_intent_hint(intent_hint: str | None) -> str | None:
         "property-development",
     }:
         return REAL_ESTATE_DEVELOPMENT_JOURNEY_TYPE
+    if normalized in {
+        "building-materials",
+        "building_materials",
+        "materials",
+        "procurement-materials",
+    }:
+        return BUILDING_MATERIALS_JOURNEY_TYPE
+    if normalized in {
+        "equipment",
+        "machinery",
+        "equipment-rental",
+    }:
+        return EQUIPMENT_JOURNEY_TYPE
     if intent_hint.strip() == BUILD_VILLA_QUICK_ACTION_LABEL:
         return BUILD_VILLA_JOURNEY_TYPE
     if intent_hint.strip() == ENGINEERING_CONSULTING_LABEL:

@@ -791,6 +791,184 @@ REAL_ESTATE_MARKETING_WORKFLOW = {
     ],
 }
 
+BUILDING_MATERIALS_WORKFLOW = {
+    "initial_step": "procurement_goal",
+    "steps": [
+        {
+            "key": "procurement_goal",
+            "label": "Procurement goal",
+            "required_fields": ["procurement_goal"],
+            "next": "material_category",
+        },
+        {
+            "key": "material_category",
+            "label": "Material category",
+            "required_fields": ["material_category"],
+            "next": "project_context",
+        },
+        {
+            "key": "project_context",
+            "label": "Project context",
+            "required_fields": ["project_context"],
+            "next": "delivery_location",
+        },
+        {
+            "key": "delivery_location",
+            "label": "Delivery location",
+            "required_fields": ["delivery_location"],
+            "next": "quantity_scope",
+        },
+        {
+            "key": "quantity_scope",
+            "label": "Quantity scope",
+            "required_fields": ["quantity_scope"],
+            "next": "specifications_context",
+        },
+        {
+            "key": "specifications_context",
+            "label": "Specifications",
+            "required_fields": [],
+            "next": "timeline_context",
+        },
+        {
+            "key": "timeline_context",
+            "label": "Timeline context",
+            "required_fields": ["target_timeline"],
+            "next": "budget_context",
+        },
+        {
+            "key": "budget_context",
+            "label": "Budget context",
+            "required_fields": [],
+            "next": "supplier_context",
+        },
+        {
+            "key": "supplier_context",
+            "label": "Supplier context",
+            "required_fields": [],
+            "next": "summary_review",
+        },
+        {
+            "key": "summary_review",
+            "label": "Summary review",
+            "required_fields": [],
+            "next": "procurement_readiness_brief",
+        },
+        {
+            "key": "procurement_readiness_brief",
+            "label": "Procurement readiness brief",
+            "required_fields": [],
+            "next": "scope_confirm",
+        },
+        {
+            "key": "scope_confirm",
+            "label": "Scope confirmation",
+            "required_fields": ["scope_confirmed"],
+            "next": "submit_confirm",
+        },
+        {
+            "key": "submit_confirm",
+            "label": "Submit confirmation",
+            "required_fields": ["submit_confirmed"],
+            "next": "intake_complete",
+        },
+        {
+            "key": "intake_complete",
+            "label": "Intake complete",
+            "terminal": True,
+        },
+    ],
+}
+
+EQUIPMENT_WORKFLOW = {
+    "initial_step": "equipment_need",
+    "steps": [
+        {
+            "key": "equipment_need",
+            "label": "Equipment need",
+            "required_fields": ["equipment_need"],
+            "next": "equipment_category",
+        },
+        {
+            "key": "equipment_category",
+            "label": "Equipment category",
+            "required_fields": ["equipment_category"],
+            "next": "usage_context",
+        },
+        {
+            "key": "usage_context",
+            "label": "Usage context",
+            "required_fields": ["usage_context"],
+            "next": "location",
+        },
+        {
+            "key": "location",
+            "label": "Location",
+            "required_fields": ["location"],
+            "next": "engagement_type",
+        },
+        {
+            "key": "engagement_type",
+            "label": "Engagement type",
+            "required_fields": ["engagement_type"],
+            "next": "specifications_context",
+        },
+        {
+            "key": "specifications_context",
+            "label": "Specifications",
+            "required_fields": [],
+            "next": "timeline_context",
+        },
+        {
+            "key": "timeline_context",
+            "label": "Timeline context",
+            "required_fields": ["target_timeline"],
+            "next": "budget_context",
+        },
+        {
+            "key": "budget_context",
+            "label": "Budget context",
+            "required_fields": [],
+            "next": "readiness_context",
+        },
+        {
+            "key": "readiness_context",
+            "label": "Readiness context",
+            "required_fields": [],
+            "next": "summary_review",
+        },
+        {
+            "key": "summary_review",
+            "label": "Summary review",
+            "required_fields": [],
+            "next": "equipment_readiness_brief",
+        },
+        {
+            "key": "equipment_readiness_brief",
+            "label": "Equipment readiness brief",
+            "required_fields": [],
+            "next": "scope_confirm",
+        },
+        {
+            "key": "scope_confirm",
+            "label": "Scope confirmation",
+            "required_fields": ["scope_confirmed"],
+            "next": "submit_confirm",
+        },
+        {
+            "key": "submit_confirm",
+            "label": "Submit confirmation",
+            "required_fields": ["submit_confirmed"],
+            "next": "intake_complete",
+        },
+        {
+            "key": "intake_complete",
+            "label": "Intake complete",
+            "terminal": True,
+        },
+    ],
+}
+
 REAL_ESTATE_DEVELOPMENT_WORKFLOW = {
     "initial_step": "asset_context",
     "steps": [
@@ -1042,6 +1220,18 @@ DEFAULT_DEFINITIONS = [
         "description": "Pilot #02 real estate marketing preliminary readiness brief journey.",
         "workflow_definition": REAL_ESTATE_MARKETING_WORKFLOW,
     },
+    {
+        "journey_type": "building_materials",
+        "name": "Building Materials Intake",
+        "description": "Pilot #10 building materials preliminary procurement brief journey.",
+        "workflow_definition": BUILDING_MATERIALS_WORKFLOW,
+    },
+    {
+        "journey_type": "equipment",
+        "name": "Equipment Intake",
+        "description": "Pilot #11 equipment preliminary readiness brief journey.",
+        "workflow_definition": EQUIPMENT_WORKFLOW,
+    },
 ]
 
 UPSERT_JOURNEY_TYPES = frozenset(
@@ -1057,6 +1247,8 @@ UPSERT_JOURNEY_TYPES = frozenset(
         "government_services",
         "real_estate_development",
         "real_estate_marketing",
+        "building_materials",
+        "equipment",
     }
 )
 

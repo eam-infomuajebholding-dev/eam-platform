@@ -6,8 +6,10 @@ from dataclasses import dataclass
 
 from services.ai_core_intents import (
     BUILD_VILLA_JOURNEY_TYPE,
+    BUILDING_MATERIALS_JOURNEY_TYPE,
     CONTRACTING_JOURNEY_TYPE,
     ENGINEERING_CONSULTING_JOURNEY_TYPE,
+    EQUIPMENT_JOURNEY_TYPE,
     REAL_ESTATE_VALUATION_JOURNEY_TYPE,
     REAL_ESTATE_DEVELOPMENT_JOURNEY_TYPE,
     FACILITY_MANAGEMENT_JOURNEY_TYPE,
@@ -129,6 +131,18 @@ MAINTENANCE_POSITIVE: tuple[IntentGoldenCase, ...] = (
     IntentGoldenCase("HVAC maintenance", EXPECTED_START, SMART_MAINTENANCE_JOURNEY_TYPE),
 )
 
+BUILDING_MATERIALS_POSITIVE: tuple[IntentGoldenCase, ...] = (
+    IntentGoldenCase("أريد شراء مواد بناء", EXPECTED_START, BUILDING_MATERIALS_JOURNEY_TYPE),
+    IntentGoldenCase("توريد مواد بناء", EXPECTED_START, BUILDING_MATERIALS_JOURNEY_TYPE),
+    IntentGoldenCase("building materials", EXPECTED_START, BUILDING_MATERIALS_JOURNEY_TYPE),
+)
+
+EQUIPMENT_POSITIVE: tuple[IntentGoldenCase, ...] = (
+    IntentGoldenCase("أبحث عن مورد معدات", EXPECTED_START, EQUIPMENT_JOURNEY_TYPE),
+    IntentGoldenCase("أريد استئجار معدات", EXPECTED_START, EQUIPMENT_JOURNEY_TYPE),
+    IntentGoldenCase("equipment rental", EXPECTED_START, EQUIPMENT_JOURNEY_TYPE),
+)
+
 CONTRACTING_POSITIVE: tuple[IntentGoldenCase, ...] = (
     IntentGoldenCase("أحتاج مقاول", EXPECTED_START, CONTRACTING_JOURNEY_TYPE),
     IntentGoldenCase("أبي مقاول", EXPECTED_START, CONTRACTING_JOURNEY_TYPE),
@@ -169,9 +183,7 @@ COMMERCIAL_CASES: tuple[IntentGoldenCase, ...] = (
 NEGATIVE_CASES: tuple[IntentGoldenCase, ...] = (
     IntentGoldenCase("أريد التقديم على وظيفة", EXPECTED_NONE),
     IntentGoldenCase("هل لديكم فرص استثمار؟", EXPECTED_NONE),
-    IntentGoldenCase("أريد شراء مواد بناء", EXPECTED_NONE),
     IntentGoldenCase("كيف أتواصل معكم؟", EXPECTED_NONE),
-    IntentGoldenCase("أبحث عن مورد معدات", EXPECTED_NONE),
     IntentGoldenCase("طلب توظيف", EXPECTED_NONE),
 )
 
@@ -186,6 +198,8 @@ GOLDEN_SET: tuple[IntentGoldenCase, ...] = (
     *FACILITY_MANAGEMENT_POSITIVE,
     *REAL_ESTATE_DEVELOPMENT_POSITIVE,
     *GOVERNMENT_SERVICES_POSITIVE,
+    *BUILDING_MATERIALS_POSITIVE,
+    *EQUIPMENT_POSITIVE,
     *AMBIGUOUS_CASES,
     *COMMERCIAL_CASES,
     *NEGATIVE_CASES,
@@ -195,6 +209,5 @@ UNSUPPORTED_JOURNEY_TYPES = frozenset(
     {
         "investment",
         "marketplace",
-        "materials",
     }
 )

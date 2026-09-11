@@ -99,6 +99,16 @@ export default function SectorPage() {
               ابدأ رحلة التسويق العقاري
             </Link>
           )}
+          {sector.slug === 'building-materials' && (
+            <Link to="/journeys/building-materials" className="eam-btn-outline mt-6 inline-block">
+              ابدأ رحلة مواد البناء
+            </Link>
+          )}
+          {sector.slug === 'equipment' && (
+            <Link to="/journeys/equipment" className="eam-btn-outline mt-6 inline-block">
+              ابدأ رحلة المعدات والآلات
+            </Link>
+          )}
           <Link to="/" className="mt-8 inline-block text-deep-gold hover:underline">
             ← العودة للرئيسية
           </Link>

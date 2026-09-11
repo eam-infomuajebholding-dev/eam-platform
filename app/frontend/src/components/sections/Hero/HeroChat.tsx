@@ -30,6 +30,12 @@ import { REAL_ESTATE_DEVELOPMENT_JOURNEY_TYPE } from "@/features/journeys/real-e
 import RealEstateMarketingStepPanel from "@/features/journeys/real-estate-marketing/RealEstateMarketingStepPanel";
 import type { RealEstateMarketingContext } from "@/features/journeys/real-estate-marketing/types";
 import { REAL_ESTATE_MARKETING_JOURNEY_TYPE } from "@/features/journeys/real-estate-marketing/types";
+import BuildingMaterialsStepPanel from "@/features/journeys/building-materials/BuildingMaterialsStepPanel";
+import type { BuildingMaterialsContext } from "@/features/journeys/building-materials/types";
+import { BUILDING_MATERIALS_JOURNEY_TYPE } from "@/features/journeys/building-materials/types";
+import EquipmentStepPanel from "@/features/journeys/equipment/EquipmentStepPanel";
+import type { EquipmentContext } from "@/features/journeys/equipment/types";
+import { EQUIPMENT_JOURNEY_TYPE } from "@/features/journeys/equipment/types";
 import type { BuildVillaContext } from "@/features/journeys/build-villa/types";
 import { BUILD_VILLA_JOURNEY_TYPE } from "@/features/journeys/build-villa/types";
 import type { EngineeringConsultingContext } from "@/features/journeys/engineering-consulting/types";
@@ -69,6 +75,10 @@ export default function HeroChat({ variant = "default" }: HeroChatProps) {
     setRedStepValues,
     rmStepValues,
     setRmStepValues,
+    bmStepValues,
+    setBmStepValues,
+    eqStepValues,
+    setEqStepValues,
     fieldErrors,
     formError,
     sendMessage,
@@ -93,6 +103,8 @@ export default function HeroChat({ variant = "default" }: HeroChatProps) {
   const gsContext = (currentInstance?.context ?? {}) as GovernmentServicesContext;
   const redContext = (currentInstance?.context ?? {}) as RealEstateDevelopmentContext;
   const rmContext = (currentInstance?.context ?? {}) as RealEstateMarketingContext;
+  const bmContext = (currentInstance?.context ?? {}) as BuildingMaterialsContext;
+  const eqContext = (currentInstance?.context ?? {}) as EquipmentContext;
   const currentStep = currentInstance?.current_step_key ?? null;
   const isCompleted = currentInstance?.status === "completed";
   const isTerminal =
@@ -340,6 +352,38 @@ export default function HeroChat({ variant = "default" }: HeroChatProps) {
                 context={rmContext}
                 values={rmStepValues}
                 onChange={setRmStepValues}
+                fieldErrors={fieldErrors}
+                formError={formError}
+                isLoading={isBusy}
+                isTerminal={isTerminal}
+                isCompleted={isCompleted}
+                onAdvance={advanceCurrentStep}
+                onComplete={completeCurrentJourney}
+              />
+            ) : null}
+
+            {isJourneyMode && !isCompleted && journeyType === BUILDING_MATERIALS_JOURNEY_TYPE ? (
+              <BuildingMaterialsStepPanel
+                currentStep={currentStep}
+                context={bmContext}
+                values={bmStepValues}
+                onChange={setBmStepValues}
+                fieldErrors={fieldErrors}
+                formError={formError}
+                isLoading={isBusy}
+                isTerminal={isTerminal}
+                isCompleted={isCompleted}
+                onAdvance={advanceCurrentStep}
+                onComplete={completeCurrentJourney}
+              />
+            ) : null}
+
+            {isJourneyMode && !isCompleted && journeyType === EQUIPMENT_JOURNEY_TYPE ? (
+              <EquipmentStepPanel
+                currentStep={currentStep}
+                context={eqContext}
+                values={eqStepValues}
+                onChange={setEqStepValues}
                 fieldErrors={fieldErrors}
                 formError={formError}
                 isLoading={isBusy}

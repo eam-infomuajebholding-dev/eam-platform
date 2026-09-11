@@ -18,6 +18,8 @@ IntentName = Literal[
     "government_services",
     "real_estate_development",
     "real_estate_marketing",
+    "building_materials",
+    "equipment",
     "general",
 ]
 IntentAction = Literal["start_journey", "general_answer", "clarify", "journey_guidance", "ai_unavailable"]

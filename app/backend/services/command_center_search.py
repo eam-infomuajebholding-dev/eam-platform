@@ -19,6 +19,8 @@ JOURNEY_NAV = [
     ("government_services", "الخدمات الحكومية", "/journeys/government-services"),
     ("real_estate_development", "التطوير العقاري", "/journeys/real-estate-development"),
     ("real_estate_marketing", "التسويق العقاري", "/journeys/real-estate-marketing"),
+    ("building_materials", "مواد البناء", "/journeys/building-materials"),
+    ("equipment", "المعدات والآلات", "/journeys/equipment"),
 ]
 
 VIEW_NAV = [

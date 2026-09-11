@@ -62,6 +62,18 @@ from services.real_estate_marketing_validators import (
     assemble_real_estate_marketing_intake_draft,
     validate_real_estate_marketing_step,
 )
+from services.building_materials_validators import (
+    BUILDING_MATERIALS_JOURNEY_TYPE,
+    assemble_building_materials_intake_draft,
+    assemble_procurement_readiness_brief,
+    validate_building_materials_step,
+)
+from services.equipment_validators import (
+    EQUIPMENT_JOURNEY_TYPE,
+    assemble_equipment_intake_draft,
+    assemble_equipment_readiness_brief,
+    validate_equipment_step,
+)
 from services.furnishing_validators import (
     FURNISHING_JOURNEY_TYPE,
     assemble_furnishing_intake_draft,
@@ -106,6 +118,8 @@ DUPLICATE_GUARD_JOURNEY_TYPES = frozenset(
         GOVERNMENT_SERVICES_JOURNEY_TYPE,
         REAL_ESTATE_DEVELOPMENT_JOURNEY_TYPE,
         REAL_ESTATE_MARKETING_JOURNEY_TYPE,
+        BUILDING_MATERIALS_JOURNEY_TYPE,
+        EQUIPMENT_JOURNEY_TYPE,
     }
 )
 PINNED_WORKFLOW_CONTEXT_KEY = "_pinned_workflow"
@@ -386,6 +400,32 @@ class JosService:
                 )
                 await self.db.commit()
                 raise
+        elif instance.journey_type == BUILDING_MATERIALS_JOURNEY_TYPE:
+            try:
+                validated_input = validate_building_materials_step(from_step, validated_input)
+            except FieldValidationError as exc:
+                await self._record_event(
+                    instance.id,
+                    event_type="validation_failed",
+                    from_step=from_step,
+                    to_step=from_step,
+                    payload={"errors": exc.errors, "input": input_data or {}},
+                )
+                await self.db.commit()
+                raise
+        elif instance.journey_type == EQUIPMENT_JOURNEY_TYPE:
+            try:
+                validated_input = validate_equipment_step(from_step, validated_input)
+            except FieldValidationError as exc:
+                await self._record_event(
+                    instance.id,
+                    event_type="validation_failed",
+                    from_step=from_step,
+                    to_step=from_step,
+                    payload={"errors": exc.errors, "input": input_data or {}},
+                )
+                await self.db.commit()
+                raise
 
         merged_context = dict(instance.context or {})
         merged_context.update(validated_input)
@@ -535,6 +575,32 @@ class JosService:
             and next_step == VALUATION_INTAKE_COMPLETE_STEP
         ):
             merged_context["intake_draft"] = assemble_real_estate_marketing_intake_draft(merged_context)
+            merged_context["draft_status"] = "ready_for_handoff"
+
+        if (
+            instance.journey_type == BUILDING_MATERIALS_JOURNEY_TYPE
+            and next_step == "procurement_readiness_brief"
+        ):
+            merged_context["preliminary_brief"] = assemble_procurement_readiness_brief(merged_context)
+
+        if (
+            instance.journey_type == BUILDING_MATERIALS_JOURNEY_TYPE
+            and next_step == VALUATION_INTAKE_COMPLETE_STEP
+        ):
+            merged_context["intake_draft"] = assemble_building_materials_intake_draft(merged_context)
+            merged_context["draft_status"] = "ready_for_handoff"
+
+        if (
+            instance.journey_type == EQUIPMENT_JOURNEY_TYPE
+            and next_step == "equipment_readiness_brief"
+        ):
+            merged_context["preliminary_brief"] = assemble_equipment_readiness_brief(merged_context)
+
+        if (
+            instance.journey_type == EQUIPMENT_JOURNEY_TYPE
+            and next_step == VALUATION_INTAKE_COMPLETE_STEP
+        ):
+            merged_context["intake_draft"] = assemble_equipment_intake_draft(merged_context)
             merged_context["draft_status"] = "ready_for_handoff"
 
         instance.context = merged_context
@@ -813,6 +879,54 @@ class JosService:
                 payload={"intake_draft": merged_context.get("intake_draft")},
             )
 
+        if (
+            instance.journey_type == BUILDING_MATERIALS_JOURNEY_TYPE
+            and next_step == "procurement_readiness_brief"
+        ):
+            await self._record_event(
+                instance.id,
+                event_type="preliminary_brief_generated",
+                from_step=from_step,
+                to_step=next_step,
+                payload={"preliminary_brief": merged_context.get("preliminary_brief")},
+            )
+
+        if (
+            instance.journey_type == BUILDING_MATERIALS_JOURNEY_TYPE
+            and next_step == VALUATION_INTAKE_COMPLETE_STEP
+        ):
+            await self._record_event(
+                instance.id,
+                event_type="intake_draft_assembled",
+                from_step=from_step,
+                to_step=next_step,
+                payload={"intake_draft": merged_context.get("intake_draft")},
+            )
+
+        if (
+            instance.journey_type == EQUIPMENT_JOURNEY_TYPE
+            and next_step == "equipment_readiness_brief"
+        ):
+            await self._record_event(
+                instance.id,
+                event_type="preliminary_brief_generated",
+                from_step=from_step,
+                to_step=next_step,
+                payload={"preliminary_brief": merged_context.get("preliminary_brief")},
+            )
+
+        if (
+            instance.journey_type == EQUIPMENT_JOURNEY_TYPE
+            and next_step == VALUATION_INTAKE_COMPLETE_STEP
+        ):
+            await self._record_event(
+                instance.id,
+                event_type="intake_draft_assembled",
+                from_step=from_step,
+                to_step=next_step,
+                payload={"intake_draft": merged_context.get("intake_draft")},
+            )
+
         await self.db.commit()
         await self.db.refresh(instance)
         return instance
@@ -990,6 +1104,12 @@ class JosService:
 
         if instance.journey_type == REAL_ESTATE_MARKETING_JOURNEY_TYPE and not instance.context.get("intake_draft"):
             raise JosStateError("Real Estate Marketing intake draft must be assembled before completion")
+
+        if instance.journey_type == BUILDING_MATERIALS_JOURNEY_TYPE and not instance.context.get("intake_draft"):
+            raise JosStateError("Building Materials intake draft must be assembled before completion")
+
+        if instance.journey_type == EQUIPMENT_JOURNEY_TYPE and not instance.context.get("intake_draft"):
+            raise JosStateError("Equipment intake draft must be assembled before completion")
 
         instance.status = self.COMPLETED
         instance.completed_at = datetime.now(timezone.utc)

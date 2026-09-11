@@ -63,6 +63,18 @@ import {
   TARGET_AUDIENCE_OPTIONS,
   URGENCY_OPTIONS as RM_URGENCY_OPTIONS,
 } from '@/features/journeys/real-estate-marketing/constants';
+import {
+  MATERIAL_CATEGORY_OPTIONS,
+  PROCUREMENT_GOAL_OPTIONS as BM_PROCUREMENT_GOAL_OPTIONS,
+  QUANTITY_SCOPE_OPTIONS,
+  URGENCY_OPTIONS as BM_URGENCY_OPTIONS,
+} from '@/features/journeys/building-materials/constants';
+import {
+  ENGAGEMENT_TYPE_OPTIONS,
+  EQUIPMENT_CATEGORY_OPTIONS,
+  EQUIPMENT_NEED_OPTIONS,
+  URGENCY_OPTIONS as EQ_URGENCY_OPTIONS,
+} from '@/features/journeys/equipment/constants';
 
 interface IntakeSnapshotSummaryProps {
   snapshot: ServiceRequestIntakeSnapshot;
@@ -171,6 +183,64 @@ export default function IntakeSnapshotSummary({ snapshot }: IntakeSnapshotSummar
           {snapshot.target_timeline ? <p><strong>الجدول:</strong> {snapshot.target_timeline}</p> : null}
           {snapshot.urgency ? <p><strong>الاستعجال:</strong> {labelForValue(RM_URGENCY_OPTIONS, snapshot.urgency)}</p> : null}
           {snapshot.budget_context ? <p><strong>الميزانية:</strong> {snapshot.budget_context}</p> : null}
+        </div>
+        {brief ? <PreliminaryBriefCard brief={brief} /> : null}
+      </div>
+    );
+  }
+
+  if (journeyType === 'building_materials') {
+    const bmSnapshot = snapshot as ServiceRequestIntakeSnapshot & {
+      material_category?: string;
+      project_context?: string;
+      delivery_location?: string;
+      quantity_scope?: string;
+      specifications_context?: string;
+      budget_context?: string;
+      supplier_context?: string;
+    };
+    return (
+      <div className="space-y-4 font-tajawal text-sm">
+        <div className="space-y-2 rounded-xl border border-gold/20 bg-gray-50 dark:bg-white/5 p-4">
+          <p><strong>هدف التوريد:</strong> {labelForValue(BM_PROCUREMENT_GOAL_OPTIONS, bmSnapshot.procurement_goal)}</p>
+          <p><strong>فئة المواد:</strong> {labelForValue(MATERIAL_CATEGORY_OPTIONS, bmSnapshot.material_category)}</p>
+          <p><strong>سياق المشروع:</strong> {bmSnapshot.project_context ?? '—'}</p>
+          <p><strong>موقع التسليم:</strong> {bmSnapshot.delivery_location ?? '—'}</p>
+          <p><strong>نطاق الكميات:</strong> {labelForValue(QUANTITY_SCOPE_OPTIONS, bmSnapshot.quantity_scope)}</p>
+          {bmSnapshot.specifications_context ? <p><strong>المواصفات:</strong> {bmSnapshot.specifications_context}</p> : null}
+          {bmSnapshot.target_timeline ? <p><strong>الجدول:</strong> {bmSnapshot.target_timeline}</p> : null}
+          {bmSnapshot.urgency ? <p><strong>الاستعجال:</strong> {labelForValue(BM_URGENCY_OPTIONS, bmSnapshot.urgency)}</p> : null}
+          {bmSnapshot.budget_context ? <p><strong>الميزانية:</strong> {bmSnapshot.budget_context}</p> : null}
+          {bmSnapshot.supplier_context ? <p><strong>المورد:</strong> {bmSnapshot.supplier_context}</p> : null}
+        </div>
+        {brief ? <PreliminaryBriefCard brief={brief} /> : null}
+      </div>
+    );
+  }
+
+  if (journeyType === 'equipment') {
+    const eqSnapshot = snapshot as ServiceRequestIntakeSnapshot & {
+      equipment_need?: string;
+      equipment_category?: string;
+      usage_context?: string;
+      engagement_type?: string;
+      specifications_context?: string;
+      budget_context?: string;
+      readiness_context?: string;
+    };
+    return (
+      <div className="space-y-4 font-tajawal text-sm">
+        <div className="space-y-2 rounded-xl border border-gold/20 bg-gray-50 dark:bg-white/5 p-4">
+          <p><strong>حاجة المعدات:</strong> {labelForValue(EQUIPMENT_NEED_OPTIONS, eqSnapshot.equipment_need)}</p>
+          <p><strong>فئة المعدات:</strong> {labelForValue(EQUIPMENT_CATEGORY_OPTIONS, eqSnapshot.equipment_category)}</p>
+          <p><strong>سياق الاستخدام:</strong> {eqSnapshot.usage_context ?? '—'}</p>
+          <p><strong>الموقع:</strong> {eqSnapshot.location ?? '—'}</p>
+          <p><strong>نوع التعاقد:</strong> {labelForValue(ENGAGEMENT_TYPE_OPTIONS, eqSnapshot.engagement_type)}</p>
+          {eqSnapshot.specifications_context ? <p><strong>المواصفات:</strong> {eqSnapshot.specifications_context}</p> : null}
+          {eqSnapshot.target_timeline ? <p><strong>الجدول:</strong> {eqSnapshot.target_timeline}</p> : null}
+          {eqSnapshot.urgency ? <p><strong>الاستعجال:</strong> {labelForValue(EQ_URGENCY_OPTIONS, eqSnapshot.urgency)}</p> : null}
+          {eqSnapshot.budget_context ? <p><strong>الميزانية:</strong> {eqSnapshot.budget_context}</p> : null}
+          {eqSnapshot.readiness_context ? <p><strong>الجاهزية:</strong> {eqSnapshot.readiness_context}</p> : null}
         </div>
         {brief ? <PreliminaryBriefCard brief={brief} /> : null}
       </div>

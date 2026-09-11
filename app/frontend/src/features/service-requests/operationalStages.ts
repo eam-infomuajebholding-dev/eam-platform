@@ -55,4 +55,6 @@ export const JOURNEY_TYPE_LABELS: Record<string, string> = {
   government_services: 'الخدمات الحكومية',
   real_estate_development: 'التطوير العقاري',
   real_estate_marketing: 'التسويق العقاري',
+  building_materials: 'مواد البناء',
+  equipment: 'المعدات والآلات',
 };

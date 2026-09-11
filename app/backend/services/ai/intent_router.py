@@ -17,6 +17,8 @@ from services.ai_core_intents import (
     GOVERNMENT_SERVICES_JOURNEY_TYPE,
     REAL_ESTATE_DEVELOPMENT_JOURNEY_TYPE,
     REAL_ESTATE_MARKETING_JOURNEY_TYPE,
+    BUILDING_MATERIALS_JOURNEY_TYPE,
+    EQUIPMENT_JOURNEY_TYPE,
     FURNISHING_JOURNEY_TYPE,
     PROJECT_MANAGEMENT_JOURNEY_TYPE,
     SMART_MAINTENANCE_JOURNEY_TYPE,
@@ -72,6 +74,33 @@ REAL_ESTATE_DEVELOPMENT_START_MESSAGE = (
 REAL_ESTATE_MARKETING_START_MESSAGE = (
     "حسناً! سأساعدك في بدء رحلة التسويق العقاري. "
     "حدّد هدف التسويق في الخطوة الأولى — الموجز الأولي ليس خطة حملة ولا تقدير leads/ROI."
+)
+
+BUILDING_MATERIALS_START_MESSAGE = (
+    "حسناً! سأساعدك في بدء رحلة مواد البناء. "
+    "حدّد هدف التوريد في الخطوة الأولى — الموجز الأولي ليس عرض سعر ولا التزام توريد."
+)
+
+BUILDING_MATERIALS_PHRASE_PATTERNS = (
+    re.compile(r"مواد\s+بناء", re.IGNORECASE),
+    re.compile(r"building\s+materials?", re.IGNORECASE),
+    re.compile(r"أ?ريد\s+شراء\s+مواد", re.IGNORECASE),
+    re.compile(r"توريد\s+مواد", re.IGNORECASE),
+    re.compile(r"procurement\s+materials?", re.IGNORECASE),
+)
+
+EQUIPMENT_START_MESSAGE = (
+    "حسناً! سأساعدك في بدء رحلة المعدات والآلات. "
+    "حدّد حاجتك في الخطوة الأولى — الموجز الأولي ليس عرض سعر ولا جدول تسليم."
+)
+
+EQUIPMENT_PHRASE_PATTERNS = (
+    re.compile(r"معدات\s+(?:و|/)?\s*آلات", re.IGNORECASE),
+    re.compile(r"equipment\s+(?:rental|hire|need)", re.IGNORECASE),
+    re.compile(r"أ?بحث\s+ع(?:ن|ن)\s+(?:مورد\s+)?معدات", re.IGNORECASE),
+    re.compile(r"أ?ريد\s+است(?:ئ|ا)جار\s+معدات", re.IGNORECASE),
+    re.compile(r"heavy\s+machinery", re.IGNORECASE),
+    re.compile(r"معدات\s+ ثقيلة", re.IGNORECASE),
 )
 
 REAL_ESTATE_MARKETING_PHRASE_PATTERNS = (
@@ -236,6 +265,28 @@ HUMAN_HANDOFF_PATTERNS = (
 CLASSIFIER_CONFIDENCE_THRESHOLD = 0.6
 
 
+def classify_building_materials_deterministic(message: str, intent_hint: str | None = None) -> bool:
+    hinted = resolve_intent_hint(intent_hint)
+    if hinted == BUILDING_MATERIALS_JOURNEY_TYPE:
+        return True
+    trimmed = (message or "").strip()
+    for pattern in BUILDING_MATERIALS_PHRASE_PATTERNS:
+        if pattern.search(trimmed):
+            return True
+    return False
+
+
+def classify_equipment_deterministic(message: str, intent_hint: str | None = None) -> bool:
+    hinted = resolve_intent_hint(intent_hint)
+    if hinted == EQUIPMENT_JOURNEY_TYPE:
+        return True
+    trimmed = (message or "").strip()
+    for pattern in EQUIPMENT_PHRASE_PATTERNS:
+        if pattern.search(trimmed):
+            return True
+    return False
+
+
 def classify_real_estate_marketing_deterministic(message: str, intent_hint: str | None = None) -> bool:
     hinted = resolve_intent_hint(intent_hint)
     if hinted == REAL_ESTATE_MARKETING_JOURNEY_TYPE:
@@ -392,6 +443,26 @@ def route_intent_deterministic(message: str, intent_hint: str | None = None) -> 
                 "هل تريد بناء فيلا، استشارة هندسية، جاهزية مقاولات، "
                 "تقييم عقاري، تطوير عقاري، صيانة ذكية، إدارة مشروع، تأثيث، إدارة مرافق، خدمات حكومية، أم سؤالاً عاماً عن خدمات EAM؟"
             ),
+        )
+
+    if classify_building_materials_deterministic(message, intent_hint):
+        return IntentDecision(
+            intent=BUILDING_MATERIALS_JOURNEY_TYPE,
+            confidence=1.0,
+            candidate_journey=BUILDING_MATERIALS_JOURNEY_TYPE,
+            action="start_journey",
+            required_confirmation=False,
+            assistant_message=BUILDING_MATERIALS_START_MESSAGE,
+        )
+
+    if classify_equipment_deterministic(message, intent_hint):
+        return IntentDecision(
+            intent=EQUIPMENT_JOURNEY_TYPE,
+            confidence=1.0,
+            candidate_journey=EQUIPMENT_JOURNEY_TYPE,
+            action="start_journey",
+            required_confirmation=False,
+            assistant_message=EQUIPMENT_START_MESSAGE,
         )
 
     if classify_real_estate_marketing_deterministic(message, intent_hint):

@@ -26,6 +26,8 @@ FACILITY_MANAGEMENT_JOURNEY_TYPE = "facility_management"
 GOVERNMENT_SERVICES_JOURNEY_TYPE = "government_services"
 REAL_ESTATE_DEVELOPMENT_JOURNEY_TYPE = "real_estate_development"
 REAL_ESTATE_MARKETING_JOURNEY_TYPE = "real_estate_marketing"
+BUILDING_MATERIALS_JOURNEY_TYPE = "building_materials"
+EQUIPMENT_JOURNEY_TYPE = "equipment"
 SUPPORTED_JOURNEY_TYPES = frozenset(
     {
         BUILD_VILLA_JOURNEY_TYPE,
@@ -39,6 +41,8 @@ SUPPORTED_JOURNEY_TYPES = frozenset(
         GOVERNMENT_SERVICES_JOURNEY_TYPE,
         REAL_ESTATE_DEVELOPMENT_JOURNEY_TYPE,
         REAL_ESTATE_MARKETING_JOURNEY_TYPE,
+        BUILDING_MATERIALS_JOURNEY_TYPE,
+        EQUIPMENT_JOURNEY_TYPE,
     }
 )
 
@@ -54,6 +58,8 @@ REQUEST_TYPE_BY_JOURNEY = {
     GOVERNMENT_SERVICES_JOURNEY_TYPE: "government_services_intake",
     REAL_ESTATE_DEVELOPMENT_JOURNEY_TYPE: "real_estate_development_intake",
     REAL_ESTATE_MARKETING_JOURNEY_TYPE: "real_estate_marketing_intake",
+    BUILDING_MATERIALS_JOURNEY_TYPE: "building_materials_intake",
+    EQUIPMENT_JOURNEY_TYPE: "equipment_intake",
 }
 
 REFERENCE_PREFIX_BY_JOURNEY = {
@@ -68,6 +74,8 @@ REFERENCE_PREFIX_BY_JOURNEY = {
     GOVERNMENT_SERVICES_JOURNEY_TYPE: "GS",
     REAL_ESTATE_DEVELOPMENT_JOURNEY_TYPE: "RD",
     REAL_ESTATE_MARKETING_JOURNEY_TYPE: "RM",
+    BUILDING_MATERIALS_JOURNEY_TYPE: "BM",
+    EQUIPMENT_JOURNEY_TYPE: "EQ",
 }
 
 SERVICE_REQUEST_STATUS_SUBMITTED = "submitted"
@@ -683,6 +691,44 @@ class ServiceRequestService:
                     "target_timeline": intake_draft.get("target_timeline"),
                     "urgency": intake_draft.get("urgency"),
                     "budget_context": intake_draft.get("budget_context"),
+                    "preliminary_brief": deepcopy(intake_draft.get("preliminary_brief") or {}),
+                    "scope_confirmed": intake_draft.get("scope_confirmed"),
+                    "submit_confirmed": intake_draft.get("submit_confirmed"),
+                }
+            )
+        elif intake_draft.get("journey_type") == BUILDING_MATERIALS_JOURNEY_TYPE:
+            snapshot.update(
+                {
+                    "sector_slug": intake_draft.get("sector_slug"),
+                    "procurement_goal": intake_draft.get("procurement_goal"),
+                    "material_category": intake_draft.get("material_category"),
+                    "project_context": intake_draft.get("project_context"),
+                    "delivery_location": intake_draft.get("delivery_location"),
+                    "quantity_scope": intake_draft.get("quantity_scope"),
+                    "specifications_context": intake_draft.get("specifications_context"),
+                    "target_timeline": intake_draft.get("target_timeline"),
+                    "urgency": intake_draft.get("urgency"),
+                    "budget_context": intake_draft.get("budget_context"),
+                    "supplier_context": intake_draft.get("supplier_context"),
+                    "preliminary_brief": deepcopy(intake_draft.get("preliminary_brief") or {}),
+                    "scope_confirmed": intake_draft.get("scope_confirmed"),
+                    "submit_confirmed": intake_draft.get("submit_confirmed"),
+                }
+            )
+        elif intake_draft.get("journey_type") == EQUIPMENT_JOURNEY_TYPE:
+            snapshot.update(
+                {
+                    "sector_slug": intake_draft.get("sector_slug"),
+                    "equipment_need": intake_draft.get("equipment_need"),
+                    "equipment_category": intake_draft.get("equipment_category"),
+                    "usage_context": intake_draft.get("usage_context"),
+                    "location": intake_draft.get("location"),
+                    "engagement_type": intake_draft.get("engagement_type"),
+                    "specifications_context": intake_draft.get("specifications_context"),
+                    "target_timeline": intake_draft.get("target_timeline"),
+                    "urgency": intake_draft.get("urgency"),
+                    "budget_context": intake_draft.get("budget_context"),
+                    "readiness_context": intake_draft.get("readiness_context"),
                     "preliminary_brief": deepcopy(intake_draft.get("preliminary_brief") or {}),
                     "scope_confirmed": intake_draft.get("scope_confirmed"),
                     "submit_confirmed": intake_draft.get("submit_confirmed"),

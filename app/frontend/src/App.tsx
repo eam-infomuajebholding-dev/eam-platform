@@ -42,6 +42,8 @@ import FacilityManagementJourneyPage from '@/features/journeys/facility-manageme
 import GovernmentServicesJourneyPage from '@/features/journeys/government-services/GovernmentServicesJourneyPage';
 import RealEstateDevelopmentJourneyPage from '@/features/journeys/real-estate-development/RealEstateDevelopmentJourneyPage';
 import RealEstateMarketingJourneyPage from '@/features/journeys/real-estate-marketing/RealEstateMarketingJourneyPage';
+import BuildingMaterialsJourneyPage from '@/features/journeys/building-materials/BuildingMaterialsJourneyPage';
+import EquipmentJourneyPage from '@/features/journeys/equipment/EquipmentJourneyPage';
 import SectorPage from './pages/SectorPage';
 import BlogRoutes from './blog-routes';
 import { JourneyProvider } from '@/features/journeys/core/JourneyContext';
@@ -106,6 +108,8 @@ const AppRoutes = () => (
     <Route path="/journeys/government-services" element={<GovernmentServicesJourneyPage />} />
     <Route path="/journeys/real-estate-development" element={<RealEstateDevelopmentJourneyPage />} />
     <Route path="/journeys/real-estate-marketing" element={<RealEstateMarketingJourneyPage />} />
+    <Route path="/journeys/building-materials" element={<BuildingMaterialsJourneyPage />} />
+    <Route path="/journeys/equipment" element={<EquipmentJourneyPage />} />
     <Route path="/sectors/:slug" element={<SectorPage />} />
     <Route
       path="/my-requests"
