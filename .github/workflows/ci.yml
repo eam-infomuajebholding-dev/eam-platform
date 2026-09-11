@@ -30,6 +30,7 @@ jobs:
           JWT_SECRET_KEY: ci-test-jwt-secret
           JWT_EXPIRE_MINUTES: '60'
           JWT_ALGORITHM: HS256
+          DATABASE_URL: sqlite:///./ci_test.db
         run: python -m pytest -q
 
   alembic-single-head:
@@ -134,6 +135,7 @@ jobs:
           JWT_SECRET_KEY: ci-test-jwt-secret
           JWT_EXPIRE_MINUTES: '60'
           JWT_ALGORITHM: HS256
+          DATABASE_URL: sqlite:///./ci_e2e.db
           ENVIRONMENT: dev
         run: |
           cd ../backend

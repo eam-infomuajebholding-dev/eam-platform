@@ -13,8 +13,9 @@ from main import app
 
 
 @pytest.fixture(autouse=True)
-def jwt_secret_env(monkeypatch: pytest.MonkeyPatch):
+def ci_env(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("JWT_SECRET_KEY", os.environ.get("JWT_SECRET_KEY", "test-jwt-secret"))
+    monkeypatch.setenv("DATABASE_URL", os.environ.get("DATABASE_URL", "sqlite:///./pytest_ops_quotes.db"))
 
 
 def auth_headers(user_id: str, role: str = "user") -> dict[str, str]:

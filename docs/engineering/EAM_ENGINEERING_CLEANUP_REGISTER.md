@@ -5,7 +5,9 @@
 | ID | Category | Location | Notes | Status |
 |----|----------|----------|-------|--------|
 | CLN-001 | DUPLICATE_POSSIBLE | `src/api/settings.ts` raw fetch vs `lib/api` | CMS settings path | OPEN |
-| CLN-002 | DUPLICATE_POSSIBLE | Multiple log files in frontend root | `pw-*.txt`, `build-log.txt` | UNKNOWN_ORIGIN — do not delete |
+| CLN-002 | DUPLICATE_POSSIBLE | Multiple log files in frontend root | `pw-*.txt`, `build-log.txt` | LOCAL_ONLY — `.gitignore` updated WO-019A |
+| CLN-009 | MISPLACED_FILE | `app/frontend/pnpm-workspace.yaml` | Invalid `allowBuilds` placeholder broke CI install | **FIXED** — removed (single-package, no workspace) WO-019F |
+| CLN-010 | CI_BLOCKER | Backend pytest on GitHub Actions | Missing `DATABASE_URL` + no test bootstrap | **FIXED** — `tests/conftest.py` + CI env WO-019F |
 | CLN-003 | SHARED_OVERUSED | `IntakeSnapshotSummary.tsx` | Per-journey branches growing | MONITOR — not generic renderer yet |
 | CLN-004 | NAMING_INCONSISTENCY | Sector # vs journey numbering | Docs use both | DOCUMENTED in registers |
 | CLN-005 | DO_NOT_TOUCH | `jos.py` central switch | High blast radius | DO_NOT_TOUCH without journey WO |
