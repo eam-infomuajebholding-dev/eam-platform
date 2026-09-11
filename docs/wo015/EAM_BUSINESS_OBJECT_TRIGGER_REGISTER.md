@@ -11,7 +11,7 @@ JIT policy: do not prebuild BOs without lifecycle/reuse evidence.
 | Organization | NO_TRIGGER | — | Not required | — |
 | Supplier | BLOCKED | Materials, Equipment, Factories | Marketplace upstream | CMS ≠ supplier authority |
 | Opportunity | BLOCKED | Investment | Two-sided investment model | — |
-| Quote | BLOCKED | Commercial lifecycle | Business Lab decisions open | See `docs/business-lab-decisions.md` |
+| Quote | IMPLEMENTED | Commercial lifecycle | WO-018 draft→issued | `docs/wo018/WO018_MIGRATION_REPORT.md` |
 | Contract | BLOCKED | Post-quote | Upstream | — |
 | OperationalProject | BLOCKED | Delivery/Owner, PM execution | Distinct from CMS Project | — |
 | Order | NOT_YET_REQUIRED | Marketplace future | — | — |

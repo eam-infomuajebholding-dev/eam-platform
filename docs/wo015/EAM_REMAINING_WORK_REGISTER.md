@@ -17,20 +17,20 @@ Deduplicated across Phase 2 / Master-008 / Delta-009 / WO-012–015. Status voca
 | #14 Facility Management | DONE_VERIFIED | WO-014 baseline |
 | #15 Furnishing | DONE_VERIFIED | WO-014 baseline |
 | #02 Real Estate Marketing (`real_estate_marketing`) | DONE_VERIFIED | WO-016 full vertical slice |
-| #10 Building Materials | READY_WITH_SMALL_EXTENSION | Snapshot-only procurement brief feasible |
-| #11 Equipment | READY_WITH_SMALL_EXTENSION | Snapshot-only equipment brief feasible |
+| #10 Building Materials (`building_materials`) | DONE_VERIFIED | WO-017 full vertical slice |
+| #11 Equipment (`equipment`) | DONE_VERIFIED | WO-017 full vertical slice |
 | #03 Investment | BLOCKED_UPSTREAM | Two-sided model, Opportunity BO, regulatory decisions |
 | #12 Factories & Suppliers | BLOCKED_UPSTREAM | Supplier authority / marketplace semantics |
 | #16 Delivery & Owner Services | BLOCKED_UPSTREAM | OperationalProject lifecycle absent |
 
-**REAL_JOURNEY_COUNT = 11** (complete vertical slices only).
+**REAL_JOURNEY_COUNT = 13** (complete vertical slices only).
 
 ## Commercial lifecycle
 
 | Item | Status |
 |------|--------|
 | Service Request (submit → review → qualify) | DONE_VERIFIED |
-| Quote / Proposal | BLOCKED_BUSINESS_DECISION |
+| Quote / Proposal | DONE_VERIFIED (WO-018 — draft → issued lifecycle) |
 | Contract | BLOCKED_UPSTREAM |
 | Payment | BLOCKED_UPSTREAM |
 | OperationalProject | BLOCKED_UPSTREAM |
@@ -42,7 +42,7 @@ Deduplicated across Phase 2 / Master-008 / Delta-009 / WO-012–015. Status voca
 |------|--------|
 | OIDC production acceptance | BLOCKED_EXTERNAL |
 | M1 (16-point) | PARTIAL (credential-free paths verified) |
-| Git commit capability | BLOCKED_GIT_IDENTITY |
+| Git commit capability | DONE_VERIFIED (5 logical commits, 2026-09-11) |
 
 ## Command Center & decision intelligence
 
@@ -53,7 +53,7 @@ Deduplicated across Phase 2 / Master-008 / Delta-009 / WO-012–015. Status voca
 | Executive AI (rule-assisted / degraded) | DONE_VERIFIED |
 | Executive AI live provider acceptance | UNVERIFIED_ENV_DEPENDENT |
 | Evidence Drawer V2 (scorecard/risk/commercial expansion) | DEFERRED_JIT |
-| Decision Inbox (Quote surfacing in UI) | READY_WITH_SMALL_EXTENSION |
+| Decision Inbox (Quote surfacing in UI) | DONE_VERIFIED |
 | Watchlist | DEFERRED_JIT |
 | Decision Journal | DEFERRED_JIT |
 | Command Palette (Ctrl+K) | DEFERRED_JIT |
@@ -65,9 +65,9 @@ Deduplicated across Phase 2 / Master-008 / Delta-009 / WO-012–015. Status voca
 |------|--------|
 | CI configuration | DONE_VERIFIED |
 | CI runtime verification | UNVERIFIED |
-| Migration report (formal) | READY_WITH_SMALL_EXTENSION |
-| Developer onboarding guide | PARTIAL (see PROJECT_HANDOVER.md) |
-| Journey engineer guide | READY_WITH_SMALL_EXTENSION |
+| Migration report (formal) | DONE_VERIFIED (`docs/wo017/WO017_MIGRATION_REPORT.md`) |
+| Developer onboarding guide | DONE_VERIFIED (`docs/engineering/DEVELOPER_ONBOARDING.md`) |
+| Journey engineer guide | DONE_VERIFIED (`docs/wo017/JOURNEY_ENGINEER_GUIDE.md`) |
 | Repository-wide cleanup WO | NOT_YET_REQUIRED |
 | Backup/restore tested | UNKNOWN |
 | USER_VISUAL_ACCEPTANCE (homepage) | AWAITING_USER |
@@ -81,13 +81,12 @@ Deduplicated across Phase 2 / Master-008 / Delta-009 / WO-012–015. Status voca
 | Document | NO_TRIGGER | Metadata in snapshots only |
 | Supplier | BLOCKED | Marketplace upstream |
 | Opportunity | BLOCKED | Investment upstream |
-| Quote | BLOCKED | Business decisions |
+| Quote | DONE_VERIFIED | WO-018 — see `docs/wo018/WO018_MIGRATION_REPORT.md` |
 | OperationalProject | BLOCKED | Upstream commercial |
 
 ## Next READY_NOW (priority)
 
-1. Journey #11 — Real Estate Marketing (if regression budget allows)
-2. Decision Inbox — surface Quote blockers from `docs/business-lab-decisions.md`
-3. Formal migration report + journey engineer guide
-4. OIDC closure when external credentials available
-5. Git identity configuration for logical commits
+1. CI runtime verification (`gh workflow run`)
+2. OIDC closure when external credentials available
+3. USER_VISUAL_ACCEPTANCE (homepage)
+4. Contract BO (deferred until accepted proposal)
