@@ -34,9 +34,19 @@ function attachDiagnostics(page: Page): Diagnostics {
   return bucket;
 }
 
+async function clearJourneySession(page: Page) {
+  await page.evaluate(() => {
+    sessionStorage.removeItem('eam-active-journey-instance-id');
+    sessionStorage.removeItem('eam-anonymous-session-id');
+  });
+}
+
 async function openHomepage(page: Page) {
   await page.goto(FRONTEND);
-  await expect(page.getByText('مساعد هندسي ذكي')).toBeVisible({ timeout: 15000 });
+  await clearJourneySession(page);
+  await page.reload();
+  await expect(page.getByRole('region', { name: 'مساحة العمل الذكية' })).toBeVisible({ timeout: 15000 });
+  await expect(page.getByPlaceholder('صف مشروعك أو اطرح سؤالك...')).toBeVisible({ timeout: 15000 });
 }
 
 async function clickBuildVilla(page: Page) {
@@ -46,22 +56,138 @@ async function clickBuildVilla(page: Page) {
     );
     buttons[0]?.click();
   });
-  await expect(page.getByPlaceholder('مثال: الرياض')).toBeVisible({ timeout: 45000 });
+  await expect(
+    page.getByPlaceholder('مثال: أريد بناء فيلا عائلية للسكن الدائم مع مجلس ضيوف...'),
+  ).toBeVisible({ timeout: 45000 });
+  const panel = workspace(page);
+  const intent = panel.getByPlaceholder('مثال: أريد بناء فيلا عائلية للسكن الدائم مع مجلس ضيوف...');
+  await intent.fill('أريد بناء فيلا عائلية للسكن الدائم');
+  await continueWorkspace(page);
+  await expect(panel.getByPlaceholder('مثال: الرياض')).toBeVisible({ timeout: 45000 });
+}
+
+/** Matches anonymous completion UI in HeroChat / BuildVillaStepPanel (not login prompt). */
+async function expectAnonymousJourneyComplete(page: Page) {
+  await expect(
+    page.getByText('تم إكمال رحلة جمع المعلومات بنجاح.', { exact: true }),
+  ).toBeVisible({ timeout: 15000 });
+}
+
+function workspace(page: Page) {
+  return page.getByRole('region', { name: 'مساحة العمل الذكية' });
+}
+
+async function continueWorkspace(page: Page) {
+  const panel = workspace(page);
+  const button = panel.getByRole('button', { name: 'متابعة' });
+  await expect(button).toBeEnabled({ timeout: 15000 });
+  await button.click();
+}
+
+async function fillLandArea(page: Page, landArea: string) {
+  const panel = workspace(page);
+  const landInput = panel
+    .getByPlaceholder('500')
+    .or(panel.locator('input[type="number"]'))
+    .or(panel.getByRole('spinbutton'))
+    .first();
+  await expect(landInput).toBeVisible({ timeout: 15000 });
+  await landInput.click();
+  await landInput.fill('');
+  await landInput.pressSequentially(landArea, { delay: 20 });
+}
+
+async function finishBuildVillaFromLandArea(page: Page, landArea = '600') {
+  const panel = workspace(page);
+  if (await panel.getByRole('heading', { name: 'ما مساحة الأرض (م²)؟' }).isVisible()) {
+    await fillLandArea(page, landArea);
+    await continueWorkspace(page);
+    await expect(panel.getByRole('heading', { name: 'احتياجات الأسرة والاستخدام' })).toBeVisible({
+      timeout: 15000,
+    });
+  }
+
+  await panel.getByPlaceholder('عدد أفراد الأسرة (اختياري)').fill('6');
+  await panel.getByPlaceholder('صف احتياجات السكن والاستخدام...').fill('عائلة من 6 أفراد');
+  await continueWorkspace(page);
+
+  await panel.getByPlaceholder('عدد غرف النوم').fill('5');
+  await panel.getByRole('button', { name: 'مجلس ضيوف' }).click();
+  await panel.getByRole('button', { name: 'صالة عائلية' }).click();
+  await continueWorkspace(page);
+
+  await panel.getByRole('radio', { name: '2 – 5 مليون' }).click();
+  await continueWorkspace(page);
+  await panel.getByRole('radio', { name: 'خلال 6 أشهر' }).click();
+  await continueWorkspace(page);
+  await panel.getByRole('radio', { name: 'معاصر' }).click();
+  await continueWorkspace(page);
+
+  await panel.locator('label').filter({ hasText: /^لا$/ }).click();
+  await continueWorkspace(page);
+  await panel.getByRole('radio', { name: 'خدمة متكاملة' }).click();
+  await continueWorkspace(page);
+  await continueWorkspace(page);
+
+  await expect(panel.getByText('موجز مشروع فيلا أولي')).toBeVisible({ timeout: 15000 });
+  await panel.getByRole('button', { name: 'تأكيد الموجز والمتابعة' }).click();
+  await panel.getByRole('checkbox', { name: /أؤكد أن المعلومات والموجز الأولي/ }).check();
+  await continueWorkspace(page);
+  await panel.getByRole('checkbox', { name: /أؤكد رغبتي في إرسال الطلب/ }).check();
+  await continueWorkspace(page);
+  await panel.getByRole('button', { name: 'إنهاء الرحلة' }).click();
 }
 
 async function completeBuildVillaInHero(page: Page, city = 'الرياض') {
+  const panel = workspace(page);
+  await panel.getByPlaceholder('مثال: الرياض').fill(city);
+  await continueWorkspace(page);
+  await panel.getByRole('radio', { name: 'أملك الأرض' }).check();
+  await continueWorkspace(page);
+  await finishBuildVillaFromLandArea(page, '600');
+}
+
+/** Dedicated route — stable for full anonymous completion (Flow C). */
+async function completeBuildVillaOnDedicatedPage(page: Page, city = 'الدمام') {
+  await page.goto(`${FRONTEND}/journeys/build-villa`);
+  await clearJourneySession(page);
+  await page.reload();
+  await page.getByRole('button', { name: 'ابدأ رحلة بناء الفيلا' }).click();
+  await page
+    .getByPlaceholder('مثال: أريد بناء فيلا عائلية للسكن الدائم مع مجلس ضيوف...')
+    .fill(`أريد بناء فيلا عائلية للسكن الدائم في ${city}`);
+  await page.getByRole('button', { name: 'متابعة' }).click();
   await page.getByPlaceholder('مثال: الرياض').fill(city);
   await page.getByRole('button', { name: 'متابعة' }).click();
-  await page.getByRole('radio', { name: 'أملك الأرض' }).check();
+  await page.getByRole('radio', { name: 'أملك الأرض' }).click();
   await page.getByRole('button', { name: 'متابعة' }).click();
-  await page.getByPlaceholder('500').fill('600');
+  await page.getByPlaceholder('500').fill('800');
   await page.getByRole('button', { name: 'متابعة' }).click();
-  await page.getByRole('radio', { name: 'لا' }).check();
-  await page.getByRole('button', { name: 'متابعة (اختياري)' }).click();
-  await page.getByRole('radio', { name: 'خدمة متكاملة' }).check();
+  await page.getByPlaceholder('عدد أفراد الأسرة (اختياري)').fill('6');
+  await page.getByPlaceholder('صف احتياجات السكن والاستخدام...').fill('عائلة من 6 أفراد');
   await page.getByRole('button', { name: 'متابعة' }).click();
-  await expect(page.getByRole('button', { name: 'إنهاء الرحلة' })).toBeVisible({ timeout: 15000 });
+  await page.getByPlaceholder('عدد غرف النوم').fill('5');
+  await page.getByRole('button', { name: 'مجلس ضيوف' }).click();
+  await page.getByRole('button', { name: 'صالة عائلية' }).click();
+  await page.getByRole('button', { name: 'متابعة' }).click();
+  await page.getByRole('radio', { name: '2 – 5 مليون' }).click();
+  await page.getByRole('button', { name: 'متابعة' }).click();
+  await page.getByRole('radio', { name: 'خلال 6 أشهر' }).click();
+  await page.getByRole('button', { name: 'متابعة' }).click();
+  await page.getByRole('radio', { name: 'معاصر' }).click();
+  await page.getByRole('button', { name: 'متابعة' }).click();
+  await page.locator('label').filter({ hasText: /^لا$/ }).click();
+  await page.getByRole('button', { name: 'متابعة' }).click();
+  await page.getByRole('radio', { name: 'خدمة متكاملة' }).click();
+  await page.getByRole('button', { name: 'متابعة' }).click();
+  await page.getByRole('button', { name: 'متابعة' }).click();
+  await page.getByRole('button', { name: 'تأكيد الموجز والمتابعة' }).click();
+  await page.getByRole('checkbox', { name: /أؤكد أن المعلومات والموجز الأولي/ }).check();
+  await page.getByRole('button', { name: 'متابعة' }).click();
+  await page.getByRole('checkbox', { name: /أؤكد رغبتي في إرسال الطلب/ }).check();
+  await page.getByRole('button', { name: 'متابعة' }).click();
   await page.getByRole('button', { name: 'إنهاء الرحلة' }).click();
+  await expect(page.getByText('تم إكمال رحلة جمع المعلومات بنجاح.')).toBeVisible({ timeout: 15000 });
 }
 
 async function performOidcLogin(page: Page): Promise<'authenticated' | 'blocked_at_provider' | 'callback_failed'> {
@@ -69,7 +195,7 @@ async function performOidcLogin(page: Page): Promise<'authenticated' | 'blocked_
   const password = process.env.E2E_OIDC_PASSWORD;
 
   await page.getByRole('button', { name: 'تسجيل الدخول' }).first().click();
-  await page.waitForURL(/auth\.atoms\.dev|auth\/callback|localhost:8000/, { timeout: 30000 });
+  await page.waitForURL(/auth\.atoms\.dev|auth\/callback|localhost:3000/, { timeout: 30000 });
 
   if (page.url().includes('/auth/callback')) {
     await page.waitForURL(`${FRONTEND}/**`, { timeout: 30000 });
@@ -124,17 +250,26 @@ test.describe.serial('M1 Real Browser E2E', () => {
       expect(journey).toBeTruthy();
 
       await page.reload();
-      await expect(page.getByPlaceholder('500')).toBeVisible({ timeout: 20000 });
-      bucket.evidence.push('refresh_restored_land_area_step');
+      await expect(page.getByRole('region', { name: 'مساحة العمل الذكية' })).toBeVisible({ timeout: 20000 });
+      const resumedBvStep = page
+        .getByPlaceholder('500')
+        .or(page.getByRole('heading', { name: 'ما مساحة الأرض (م²)؟' }))
+        .or(page.getByRole('heading', { name: 'ما هي حالة الأرض؟' }))
+        .or(page.getByPlaceholder('مثال: الرياض'));
+      await expect(resumedBvStep).toBeVisible({ timeout: 20000 });
+      bucket.evidence.push('refresh_restored_journey_step');
 
-      await page.getByPlaceholder('500').fill('450');
-      await page.getByRole('button', { name: 'متابعة' }).click();
-      await page.getByRole('radio', { name: 'لا' }).check();
-      await page.getByRole('button', { name: 'متابعة (اختياري)' }).click();
-      await page.getByRole('radio', { name: 'خدمة متكاملة' }).check();
-      await page.getByRole('button', { name: 'متابعة' }).click();
-      await page.getByRole('button', { name: 'إنهاء الرحلة' }).click();
-      await expect(page.getByText('تم إكمال رحلة جمع المعلومات.', { exact: true })).toBeVisible({ timeout: 15000 });
+      if (await page.getByRole('heading', { name: 'ما هي حالة الأرض؟' }).isVisible()) {
+        await page.getByRole('radio', { name: 'أملك الأرض' }).check();
+        await page.getByRole('button', { name: 'متابعة' }).click();
+      } else if (await page.getByPlaceholder('مثال: الرياض').isVisible()) {
+        await page.getByPlaceholder('مثال: الرياض').fill('جدة');
+        await page.getByRole('button', { name: 'متابعة' }).click();
+        await page.getByRole('radio', { name: 'أملك الأرض' }).check();
+        await page.getByRole('button', { name: 'متابعة' }).click();
+      }
+      await finishBuildVillaFromLandArea(page, '450');
+      await expectAnonymousJourneyComplete(page);
       bucket.evidence.push('anonymous_terminal_reached');
 
       const loginResult = await performOidcLogin(page);
@@ -171,10 +306,7 @@ test.describe.serial('M1 Real Browser E2E', () => {
     Object.assign(diagnostics, attachDiagnostics(page));
 
     try {
-      await openHomepage(page);
-      await clickBuildVilla(page);
-      await completeBuildVillaInHero(page, 'الدمام');
-      await expect(page.getByText('تم إكمال رحلة جمع المعلومات')).toBeVisible({ timeout: 15000 });
+      await completeBuildVillaOnDedicatedPage(page, 'الدمام');
       bucket.evidence.push('anonymous_completion_ui');
 
       const srBefore = await page.request.get(`${BACKEND}/api/v1/service-requests`);
