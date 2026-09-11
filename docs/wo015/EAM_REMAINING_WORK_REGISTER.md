@@ -1,6 +1,6 @@
 # EAM Remaining Work Register (WO-015 reconciliation)
 
-Deduplicated across Phase 2 / Master-008 / Delta-009 / WO-012–015. Status vocabulary only as listed.
+Deduplicated across Phase 2 / Master-008 / Delta-009 / WO-012–020. Status vocabulary only as listed.
 
 ## Product — Journeys (16-sector program)
 
@@ -31,8 +31,9 @@ Deduplicated across Phase 2 / Master-008 / Delta-009 / WO-012–015. Status voca
 |------|--------|
 | Service Request (submit → review → qualify) | DONE_VERIFIED |
 | Quote / Proposal | DONE_VERIFIED (WO-018 — draft → issued lifecycle) |
+| Acceptance | BLOCKED_BUSINESS_DECISION |
 | Contract | BLOCKED_UPSTREAM |
-| Payment | BLOCKED_UPSTREAM |
+| Payment | BLOCKED_BUSINESS_DECISION |
 | OperationalProject | BLOCKED_UPSTREAM |
 | Marketplace (operational) | NOT_YET_REQUIRED |
 
@@ -42,7 +43,7 @@ Deduplicated across Phase 2 / Master-008 / Delta-009 / WO-012–015. Status voca
 |------|--------|
 | OIDC production acceptance | BLOCKED_EXTERNAL |
 | M1 (16-point) | PARTIAL (credential-free paths verified) |
-| Git commit capability | DONE_VERIFIED (5 logical commits, 2026-09-11) |
+| Git commit capability | DONE_VERIFIED (logical commits through WO-019, pushed) |
 
 ## Command Center & decision intelligence
 
@@ -64,29 +65,23 @@ Deduplicated across Phase 2 / Master-008 / Delta-009 / WO-012–015. Status voca
 | Item | Status |
 |------|--------|
 | CI configuration | DONE_VERIFIED |
-| CI runtime verification | UNVERIFIED |
+| CI runtime verification | DONE_VERIFIED (run 34633471478) |
 | Migration report (formal) | DONE_VERIFIED (`docs/wo017/WO017_MIGRATION_REPORT.md`) |
 | Developer onboarding guide | DONE_VERIFIED (`docs/engineering/DEVELOPER_ONBOARDING.md`) |
 | Journey engineer guide | DONE_VERIFIED (`docs/wo017/JOURNEY_ENGINEER_GUIDE.md`) |
-| Repository-wide cleanup WO | NOT_YET_REQUIRED |
+| Repository-wide cleanup WO | NOT_YET_REQUIRED (APPROACHING_READY) |
 | Backup/restore tested | UNKNOWN |
 | USER_VISUAL_ACCEPTANCE (homepage) | AWAITING_USER |
 
 ## Business objects (JIT)
 
-| BO | Trigger state | Notes |
-|----|---------------|-------|
-| Property / Land | TRIGGER_EMERGING | Development journey; JSON snapshot sufficient for now |
-| Asset / Facility | TRIGGER_EMERGING | SM + FM journeys; no durable BO yet |
-| Document | NO_TRIGGER | Metadata in snapshots only |
-| Supplier | BLOCKED | Marketplace upstream |
-| Opportunity | BLOCKED | Investment upstream |
-| Quote | DONE_VERIFIED | WO-018 — see `docs/wo018/WO018_MIGRATION_REPORT.md` |
-| OperationalProject | BLOCKED | Upstream commercial |
+| BO | Status |
+|----|--------|
+| Quote | IMPLEMENTED |
+| Opportunity | NO_TRIGGER |
+| Supplier | NO_TRIGGER |
+| Contract | BLOCKED_UPSTREAM |
+| OperationalProject | BLOCKED_UPSTREAM |
+| Payment | BLOCKED_BUSINESS_DECISION |
 
-## Next READY_NOW (priority)
-
-1. CI runtime verification (`gh workflow run`)
-2. OIDC closure when external credentials available
-3. USER_VISUAL_ACCEPTANCE (homepage)
-4. Contract BO (deferred until accepted proposal)
+Canonical mirror: `docs/roadmap/EAM_REMAINING_WORK_REGISTER.md`

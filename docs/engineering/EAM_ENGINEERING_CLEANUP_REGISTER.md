@@ -1,6 +1,6 @@
 # EAM Engineering Cleanup Register
 
-**Updated:** 2026-09-11 (WO-016A)
+**Updated:** 2026-09-11 (WO-020)
 
 | ID | Category | Location | Notes | Status |
 |----|----------|----------|-------|--------|
@@ -15,4 +15,7 @@
 | CLN-007 | RESPONSIBILITY_VIOLATION | — | None P0 found | — |
 | CLN-008 | UNUSED_DEPENDENCY_CANDIDATE | — | Not audited (no blind removal) | UNKNOWN |
 
-**Cleanup readiness:** APPROACHING_READY — await commit of WO-017/018 before dead-code pass.
+| CLN-011 | LOCAL_ENV | `pnpm-workspace.yaml` regenerated locally (pnpm 11) | Untracked; breaks local eslint/build — DO NOT COMMIT | OPEN — delete locally or ignore |
+| CLN-012 | TEST_ENV | `command-center-visual.spec.ts` | Requires JWT_SECRET alignment with running uvicorn | OPEN — use CI secret locally or skip |
+
+**Cleanup readiness:** APPROACHING_READY — WO-017/018 committed; dead-code pass deferred until READY.

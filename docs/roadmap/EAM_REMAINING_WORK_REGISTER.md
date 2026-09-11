@@ -1,6 +1,6 @@
 # EAM Remaining Work Register
 
-**Canonical roadmap register** — reconciled WO-012 through WO-016H (2026-09-11).  
+**Canonical roadmap register** — reconciled through WO-020 (2026-09-11).  
 Each item appears once. Supersedes duplicate entries in phase archives.
 
 ## Product — Journeys (16-sector)
@@ -32,9 +32,9 @@ Each item appears once. Supersedes duplicate entries in phase archives.
 |-------|--------|
 | Service Request → Review → Qualify | DONE_VERIFIED |
 | Quote / Proposal | DONE_VERIFIED |
-| Acceptance | NOT_YET_REQUIRED |
+| Acceptance | BLOCKED_BUSINESS_DECISION (`docs/commercial/QUOTE_ACCEPTANCE_DECISION_RECORD.md`) |
 | Contract | BLOCKED_UPSTREAM |
-| Payment | BLOCKED_UPSTREAM |
+| Payment | BLOCKED_BUSINESS_DECISION |
 | OperationalProject | BLOCKED_UPSTREAM |
 
 ## Platform
@@ -45,27 +45,36 @@ Each item appears once. Supersedes duplicate entries in phase archives.
 | M1 full acceptance | PARTIAL |
 | USER_VISUAL_ACCEPTANCE | AWAITING_USER |
 | CI config | DONE_VERIFIED |
-| CI runtime | UNVERIFIED |
+| CI runtime | DONE_VERIFIED (GitHub Actions run 34633471478 @ 7a62c4f) |
+| Alembic head alignment | DONE_VERIFIED (`t0u1v2w3x4y5`) |
+| Git logical commits (WO-017/018/019) | DONE_VERIFIED |
 
 ## Command Center (JIT deferred)
 
-Evidence V2, Watchlist, Decision Journal, Command Palette, Since My Last Visit → **DEFERRED_JIT**
+Evidence V2 expansion, Watchlist, Decision Journal, Command Palette, Since My Last Visit → **DEFERRED_JIT**  
+Foundation (overview, pulse, search, decision inbox surfacing) → **DONE_VERIFIED / PARTIAL**
 
-## Engineering docs (WO-016G)
+## Engineering docs
 
 Developer onboarding, runbooks, engineer guides → **DONE** (`docs/engineering/`)
 
+## Cleanup
+
+| Item | Status |
+|------|--------|
+| CLEANUP_READINESS | APPROACHING_READY |
+| Final cleanup WO | NOT_YET_REQUIRED |
+
 ## NEXT_READY_NOW
 
-1. `alembic upgrade head` on dev/staging
-2. Commit WO-017 + WO-018 (57 dirty files)
-3. CI runtime verification
-4. USER_VISUAL_ACCEPTANCE
-5. Quote acceptance workflow (post-M1)
+1. Business Lab: Quote acceptance decisions (20 questions in decision record)
+2. USER_VISUAL_ACCEPTANCE (owner review, 1586×992 evidence)
+3. OIDC external prerequisites for M1 16/16 closure
 
 ## NEXT_BLOCKED
 
 - **EXTERNAL:** OIDC
-- **UPSTREAM:** Investment, Factories, Delivery, Contract, Payment, OpProject
+- **BUSINESS:** Quote acceptance, Payment policy
+- **UPSTREAM:** Investment, Factories, Delivery, Contract, OperationalProject
 
 Mirror: `docs/wo015/EAM_REMAINING_WORK_REGISTER.md` (keep in sync on commit).

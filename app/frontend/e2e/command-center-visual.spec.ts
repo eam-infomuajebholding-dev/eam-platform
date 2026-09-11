@@ -20,8 +20,7 @@ test.describe('Command Center visual evidence', () => {
 
   test('capture desktop command center with admin session', async ({ page }) => {
     const token = mintAdminToken();
-    await page.goto(FRONTEND);
-    await page.evaluate((t) => {
+    await page.context().addInitScript((t) => {
       localStorage.setItem('token', t);
     }, token);
 
@@ -37,8 +36,7 @@ test.describe('Command Center visual evidence', () => {
   test('capture mobile emergency view', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     const token = mintAdminToken();
-    await page.goto(FRONTEND);
-    await page.evaluate((t) => {
+    await page.context().addInitScript((t) => {
       localStorage.setItem('token', t);
     }, token);
 
