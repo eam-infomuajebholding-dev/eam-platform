@@ -127,6 +127,8 @@ jobs:
         run: pip install -r requirements.txt
       - name: Install Playwright browsers
         run: pnpm exec playwright install chromium --with-deps
+      - name: Build frontend for preview
+        run: pnpm run build
       - name: Run credential-free E2E
         env:
           JWT_SECRET_KEY: ci-test-jwt-secret
@@ -144,5 +146,5 @@ jobs:
             curl -sf http://127.0.0.1:8000/health >/dev/null && curl -sf http://127.0.0.1:3000 >/dev/null && break
             sleep 2
           done
-          pnpm exec playwright test e2e/homepage-geometry.spec.ts e2e/m1-auth-smoke.spec.ts e2e/sector-registry.spec.ts
+          pnpm exec playwright test e2e/homepage-geometry.spec.ts e2e/m1-auth-smoke.spec.ts e2e/sector-registry.spec.ts e2e/query-cache-keys.spec.ts e2e/command-center.spec.ts
           kill $BACKEND_PID $FRONTEND_PID || true
