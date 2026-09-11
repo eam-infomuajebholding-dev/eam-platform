@@ -5,7 +5,7 @@
 ## Truth snapshot
 
 ```
-HEAD=5b58ed9 (+ CI fix pending)
+HEAD=7a62c4f
 BRANCH=feature/frontend-wo001-hero
 REMOTE_STATE=in sync (pre-fix)
 WORKTREE=INTENTIONALLY_DIRTY (screenshots/ untracked)

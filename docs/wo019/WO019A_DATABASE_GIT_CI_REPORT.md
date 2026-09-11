@@ -1,7 +1,7 @@
 # WO-019A — Database Convergence + Git + CI Report
 
 **Date:** 2026-09-11 (re-run from repository truth)  
-**HEAD:** `5b58ed9` → pending CI fix commit
+**HEAD:** `7a62c4f`
 
 ## Start snapshot
 
