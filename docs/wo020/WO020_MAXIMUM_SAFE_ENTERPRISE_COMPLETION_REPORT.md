@@ -9,7 +9,7 @@
 
 ```
 START_HEAD=938765b
-END_HEAD=938765b (pre-commit; WO-020 docs staged separately)
+END_HEAD=5896c89
 BRANCH=feature/frontend-wo001-hero
 ORIGIN_STATE=in sync with origin/feature/frontend-wo001-hero
 WORKTREE=INTENTIONALLY_DIRTY
