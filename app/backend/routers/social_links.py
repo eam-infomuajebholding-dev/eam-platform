@@ -9,6 +9,8 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
+from dependencies.cms_write import require_cms_admin_write
+from schemas.auth import UserResponse
 from services.social_links import Social_linksService
 
 # Set up logging
@@ -180,6 +182,7 @@ async def get_social_links(
 async def create_social_links(
     data: Social_linksData,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Create a new social_links"""
     logger.debug(f"Creating new social_links with data: {data}")
@@ -204,6 +207,7 @@ async def create_social_links(
 async def create_social_linkss_batch(
     request: Social_linksBatchCreateRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Create multiple social_linkss in a single request"""
     logger.debug(f"Batch creating {len(request.items)} social_linkss")
@@ -229,6 +233,7 @@ async def create_social_linkss_batch(
 async def update_social_linkss_batch(
     request: Social_linksBatchUpdateRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Update multiple social_linkss in a single request"""
     logger.debug(f"Batch updating {len(request.items)} social_linkss")
@@ -257,6 +262,7 @@ async def update_social_links(
     id: int,
     data: Social_linksUpdateData,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Update an existing social_links"""
     logger.debug(f"Updating social_links {id} with data: {data}")
@@ -286,6 +292,7 @@ async def update_social_links(
 async def delete_social_linkss_batch(
     request: Social_linksBatchDeleteRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Delete multiple social_linkss by their IDs"""
     logger.debug(f"Batch deleting {len(request.ids)} social_linkss")
@@ -311,6 +318,7 @@ async def delete_social_linkss_batch(
 async def delete_social_links(
     id: int,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Delete a single social_links by ID"""
     logger.debug(f"Deleting social_links with id: {id}")

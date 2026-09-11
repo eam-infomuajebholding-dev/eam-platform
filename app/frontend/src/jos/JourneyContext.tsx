@@ -8,6 +8,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { BUILD_VILLA_JOURNEY_TYPE } from '@/jos/journeys/buildVilla/types';
 import * as josClient from './josClient';
 import type {
   AdvanceJourneyInput,
@@ -36,8 +37,6 @@ export const JourneyContext = createContext<JourneyContextValue | null>(null);
 interface JourneyProviderProps {
   children: ReactNode;
 }
-
-const BUILD_VILLA_JOURNEY_TYPE = 'build_villa';
 
 function isResumable(instance: JourneyInstance): boolean {
   return instance.status === 'active' || instance.status === 'paused';

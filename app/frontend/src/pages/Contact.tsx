@@ -1,13 +1,11 @@
 import { useState } from 'react';
 import Layout from '@/components/Layout';
 import { Send, Phone, Mail, MapPin, CheckCircle, Loader2, MessageCircle } from 'lucide-react';
-import { createClient } from '@metagptx/web-sdk';
+import { client } from '@/lib/api';
 import { toast } from 'sonner';
 
 const WHATSAPP_NUMBER = '966599555437'; // رقم الشركة
 const WHATSAPP_MESSAGE = 'مرحباً، أود الاستفسار عن خدماتكم الهندسية';
-
-const client = createClient();
 
 export default function Contact() {
   const [formData, setFormData] = useState({

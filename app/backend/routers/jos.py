@@ -9,6 +9,7 @@ from dependencies.jos import get_anonymous_session_id, get_optional_current_user
 from schemas.auth import UserResponse
 from schemas.jos import (
     AdvanceJourneyRequest,
+    RevisitJourneyRequest,
     JourneyDefinitionListResponse,
     JourneyDefinitionResponse,
     JourneyEventListResponse,
@@ -175,6 +176,27 @@ async def advance_journey(
         instance = await service.advance(
             instance_id,
             input_data=data.input,
+            anonymous_session_id=anonymous_session_id,
+            user_id=current_user.id if current_user else None,
+        )
+        return instance
+    except Exception as exc:
+        raise _map_jos_error(exc) from exc
+
+
+@router.post("/instances/{instance_id}/revisit", response_model=JourneyInstanceResponse)
+async def revisit_journey_step(
+    instance_id: int,
+    data: RevisitJourneyRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: UserResponse | None = Depends(get_optional_current_user),
+    anonymous_session_id: str | None = Depends(get_anonymous_session_id),
+):
+    service = JosService(db)
+    try:
+        instance = await service.revisit_step(
+            instance_id,
+            data.target_step_key,
             anonymous_session_id=anonymous_session_id,
             user_id=current_user.id if current_user else None,
         )

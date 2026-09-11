@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import Layout from '@/components/Layout';
 import { Send, CheckCircle, Loader2 } from 'lucide-react';
-import { createClient } from '@metagptx/web-sdk';
+import { client } from '@/lib/api';
 import { toast } from 'sonner';
-
-const client = createClient();
 
 export default function Consultation() {
   const [formData, setFormData] = useState({

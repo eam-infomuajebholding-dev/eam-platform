@@ -9,6 +9,8 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
+from dependencies.cms_write import require_cms_admin_write
+from schemas.auth import UserResponse
 from services.page_sections import Page_sectionsService
 
 # Set up logging
@@ -177,6 +179,7 @@ async def get_page_sections(
 async def create_page_sections(
     data: Page_sectionsData,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Create a new page_sections"""
     logger.debug(f"Creating new page_sections with data: {data}")
@@ -201,6 +204,7 @@ async def create_page_sections(
 async def create_page_sectionss_batch(
     request: Page_sectionsBatchCreateRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Create multiple page_sectionss in a single request"""
     logger.debug(f"Batch creating {len(request.items)} page_sectionss")
@@ -226,6 +230,7 @@ async def create_page_sectionss_batch(
 async def update_page_sectionss_batch(
     request: Page_sectionsBatchUpdateRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Update multiple page_sectionss in a single request"""
     logger.debug(f"Batch updating {len(request.items)} page_sectionss")
@@ -254,6 +259,7 @@ async def update_page_sections(
     id: int,
     data: Page_sectionsUpdateData,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Update an existing page_sections"""
     logger.debug(f"Updating page_sections {id} with data: {data}")
@@ -283,6 +289,7 @@ async def update_page_sections(
 async def delete_page_sectionss_batch(
     request: Page_sectionsBatchDeleteRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Delete multiple page_sectionss by their IDs"""
     logger.debug(f"Batch deleting {len(request.ids)} page_sectionss")
@@ -308,6 +315,7 @@ async def delete_page_sectionss_batch(
 async def delete_page_sections(
     id: int,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Delete a single page_sections by ID"""
     logger.debug(f"Deleting page_sections with id: {id}")

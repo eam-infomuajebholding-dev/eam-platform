@@ -18,6 +18,18 @@ class ServiceRequestSummary(BaseModel):
         from_attributes = True
 
 
+class ServiceRequestActivityItem(BaseModel):
+    id: int
+    from_status: str
+    to_status: str
+    customer_message: str | None = None
+    event_label: str | None = None
+    created_at: datetime | None = None
+
+    class Config:
+        from_attributes = True
+
+
 class ServiceRequestDetail(BaseModel):
     id: int
     reference_code: str
@@ -29,6 +41,8 @@ class ServiceRequestDetail(BaseModel):
     source_channel: str | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
+    activity: list[ServiceRequestActivityItem] = Field(default_factory=list)
+    pending_customer_action: bool = False
 
     class Config:
         from_attributes = True

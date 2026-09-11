@@ -9,6 +9,8 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
+from dependencies.cms_write import require_cms_admin_write
+from schemas.auth import UserResponse
 from services.site_edits import Site_editsService
 
 # Set up logging
@@ -180,6 +182,7 @@ async def get_site_edits(
 async def create_site_edits(
     data: Site_editsData,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Create a new site_edits"""
     logger.debug(f"Creating new site_edits with data: {data}")
@@ -204,6 +207,7 @@ async def create_site_edits(
 async def create_site_editss_batch(
     request: Site_editsBatchCreateRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Create multiple site_editss in a single request"""
     logger.debug(f"Batch creating {len(request.items)} site_editss")
@@ -229,6 +233,7 @@ async def create_site_editss_batch(
 async def update_site_editss_batch(
     request: Site_editsBatchUpdateRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Update multiple site_editss in a single request"""
     logger.debug(f"Batch updating {len(request.items)} site_editss")
@@ -257,6 +262,7 @@ async def update_site_edits(
     id: int,
     data: Site_editsUpdateData,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Update an existing site_edits"""
     logger.debug(f"Updating site_edits {id} with data: {data}")
@@ -286,6 +292,7 @@ async def update_site_edits(
 async def delete_site_editss_batch(
     request: Site_editsBatchDeleteRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Delete multiple site_editss by their IDs"""
     logger.debug(f"Batch deleting {len(request.ids)} site_editss")
@@ -311,6 +318,7 @@ async def delete_site_editss_batch(
 async def delete_site_edits(
     id: int,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Delete a single site_edits by ID"""
     logger.debug(f"Deleting site_edits with id: {id}")

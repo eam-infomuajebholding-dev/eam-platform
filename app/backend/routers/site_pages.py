@@ -9,6 +9,8 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
+from dependencies.cms_write import require_cms_admin_write
+from schemas.auth import UserResponse
 from services.site_pages import Site_pagesService
 
 # Set up logging
@@ -180,6 +182,7 @@ async def get_site_pages(
 async def create_site_pages(
     data: Site_pagesData,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Create a new site_pages"""
     logger.debug(f"Creating new site_pages with data: {data}")
@@ -204,6 +207,7 @@ async def create_site_pages(
 async def create_site_pagess_batch(
     request: Site_pagesBatchCreateRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Create multiple site_pagess in a single request"""
     logger.debug(f"Batch creating {len(request.items)} site_pagess")
@@ -229,6 +233,7 @@ async def create_site_pagess_batch(
 async def update_site_pagess_batch(
     request: Site_pagesBatchUpdateRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Update multiple site_pagess in a single request"""
     logger.debug(f"Batch updating {len(request.items)} site_pagess")
@@ -257,6 +262,7 @@ async def update_site_pages(
     id: int,
     data: Site_pagesUpdateData,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Update an existing site_pages"""
     logger.debug(f"Updating site_pages {id} with data: {data}")
@@ -286,6 +292,7 @@ async def update_site_pages(
 async def delete_site_pagess_batch(
     request: Site_pagesBatchDeleteRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Delete multiple site_pagess by their IDs"""
     logger.debug(f"Batch deleting {len(request.ids)} site_pagess")
@@ -311,6 +318,7 @@ async def delete_site_pagess_batch(
 async def delete_site_pages(
     id: int,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Delete a single site_pages by ID"""
     logger.debug(f"Deleting site_pages with id: {id}")

@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 
-const ADMIN_PASSWORD = 'eam2024';
-const AUTH_STORAGE_KEY = 'edit_mode_authenticated';
+/** Dev-only inline editing — not production admin auth. */
+export const isDevEditModeEnabled = import.meta.env.DEV;
 
 interface EditModeContextType {
   isEditMode: boolean;
   isAuthenticated: boolean;
+  isDevEditModeAvailable: boolean;
   toggleEditMode: () => void;
   login: (password: string) => boolean;
   logout: () => void;
@@ -26,35 +27,31 @@ interface EditModeProviderProps {
 }
 
 export const EditModeProvider: React.FC<EditModeProviderProps> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    () => localStorage.getItem(AUTH_STORAGE_KEY) === 'true'
-  );
   const [isEditMode, setIsEditMode] = useState(false);
 
-  const login = useCallback((password: string): boolean => {
-    if (password === ADMIN_PASSWORD) {
-      localStorage.setItem(AUTH_STORAGE_KEY, 'true');
-      setIsAuthenticated(true);
-      setIsEditMode(true);
-      return true;
+  const toggleEditMode = useCallback(() => {
+    if (isDevEditModeEnabled) {
+      setIsEditMode((prev) => !prev);
     }
-    return false;
   }, []);
 
+  const login = useCallback((_password: string): boolean => false, []);
+
   const logout = useCallback(() => {
-    localStorage.removeItem(AUTH_STORAGE_KEY);
-    setIsAuthenticated(false);
     setIsEditMode(false);
   }, []);
 
-  const toggleEditMode = useCallback(() => {
-    if (isAuthenticated) {
-      setIsEditMode((prev) => !prev);
-    }
-  }, [isAuthenticated]);
-
   return (
-    <EditModeContext.Provider value={{ isEditMode, isAuthenticated, toggleEditMode, login, logout }}>
+    <EditModeContext.Provider
+      value={{
+        isEditMode: isDevEditModeEnabled && isEditMode,
+        isAuthenticated: isDevEditModeEnabled && isEditMode,
+        isDevEditModeAvailable: isDevEditModeEnabled,
+        toggleEditMode,
+        login,
+        logout,
+      }}
+    >
       {children}
     </EditModeContext.Provider>
   );

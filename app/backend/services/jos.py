@@ -7,10 +7,72 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models.journey_definitions import JourneyDefinition
 from models.journey_events import JourneyEvent
 from models.journey_instances import JourneyInstance
+from services.build_villa_schema import BUILD_VILLA_STEP_ORDER, REVISIT_BLOCKED_FROM
 from services.build_villa_validators import (
     FieldValidationError,
-    assemble_intake_draft,
+    assemble_intake_draft as assemble_build_villa_intake_draft,
+    assemble_preliminary_villa_brief,
     validate_build_villa_step,
+)
+from services.contracting_validators import (
+    CONTRACTING_JOURNEY_TYPE,
+    assemble_contracting_intake_draft,
+    assemble_contracting_readiness_brief,
+    validate_contracting_step,
+)
+from services.valuation_validators import (
+    REAL_ESTATE_VALUATION_JOURNEY_TYPE,
+    assemble_valuation_intake_draft,
+    assemble_valuation_readiness_brief,
+    validate_valuation_step,
+)
+from services.smart_maintenance_validators import (
+    SMART_MAINTENANCE_JOURNEY_TYPE,
+    assemble_maintenance_readiness_brief,
+    assemble_smart_maintenance_intake_draft,
+    validate_smart_maintenance_step,
+)
+from services.project_management_validators import (
+    PROJECT_MANAGEMENT_JOURNEY_TYPE,
+    assemble_project_management_intake_draft,
+    assemble_project_management_readiness_brief,
+    validate_project_management_step,
+)
+from services.facility_management_validators import (
+    FACILITY_MANAGEMENT_JOURNEY_TYPE,
+    assemble_facility_management_intake_draft,
+    assemble_facility_management_readiness_brief,
+    validate_facility_management_step,
+)
+from services.government_services_validators import (
+    GOVERNMENT_SERVICES_JOURNEY_TYPE,
+    assemble_government_services_intake_draft,
+    assemble_government_services_task_roadmap,
+    validate_government_services_step,
+)
+from services.real_estate_development_validators import (
+    REAL_ESTATE_DEVELOPMENT_JOURNEY_TYPE,
+    assemble_development_opportunity_snapshot,
+    assemble_real_estate_development_intake_draft,
+    validate_real_estate_development_step,
+)
+from services.real_estate_marketing_validators import (
+    REAL_ESTATE_MARKETING_JOURNEY_TYPE,
+    assemble_marketing_readiness_brief,
+    assemble_real_estate_marketing_intake_draft,
+    validate_real_estate_marketing_step,
+)
+from services.furnishing_validators import (
+    FURNISHING_JOURNEY_TYPE,
+    assemble_furnishing_intake_draft,
+    assemble_furnishing_readiness_brief,
+    validate_furnishing_step,
+)
+from services.engineering_consulting_validators import (
+    ENGINEERING_CONSULTING_JOURNEY_TYPE,
+    assemble_intake_draft as assemble_engineering_consulting_intake_draft,
+    assemble_preliminary_brief,
+    validate_engineering_consulting_step,
 )
 from services.jos_validators import (
     JourneyValidationError,
@@ -23,6 +85,30 @@ from services.service_requests import ServiceRequestService
 
 BUILD_VILLA_JOURNEY_TYPE = "build_villa"
 INTAKE_COMPLETE_STEP = "intake_complete"
+EC_BRIEF_REVIEW_STEP = "brief_review"
+EC_HANDOFF_COMPLETE_STEP = "handoff_complete"
+CONTRACTING_READINESS_BRIEF_STEP = "readiness_brief"
+CONTRACTING_INTAKE_COMPLETE_STEP = "intake_complete"
+
+VALUATION_READINESS_BRIEF_STEP = "readiness_brief"
+VALUATION_INTAKE_COMPLETE_STEP = "intake_complete"
+
+DUPLICATE_GUARD_JOURNEY_TYPES = frozenset(
+    {
+        BUILD_VILLA_JOURNEY_TYPE,
+        ENGINEERING_CONSULTING_JOURNEY_TYPE,
+        CONTRACTING_JOURNEY_TYPE,
+        REAL_ESTATE_VALUATION_JOURNEY_TYPE,
+        SMART_MAINTENANCE_JOURNEY_TYPE,
+        PROJECT_MANAGEMENT_JOURNEY_TYPE,
+        FURNISHING_JOURNEY_TYPE,
+        FACILITY_MANAGEMENT_JOURNEY_TYPE,
+        GOVERNMENT_SERVICES_JOURNEY_TYPE,
+        REAL_ESTATE_DEVELOPMENT_JOURNEY_TYPE,
+        REAL_ESTATE_MARKETING_JOURNEY_TYPE,
+    }
+)
+PINNED_WORKFLOW_CONTEXT_KEY = "_pinned_workflow"
 
 
 class JosAccessError(PermissionError):
@@ -87,7 +173,7 @@ class JosService:
         if not anonymous_session_id and not user_id:
             raise JourneyValidationError("anonymous_session_id or user_id is required")
 
-        if journey_type == BUILD_VILLA_JOURNEY_TYPE:
+        if journey_type in DUPLICATE_GUARD_JOURNEY_TYPES:
             existing = await self._find_active_instance(
                 journey_type=journey_type,
                 user_id=user_id,
@@ -99,6 +185,7 @@ class JosService:
         workflow = validate_workflow_definition(definition.workflow_definition)
         initial_step = workflow["initial_step"]
         context = dict(initial_context or {})
+        context[PINNED_WORKFLOW_CONTEXT_KEY] = definition.workflow_definition
 
         instance = JourneyInstance(
             journey_definition_id=definition.id,
@@ -150,7 +237,7 @@ class JosService:
             raise JosStateError("Paused journeys must be resumed before advancing")
 
         definition = await self._get_definition(instance.journey_definition_id)
-        workflow = validate_workflow_definition(definition.workflow_definition)
+        workflow = self._workflow_for_instance(instance, definition)
         from_step = instance.current_step_key
 
         self._ensure_step_can_advance(instance, workflow, from_step)
@@ -159,6 +246,136 @@ class JosService:
         if instance.journey_type == BUILD_VILLA_JOURNEY_TYPE:
             try:
                 validated_input = validate_build_villa_step(from_step, validated_input)
+            except FieldValidationError as exc:
+                await self._record_event(
+                    instance.id,
+                    event_type="validation_failed",
+                    from_step=from_step,
+                    to_step=from_step,
+                    payload={"errors": exc.errors, "input": input_data or {}},
+                )
+                await self.db.commit()
+                raise
+        elif instance.journey_type == ENGINEERING_CONSULTING_JOURNEY_TYPE:
+            try:
+                validated_input = validate_engineering_consulting_step(from_step, validated_input)
+            except FieldValidationError as exc:
+                await self._record_event(
+                    instance.id,
+                    event_type="validation_failed",
+                    from_step=from_step,
+                    to_step=from_step,
+                    payload={"errors": exc.errors, "input": input_data or {}},
+                )
+                await self.db.commit()
+                raise
+        elif instance.journey_type == CONTRACTING_JOURNEY_TYPE:
+            try:
+                validated_input = validate_contracting_step(from_step, validated_input)
+            except FieldValidationError as exc:
+                await self._record_event(
+                    instance.id,
+                    event_type="validation_failed",
+                    from_step=from_step,
+                    to_step=from_step,
+                    payload={"errors": exc.errors, "input": input_data or {}},
+                )
+                await self.db.commit()
+                raise
+        elif instance.journey_type == REAL_ESTATE_VALUATION_JOURNEY_TYPE:
+            try:
+                validated_input = validate_valuation_step(from_step, validated_input)
+            except FieldValidationError as exc:
+                await self._record_event(
+                    instance.id,
+                    event_type="validation_failed",
+                    from_step=from_step,
+                    to_step=from_step,
+                    payload={"errors": exc.errors, "input": input_data or {}},
+                )
+                await self.db.commit()
+                raise
+        elif instance.journey_type == SMART_MAINTENANCE_JOURNEY_TYPE:
+            try:
+                validated_input = validate_smart_maintenance_step(from_step, validated_input)
+            except FieldValidationError as exc:
+                await self._record_event(
+                    instance.id,
+                    event_type="validation_failed",
+                    from_step=from_step,
+                    to_step=from_step,
+                    payload={"errors": exc.errors, "input": input_data or {}},
+                )
+                await self.db.commit()
+                raise
+        elif instance.journey_type == PROJECT_MANAGEMENT_JOURNEY_TYPE:
+            try:
+                validated_input = validate_project_management_step(from_step, validated_input)
+            except FieldValidationError as exc:
+                await self._record_event(
+                    instance.id,
+                    event_type="validation_failed",
+                    from_step=from_step,
+                    to_step=from_step,
+                    payload={"errors": exc.errors, "input": input_data or {}},
+                )
+                await self.db.commit()
+                raise
+        elif instance.journey_type == FURNISHING_JOURNEY_TYPE:
+            try:
+                validated_input = validate_furnishing_step(from_step, validated_input)
+            except FieldValidationError as exc:
+                await self._record_event(
+                    instance.id,
+                    event_type="validation_failed",
+                    from_step=from_step,
+                    to_step=from_step,
+                    payload={"errors": exc.errors, "input": input_data or {}},
+                )
+                await self.db.commit()
+                raise
+        elif instance.journey_type == FACILITY_MANAGEMENT_JOURNEY_TYPE:
+            try:
+                validated_input = validate_facility_management_step(from_step, validated_input)
+            except FieldValidationError as exc:
+                await self._record_event(
+                    instance.id,
+                    event_type="validation_failed",
+                    from_step=from_step,
+                    to_step=from_step,
+                    payload={"errors": exc.errors, "input": input_data or {}},
+                )
+                await self.db.commit()
+                raise
+        elif instance.journey_type == GOVERNMENT_SERVICES_JOURNEY_TYPE:
+            try:
+                validated_input = validate_government_services_step(from_step, validated_input)
+            except FieldValidationError as exc:
+                await self._record_event(
+                    instance.id,
+                    event_type="validation_failed",
+                    from_step=from_step,
+                    to_step=from_step,
+                    payload={"errors": exc.errors, "input": input_data or {}},
+                )
+                await self.db.commit()
+                raise
+        elif instance.journey_type == REAL_ESTATE_DEVELOPMENT_JOURNEY_TYPE:
+            try:
+                validated_input = validate_real_estate_development_step(from_step, validated_input)
+            except FieldValidationError as exc:
+                await self._record_event(
+                    instance.id,
+                    event_type="validation_failed",
+                    from_step=from_step,
+                    to_step=from_step,
+                    payload={"errors": exc.errors, "input": input_data or {}},
+                )
+                await self.db.commit()
+                raise
+        elif instance.journey_type == REAL_ESTATE_MARKETING_JOURNEY_TYPE:
+            try:
+                validated_input = validate_real_estate_marketing_step(from_step, validated_input)
             except FieldValidationError as exc:
                 await self._record_event(
                     instance.id,
@@ -179,9 +396,145 @@ class JosService:
 
         if (
             instance.journey_type == BUILD_VILLA_JOURNEY_TYPE
+            and next_step == EC_BRIEF_REVIEW_STEP
+        ):
+            merged_context["preliminary_brief"] = assemble_preliminary_villa_brief(merged_context)
+
+        if (
+            instance.journey_type == BUILD_VILLA_JOURNEY_TYPE
             and next_step == INTAKE_COMPLETE_STEP
         ):
-            merged_context["intake_draft"] = assemble_intake_draft(merged_context)
+            merged_context["intake_draft"] = assemble_build_villa_intake_draft(merged_context)
+            merged_context["draft_status"] = "ready_for_handoff"
+
+        if (
+            instance.journey_type == ENGINEERING_CONSULTING_JOURNEY_TYPE
+            and next_step == EC_BRIEF_REVIEW_STEP
+        ):
+            merged_context["preliminary_brief"] = assemble_preliminary_brief(merged_context)
+
+        if (
+            instance.journey_type == ENGINEERING_CONSULTING_JOURNEY_TYPE
+            and next_step == EC_HANDOFF_COMPLETE_STEP
+        ):
+            merged_context["intake_draft"] = assemble_engineering_consulting_intake_draft(merged_context)
+            merged_context["draft_status"] = "ready_for_handoff"
+
+        if (
+            instance.journey_type == CONTRACTING_JOURNEY_TYPE
+            and next_step == CONTRACTING_READINESS_BRIEF_STEP
+        ):
+            merged_context["preliminary_brief"] = assemble_contracting_readiness_brief(merged_context)
+
+        if (
+            instance.journey_type == CONTRACTING_JOURNEY_TYPE
+            and next_step == CONTRACTING_INTAKE_COMPLETE_STEP
+        ):
+            merged_context["intake_draft"] = assemble_contracting_intake_draft(merged_context)
+            merged_context["draft_status"] = "ready_for_handoff"
+
+        if (
+            instance.journey_type == REAL_ESTATE_VALUATION_JOURNEY_TYPE
+            and next_step == VALUATION_READINESS_BRIEF_STEP
+        ):
+            merged_context["preliminary_brief"] = assemble_valuation_readiness_brief(merged_context)
+
+        if (
+            instance.journey_type == REAL_ESTATE_VALUATION_JOURNEY_TYPE
+            and next_step == VALUATION_INTAKE_COMPLETE_STEP
+        ):
+            merged_context["intake_draft"] = assemble_valuation_intake_draft(merged_context)
+            merged_context["draft_status"] = "ready_for_handoff"
+
+        if (
+            instance.journey_type == SMART_MAINTENANCE_JOURNEY_TYPE
+            and next_step == VALUATION_READINESS_BRIEF_STEP
+        ):
+            merged_context["preliminary_brief"] = assemble_maintenance_readiness_brief(merged_context)
+
+        if (
+            instance.journey_type == SMART_MAINTENANCE_JOURNEY_TYPE
+            and next_step == VALUATION_INTAKE_COMPLETE_STEP
+        ):
+            merged_context["intake_draft"] = assemble_smart_maintenance_intake_draft(merged_context)
+            merged_context["draft_status"] = "ready_for_handoff"
+
+        if (
+            instance.journey_type == PROJECT_MANAGEMENT_JOURNEY_TYPE
+            and next_step == VALUATION_READINESS_BRIEF_STEP
+        ):
+            merged_context["preliminary_brief"] = assemble_project_management_readiness_brief(merged_context)
+
+        if (
+            instance.journey_type == PROJECT_MANAGEMENT_JOURNEY_TYPE
+            and next_step == VALUATION_INTAKE_COMPLETE_STEP
+        ):
+            merged_context["intake_draft"] = assemble_project_management_intake_draft(merged_context)
+            merged_context["draft_status"] = "ready_for_handoff"
+
+        if (
+            instance.journey_type == FURNISHING_JOURNEY_TYPE
+            and next_step == VALUATION_READINESS_BRIEF_STEP
+        ):
+            merged_context["preliminary_brief"] = assemble_furnishing_readiness_brief(merged_context)
+
+        if (
+            instance.journey_type == FURNISHING_JOURNEY_TYPE
+            and next_step == VALUATION_INTAKE_COMPLETE_STEP
+        ):
+            merged_context["intake_draft"] = assemble_furnishing_intake_draft(merged_context)
+            merged_context["draft_status"] = "ready_for_handoff"
+
+        if (
+            instance.journey_type == FACILITY_MANAGEMENT_JOURNEY_TYPE
+            and next_step == VALUATION_READINESS_BRIEF_STEP
+        ):
+            merged_context["preliminary_brief"] = assemble_facility_management_readiness_brief(merged_context)
+
+        if (
+            instance.journey_type == FACILITY_MANAGEMENT_JOURNEY_TYPE
+            and next_step == VALUATION_INTAKE_COMPLETE_STEP
+        ):
+            merged_context["intake_draft"] = assemble_facility_management_intake_draft(merged_context)
+            merged_context["draft_status"] = "ready_for_handoff"
+
+        if (
+            instance.journey_type == GOVERNMENT_SERVICES_JOURNEY_TYPE
+            and next_step == "task_roadmap_brief"
+        ):
+            merged_context["preliminary_brief"] = assemble_government_services_task_roadmap(merged_context)
+
+        if (
+            instance.journey_type == GOVERNMENT_SERVICES_JOURNEY_TYPE
+            and next_step == VALUATION_INTAKE_COMPLETE_STEP
+        ):
+            merged_context["intake_draft"] = assemble_government_services_intake_draft(merged_context)
+            merged_context["draft_status"] = "ready_for_handoff"
+
+        if (
+            instance.journey_type == REAL_ESTATE_DEVELOPMENT_JOURNEY_TYPE
+            and next_step == "opportunity_snapshot_brief"
+        ):
+            merged_context["preliminary_brief"] = assemble_development_opportunity_snapshot(merged_context)
+
+        if (
+            instance.journey_type == REAL_ESTATE_DEVELOPMENT_JOURNEY_TYPE
+            and next_step == VALUATION_INTAKE_COMPLETE_STEP
+        ):
+            merged_context["intake_draft"] = assemble_real_estate_development_intake_draft(merged_context)
+            merged_context["draft_status"] = "ready_for_handoff"
+
+        if (
+            instance.journey_type == REAL_ESTATE_MARKETING_JOURNEY_TYPE
+            and next_step == "marketing_readiness_brief"
+        ):
+            merged_context["preliminary_brief"] = assemble_marketing_readiness_brief(merged_context)
+
+        if (
+            instance.journey_type == REAL_ESTATE_MARKETING_JOURNEY_TYPE
+            and next_step == VALUATION_INTAKE_COMPLETE_STEP
+        ):
+            merged_context["intake_draft"] = assemble_real_estate_marketing_intake_draft(merged_context)
             merged_context["draft_status"] = "ready_for_handoff"
 
         instance.context = merged_context
@@ -198,6 +551,18 @@ class JosService:
 
         if (
             instance.journey_type == BUILD_VILLA_JOURNEY_TYPE
+            and next_step == EC_BRIEF_REVIEW_STEP
+        ):
+            await self._record_event(
+                instance.id,
+                event_type="preliminary_brief_generated",
+                from_step=from_step,
+                to_step=next_step,
+                payload={"preliminary_brief": merged_context.get("preliminary_brief")},
+            )
+
+        if (
+            instance.journey_type == BUILD_VILLA_JOURNEY_TYPE
             and next_step == INTAKE_COMPLETE_STEP
         ):
             await self._record_event(
@@ -208,6 +573,298 @@ class JosService:
                 payload={"intake_draft": merged_context.get("intake_draft")},
             )
 
+        if (
+            instance.journey_type == ENGINEERING_CONSULTING_JOURNEY_TYPE
+            and next_step == EC_BRIEF_REVIEW_STEP
+        ):
+            await self._record_event(
+                instance.id,
+                event_type="preliminary_brief_generated",
+                from_step=from_step,
+                to_step=next_step,
+                payload={"preliminary_brief": merged_context.get("preliminary_brief")},
+            )
+
+        if (
+            instance.journey_type == ENGINEERING_CONSULTING_JOURNEY_TYPE
+            and next_step == EC_HANDOFF_COMPLETE_STEP
+        ):
+            await self._record_event(
+                instance.id,
+                event_type="intake_draft_assembled",
+                from_step=from_step,
+                to_step=next_step,
+                payload={"intake_draft": merged_context.get("intake_draft")},
+            )
+
+        if (
+            instance.journey_type == CONTRACTING_JOURNEY_TYPE
+            and next_step == CONTRACTING_READINESS_BRIEF_STEP
+        ):
+            await self._record_event(
+                instance.id,
+                event_type="preliminary_brief_generated",
+                from_step=from_step,
+                to_step=next_step,
+                payload={"preliminary_brief": merged_context.get("preliminary_brief")},
+            )
+
+        if (
+            instance.journey_type == CONTRACTING_JOURNEY_TYPE
+            and next_step == CONTRACTING_INTAKE_COMPLETE_STEP
+        ):
+            await self._record_event(
+                instance.id,
+                event_type="intake_draft_assembled",
+                from_step=from_step,
+                to_step=next_step,
+                payload={"intake_draft": merged_context.get("intake_draft")},
+            )
+
+        if (
+            instance.journey_type == REAL_ESTATE_VALUATION_JOURNEY_TYPE
+            and next_step == VALUATION_READINESS_BRIEF_STEP
+        ):
+            await self._record_event(
+                instance.id,
+                event_type="preliminary_brief_generated",
+                from_step=from_step,
+                to_step=next_step,
+                payload={"preliminary_brief": merged_context.get("preliminary_brief")},
+            )
+
+        if (
+            instance.journey_type == REAL_ESTATE_VALUATION_JOURNEY_TYPE
+            and next_step == VALUATION_INTAKE_COMPLETE_STEP
+        ):
+            await self._record_event(
+                instance.id,
+                event_type="intake_draft_assembled",
+                from_step=from_step,
+                to_step=next_step,
+                payload={"intake_draft": merged_context.get("intake_draft")},
+            )
+
+        if (
+            instance.journey_type == SMART_MAINTENANCE_JOURNEY_TYPE
+            and next_step == VALUATION_READINESS_BRIEF_STEP
+        ):
+            await self._record_event(
+                instance.id,
+                event_type="preliminary_brief_generated",
+                from_step=from_step,
+                to_step=next_step,
+                payload={"preliminary_brief": merged_context.get("preliminary_brief")},
+            )
+
+        if (
+            instance.journey_type == SMART_MAINTENANCE_JOURNEY_TYPE
+            and next_step == VALUATION_INTAKE_COMPLETE_STEP
+        ):
+            await self._record_event(
+                instance.id,
+                event_type="intake_draft_assembled",
+                from_step=from_step,
+                to_step=next_step,
+                payload={"intake_draft": merged_context.get("intake_draft")},
+            )
+
+        if (
+            instance.journey_type == PROJECT_MANAGEMENT_JOURNEY_TYPE
+            and next_step == VALUATION_READINESS_BRIEF_STEP
+        ):
+            await self._record_event(
+                instance.id,
+                event_type="preliminary_brief_generated",
+                from_step=from_step,
+                to_step=next_step,
+                payload={"preliminary_brief": merged_context.get("preliminary_brief")},
+            )
+
+        if (
+            instance.journey_type == PROJECT_MANAGEMENT_JOURNEY_TYPE
+            and next_step == VALUATION_INTAKE_COMPLETE_STEP
+        ):
+            await self._record_event(
+                instance.id,
+                event_type="intake_draft_assembled",
+                from_step=from_step,
+                to_step=next_step,
+                payload={"intake_draft": merged_context.get("intake_draft")},
+            )
+
+        if (
+            instance.journey_type == FURNISHING_JOURNEY_TYPE
+            and next_step == VALUATION_READINESS_BRIEF_STEP
+        ):
+            await self._record_event(
+                instance.id,
+                event_type="preliminary_brief_generated",
+                from_step=from_step,
+                to_step=next_step,
+                payload={"preliminary_brief": merged_context.get("preliminary_brief")},
+            )
+
+        if (
+            instance.journey_type == FURNISHING_JOURNEY_TYPE
+            and next_step == VALUATION_INTAKE_COMPLETE_STEP
+        ):
+            await self._record_event(
+                instance.id,
+                event_type="intake_draft_assembled",
+                from_step=from_step,
+                to_step=next_step,
+                payload={"intake_draft": merged_context.get("intake_draft")},
+            )
+
+        if (
+            instance.journey_type == FACILITY_MANAGEMENT_JOURNEY_TYPE
+            and next_step == VALUATION_READINESS_BRIEF_STEP
+        ):
+            await self._record_event(
+                instance.id,
+                event_type="preliminary_brief_generated",
+                from_step=from_step,
+                to_step=next_step,
+                payload={"preliminary_brief": merged_context.get("preliminary_brief")},
+            )
+
+        if (
+            instance.journey_type == FACILITY_MANAGEMENT_JOURNEY_TYPE
+            and next_step == VALUATION_INTAKE_COMPLETE_STEP
+        ):
+            await self._record_event(
+                instance.id,
+                event_type="intake_draft_assembled",
+                from_step=from_step,
+                to_step=next_step,
+                payload={"intake_draft": merged_context.get("intake_draft")},
+            )
+
+        if (
+            instance.journey_type == GOVERNMENT_SERVICES_JOURNEY_TYPE
+            and next_step == "task_roadmap_brief"
+        ):
+            await self._record_event(
+                instance.id,
+                event_type="preliminary_brief_generated",
+                from_step=from_step,
+                to_step=next_step,
+                payload={"preliminary_brief": merged_context.get("preliminary_brief")},
+            )
+
+        if (
+            instance.journey_type == GOVERNMENT_SERVICES_JOURNEY_TYPE
+            and next_step == VALUATION_INTAKE_COMPLETE_STEP
+        ):
+            await self._record_event(
+                instance.id,
+                event_type="intake_draft_assembled",
+                from_step=from_step,
+                to_step=next_step,
+                payload={"intake_draft": merged_context.get("intake_draft")},
+            )
+
+        if (
+            instance.journey_type == REAL_ESTATE_DEVELOPMENT_JOURNEY_TYPE
+            and next_step == "opportunity_snapshot_brief"
+        ):
+            await self._record_event(
+                instance.id,
+                event_type="preliminary_brief_generated",
+                from_step=from_step,
+                to_step=next_step,
+                payload={"preliminary_brief": merged_context.get("preliminary_brief")},
+            )
+
+        if (
+            instance.journey_type == REAL_ESTATE_DEVELOPMENT_JOURNEY_TYPE
+            and next_step == VALUATION_INTAKE_COMPLETE_STEP
+        ):
+            await self._record_event(
+                instance.id,
+                event_type="intake_draft_assembled",
+                from_step=from_step,
+                to_step=next_step,
+                payload={"intake_draft": merged_context.get("intake_draft")},
+            )
+
+        if (
+            instance.journey_type == REAL_ESTATE_MARKETING_JOURNEY_TYPE
+            and next_step == "marketing_readiness_brief"
+        ):
+            await self._record_event(
+                instance.id,
+                event_type="preliminary_brief_generated",
+                from_step=from_step,
+                to_step=next_step,
+                payload={"preliminary_brief": merged_context.get("preliminary_brief")},
+            )
+
+        if (
+            instance.journey_type == REAL_ESTATE_MARKETING_JOURNEY_TYPE
+            and next_step == VALUATION_INTAKE_COMPLETE_STEP
+        ):
+            await self._record_event(
+                instance.id,
+                event_type="intake_draft_assembled",
+                from_step=from_step,
+                to_step=next_step,
+                payload={"intake_draft": merged_context.get("intake_draft")},
+            )
+
+        await self.db.commit()
+        await self.db.refresh(instance)
+        return instance
+
+    async def revisit_step(
+        self,
+        instance_id: int,
+        target_step_key: str,
+        *,
+        anonymous_session_id: str | None = None,
+        user_id: str | None = None,
+    ) -> JourneyInstance:
+        instance = await self._get_owned_instance(
+            instance_id,
+            anonymous_session_id=anonymous_session_id,
+            user_id=user_id,
+        )
+        if instance.journey_type != BUILD_VILLA_JOURNEY_TYPE:
+            raise JosStateError("Step revisit is supported for build_villa only")
+        if instance.status != self.ACTIVE:
+            raise JosStateError("Only active journeys can revisit a step")
+        if target_step_key in REVISIT_BLOCKED_FROM:
+            raise JosStateError(f"Step '{target_step_key}' cannot be revisited")
+        if target_step_key not in BUILD_VILLA_STEP_ORDER:
+            raise JosStateError(f"Unknown revisit target step '{target_step_key}'")
+
+        current_step = instance.current_step_key
+        if current_step not in BUILD_VILLA_STEP_ORDER:
+            raise JosStateError(f"Current step '{current_step}' is not revisitable")
+
+        target_index = BUILD_VILLA_STEP_ORDER.index(target_step_key)
+        current_index = BUILD_VILLA_STEP_ORDER.index(current_step)
+        if target_index >= current_index:
+            raise JosStateError("Revisit target must be before the current step")
+
+        context = dict(instance.context or {})
+        brief_index = BUILD_VILLA_STEP_ORDER.index(EC_BRIEF_REVIEW_STEP)
+        if target_index < brief_index:
+            for key in ("preliminary_brief", "intake_draft", "draft_status", "scope_confirmed", "submit_confirmed"):
+                context.pop(key, None)
+
+        instance.context = context
+        instance.current_step_key = target_step_key
+        instance.updated_at = datetime.now(timezone.utc)
+
+        await self._record_event(
+            instance.id,
+            event_type="journey_step_revisited",
+            from_step=current_step,
+            to_step=target_step_key,
+            payload={"target_step_key": target_step_key},
+        )
         await self.db.commit()
         await self.db.refresh(instance)
         return instance
@@ -289,7 +946,7 @@ class JosService:
             return instance, existing_sr_id
 
         definition = await self._get_definition(instance.journey_definition_id)
-        workflow = validate_workflow_definition(definition.workflow_definition)
+        workflow = self._workflow_for_instance(instance, definition)
         from_step = instance.current_step_key
         step = get_step_definition(workflow, from_step)
         if step.get("terminal") is not True:
@@ -297,6 +954,42 @@ class JosService:
 
         if instance.journey_type == BUILD_VILLA_JOURNEY_TYPE and not instance.context.get("intake_draft"):
             raise JosStateError("Build Villa intake draft must be assembled before completion")
+
+        if instance.journey_type == ENGINEERING_CONSULTING_JOURNEY_TYPE and not instance.context.get("intake_draft"):
+            raise JosStateError("Engineering Consulting intake draft must be assembled before completion")
+
+        if instance.journey_type == CONTRACTING_JOURNEY_TYPE and not instance.context.get("intake_draft"):
+            raise JosStateError("Contracting intake draft must be assembled before completion")
+
+        if instance.journey_type == REAL_ESTATE_VALUATION_JOURNEY_TYPE and not instance.context.get(
+            "intake_draft"
+        ):
+            raise JosStateError("Real Estate Valuation intake draft must be assembled before completion")
+
+        if instance.journey_type == SMART_MAINTENANCE_JOURNEY_TYPE and not instance.context.get(
+            "intake_draft"
+        ):
+            raise JosStateError("Smart Maintenance intake draft must be assembled before completion")
+
+        if instance.journey_type == PROJECT_MANAGEMENT_JOURNEY_TYPE and not instance.context.get(
+            "intake_draft"
+        ):
+            raise JosStateError("Project Management intake draft must be assembled before completion")
+
+        if instance.journey_type == FURNISHING_JOURNEY_TYPE and not instance.context.get("intake_draft"):
+            raise JosStateError("Furnishing intake draft must be assembled before completion")
+
+        if instance.journey_type == FACILITY_MANAGEMENT_JOURNEY_TYPE and not instance.context.get("intake_draft"):
+            raise JosStateError("Facility Management intake draft must be assembled before completion")
+
+        if instance.journey_type == GOVERNMENT_SERVICES_JOURNEY_TYPE and not instance.context.get("intake_draft"):
+            raise JosStateError("Government Services intake draft must be assembled before completion")
+
+        if instance.journey_type == REAL_ESTATE_DEVELOPMENT_JOURNEY_TYPE and not instance.context.get("intake_draft"):
+            raise JosStateError("Real Estate Development intake draft must be assembled before completion")
+
+        if instance.journey_type == REAL_ESTATE_MARKETING_JOURNEY_TYPE and not instance.context.get("intake_draft"):
+            raise JosStateError("Real Estate Marketing intake draft must be assembled before completion")
 
         instance.status = self.COMPLETED
         instance.completed_at = datetime.now(timezone.utc)
@@ -488,6 +1181,17 @@ class JosService:
             .limit(1)
         )
         return result.scalar_one_or_none()
+
+    def _workflow_for_instance(
+        self,
+        instance: JourneyInstance,
+        definition: JourneyDefinition,
+    ) -> dict[str, Any]:
+        context = instance.context or {}
+        pinned = context.get(PINNED_WORKFLOW_CONTEXT_KEY)
+        if isinstance(pinned, dict):
+            return validate_workflow_definition(pinned)
+        return validate_workflow_definition(definition.workflow_definition)
 
     async def _get_definition(self, definition_id: int) -> JourneyDefinition:
         result = await self.db.execute(

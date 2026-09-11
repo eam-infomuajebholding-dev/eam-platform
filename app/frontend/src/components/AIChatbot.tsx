@@ -1,8 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Loader2, Bot, User } from 'lucide-react';
-import { createClient } from '@metagptx/web-sdk';
-
-const client = createClient();
+import { client } from '@/lib/api';
 
 interface Message {
   role: 'user' | 'assistant';

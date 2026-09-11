@@ -9,6 +9,8 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
+from dependencies.cms_write import require_cms_admin_write
+from schemas.auth import UserResponse
 from services.services import ServicesService
 
 # Set up logging
@@ -189,6 +191,7 @@ async def get_services(
 async def create_services(
     data: ServicesData,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Create a new services"""
     logger.debug(f"Creating new services with data: {data}")
@@ -213,6 +216,7 @@ async def create_services(
 async def create_servicess_batch(
     request: ServicesBatchCreateRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Create multiple servicess in a single request"""
     logger.debug(f"Batch creating {len(request.items)} servicess")
@@ -238,6 +242,7 @@ async def create_servicess_batch(
 async def update_servicess_batch(
     request: ServicesBatchUpdateRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Update multiple servicess in a single request"""
     logger.debug(f"Batch updating {len(request.items)} servicess")
@@ -266,6 +271,7 @@ async def update_services(
     id: int,
     data: ServicesUpdateData,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Update an existing services"""
     logger.debug(f"Updating services {id} with data: {data}")
@@ -295,6 +301,7 @@ async def update_services(
 async def delete_servicess_batch(
     request: ServicesBatchDeleteRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Delete multiple servicess by their IDs"""
     logger.debug(f"Batch deleting {len(request.ids)} servicess")
@@ -320,6 +327,7 @@ async def delete_servicess_batch(
 async def delete_services(
     id: int,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Delete a single services by ID"""
     logger.debug(f"Deleting services with id: {id}")

@@ -9,6 +9,7 @@ import pytest
 from httpx import ASGITransport
 
 from main import app
+from tests.helpers.build_villa_flow import BUILD_VILLA_V1_ADVANCE_SEQUENCE, payload_for_legacy_step
 
 
 @pytest.mark.asyncio
@@ -42,6 +43,7 @@ async def test_ai_handoff_event_and_full_journey_from_workspace():
         )
         assert start.status_code == 201, start.text
         instance_id = start.json()["id"]
+        initial_step = start.json()["current_step_key"]
 
         handoff = await client.post(
             f"/api/v1/jos/instances/{instance_id}/events",
@@ -53,21 +55,33 @@ async def test_ai_handoff_event_and_full_journey_from_workspace():
         )
         assert handoff.status_code == 201, handoff.text
 
-        steps = [
-            ({"city": "Jeddah"}, "land_ownership"),
-            ({"land_ownership_type": "owned"}, "land_area"),
-            ({"land_area_sqm": 650}, "documents_context"),
-            ({}, "desired_service"),
-            ({"desired_service": "design_only"}, "intake_complete"),
-        ]
-        for payload, expected in steps:
-            advance = await client.post(
-                f"/api/v1/jos/instances/{instance_id}/advance",
-                json={"input": payload},
-                headers=headers,
-            )
-            assert advance.status_code == 200, advance.text
-            assert advance.json()["current_step_key"] == expected
+        if initial_step == "project_intent":
+            advance_sequence = BUILD_VILLA_V1_ADVANCE_SEQUENCE
+            for payload in advance_sequence:
+                advance = await client.post(
+                    f"/api/v1/jos/instances/{instance_id}/advance",
+                    json={"input": payload},
+                    headers=headers,
+                )
+                assert advance.status_code == 200, advance.text
+        else:
+            for _ in range(20):
+                current = await client.get(f"/api/v1/jos/instances/{instance_id}", headers=headers)
+                assert current.status_code == 200, current.text
+                step_key = current.json()["current_step_key"]
+                if step_key == "intake_complete":
+                    break
+                advance = await client.post(
+                    f"/api/v1/jos/instances/{instance_id}/advance",
+                    json={"input": payload_for_legacy_step(step_key)},
+                    headers=headers,
+                )
+                assert advance.status_code == 200, advance.text
+            else:
+                raise AssertionError("Build Villa journey did not reach intake_complete")
+
+        instance_check = await client.get(f"/api/v1/jos/instances/{instance_id}", headers=headers)
+        assert instance_check.json()["current_step_key"] == "intake_complete"
 
         instance = await client.get(f"/api/v1/jos/instances/{instance_id}", headers=headers)
         assert instance.json()["context"]["intake_draft"]["city"] == "Jeddah"

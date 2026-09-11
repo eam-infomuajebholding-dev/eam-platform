@@ -9,6 +9,8 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
+from dependencies.cms_write import require_cms_admin_write
+from schemas.auth import UserResponse
 from services.site_videos import Site_videosService
 
 # Set up logging
@@ -183,6 +185,7 @@ async def get_site_videos(
 async def create_site_videos(
     data: Site_videosData,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Create a new site_videos"""
     logger.debug(f"Creating new site_videos with data: {data}")
@@ -207,6 +210,7 @@ async def create_site_videos(
 async def create_site_videoss_batch(
     request: Site_videosBatchCreateRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Create multiple site_videoss in a single request"""
     logger.debug(f"Batch creating {len(request.items)} site_videoss")
@@ -232,6 +236,7 @@ async def create_site_videoss_batch(
 async def update_site_videoss_batch(
     request: Site_videosBatchUpdateRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Update multiple site_videoss in a single request"""
     logger.debug(f"Batch updating {len(request.items)} site_videoss")
@@ -260,6 +265,7 @@ async def update_site_videos(
     id: int,
     data: Site_videosUpdateData,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Update an existing site_videos"""
     logger.debug(f"Updating site_videos {id} with data: {data}")
@@ -289,6 +295,7 @@ async def update_site_videos(
 async def delete_site_videoss_batch(
     request: Site_videosBatchDeleteRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Delete multiple site_videoss by their IDs"""
     logger.debug(f"Batch deleting {len(request.ids)} site_videoss")
@@ -314,6 +321,7 @@ async def delete_site_videoss_batch(
 async def delete_site_videos(
     id: int,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Delete a single site_videos by ID"""
     logger.debug(f"Deleting site_videos with id: {id}")

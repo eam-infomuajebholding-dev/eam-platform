@@ -16,6 +16,7 @@ from main import app
 from services.jos import JosService
 from services.jos_seed import BUILD_VILLA_WORKFLOW, upsert_journey_definition
 from services.service_requests import ServiceRequestService, ServiceRequestValidationError
+from tests.helpers.build_villa_flow import advance_build_villa_v1_to_terminal, advance_build_villa_via_http
 
 
 @pytest.fixture(autouse=True)
@@ -56,29 +57,6 @@ def auth_headers(user_id: str = "user-123", email: str = "user@example.com") -> 
     return {"Authorization": f"Bearer {token}"}
 
 
-async def advance_build_villa_to_terminal(service: JosService, instance_id: int, session_id: str):
-    instance = await service.advance(instance_id, input_data={"city": "Riyadh"}, anonymous_session_id=session_id)
-    instance = await service.advance(
-        instance.id,
-        input_data={"land_ownership_type": "owned"},
-        anonymous_session_id=session_id,
-    )
-    instance = await service.advance(
-        instance.id,
-        input_data={"land_area_sqm": 500},
-        anonymous_session_id=session_id,
-    )
-    instance = await service.advance(instance.id, input_data={}, anonymous_session_id=session_id)
-    instance = await service.advance(
-        instance.id,
-        input_data={"desired_service": "full_service"},
-        anonymous_session_id=session_id,
-    )
-    assert instance.current_step_key == "intake_complete"
-    assert instance.context.get("intake_draft")
-    return instance
-
-
 @pytest.mark.asyncio
 async def test_authenticated_complete_creates_one_service_request(db_session: AsyncSession):
     jos = JosService(db_session)
@@ -91,7 +69,7 @@ async def test_authenticated_complete_creates_one_service_request(db_session: As
         anonymous_session_id=session_id,
         user_id=user_id,
     )
-    instance = await advance_build_villa_to_terminal(jos, instance.id, session_id)
+    instance = await advance_build_villa_v1_to_terminal(jos, instance.id, session_id)
 
     completed, service_request_id = await jos.complete(instance.id, anonymous_session_id=session_id, user_id=user_id)
     assert completed.status == "completed"
@@ -102,7 +80,7 @@ async def test_authenticated_complete_creates_one_service_request(db_session: As
     assert sr.user_id == user_id
     assert sr.journey_instance_id == instance.id
     assert sr.status == "submitted"
-    assert sr.intake_snapshot["city"] == "Riyadh"
+    assert sr.intake_snapshot["city"] == "Jeddah"
     assert sr.intake_snapshot["snapshot_version"] == 1
 
 
@@ -114,7 +92,7 @@ async def test_duplicate_conversion_is_idempotent(db_session: AsyncSession):
     session_id = "anon-sr-2"
 
     instance = await jos.start_journey("build_villa", anonymous_session_id=session_id, user_id=user_id)
-    instance = await advance_build_villa_to_terminal(jos, instance.id, session_id)
+    instance = await advance_build_villa_v1_to_terminal(jos, instance.id, session_id)
     await jos.complete(instance.id, anonymous_session_id=session_id, user_id=user_id)
 
     sr1, created1 = await sr_service.create_from_journey(instance)
@@ -131,7 +109,7 @@ async def test_duplicate_complete_does_not_create_duplicate_sr(db_session: Async
     session_id = "anon-sr-3"
 
     instance = await jos.start_journey("build_villa", anonymous_session_id=session_id, user_id=user_id)
-    instance = await advance_build_villa_to_terminal(jos, instance.id, session_id)
+    instance = await advance_build_villa_v1_to_terminal(jos, instance.id, session_id)
     _, sr_id_first = await jos.complete(instance.id, anonymous_session_id=session_id, user_id=user_id)
     _, sr_id_second = await jos.complete(instance.id, anonymous_session_id=session_id, user_id=user_id)
     assert sr_id_first == sr_id_second
@@ -144,7 +122,7 @@ async def test_anonymous_complete_creates_no_service_request(db_session: AsyncSe
     session_id = "anon-only"
 
     instance = await jos.start_journey("build_villa", anonymous_session_id=session_id)
-    instance = await advance_build_villa_to_terminal(jos, instance.id, session_id)
+    instance = await advance_build_villa_v1_to_terminal(jos, instance.id, session_id)
     completed, service_request_id = await jos.complete(instance.id, anonymous_session_id=session_id)
     assert completed.status == "completed"
     assert service_request_id is None
@@ -159,7 +137,7 @@ async def test_anonymous_complete_attach_creates_catch_up_sr(db_session: AsyncSe
     user_id = "catchup-user"
 
     instance = await jos.start_journey("build_villa", anonymous_session_id=session_id)
-    instance = await advance_build_villa_to_terminal(jos, instance.id, session_id)
+    instance = await advance_build_villa_v1_to_terminal(jos, instance.id, session_id)
     await jos.complete(instance.id, anonymous_session_id=session_id)
 
     attached, service_request_id = await jos.attach_identity(
@@ -184,6 +162,11 @@ async def test_attach_on_incomplete_journey_does_not_create_sr(db_session: Async
     user_id = "incomplete-user"
 
     instance = await jos.start_journey("build_villa", anonymous_session_id=session_id)
+    await jos.advance(
+        instance.id,
+        input_data={"project_objective": "أريد بناء فيلا عائلية في جدة"},
+        anonymous_session_id=session_id,
+    )
     await jos.advance(instance.id, input_data={"city": "Jeddah"}, anonymous_session_id=session_id)
 
     attached, service_request_id = await jos.attach_identity(
@@ -203,7 +186,7 @@ async def test_missing_intake_draft_blocks_sr_creation(db_session: AsyncSession)
     session_id = "no-draft"
 
     instance = await jos.start_journey("build_villa", anonymous_session_id=session_id, user_id=user_id)
-    instance = await advance_build_villa_to_terminal(jos, instance.id, session_id)
+    instance = await advance_build_villa_v1_to_terminal(jos, instance.id, session_id)
     instance.status = "completed"
     instance.context.pop("intake_draft")
 
@@ -222,7 +205,7 @@ async def test_transaction_rollback_leaves_journey_incomplete_on_sr_failure(
     session_id = "rollback-session"
 
     instance = await jos.start_journey("build_villa", anonymous_session_id=session_id, user_id=user_id)
-    instance = await advance_build_villa_to_terminal(jos, instance.id, session_id)
+    instance = await advance_build_villa_v1_to_terminal(jos, instance.id, session_id)
     instance_id = instance.id
 
     async def fail_create(self, _instance):
@@ -247,7 +230,7 @@ async def test_service_request_created_event_emitted_once(db_session: AsyncSessi
     session_id = "event-session"
 
     instance = await jos.start_journey("build_villa", anonymous_session_id=session_id, user_id=user_id)
-    instance = await advance_build_villa_to_terminal(jos, instance.id, session_id)
+    instance = await advance_build_villa_v1_to_terminal(jos, instance.id, session_id)
     await jos.complete(instance.id, anonymous_session_id=session_id, user_id=user_id)
 
     events = await jos.list_events(instance.id)
@@ -267,7 +250,7 @@ async def test_reference_code_uniqueness_under_concurrent_creation(db_session: A
             anonymous_session_id=session_id,
             user_id=user_id,
         )
-        instance = await advance_build_villa_to_terminal(jos, instance.id, session_id)
+        instance = await advance_build_villa_v1_to_terminal(jos, instance.id, session_id)
         await jos.complete(instance.id, anonymous_session_id=session_id, user_id=user_id)
         sr_service = ServiceRequestService(db_session)
         sr = await sr_service.get_by_journey_instance_id(instance.id)
@@ -280,7 +263,7 @@ async def test_reference_code_uniqueness_under_concurrent_creation(db_session: A
 @pytest.mark.asyncio
 async def test_owner_can_list_and_view_service_requests():
     session_id = str(uuid.uuid4())
-    user_id = "api-owner"
+    user_id = f"api-owner-{uuid.uuid4()}"
     headers = {"X-Anonymous-Session-Id": session_id, **auth_headers(user_id=user_id)}
     transport = ASGITransport(app=app)
 
@@ -290,20 +273,10 @@ async def test_owner_can_list_and_view_service_requests():
             json={"journey_type": "build_villa", "anonymous_session_id": session_id},
             headers=headers,
         )
+        assert start.status_code in (200, 201), start.text
         instance_id = start.json()["id"]
-
-        for payload in [
-            {"city": "Dammam"},
-            {"land_ownership_type": "owned"},
-            {"land_area_sqm": 600},
-            {},
-            {"desired_service": "design_only"},
-        ]:
-            await client.post(
-                f"/api/v1/jos/instances/{instance_id}/advance",
-                json={"input": payload},
-                headers=headers,
-            )
+        initial_step = start.json()["current_step_key"]
+        await advance_build_villa_via_http(client, instance_id, headers, initial_step)
 
         complete = await client.post(
             f"/api/v1/jos/instances/{instance_id}/complete",
@@ -317,20 +290,20 @@ async def test_owner_can_list_and_view_service_requests():
         assert listing.status_code == 200, listing.text
         items = listing.json()["items"]
         assert any(item["id"] == sr_id for item in items)
-        assert items[0]["city"] == "Dammam"
+        assert items[0]["city"] == "Jeddah"
 
         detail = await client.get(f"/api/v1/service-requests/{sr_id}", headers=auth_headers(user_id=user_id))
         assert detail.status_code == 200, detail.text
         body = detail.json()
-        assert body["intake_snapshot"]["city"] == "Dammam"
+        assert body["intake_snapshot"]["city"] == "Jeddah"
         assert body["journey_instance_id"] == instance_id
 
 
 @pytest.mark.asyncio
 async def test_non_owner_gets_404_on_service_request_detail():
     session_id = str(uuid.uuid4())
-    owner_id = "owner-user"
-    other_id = "other-user"
+    owner_id = f"owner-user-{uuid.uuid4()}"
+    other_id = f"other-user-{uuid.uuid4()}"
     owner_headers = {"X-Anonymous-Session-Id": session_id, **auth_headers(user_id=owner_id)}
     transport = ASGITransport(app=app)
 
@@ -340,19 +313,10 @@ async def test_non_owner_gets_404_on_service_request_detail():
             json={"journey_type": "build_villa", "anonymous_session_id": session_id},
             headers=owner_headers,
         )
+        assert start.status_code in (200, 201), start.text
         instance_id = start.json()["id"]
-        for payload in [
-            {"city": "Khobar"},
-            {"land_ownership_type": "leased"},
-            {"land_area_sqm": 400},
-            {},
-            {"desired_service": "supervision"},
-        ]:
-            await client.post(
-                f"/api/v1/jos/instances/{instance_id}/advance",
-                json={"input": payload},
-                headers=owner_headers,
-            )
+        initial_step = start.json()["current_step_key"]
+        await advance_build_villa_via_http(client, instance_id, owner_headers, initial_step)
         complete = await client.post(
             f"/api/v1/jos/instances/{instance_id}/complete",
             headers=owner_headers,

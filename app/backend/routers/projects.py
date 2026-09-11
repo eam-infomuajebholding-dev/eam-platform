@@ -9,6 +9,8 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
+from dependencies.cms_write import require_cms_admin_write
+from schemas.auth import UserResponse
 from services.projects import ProjectsService
 
 # Set up logging
@@ -198,6 +200,7 @@ async def get_projects(
 async def create_projects(
     data: ProjectsData,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Create a new projects"""
     logger.debug(f"Creating new projects with data: {data}")
@@ -222,6 +225,7 @@ async def create_projects(
 async def create_projectss_batch(
     request: ProjectsBatchCreateRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Create multiple projectss in a single request"""
     logger.debug(f"Batch creating {len(request.items)} projectss")
@@ -247,6 +251,7 @@ async def create_projectss_batch(
 async def update_projectss_batch(
     request: ProjectsBatchUpdateRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Update multiple projectss in a single request"""
     logger.debug(f"Batch updating {len(request.items)} projectss")
@@ -275,6 +280,7 @@ async def update_projects(
     id: int,
     data: ProjectsUpdateData,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Update an existing projects"""
     logger.debug(f"Updating projects {id} with data: {data}")
@@ -304,6 +310,7 @@ async def update_projects(
 async def delete_projectss_batch(
     request: ProjectsBatchDeleteRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Delete multiple projectss by their IDs"""
     logger.debug(f"Batch deleting {len(request.ids)} projectss")
@@ -329,6 +336,7 @@ async def delete_projectss_batch(
 async def delete_projects(
     id: int,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Delete a single projects by ID"""
     logger.debug(f"Deleting projects with id: {id}")

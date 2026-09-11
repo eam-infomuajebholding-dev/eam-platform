@@ -6,6 +6,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from schemas.ai_contract import AI_CONTRACT_VERSION
 from schemas.ai_core import WorkspaceTurnRequest
 from services.ai_core import AICoreService
 from services.ai_core_intents import (
@@ -44,6 +45,9 @@ async def test_deterministic_handoff_action_contract():
     assert response.action == "start_journey"
     assert response.journey_type == BUILD_VILLA_JOURNEY_TYPE
     assert response.assistant_message
+    assert response.contract_version == AI_CONTRACT_VERSION
+    assert response.trace_id
+    assert response.actions
 
 
 @pytest.mark.asyncio

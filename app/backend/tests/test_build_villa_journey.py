@@ -10,6 +10,7 @@ from models.journey_definitions import JourneyDefinition
 from services.build_villa_validators import FieldValidationError, validate_build_villa_step
 from services.jos import JosService, JosStateError
 from services.jos_seed import BUILD_VILLA_WORKFLOW, upsert_journey_definition
+from tests.helpers.build_villa_flow import BUILD_VILLA_V1_ADVANCE_SEQUENCE
 
 
 @pytest.fixture
@@ -82,6 +83,16 @@ def test_documents_context_optional():
     assert len(result["document_refs"]) == 1
 
 
+def test_scope_confirm_requires_true():
+    with pytest.raises(FieldValidationError) as exc:
+        validate_build_villa_step("scope_confirm", {"scope_confirmed": False})
+    assert exc.value.errors[0]["field"] == "scope_confirmed"
+
+    assert validate_build_villa_step("scope_confirm", {"scope_confirmed": True}) == {
+        "scope_confirmed": True
+    }
+
+
 def test_invalid_document_url():
     with pytest.raises(FieldValidationError) as exc:
         validate_build_villa_step(
@@ -100,37 +111,19 @@ async def test_full_build_villa_journey(db_session: AsyncSession):
         "build_villa",
         anonymous_session_id=session_id,
     )
-    assert instance.current_step_key == "city"
+    assert instance.current_step_key == "project_intent"
 
-    instance = await service.advance(instance.id, input_data={"city": "Jeddah"}, anonymous_session_id=session_id)
-    assert instance.current_step_key == "land_ownership"
+    for payload in BUILD_VILLA_V1_ADVANCE_SEQUENCE:
+        instance = await service.advance(instance.id, input_data=payload, anonymous_session_id=session_id)
 
-    instance = await service.advance(
-        instance.id,
-        input_data={"land_ownership_type": "owned"},
-        anonymous_session_id=session_id,
-    )
-    assert instance.current_step_key == "land_area"
-
-    instance = await service.advance(
-        instance.id,
-        input_data={"land_area_sqm": 750},
-        anonymous_session_id=session_id,
-    )
-    assert instance.current_step_key == "documents_context"
-
-    instance = await service.advance(instance.id, input_data={}, anonymous_session_id=session_id)
-    assert instance.current_step_key == "desired_service"
-
-    instance = await service.advance(
-        instance.id,
-        input_data={"desired_service": "full_service"},
-        anonymous_session_id=session_id,
-    )
     assert instance.current_step_key == "intake_complete"
     assert instance.context["draft_status"] == "ready_for_handoff"
     assert instance.context["intake_draft"]["city"] == "Jeddah"
     assert instance.context["intake_draft"]["desired_service"] == "full_service"
+    assert instance.context["intake_draft"]["preliminary_brief"]["status"] == "PRELIMINARY"
+    assert instance.context["intake_draft"]["scope_confirmed"] is True
+    assert instance.context["intake_draft"]["submit_confirmed"] is True
+    assert instance.context.get("preliminary_brief")
 
     with pytest.raises(JosStateError):
         await service.advance(instance.id, input_data={"city": "Jeddah"}, anonymous_session_id=session_id)
@@ -142,6 +135,7 @@ async def test_full_build_villa_journey(db_session: AsyncSession):
     event_types = [event.event_type for event in events]
     assert "journey_started" in event_types
     assert "step_advanced" in event_types
+    assert "preliminary_brief_generated" in event_types
     assert "intake_draft_assembled" in event_types
     assert "journey_completed" in event_types
 
@@ -154,7 +148,7 @@ async def test_validation_failed_event(db_session: AsyncSession):
     instance = await service.start_journey("build_villa", anonymous_session_id=session_id)
 
     with pytest.raises(FieldValidationError):
-        await service.advance(instance.id, input_data={"city": "x"}, anonymous_session_id=session_id)
+        await service.advance(instance.id, input_data={"project_objective": "short"}, anonymous_session_id=session_id)
 
     events = await service.list_events(instance.id)
     assert any(event.event_type == "validation_failed" for event in events)
@@ -168,7 +162,7 @@ async def test_build_villa_definition_upsert(db_session: AsyncSession):
         select(JourneyDefinition).where(JourneyDefinition.journey_type == "build_villa")
     )
     definition = result.scalar_one()
-    assert definition.workflow_definition["initial_step"] == "city"
+    assert definition.workflow_definition["initial_step"] == "project_intent"
     assert definition.name == "Build Villa Discovery"
 
     await upsert_journey_definition(

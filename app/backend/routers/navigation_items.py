@@ -9,6 +9,8 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
+from dependencies.cms_write import require_cms_admin_write
+from schemas.auth import UserResponse
 from services.navigation_items import Navigation_itemsService
 
 # Set up logging
@@ -183,6 +185,7 @@ async def get_navigation_items(
 async def create_navigation_items(
     data: Navigation_itemsData,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Create a new navigation_items"""
     logger.debug(f"Creating new navigation_items with data: {data}")
@@ -207,6 +210,7 @@ async def create_navigation_items(
 async def create_navigation_itemss_batch(
     request: Navigation_itemsBatchCreateRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Create multiple navigation_itemss in a single request"""
     logger.debug(f"Batch creating {len(request.items)} navigation_itemss")
@@ -232,6 +236,7 @@ async def create_navigation_itemss_batch(
 async def update_navigation_itemss_batch(
     request: Navigation_itemsBatchUpdateRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Update multiple navigation_itemss in a single request"""
     logger.debug(f"Batch updating {len(request.items)} navigation_itemss")
@@ -260,6 +265,7 @@ async def update_navigation_items(
     id: int,
     data: Navigation_itemsUpdateData,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Update an existing navigation_items"""
     logger.debug(f"Updating navigation_items {id} with data: {data}")
@@ -289,6 +295,7 @@ async def update_navigation_items(
 async def delete_navigation_itemss_batch(
     request: Navigation_itemsBatchDeleteRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Delete multiple navigation_itemss by their IDs"""
     logger.debug(f"Batch deleting {len(request.ids)} navigation_itemss")
@@ -314,6 +321,7 @@ async def delete_navigation_itemss_batch(
 async def delete_navigation_items(
     id: int,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Delete a single navigation_items by ID"""
     logger.debug(f"Deleting navigation_items with id: {id}")

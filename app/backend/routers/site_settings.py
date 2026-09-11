@@ -9,6 +9,8 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
+from dependencies.cms_write import require_cms_admin_write
+from schemas.auth import UserResponse
 from services.site_settings import Site_settingsService
 
 # Set up logging
@@ -177,6 +179,7 @@ async def get_site_settings(
 async def create_site_settings(
     data: Site_settingsData,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Create a new site_settings"""
     logger.debug(f"Creating new site_settings with data: {data}")
@@ -201,6 +204,7 @@ async def create_site_settings(
 async def create_site_settingss_batch(
     request: Site_settingsBatchCreateRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Create multiple site_settingss in a single request"""
     logger.debug(f"Batch creating {len(request.items)} site_settingss")
@@ -226,6 +230,7 @@ async def create_site_settingss_batch(
 async def update_site_settingss_batch(
     request: Site_settingsBatchUpdateRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Update multiple site_settingss in a single request"""
     logger.debug(f"Batch updating {len(request.items)} site_settingss")
@@ -254,6 +259,7 @@ async def update_site_settings(
     id: int,
     data: Site_settingsUpdateData,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Update an existing site_settings"""
     logger.debug(f"Updating site_settings {id} with data: {data}")
@@ -283,6 +289,7 @@ async def update_site_settings(
 async def delete_site_settingss_batch(
     request: Site_settingsBatchDeleteRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Delete multiple site_settingss by their IDs"""
     logger.debug(f"Batch deleting {len(request.ids)} site_settingss")
@@ -308,6 +315,7 @@ async def delete_site_settingss_batch(
 async def delete_site_settings(
     id: int,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Delete a single site_settings by ID"""
     logger.debug(f"Deleting site_settings with id: {id}")

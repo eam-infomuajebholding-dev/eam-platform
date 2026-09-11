@@ -61,3 +61,8 @@ async def get_admin_user(current_user: UserResponse = Depends(get_current_user))
     if current_user.role != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required")
     return current_user
+
+
+async def get_owner_user(current_user: UserResponse = Depends(get_admin_user)) -> UserResponse:
+    """V1 owner authority — maps platform admin to OWNER until dedicated owner role exists."""
+    return current_user

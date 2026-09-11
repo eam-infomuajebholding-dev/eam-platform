@@ -45,6 +45,10 @@ class AdvanceJourneyRequest(BaseModel):
     input: dict[str, Any] = Field(default_factory=dict)
 
 
+class RevisitJourneyRequest(BaseModel):
+    target_step_key: str
+
+
 class RecordEventRequest(BaseModel):
     event_type: str
     payload: dict[str, Any] = Field(default_factory=dict)

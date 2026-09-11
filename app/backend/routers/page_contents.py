@@ -9,6 +9,8 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
+from dependencies.cms_write import require_cms_admin_write
+from schemas.auth import UserResponse
 from services.page_contents import Page_contentsService
 
 # Set up logging
@@ -183,6 +185,7 @@ async def get_page_contents(
 async def create_page_contents(
     data: Page_contentsData,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Create a new page_contents"""
     logger.debug(f"Creating new page_contents with data: {data}")
@@ -207,6 +210,7 @@ async def create_page_contents(
 async def create_page_contentss_batch(
     request: Page_contentsBatchCreateRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Create multiple page_contentss in a single request"""
     logger.debug(f"Batch creating {len(request.items)} page_contentss")
@@ -232,6 +236,7 @@ async def create_page_contentss_batch(
 async def update_page_contentss_batch(
     request: Page_contentsBatchUpdateRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Update multiple page_contentss in a single request"""
     logger.debug(f"Batch updating {len(request.items)} page_contentss")
@@ -260,6 +265,7 @@ async def update_page_contents(
     id: int,
     data: Page_contentsUpdateData,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Update an existing page_contents"""
     logger.debug(f"Updating page_contents {id} with data: {data}")
@@ -289,6 +295,7 @@ async def update_page_contents(
 async def delete_page_contentss_batch(
     request: Page_contentsBatchDeleteRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Delete multiple page_contentss by their IDs"""
     logger.debug(f"Batch deleting {len(request.ids)} page_contentss")
@@ -314,6 +321,7 @@ async def delete_page_contentss_batch(
 async def delete_page_contents(
     id: int,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Delete a single page_contents by ID"""
     logger.debug(f"Deleting page_contents with id: {id}")

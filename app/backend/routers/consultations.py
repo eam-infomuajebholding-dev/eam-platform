@@ -9,6 +9,8 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
+from dependencies.cms_write import require_cms_admin_write
+from schemas.auth import UserResponse
 from services.consultations import ConsultationsService
 
 # Set up logging
@@ -95,6 +97,7 @@ async def query_consultationss(
     limit: int = Query(20, ge=1, le=2000, description="Max number of records to return"),
     fields: str = Query(None, description="Comma-separated list of fields to return"),
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Query consultationss with filtering, sorting, and pagination"""
     logger.debug(f"Querying consultationss: query={query}, sort={sort}, skip={skip}, limit={limit}, fields={fields}")
@@ -132,6 +135,7 @@ async def query_consultationss_all(
     limit: int = Query(20, ge=1, le=2000, description="Max number of records to return"),
     fields: str = Query(None, description="Comma-separated list of fields to return"),
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     # Query consultationss with filtering, sorting, and pagination without user limitation
     logger.debug(f"Querying consultationss: query={query}, sort={sort}, skip={skip}, limit={limit}, fields={fields}")
@@ -166,6 +170,7 @@ async def get_consultations(
     id: int,
     fields: str = Query(None, description="Comma-separated list of fields to return"),
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Get a single consultations by ID"""
     logger.debug(f"Fetching consultations with id: {id}, fields={fields}")
@@ -213,6 +218,7 @@ async def create_consultations(
 async def create_consultationss_batch(
     request: ConsultationsBatchCreateRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Create multiple consultationss in a single request"""
     logger.debug(f"Batch creating {len(request.items)} consultationss")
@@ -238,6 +244,7 @@ async def create_consultationss_batch(
 async def update_consultationss_batch(
     request: ConsultationsBatchUpdateRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Update multiple consultationss in a single request"""
     logger.debug(f"Batch updating {len(request.items)} consultationss")
@@ -266,6 +273,7 @@ async def update_consultations(
     id: int,
     data: ConsultationsUpdateData,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Update an existing consultations"""
     logger.debug(f"Updating consultations {id} with data: {data}")
@@ -295,6 +303,7 @@ async def update_consultations(
 async def delete_consultationss_batch(
     request: ConsultationsBatchDeleteRequest,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Delete multiple consultationss by their IDs"""
     logger.debug(f"Batch deleting {len(request.ids)} consultationss")
@@ -320,6 +329,7 @@ async def delete_consultationss_batch(
 async def delete_consultations(
     id: int,
     db: AsyncSession = Depends(get_db),
+    _admin: UserResponse = Depends(require_cms_admin_write),
 ):
     """Delete a single consultations by ID"""
     logger.debug(f"Deleting consultations with id: {id}")

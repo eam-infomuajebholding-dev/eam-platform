@@ -15,6 +15,7 @@ from core.database import Base
 from main import app
 from services.jos import JosAccessError, JosDuplicateActiveJourneyError, JosService
 from services.jos_seed import BUILD_VILLA_WORKFLOW, upsert_journey_definition
+from tests.helpers.build_villa_flow import advance_build_villa_v1_to_terminal
 
 
 @pytest.fixture(autouse=True)
@@ -219,31 +220,15 @@ async def test_intake_draft_survives_attach(db_session: AsyncSession):
     user_id = "draft-user"
 
     instance = await service.start_journey("build_villa", anonymous_session_id=session_id)
-    instance = await service.advance(instance.id, input_data={"city": "Riyadh"}, anonymous_session_id=session_id)
-    instance = await service.advance(
-        instance.id,
-        input_data={"land_ownership_type": "owned"},
-        anonymous_session_id=session_id,
-    )
-    instance = await service.advance(
-        instance.id,
-        input_data={"land_area_sqm": 400},
-        anonymous_session_id=session_id,
-    )
-    instance = await service.advance(instance.id, input_data={}, anonymous_session_id=session_id)
-    instance = await service.advance(
-        instance.id,
-        input_data={"desired_service": "design_only"},
-        anonymous_session_id=session_id,
-    )
-    assert instance.context["intake_draft"]["city"] == "Riyadh"
+    instance = await advance_build_villa_v1_to_terminal(service, instance.id, session_id)
+    assert instance.context["intake_draft"]["city"] == "Jeddah"
 
     attached, _ = await service.attach_identity(
         instance.id,
         user_id=user_id,
         anonymous_session_id=session_id,
     )
-    assert attached.context["intake_draft"]["city"] == "Riyadh"
+    assert attached.context["intake_draft"]["city"] == "Jeddah"
     assert attached.anonymous_session_id == session_id
 
 
@@ -291,6 +276,15 @@ async def test_refresh_restores_same_instance_via_get():
             headers=headers,
         )
         instance_id = start.json()["id"]
+        initial_step = start.json()["current_step_key"]
+
+        if initial_step == "project_intent":
+            intent = await client.post(
+                f"/api/v1/jos/instances/{instance_id}/advance",
+                json={"input": {"project_objective": "أريد بناء فيلا عائلية في الدمام"}},
+                headers=headers,
+            )
+            assert intent.status_code == 200, intent.text
 
         advance = await client.post(
             f"/api/v1/jos/instances/{instance_id}/advance",
