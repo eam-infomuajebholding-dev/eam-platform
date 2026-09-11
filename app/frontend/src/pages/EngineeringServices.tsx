@@ -58,6 +58,12 @@ export default function EngineeringServices() {
           <p className="text-white/80 text-lg md:text-xl max-w-2xl mx-auto font-tajawal">
             نقدم حلولاً هندسية متكاملة بأعلى معايير الجودة والاحترافية
           </p>
+          <Link
+            to="/journeys/engineering-consulting"
+            className="mt-6 inline-block rounded-lg bg-gold px-6 py-3 font-tajawal font-bold text-dark hover:bg-gold-light transition-colors"
+          >
+            ابدأ الاستشارة الهندسية
+          </Link>
         </div>
       </section>
 

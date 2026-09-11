@@ -127,10 +127,10 @@ export default function GovernmentServices() {
             فريقنا المتخصص جاهز لمساعدتك في جميع الإجراءات الحكومية
           </p>
           <Link
-            to="/consultation"
+            to="/journeys/government-services"
             className="inline-block px-8 py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold font-tajawal rounded-lg text-lg transition-all duration-300 hover:shadow-[0_0_30px_rgba(201,168,76,0.4)] hover:scale-105"
           >
-            طلب استشارة
+            ابدأ رحلة الخدمات الحكومية
           </Link>
         </div>
       </section>

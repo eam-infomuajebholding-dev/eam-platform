@@ -27,15 +27,21 @@ const defaultLinks: SocialLinks = {
   website: '#',
 };
 
-const quickLinks = [
+const primaryQuickLinks = [
   { path: '/', label: 'الرئيسية' },
-  { path: '/services', label: 'خدماتنا' },
-  { path: '/about', label: 'من نحن' },
-  { path: '/projects', label: 'مشاريعنا' },
+  { path: '/about', label: 'عن EAM' },
+  { path: '/services', label: 'الخدمات' },
+  { path: '/projects', label: 'المشاريع' },
+  { path: '/invest', label: 'مستثمر معنا' },
+  { path: '/market', label: 'سوقنا' },
+  { path: '/careers', label: 'التوظيف' },
+  { path: '/blog', label: 'المدونة' },
+  { path: '/contact', label: 'تواصل معنا' },
+];
+
+const secondaryQuickLinks = [
   { path: '/team', label: 'فريقنا' },
   { path: '/consultation', label: 'طلب استشارة' },
-  { path: '/market', label: 'سوقنا' },
-  { path: '/contact', label: 'اتصل بنا' },
 ];
 
 function XIcon({ className }: { className?: string }) {
@@ -165,7 +171,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="bg-gray-50 dark:bg-[#5E5E5E] border-t border-gold/30 dark:border-gold/20 py-12 transition-colors duration-300" dir="rtl">
+    <footer className="border-t border-soft-border bg-cream-light py-12 transition-colors duration-300 dark:border-gold/20 dark:bg-[#5E5E5E]" dir="rtl">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Company Info */}
@@ -175,10 +181,10 @@ export default function Footer() {
               alt="إعمار الأصالة والمعاصرة"
               className="h-16 w-auto rounded-lg object-contain border-2 border-gold/50"
             />
-            <h3 className="text-gold font-tajawal font-bold text-lg">
+            <h3 className="font-tajawal text-lg font-bold text-deep-gold">
               إعمار الأصالة والمعاصرة للاستشارات الهندسية
             </h3>
-            <p className="text-gray-600 dark:text-white/60 text-sm leading-relaxed">
+            <p className="text-sm leading-relaxed text-ink/70 dark:text-white/60">
               نقدم خدمات هندسية واستشارية متميزة تجمع بين الأصالة والمعاصرة لتحقيق رؤية عملائنا بأعلى معايير الجودة والاحترافية.
             </p>
 
@@ -198,13 +204,26 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-gold font-bold mb-4 text-lg">روابط سريعة</h4>
+            <h4 className="mb-4 text-lg font-bold text-deep-gold">روابط سريعة</h4>
             <ul className="space-y-2">
-              {quickLinks.map((link) => (
+              {primaryQuickLinks.map((link) => (
                 <li key={link.path}>
                   <Link
                     to={link.path}
-                    className="text-gray-600 dark:text-white/70 hover:text-gold transition-colors text-sm"
+                    className="text-sm text-ink/70 transition-colors hover:text-deep-gold dark:text-white/70"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <h4 className="mb-3 mt-6 text-sm font-semibold text-ink/50 dark:text-white/50">روابط إضافية</h4>
+            <ul className="space-y-2">
+              {secondaryQuickLinks.map((link) => (
+                <li key={link.path}>
+                  <Link
+                    to={link.path}
+                    className="text-sm text-ink/70 transition-colors hover:text-deep-gold dark:text-white/70"
                   >
                     {link.label}
                   </Link>
@@ -215,8 +234,8 @@ export default function Footer() {
 
           {/* Newsletter */}
           <div>
-            <h4 className="text-gold font-bold mb-4 text-lg">النشرة البريدية</h4>
-            <p className="text-gray-600 dark:text-white/60 text-sm mb-4">
+            <h4 className="mb-4 text-lg font-bold text-deep-gold">النشرة البريدية</h4>
+            <p className="mb-4 text-sm text-ink/70 dark:text-white/60">
               اشترك للحصول على آخر الأخبار والمشاريع.
             </p>
             <form onSubmit={handleSubscribe} className="flex flex-col gap-3">
@@ -225,12 +244,12 @@ export default function Footer() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="بريدك الإلكتروني"
-                className="w-full px-4 py-3 rounded-lg bg-white dark:bg-white/10 border border-gold/30 text-[#2D2A1E] dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/40 focus:outline-none focus:border-gold transition-colors text-sm"
+                className="eam-input dark:border-white/20 dark:bg-white/10 dark:text-white dark:placeholder:text-white/40"
                 required
               />
               <button
                 type="submit"
-                className="w-full px-4 py-3 rounded-lg bg-gradient-to-l from-[#c9a84c] to-[#e8a020] text-white font-bold text-sm hover:opacity-90 transition-opacity"
+                className="eam-btn-primary w-full"
               >
                 اشترك الآن
               </button>
@@ -239,16 +258,16 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-10 pt-6 border-t border-gold/10 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-gray-500 dark:text-white/50 text-sm">
+        <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-soft-border pt-6 md:flex-row dark:border-gold/10">
+          <p className="text-sm text-ink/50 dark:text-white/50">
             © {new Date().getFullYear()} إعمار الأصالة والمعاصرة للاستشارات الهندسية. جميع الحقوق محفوظة.
           </p>
           <div className="flex items-center gap-4">
-            <Link to="/privacy" className="text-gray-500 dark:text-white/50 hover:text-gold transition-colors text-sm">
+            <Link to="/privacy" className="text-sm text-ink/50 transition-colors hover:text-deep-gold dark:text-white/50">
               سياسة الخصوصية
             </Link>
-            <span className="text-gray-300 dark:text-white/30">|</span>
-            <Link to="/terms" className="text-gray-500 dark:text-white/50 hover:text-gold transition-colors text-sm">
+            <span className="text-ink/20 dark:text-white/30">|</span>
+            <Link to="/terms" className="text-sm text-ink/50 transition-colors hover:text-deep-gold dark:text-white/50">
               الشروط والأحكام
             </Link>
           </div>

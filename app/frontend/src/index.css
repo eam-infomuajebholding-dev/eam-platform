@@ -7,6 +7,14 @@
 
 @layer base {
   :root {
+    --eam-cream: #FBF1E4;
+    --eam-cream-light: #FCEEDD;
+    --eam-cream-soft: #FAEBDD;
+    --eam-primary-gold: #C5A059;
+    --eam-deep-gold: #9A6B1F;
+    --eam-ink: #2F2922;
+    --eam-soft-border: #E6CFAE;
+
     --background: 40 30% 98%;
     --foreground: 35 25% 15%;
 
@@ -128,22 +136,40 @@ html.theme-transitioning::after {
 }
 
 @keyframes themeFlash {
-  0% { background: rgba(201, 168, 76, 0.12); }
-  40% { background: rgba(201, 168, 76, 0.06); }
+  0% { background: rgba(197, 160, 89, 0.12); }
+  40% { background: rgba(197, 160, 89, 0.06); }
   100% { background: transparent; }
+}
+
+@layer components {
+  .eam-surface {
+    @apply rounded-2xl border border-soft-border bg-cream-light;
+  }
+
+  .eam-btn-primary {
+    @apply rounded-xl bg-primary-gold px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-deep-gold;
+  }
+
+  .eam-btn-outline {
+    @apply rounded-xl border border-primary-gold bg-cream px-5 py-2.5 text-sm font-semibold text-deep-gold transition hover:bg-cream-soft;
+  }
+
+  .eam-input {
+    @apply w-full rounded-lg border border-soft-border bg-cream px-4 py-3 text-sm text-ink placeholder:text-ink/40 focus:border-primary-gold focus:outline-none;
+  }
 }
 
 @layer utilities {
   .gold-gradient {
-    @apply bg-gradient-to-r from-gold-dark via-gold to-gold-light;
+    @apply bg-gradient-to-r from-deep-gold via-primary-gold to-gold-light;
   }
 
   .gold-text {
-    @apply bg-gradient-to-r from-gold-dark via-gold to-gold-light bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-deep-gold via-primary-gold to-gold-light bg-clip-text text-transparent;
   }
 
   .gold-border {
-    @apply border-gold/30;
+    @apply border-soft-border;
   }
 
   /* Scroll reveal base states */
@@ -202,6 +228,109 @@ html.theme-transitioning::after {
   }
   .card-hover-gold:hover {
     transform: translateY(-8px);
-    box-shadow: 0 10px 40px rgba(201, 168, 76, 0.3), 0 4px 15px rgba(201, 168, 76, 0.15);
+    box-shadow: 0 10px 40px rgba(197, 160, 89, 0.3), 0 4px 15px rgba(197, 160, 89, 0.15);
+  }
+
+  .homepage-dashboard {
+    min-height: 0;
+  }
+
+  .eam-home {
+    --eam-home-cream: #fbf3e7;
+    --eam-home-cream-light: #fff9f1;
+    --eam-home-gold: #c68a2a;
+    --eam-home-gold-deep: #9c5b10;
+    --eam-home-gold-soft: #e6cfae;
+    --eam-home-ink: #2b2118;
+    --eam-home-border: rgba(190, 125, 35, 0.35);
+    --eam-home-shadow: 0 2px 14px rgba(139, 77, 0, 0.07);
+    background: var(--eam-home-cream);
+    color: var(--eam-home-ink);
+  }
+
+  .eam-home .eam-panel {
+    border-radius: 16px;
+    border: 1px solid var(--eam-home-border);
+    background: rgba(255, 249, 241, 0.86);
+    box-shadow: 0 2px 12px rgba(139, 77, 0, 0.06);
+  }
+
+  .eam-home .home-quick-actions {
+    display: flex;
+    width: 100%;
+    gap: 5px;
+    overflow-x: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .eam-home .home-quick-actions::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .eam-home .home-quick-actions {
+      justify-content: space-between;
+      overflow: visible;
+    }
+  }
+
+  .eam-home .home-quick-actions button {
+    display: inline-flex;
+    height: 36px;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    border-radius: 9999px;
+    border: 1px solid var(--eam-home-border);
+    background: rgba(255, 249, 241, 0.88);
+    padding: 0 10px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--eam-home-ink);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  @media (min-width: 1024px) {
+    .eam-home .home-quick-actions button {
+      height: 32px;
+      flex: 1 1 0;
+      justify-content: center;
+      max-width: none;
+      padding: 0 8px;
+      font-size: 11.5px;
+      gap: 4px;
+    }
+  }
+
+  .eam-home .home-quick-actions button:hover {
+    transform: translateY(-1px);
+    border-color: var(--eam-home-gold-deep);
+    box-shadow: 0 2px 8px rgba(139, 77, 0, 0.1);
+  }
+
+  .eam-home .home-quick-actions button svg {
+    color: var(--eam-home-gold);
+    flex-shrink: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .eam-home .home-quick-actions button:hover {
+      transform: none;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .eam-home #home-command-center .home-hero-emblem img {
+      max-height: 400px;
+      max-width: 280px;
+    }
+
+    .eam-home #home-command-center .home-hero-chat-wrap > p {
+      margin-bottom: 2px;
+      font-size: 12px;
+      line-height: 1.2;
+    }
   }
 }

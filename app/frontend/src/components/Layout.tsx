@@ -10,19 +10,20 @@ import SectionManager from './admin/SectionManager';
 import { getPageBackground, type PageBackground } from './admin/PageBackgroundEditor';
 import { getVideoFromIDB } from '@/lib/videoStorage';
 import { getCustomNavLinks, type CustomNavLink } from './admin/PageManager';
+import UserActions from './Navbar/UserActions';
 
 const navLinks = [
-  { path: '/', label: 'الرئيسية' },
-  { path: '/about', label: 'من نحن' },
-  { path: '/services', label: 'خدماتنا' },
-  { path: '/projects', label: 'مشاريعنا' },
-  { path: '/team', label: 'فريقنا' },
-  { path: '/careers', label: 'التوظيف' },
-  { path: '/invest', label: 'استثمر معنا' },
+  { path: '/about', label: 'عن EAM' },
+  { path: '/services', label: 'الخدمات' },
+  { path: '/projects', label: 'المشاريع' },
+  { path: '/invest', label: 'مستثمر معنا' },
   { path: '/market', label: 'سوقنا' },
-    { path: '/consultation', label: 'طلب استشارة' },
-  { path: '/contact', label: 'اتصل بنا' },
+  { path: '/careers', label: 'التوظيف' },
+  { path: '/blog', label: 'المدونة' },
+  { path: '/contact', label: 'تواصل معنا' },
 ];
+
+const homeNavLink = { path: '/', label: 'الرئيسية' };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
@@ -97,33 +98,54 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     setTimeout(() => setIsToggling(false), 600);
   }, [toggleTheme]);
 
+  const isHomepage = location.pathname === '/';
+  const navHeightClass = isHomepage ? 'h-[84px] min-h-[84px]' : 'h-[86px] min-h-[86px]';
+  const mainOffsetClass = isHomepage ? 'pt-[84px]' : 'pt-[86px]';
+  const resolvedNavLinks = isHomepage ? [homeNavLink, ...navLinks] : navLinks;
+  const shellClassName = isHomepage
+    ? 'min-h-screen bg-cream text-ink dark:bg-[#5E5E5E] dark:text-white font-tajawal transition-colors duration-300'
+    : 'min-h-screen bg-background dark:bg-[#5E5E5E] text-[#2D2A1E] dark:text-white font-tajawal transition-colors duration-300';
+  const navClassName = isHomepage
+    ? 'fixed top-0 right-0 left-0 z-50 border-b border-soft-border/80 bg-cream-light/95 backdrop-blur-md dark:border-gold/20 dark:bg-[#6B6B6B]/95 transition-colors duration-300'
+    : 'fixed top-0 right-0 left-0 z-50 bg-white/95 dark:bg-[#6B6B6B]/95 backdrop-blur-md border-b border-gold/30 dark:border-gold/20 transition-colors duration-300';
+
   return (
-    <div className="min-h-screen bg-background dark:bg-[#5E5E5E] text-[#2D2A1E] dark:text-white font-tajawal transition-colors duration-300" dir="rtl">
+    <div className={shellClassName} dir="rtl">
       {/* Navigation */}
-      <nav className="fixed top-0 right-0 left-0 z-50 bg-white/95 dark:bg-[#6B6B6B]/95 backdrop-blur-md border-b border-gold/30 dark:border-gold/20 transition-colors duration-300">
-        <div className="container mx-auto py-3 px-4 flex items-center justify-between">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[16px] font-normal text-[#2D2A1E] bg-[#00000000] opacity-100">
+      <nav className={navClassName}>
+        <div className={`container mx-auto flex ${navHeightClass} items-center justify-between px-4 lg:px-7`}>
+          {/* Logo — far right in RTL */}
+          <Link to="/" className={`flex shrink-0 items-center gap-2 ${isHomepage ? 'max-w-[230px]' : ''}`}>
             <img
-              src="/assets/logo.png"
+              src="/assets/eam-emblem-transparent.png"
               alt="إعمار الأصالة والمعاصرة"
-              className="h-10 md:h-12 w-auto rounded-lg object-contain border-2 border-gold/50"
+              onError={(event) => {
+                event.currentTarget.src = '/assets/logo.png';
+              }}
+              className={`w-auto object-contain ${isHomepage ? 'h-11 max-h-11' : 'h-10 md:h-12'}`}
+              loading="eager"
+              decoding="async"
             />
-            <span className="font-tajawal md:text-base hidden sm:block mt-[0px] mr-[0px] mb-[0px] ml-[0px] pt-[0px] pr-[0px] pb-[0px] pl-[0px] rounded-none text-[16px] font-bold text-[#D3B051] bg-[#00000000] opacity-100">
-              إعمار الأصالة والمعاصرة<br />Emmar Al Asala Wa Al Muasara
+            <span className={`hidden font-tajawal font-bold text-deep-gold sm:block ${isHomepage ? 'text-[14px] leading-tight' : 'text-[15px]'}`}>
+              إعمار الأصالة والمعاصرة
+              <span className={`block font-normal uppercase tracking-wide text-ink/55 ${isHomepage ? 'text-[9px]' : 'text-xs'}`}>
+                Emmar Al Asala Wa Al Muasara
+              </span>
             </span>
           </Link>
 
           {/* Desktop Nav Links */}
-          <ul className="hidden lg:flex items-center gap-1 xl:gap-3">
-            {[...navLinks, ...customNavLinks].map((link) => (
+          <ul className="hidden lg:flex items-center gap-0.5 xl:gap-1.5">
+            {[...resolvedNavLinks, ...customNavLinks].map((link) => (
               <li key={link.path}>
                 <Link
                   to={link.path}
-                  className={`px-3 py-2 rounded-md text-sm transition-colors duration-200 ${
+                  className={`px-2 py-1 rounded-md transition-colors duration-200 xl:px-2.5 ${
+                    isHomepage ? 'text-[13px]' : 'text-[13px] xl:text-sm'
+                  } ${
                     location.pathname === link.path
-                      ? 'text-gold font-bold border-b-2 border-gold'
-                      : 'text-gray-700 dark:text-white/80 hover:text-gold hover:bg-gold/5'
+                      ? 'font-bold text-deep-gold border-b-2 border-primary-gold'
+                      : 'text-ink/80 dark:text-white/80 hover:text-deep-gold hover:bg-primary-gold/10'
                   }`}
                 >
                   {link.label}
@@ -132,12 +154,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             ))}
           </ul>
 
-          {/* Theme Toggle & Mobile Menu Button */}
+          {/* Account, theme & mobile menu */}
           <div className="flex items-center gap-2">
-            {/* Theme Toggle */}
+            <div className="hidden md:block">
+              <UserActions />
+            </div>
             <button
               onClick={handleToggleTheme}
-              className="relative p-2 rounded-full bg-gold/10 dark:bg-white/10 hover:bg-gold/20 dark:hover:bg-white/20 transition-all duration-300 group"
+              className="relative rounded-full bg-primary-gold/10 p-2 transition-all duration-300 hover:bg-primary-gold/20 dark:bg-white/10 dark:hover:bg-white/20 group md:hidden"
               aria-label="تبديل الوضع"
             >
               <div
@@ -169,7 +193,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <button
               className="lg:hidden text-gold p-2 rounded-md hover:bg-gold/10 transition-colors"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle menu"
+              aria-label={mobileMenuOpen ? 'إغلاق القائمة' : 'فتح القائمة'}
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -180,7 +204,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {mobileMenuOpen && (
           <div className="lg:hidden bg-white/98 dark:bg-[#6B6B6B]/98 backdrop-blur-md border-t border-gold/20 dark:border-gold/10 transition-colors duration-300">
             <ul className="container mx-auto px-4 py-4 flex flex-col gap-2">
-              {[...navLinks, ...customNavLinks].map((link) => (
+              {[...resolvedNavLinks, ...customNavLinks].map((link) => (
                 <li key={link.path}>
                   <Link
                     to={link.path}
@@ -188,20 +212,26 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     className={`block px-4 py-3 rounded-md text-sm transition-colors duration-200 ${
                       location.pathname === link.path
                         ? 'text-gold bg-gold/10 font-bold border-r-4 border-gold'
-                        : 'text-gray-700 dark:text-white/80 hover:text-gold hover:bg-gold/5'
+                        : 'text-ink/80 dark:text-white/80 hover:text-deep-gold hover:bg-primary-gold/10'
                     }`}
                   >
                     {link.label}
                   </Link>
                 </li>
               ))}
+              <li className="mt-2 border-t border-gold/20 pt-3">
+                <UserActions
+                  variant="mobile"
+                  onNavigate={() => setMobileMenuOpen(false)}
+                />
+              </li>
             </ul>
           </div>
         )}
       </nav>
 
       {/* Main Content */}
-      <main className="pt-[72px] relative">
+      <main className={`relative ${mainOffsetClass}`}>
         {/* Background Layer */}
         {pageBg && pageBg.type === 'color' && (
           <div
@@ -233,7 +263,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="relative z-10">{children}</div>
       </main>
 
-      {/* Footer */}
       <Footer />
 
       {/* AI Chatbot */}

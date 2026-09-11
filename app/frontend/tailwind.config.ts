@@ -65,10 +65,19 @@ export default {
           border: 'hsl(var(--sidebar-border))',
           ring: 'hsl(var(--sidebar-ring))',
         },
+        cream: {
+          DEFAULT: '#FBF1E4',
+          light: '#FCEEDD',
+          soft: '#FAEBDD',
+        },
+        ink: '#2F2922',
+        'primary-gold': '#C5A059',
+        'deep-gold': '#9A6B1F',
+        'soft-border': '#E6CFAE',
         gold: {
-          DEFAULT: '#c9a84c',
-          light: '#e8d48b',
-          dark: '#a08530',
+          DEFAULT: '#C5A059',
+          light: '#E6CFAE',
+          dark: '#9A6B1F',
         },
         dark: {
           DEFAULT: '#111111',

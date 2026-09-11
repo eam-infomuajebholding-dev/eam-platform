@@ -1,75 +1,121 @@
 import { Link } from "react-router-dom";
 import { Globe, Sun, Moon } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/features/auth/context/AuthContext";
 import { client } from "@/lib/api";
 
-export default function UserActions() {
+const iconBtnClass =
+  "flex h-10 w-10 items-center justify-center rounded-full border border-soft-border text-ink/70 transition-all duration-200 hover:border-primary-gold hover:bg-cream-soft hover:text-deep-gold dark:border-white/10 dark:text-white/70 dark:hover:bg-white/10";
+
+type UserActionsProps = {
+  variant?: "desktop" | "mobile";
+  onNavigate?: () => void;
+};
+
+export default function UserActions({ variant = "desktop", onNavigate }: UserActionsProps) {
   const { theme, toggleTheme } = useTheme();
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
 
   const handleAuthEntry = async () => {
+    onNavigate?.();
     await client.auth.toLogin();
   };
 
+  const handleLogout = async () => {
+    onNavigate?.();
+    await logout();
+  };
+
+  const authControls =
+    variant === "mobile" ? (
+      <div className="flex flex-col gap-2">
+        {user ? (
+          <>
+            {isAdmin ? (
+              <Link
+                to="/command-center"
+                onClick={onNavigate}
+                className="block rounded-lg px-4 py-3 text-sm font-medium text-ink/80 transition-colors hover:text-deep-gold hover:bg-primary-gold/10 dark:text-white/80"
+              >
+                لوحة القيادة
+              </Link>
+            ) : null}
+            <Link
+              to="/my-requests"
+              onClick={onNavigate}
+              className="block rounded-lg px-4 py-3 text-sm font-medium text-ink/80 transition-colors hover:text-deep-gold hover:bg-primary-gold/10 dark:text-white/80"
+            >
+              طلباتي
+            </Link>
+            <button type="button" onClick={() => void handleLogout()} className="eam-btn-primary w-full">
+              تسجيل الخروج
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={() => void handleAuthEntry()}
+              className="block w-full rounded-lg px-4 py-3 text-sm font-medium text-ink/80 transition-colors hover:text-deep-gold hover:bg-primary-gold/10 dark:text-white/80"
+            >
+              تسجيل الدخول
+            </button>
+            <button type="button" onClick={() => void handleAuthEntry()} className="eam-btn-primary w-full">
+              إنشاء حساب
+            </button>
+          </>
+        )}
+      </div>
+    ) : user ? (
+      <>
+        {isAdmin ? (
+          <Link
+            to="/command-center"
+            className="rounded-lg px-2.5 py-2 text-[15px] font-medium text-ink/80 transition-colors hover:text-deep-gold dark:text-white/80"
+          >
+            لوحة القيادة
+          </Link>
+        ) : null}
+        <Link
+          to="/my-requests"
+          className="rounded-lg px-2.5 py-2 text-[15px] font-medium text-ink/80 transition-colors hover:text-deep-gold dark:text-white/80"
+        >
+          طلباتي
+        </Link>
+        <button type="button" onClick={() => void handleLogout()} className="eam-btn-primary">
+          تسجيل الخروج
+        </button>
+      </>
+    ) : (
+      <>
+        <button
+          type="button"
+          onClick={() => void handleAuthEntry()}
+          className="rounded-lg px-2.5 py-2 text-[15px] font-medium text-ink/80 transition-colors hover:text-deep-gold dark:text-white/80"
+        >
+          تسجيل الدخول
+        </button>
+        <button type="button" onClick={() => void handleAuthEntry()} className="eam-btn-primary">
+          إنشاء حساب
+        </button>
+      </>
+    );
+
+  if (variant === "mobile") {
+    return authControls;
+  }
+
   return (
     <div className="flex items-center gap-2 whitespace-nowrap">
-
-      {/* Language */}
-      <button
-        type="button"
-        aria-label="تغيير اللغة"
-        className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 text-gray-600 transition-all duration-200 hover:bg-gray-100 hover:border-gray-300 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/10"
-      >
+      <button type="button" aria-label="تغيير اللغة" className={iconBtnClass}>
         <Globe size={18} />
       </button>
 
-      {/* Theme */}
-      <button
-        type="button"
-        onClick={toggleTheme}
-        aria-label="تبديل الوضع"
-        className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 text-gray-600 transition-all duration-200 hover:bg-gray-100 hover:border-gray-300 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/10"
-      >
+      <button type="button" onClick={toggleTheme} aria-label="تبديل الوضع" className={iconBtnClass}>
         {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
       </button>
 
-      {user ? (
-        <>
-          <Link
-            to="/my-requests"
-            className="rounded-lg px-2.5 py-2 text-[15px] font-medium text-gray-700 transition-colors duration-200 hover:text-[#B9923F] dark:text-white/80 dark:hover:text-white"
-          >
-            طلباتي
-          </Link>
-          <button
-            type="button"
-            onClick={() => void logout()}
-            className="rounded-xl bg-[#6B7280] px-5 py-2 text-[15px] font-semibold text-white transition-all duration-200 hover:bg-[#40485d]"
-          >
-            تسجيل الخروج
-          </button>
-        </>
-      ) : (
-        <>
-          <button
-            type="button"
-            onClick={handleAuthEntry}
-            className="rounded-lg px-2.5 py-2 text-[15px] font-medium text-gray-700 transition-colors duration-200 hover:text-[#B9923F] dark:text-white/80 dark:hover:text-white"
-          >
-            تسجيل الدخول
-          </button>
-
-          <button
-            type="button"
-            onClick={handleAuthEntry}
-            className="rounded-xl bg-[#6B7280] px-5 py-2 text-[15px] font-semibold text-white transition-all duration-200 hover:bg-[#40485d]"
-          >
-            إنشاء حساب
-          </button>
-        </>
-      )}
-
+      {authControls}
     </div>
   );
 }

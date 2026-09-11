@@ -1,49 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Loader2, Bot, User } from 'lucide-react';
-import { client } from '@/lib/api';
+import { streamFaqAnswer } from '@/features/ai-workspace/aiCoreClient';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
 }
 
-const SYSTEM_PROMPT = `أنت مساعد ذكي لشركة إعمار الأصالة والمعاصرة للاستشارات الهندسية (EAM). أجب على استفسارات العملاء بشكل مهني ومختصر باللغة العربية.
-
-معلومات عن الشركة:
-- شركة إعمار الأصالة والمعاصرة للاستشارات الهندسية هي شركة سعودية رائدة في مجال الاستشارات الهندسية
-- تأسست الشركة برؤية واضحة لتقديم حلول هندسية متكاملة تجمع بين الأصالة والمعاصرة
-- حاصلة على شهادات الأيزو في الجودة
-- تسعى لتكون الرائدة إقليمياً في مجال الاستشارات الهندسية
-- تحقق نمو سنوي متواصل منذ التأسيس
-
-الخدمات الهندسية:
-1. التصميم المعماري والإنشائي
-2. إدارة المشاريع والإشراف الهندسي
-3. دراسات الجدوى الاقتصادية
-4. التصميم الداخلي والخارجي
-5. تصميم البنية التحتية
-6. الاستشارات البيئية
-7. تخطيط المدن والمناطق
-8. خدمات المساحة والطبوغرافيا
-
-الخدمات الحكومية:
-1. إصدار رخص البناء
-2. اعتماد المخططات الهندسية
-3. شهادات إتمام البناء
-4. تصاريح الدفاع المدني
-5. تقارير فحص المباني
-
-معلومات التواصل:
-- البريد الإلكتروني: info@eam.sa
-- الموقع: الرياض، المملكة العربية السعودية
-- ساعات العمل: الأحد - الخميس، 8:00 صباحاً - 5:00 مساءً
-
-قواعد الرد:
-- أجب باللغة العربية دائماً
-- كن مختصراً ومفيداً
-- إذا لم تعرف الإجابة، اقترح التواصل مع الشركة مباشرة
-- لا تختلق معلومات غير موجودة
-- كن ودوداً ومهنياً`;
+const FAQ_UNAVAILABLE_MESSAGE =
+  'عذراً، خدمة الذكاء الاصطناعي غير متاحة حالياً. يرجى المحاولة مرة أخرى أو التواصل معنا مباشرة.';
+const FAQ_ERROR_MESSAGE =
+  'عذراً، حدث خطأ. يرجى المحاولة مرة أخرى أو التواصل معنا مباشرة.';
 
 export default function AIChatbot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -64,58 +31,30 @@ export default function AIChatbot() {
     }
   }, [isOpen]);
 
-  const handleSend = async () => {
-    const trimmed = input.trim();
+  const handleSend = async (overrideMessage?: string) => {
+    const trimmed = (overrideMessage ?? input).trim();
     if (!trimmed || isLoading) return;
 
     const userMessage: Message = { role: 'user', content: trimmed };
     setMessages((prev) => [...prev, userMessage]);
-    setInput('');
+    if (!overrideMessage) {
+      setInput('');
+    }
     setIsLoading(true);
     setStreamingContent('');
 
-    const chatHistory = [...messages, userMessage].map((m) => ({
-      role: m.role as 'user' | 'assistant',
-      content: m.content,
-    }));
-
     try {
-      let accumulated = '';
-      await client.ai.gentxt({
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          ...chatHistory,
-        ],
-        model: 'deepseek-v3.2',
-        stream: true,
-        onChunk: (chunk: { content?: string }) => {
-          if (chunk.content) {
-            accumulated += chunk.content;
-            setStreamingContent(accumulated);
-          }
-        },
-        onComplete: (finalResult: { content?: string }) => {
-          const finalContent = finalResult?.content || accumulated;
-          setMessages((prev) => [...prev, { role: 'assistant', content: finalContent }]);
-          setStreamingContent('');
-          setIsLoading(false);
-        },
-        onError: (error: { message?: string }) => {
-          console.error('Chatbot error:', error);
-          setMessages((prev) => [
-            ...prev,
-            { role: 'assistant', content: 'عذراً، حدث خطأ. يرجى المحاولة مرة أخرى أو التواصل معنا مباشرة.' },
-          ]);
-          setStreamingContent('');
-          setIsLoading(false);
-        },
-        timeout: 60_000,
+      const finalContent = await streamFaqAnswer(trimmed, (accumulated) => {
+        setStreamingContent(accumulated);
       });
-    } catch {
-      setMessages((prev) => [
-        ...prev,
-        { role: 'assistant', content: 'عذراً، حدث خطأ. يرجى المحاولة مرة أخرى أو التواصل معنا مباشرة.' },
-      ]);
+
+      const assistantContent = finalContent.trim() || FAQ_UNAVAILABLE_MESSAGE;
+      setMessages((prev) => [...prev, { role: 'assistant', content: assistantContent }]);
+      setStreamingContent('');
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Chatbot error:', error);
+      setMessages((prev) => [...prev, { role: 'assistant', content: FAQ_ERROR_MESSAGE }]);
       setStreamingContent('');
       setIsLoading(false);
     }
@@ -128,12 +67,14 @@ export default function AIChatbot() {
     }
   };
 
+  const sendQuickQuestion = (question: string) => {
+    void handleSend(question);
+  };
+
   return (
     <>
-      {/* Chat Window */}
       {isOpen && (
         <div className="fixed bottom-24 right-6 z-50 w-[360px] max-w-[calc(100vw-2rem)] h-[500px] max-h-[calc(100vh-8rem)] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 fade-in duration-300">
-          {/* Header */}
           <div className="bg-[#1a1a2e] px-5 py-4 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-gold/20 flex items-center justify-center">
@@ -152,7 +93,6 @@ export default function AIChatbot() {
             </button>
           </div>
 
-          {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50" dir="rtl">
             {messages.length === 0 && !streamingContent && (
               <div className="text-center py-8">
@@ -170,13 +110,7 @@ export default function AIChatbot() {
                   ].map((q) => (
                     <button
                       key={q}
-                      onClick={() => {
-                        setInput(q);
-                        setTimeout(() => {
-                          const fakeEvent = { key: 'Enter', shiftKey: false, preventDefault: () => {} } as React.KeyboardEvent;
-                          handleKeyDown(fakeEvent);
-                        }, 100);
-                      }}
+                      onClick={() => sendQuickQuestion(q)}
                       className="block w-full text-right px-4 py-2 bg-white rounded-lg border border-gray-200 text-sm text-[#1a1a2e]/80 font-tajawal hover:border-gold/50 hover:bg-gold/5 transition-colors"
                     >
                       {q}
@@ -211,7 +145,6 @@ export default function AIChatbot() {
               </div>
             ))}
 
-            {/* Streaming message */}
             {streamingContent && (
               <div className="flex gap-2 flex-row">
                 <div className="w-7 h-7 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
@@ -224,7 +157,6 @@ export default function AIChatbot() {
               </div>
             )}
 
-            {/* Loading indicator */}
             {isLoading && !streamingContent && (
               <div className="flex gap-2 flex-row">
                 <div className="w-7 h-7 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
@@ -243,7 +175,6 @@ export default function AIChatbot() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input */}
           <div className="p-3 border-t border-gray-200 bg-white flex-shrink-0" dir="rtl">
             <div className="flex items-center gap-2">
               <input
@@ -268,7 +199,6 @@ export default function AIChatbot() {
         </div>
       )}
 
-      {/* Floating Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-110 ${
