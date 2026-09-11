@@ -7,12 +7,14 @@ from core.database import get_db
 from dependencies.auth import get_current_user
 from schemas.auth import UserResponse
 from schemas.operations_service_requests import CustomerResponseBody
+from schemas.quotes import QuoteDetailResponse
 from schemas.service_requests import (
     ServiceRequestActivityItem,
     ServiceRequestDetail,
     ServiceRequestListResponse,
     summary_from_model,
 )
+from services.quotes import QuoteService, _quote_detail_dict
 from services.service_requests import (
     SERVICE_REQUEST_STATUS_AWAITING_INFORMATION,
     ServiceRequestService,
@@ -100,3 +102,16 @@ async def submit_customer_response(
             "pending_customer_action": item.status == SERVICE_REQUEST_STATUS_AWAITING_INFORMATION,
         }
     )
+
+
+@router.get("/{request_id}/quote", response_model=QuoteDetailResponse)
+async def get_customer_issued_quote(
+    request_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: UserResponse = Depends(get_current_user),
+):
+    quote_service = QuoteService(db)
+    quote = await quote_service.get_customer_issued_quote(request_id, user_id=current_user.id)
+    if quote is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Issued quote not found")
+    return QuoteDetailResponse.model_validate(_quote_detail_dict(quote))

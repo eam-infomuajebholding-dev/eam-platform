@@ -70,7 +70,6 @@ class ExecutiveAIService:
             "platform_health": [h.model_dump() for h in overview.platform_health],
             "attention_count": len(overview.attention_items),
             "blockers": [
-                "QUOTE=BLOCKED_BUSINESS_DECISION",
                 "OIDC=BLOCKED_EXTERNAL",
             ],
         }

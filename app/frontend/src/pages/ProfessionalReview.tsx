@@ -10,6 +10,7 @@ import {
   requestMoreInformation,
   startProfessionalReview,
 } from '@/features/operations/api/operationsClient';
+import QuoteProposalPanel from '@/features/operations/components/QuoteProposalPanel';
 import { JOURNEY_TYPE_LABELS, resolveOperationalStage } from '@/features/service-requests/operationalStages';
 
 const STATUS_LABELS: Record<string, string> = {
@@ -209,12 +210,13 @@ export default function ProfessionalReviewPage() {
                     </div>
                   </>
                 ) : null}
-                {detailQuery.data.status === 'qualified' ? (
-                  <p className="text-sm text-gray-600 dark:text-white/70">
-                    تم تأهيل الطلب. الخطوة التالية: إعداد نطاق/عرض الخدمة (عند توفر قرار تجاري).
-                  </p>
-                ) : null}
               </div>
+
+              {detailQuery.data.status === 'qualified' ? (
+                <div className="rounded-xl border border-gold/20 p-4">
+                  <QuoteProposalPanel serviceRequestId={detailQuery.data.id} />
+                </div>
+              ) : null}
 
               <div>
                 <h3 className="font-bold font-tajawal mb-3">سجل المراجعة</h3>

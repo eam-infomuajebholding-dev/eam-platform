@@ -9,6 +9,7 @@ import {
   submitCustomerResponse,
 } from '@/features/service-requests/api/serviceRequestClient';
 import { serviceRequestQueryKeys } from '@/features/service-requests/queryKeys';
+import CustomerQuoteView from '@/features/service-requests/components/CustomerQuoteView';
 import {
   JOURNEY_TYPE_LABELS,
   resolveOperationalStage,
@@ -132,6 +133,8 @@ export default function ServiceRequestDetail() {
                 </div>
               ) : null}
 
+              {data.status === 'qualified' ? <CustomerQuoteView requestId={data.id} /> : null}
+
               <div>
                 <h2 className="mb-3 text-lg font-bold font-tajawal text-gray-900 dark:text-white">
                   لقطة الاستلام الأولية (مجمدة)
@@ -166,7 +169,7 @@ export default function ServiceRequestDetail() {
               <div className="rounded-xl border border-gray-200 dark:border-white/10 p-4 font-tajawal text-sm text-gray-600 dark:text-white/70">
                 <p>آخر تحديث: {formatDate(data.updated_at)}</p>
                 {data.status === 'qualified' ? (
-                  <p className="mt-2">يتم إعداد نطاق/عرض الخدمة عند الجاهزية التجارية.</p>
+                  <p className="mt-2">عند إصدار عرض سعر معتمد سيظهر أعلاه.</p>
                 ) : null}
               </div>
             </div>

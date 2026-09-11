@@ -22,7 +22,7 @@ DISCOVER → UNDERSTAND → QUALIFY → FIRST_VALUE → SERVICE_REQUEST → PROF
 
 | Stage | Status | Reason |
 |-------|--------|--------|
-| PROPOSAL / Quote | **BLOCKED_BUSINESS_DECISION** | pricing authority, VAT, approval rules not approved |
+| PROPOSAL / Quote | **V1** — WO-018 Quote BO (draft → issued) | M1 policy — see `docs/wo018/WO018_MIGRATION_REPORT.md` |
 | CONTRACT | **DEFERRED_BY_DESIGN** | no accepted proposal + legal templates |
 | PAYMENT | **NOT STARTED** | out of WO scope |
 | OPERATIONAL_PROJECT | **DOCUMENTED TRIGGER ONLY** | requires accepted proposal or signed contract |
@@ -35,14 +35,14 @@ DISCOVER → UNDERSTAND → QUALIFY → FIRST_VALUE → SERVICE_REQUEST → PROF
 | Customer identity | AVAILABLE |
 | Scope (frozen intake snapshot) | AVAILABLE |
 | Professional reviewer (transition actor) | AVAILABLE |
-| Pricing source / authority | MISSING_BUSINESS_DECISION |
-| Currency policy | MISSING_BUSINESS_DECISION |
-| VAT treatment | MISSING_LEGAL_DECISION |
-| Proposal validity rules | MISSING_BUSINESS_DECISION |
-| Commercial approver | MISSING_BUSINESS_DECISION |
-| Terms source | MISSING_LEGAL_DECISION |
+| Pricing source / authority | **APPROVED_M1** — Professional Review per SR |
+| Currency policy | **APPROVED_M1** — SAR only |
+| VAT treatment | **APPROVED_M1** — 15% exclusive (legal confirm before prod invoices) |
+| Proposal validity rules | **APPROVED_M1** — 30 days default |
+| Commercial approver | **APPROVED_M1** — OWNER_DELEGATE before issue |
+| Terms source | MISSING_LEGAL_DECISION (Contract stage) |
 
-**Decision:** `QUOTE = BLOCKED_BUSINESS_DECISION`
+**Decision:** `QUOTE = DONE_VERIFIED` (WO-018)
 
 ## Operational project trigger (future)
 

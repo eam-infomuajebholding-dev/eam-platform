@@ -117,4 +117,7 @@ async def test_executive_brief_is_rule_assisted(db_session: AsyncSession):
     brief = service.build_executive_brief(overview)
     assert brief.ai_assistance == "RULE_ASSISTED"
     assert len(brief.facts) >= 1
-    assert any("QUOTE" in d or "عروض" in d for d in brief.decisions_needed + brief.watch_next)
+    assert any(
+        "QUOTE" in d or "عروض" in d or "Quote" in d
+        for d in brief.decisions_needed + brief.watch_next + brief.what_matters
+    )

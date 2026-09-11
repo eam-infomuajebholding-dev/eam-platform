@@ -43,6 +43,8 @@ REAL_JOURNEY_LABELS_AR: dict[str, str] = {
     "government_services": "الخدمات الحكومية",
     "real_estate_development": "التطوير العقاري",
     "real_estate_marketing": "التسويق العقاري",
+    "building_materials": "مواد البناء",
+    "equipment": "المعدات والآلات",
 }
 
 
@@ -272,9 +274,9 @@ class OperationsDashboardService:
             ScorecardItem(
                 domain="COMMERCIAL",
                 label_ar="مسار العروض",
-                current_value="BLOCKED",
-                status="BLOCKED",
-                evidence="QUOTE=BLOCKED_BUSINESS_DECISION",
+                current_value="LIVE",
+                status="LIVE",
+                evidence="WO-018 Quote BO — draft to issued",
             ),
             ScorecardItem(
                 domain="PRODUCTION_READINESS",
@@ -349,16 +351,6 @@ class OperationsDashboardService:
     def _risk_items(self) -> list[RiskItem]:
         return [
             RiskItem(
-                risk_id="quote-blocked",
-                title_ar="قرارات العروض السعرية معلّقة",
-                domain="COMMERCIAL",
-                severity="DECISION",
-                urgency="PLANNING",
-                affected_capability="Quote → Contract → Payment",
-                evidence="QUOTE=BLOCKED_BUSINESS_DECISION",
-                decision_required=True,
-            ),
-            RiskItem(
                 risk_id="oidc-blocked",
                 title_ar="OIDC غير مفعّل",
                 domain="PLATFORM",
@@ -424,8 +416,8 @@ class OperationsDashboardService:
             CommercialFunnelStage(
                 stage_id="quote",
                 label_ar="عرض سعر",
-                status="BLOCKED",
-                detail_ar="BLOCKED_BUSINESS_DECISION",
+                status="LIVE",
+                detail_ar="WO-018 Quote BO",
             ),
             CommercialFunnelStage(stage_id="contract", label_ar="عقد", status="NOT_YET_OPERATIONAL"),
             CommercialFunnelStage(stage_id="payment", label_ar="دفع", status="NOT_YET_OPERATIONAL"),
@@ -462,16 +454,16 @@ class OperationsDashboardService:
             what_changed.append(f"الطابور التشغيلي: {backlog} طلب(ات) قيد المراجعة أو التقديم")
 
         decisions_needed = [
-            "قرارات العروض السعرية (QUOTE) — BLOCKED_BUSINESS_DECISION",
             "موافقة بصرية للصفحة الرئيسية — USER_VISUAL_ACCEPTANCE=AWAITING_USER",
         ]
         watch_next = [
+            "Contract BO — deferred until accepted proposal",
             "OIDC للقبول المصادق — BLOCKED_EXTERNAL",
             "متابعة طلبات بانتظار معلومات العميل" if awaiting else "لا طلبات بانتظار معلومات حالياً",
         ]
 
         what_matters = [
-            "الطلب المؤهل يمثل جاهزية تجارية حقيقية دون تسعير معتمد",
+            "الطلب المؤهل يمكن إصدار عرض سعر له — Quote BO نشط (WO-018)",
             f"الرحلات النشطة: {overview.journey_status_counts.get('active', 0)}",
         ]
         why = [
@@ -522,9 +514,9 @@ class OperationsDashboardService:
                 metric_id="quote_pipeline",
                 label_ar="مسار العروض",
                 value=None,
-                truth_state="BLOCKED",
-                source="business_lab",
-                context="QUOTE=BLOCKED_BUSINESS_DECISION",
+                truth_state="LIVE",
+                source="quotes",
+                context="WO-018 Quote BO — draft to issued lifecycle",
             ),
             MetricValue(
                 metric_id="qualified_commercial_demand",
@@ -541,8 +533,8 @@ class OperationsDashboardService:
             CommercialReadinessItem(
                 item_id="quote",
                 label_ar="العروض السعرية",
-                status="BLOCKED",
-                blocker="QUOTE_PRICING_AUTHORITY — Business Lab",
+                status="LIVE",
+                blocker=None,
             ),
             CommercialReadinessItem(
                 item_id="contract",
@@ -648,14 +640,6 @@ class OperationsDashboardService:
 
         items.extend(
             [
-                AttentionItem(
-                    id="blocker-quote",
-                    title_ar="قرارات العروض السعرية معلّقة",
-                    why_ar="QUOTE=BLOCKED_BUSINESS_DECISION — لا تسعير معتمد",
-                    severity="DECISION",
-                    domain="COMMERCIAL",
-                    source="business_lab",
-                ),
                 AttentionItem(
                     id="blocker-oidc",
                     title_ar="OIDC غير مفعّل للقبول المصادق",

@@ -1,21 +1,23 @@
 # EAM Business Lab — Decision Register
 
-Status as of WO-009. Values are **not** assigned by engineering; business authority required.
+Status as of **2026-09-11** — M1 Quote policy **APPROVED** by product owner.
 
-| Decision ID | Status | Owner | Decision needed | Impact | Blocking dependencies |
-|-------------|--------|-------|-----------------|---------|------------------------|
-| QUOTE_PRICING_AUTHORITY | BLOCKED_BUSINESS_DECISION | Business Lab | Who sets list/service prices | Quote BO, Proposal line items | Commercial model approval |
-| DEFAULT_CURRENCY | BLOCKED_BUSINESS_DECISION | Business Lab | SAR-only vs multi-currency | Quote, Payment, invoices | Finance policy |
-| VAT_POLICY | BLOCKED_BUSINESS_DECISION | Business Lab | VAT rate, inclusive/exclusive display | Quote totals, invoices | Tax/legal guidance |
-| QUOTE_APPROVAL_OWNER | BLOCKED_BUSINESS_DECISION | Business Lab | Who approves issued quotes | Quote workflow, audit | RBAC / ops roles |
-| QUOTE_VALIDITY_POLICY | BLOCKED_BUSINESS_DECISION | Business Lab | Default validity period | Customer proposal UX | Commercial policy |
-| DISCOUNT_AUTHORITY | BLOCKED_BUSINESS_DECISION | Business Lab | Who may discount and limits | Quote immutability rules | Finance + sales policy |
+Engineering must not invent prices beyond these rules; line items remain human-entered per SR.
+
+| Decision ID | Status | Owner | Decision (approved) | Impact |
+|-------------|--------|-------|---------------------|--------|
+| QUOTE_PRICING_AUTHORITY | **APPROVED_M1** | Business Lab | **Professional Review** sets price per qualified Service Request after qualification. No AI pricing, no CMS list prices in M1. | Quote BO, proposal line items |
+| DEFAULT_CURRENCY | **APPROVED_M1** | Business Lab | **SAR only** for M1 and M2. | Quote, Payment, invoices |
+| VAT_POLICY | **APPROVED_M1** | Business Lab | **15% VAT, exclusive display** (amount + VAT shown separately). Legal confirmation recommended before production invoices. | Quote totals, invoices |
+| QUOTE_APPROVAL_OWNER | **APPROVED_M1** | Business Lab | **OWNER_DELEGATE** must approve before customer-facing proposal is issued. | Quote workflow, audit |
+| QUOTE_VALIDITY_POLICY | **APPROVED_M1** | Business Lab | **30 calendar days** default validity from issue date. | Customer proposal UX |
+| DISCOUNT_AUTHORITY | **APPROVED_M1** | Business Lab | **OWNER only** in M1. No discounts without explicit owner action. | Quote immutability rules |
 
 ## Quote
 
-**QUOTE = BLOCKED_BUSINESS_DECISION** until pricing authority, currency, VAT, and approval owner are resolved.
+**QUOTE = DONE_VERIFIED** (WO-018 implemented 2026-09-11).
 
-Engineering must not invent prices, VAT, or approval rules.
+Quote BO and proposal draft lifecycle implemented under these constraints. Engineering must not fabricate prices, VAT rates, or approval bypass.
 
 ## Contract
 
@@ -23,4 +25,13 @@ Engineering must not invent prices, VAT, or approval rules.
 
 ## Payment
 
-**BLOCKED_DEPENDENCY / BUSINESS_DECISION** — no payment integration in WO-009.
+**BLOCKED_DEPENDENCY** — no payment provider integration until Contract stage and finance provider selection.
+
+## Approval record
+
+| Field | Value |
+|-------|-------|
+| Approved by | Product owner |
+| Approval date | 2026-09-11 |
+| Scope | M1 minimum viable commercial policy |
+| Unblocks | WO-018 Quote BO implementation |
