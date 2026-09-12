@@ -8,9 +8,9 @@
 
 ```
 START_HEAD=1781a59
-END_HEAD=(this commit)
+END_HEAD=0ebb285
 BRANCH=feature/frontend-wo001-hero
-REMOTE_STATE=sync pending post-commit
+REMOTE_STATE=pushed post-commit
 WORKTREE=INTENTIONALLY_DIRTY
   app/frontend/screenshots/ — local visual evidence (not staged)
 ```
