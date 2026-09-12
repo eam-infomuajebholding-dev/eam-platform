@@ -20,11 +20,11 @@ export default function ProjectsShowcaseSection() {
           <div className="mb-10 flex flex-col items-center gap-3 text-center md:flex-row md:justify-between md:text-right">
             <div>
               <h2 className="font-tajawal text-3xl font-bold text-[var(--eam-home-ink)] md:text-4xl">
-                محفظة المشاريع
+                أبرز المشاريع
               </h2>
               <p className="mt-2 max-w-xl text-sm leading-7 text-[var(--eam-home-ink)]/70">
-                اكتشف مجالات المشاريع والقطاعات التي نخدمها — عرض استكشافي أوسع من لوحة
-                المشاريع في الشاشة الأولى.
+                مشاريع حقيقية من محفظة EAM — استكشف القطاعات والمواقع دون ادعاءات
+                تشغيلية غير موثقة.
               </p>
             </div>
             <Layers3 className="hidden h-10 w-10 text-[var(--eam-home-gold)]/50 md:block" strokeWidth={1.5} />

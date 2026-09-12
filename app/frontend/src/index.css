@@ -231,8 +231,20 @@ html.theme-transitioning::after {
     box-shadow: 0 10px 40px rgba(197, 160, 89, 0.3), 0 4px 15px rgba(197, 160, 89, 0.15);
   }
 
-  .homepage-dashboard {
+  .home-light-hero {
     min-height: 0;
+  }
+
+  @media (min-width: 1024px) {
+    .home-light-hero {
+      min-height: 420px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .home-sector-rail .animate-marquee {
+      animation: none !important;
+    }
   }
 
   .eam-home {
@@ -322,11 +334,6 @@ html.theme-transitioning::after {
   }
 
   @media (min-width: 1024px) {
-    .eam-home #home-command-center .home-hero-emblem img {
-      max-height: 400px;
-      max-width: 280px;
-    }
-
     .eam-home #home-command-center .home-hero-chat-wrap > p {
       margin-bottom: 2px;
       font-size: 12px;

@@ -1,5 +1,9 @@
 /** Demo/presentation imagery for homepage — not live project records */
 
+/** Approved light homepage hero — architectural skyline (presentation) */
+export const HOME_HERO_IMAGE =
+  'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1800&q=80';
+
 const u = (id: string, w = 480) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`;
 

@@ -3,7 +3,7 @@ import HomeFirstViewport from '@/components/home/HomeFirstViewport';
 import AboutEAMSection from '@/components/home/AboutEAMSection';
 import SolutionsSection from '@/components/home/SolutionsSection';
 import ProjectsShowcaseSection from '@/components/home/ProjectsShowcaseSection';
-import WhyEAMSection from '@/components/home/WhyEAMSection';
+import InvestmentHomeSection from '@/components/home/InvestmentHomeSection';
 import HomeContactSection from '@/components/home/HomeContactSection';
 
 export default function Index() {
@@ -14,7 +14,7 @@ export default function Index() {
         <AboutEAMSection />
         <SolutionsSection />
         <ProjectsShowcaseSection />
-        <WhyEAMSection />
+        <InvestmentHomeSection />
         <HomeContactSection />
       </div>
     </Layout>

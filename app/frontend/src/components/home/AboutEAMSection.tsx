@@ -14,7 +14,7 @@ export default function AboutEAMSection() {
     >
       <div className="container mx-auto px-4">
         <div ref={reveal.ref} className={reveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}>
-          <SectionTitle className="text-[var(--eam-home-ink)]">نبذة عن EAM</SectionTitle>
+          <SectionTitle className="text-[var(--eam-home-ink)]">EAM .. لإعمار حياة أفضل</SectionTitle>
 
           <div className="mx-auto max-w-3xl rounded-2xl border border-[var(--eam-home-border)] bg-white/90 p-8 text-center shadow-[0_2px_14px_rgba(139,77,0,0.06)] md:p-12">
             <p className="font-tajawal text-lg leading-8 text-[var(--eam-home-ink)]/85 md:text-xl md:leading-9">

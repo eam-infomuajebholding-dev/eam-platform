@@ -71,7 +71,7 @@ export default function SolutionsSection() {
       <div className="container mx-auto px-4">
         <div ref={titleReveal.ref} className={titleReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}>
           <h2 className="mb-10 text-center font-tajawal text-3xl font-bold text-[var(--eam-home-ink)] md:text-4xl">
-            الحلول
+            حلول متكاملة لرحلة أكثر نجاحاً
           </h2>
           <p className="mx-auto mb-12 max-w-2xl text-center text-sm leading-7 text-[var(--eam-home-ink)]/70 md:text-base">
             مسارات جاهزة لاحتياجاتك — من التخطيط إلى التنفيذ — دون تكرار منصات القطاعات أعلاه.

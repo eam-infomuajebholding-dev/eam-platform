@@ -144,7 +144,7 @@ export default function HeroChat({ variant = "default" }: HeroChatProps) {
     <div className={isHomepage ? "home-hero-chat-wrap" : "-mt-0"}>
       {isHomepage ? (
         <p className="mb-1 text-center text-[13px] font-semibold text-[var(--eam-home-gold-deep)]">
-          ابدأ رحلتك معنا من هنا
+          EAM AI
         </p>
       ) : (
         <div className="mb-1 text-center">
@@ -416,7 +416,7 @@ export default function HeroChat({ variant = "default" }: HeroChatProps) {
               onChange={(event) => setInput(event.target.value)}
               onKeyDown={handleKeyDown}
               disabled={isBusy}
-              placeholder="صف مشروعك أو اطرح سؤالك..."
+              placeholder="ما الذي تريد إنجازه اليوم؟"
               className="min-h-[36px] flex-1 resize-none border-0 bg-transparent px-2 py-2 text-[13px] font-tajawal text-ink outline-none placeholder:text-ink/45 dark:text-white dark:placeholder:text-white/45"
               dir="rtl"
             />
