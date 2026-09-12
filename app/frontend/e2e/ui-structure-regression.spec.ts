@@ -14,18 +14,17 @@ const RICH_SECTOR_ROUTES: Array<{ label: string; href: string }> = [
 ];
 
 test.describe('UI structure regression', () => {
-  test('homepage preserves approved structural regions', async ({ page }) => {
+  test('homepage preserves approved light structural regions', async ({ page }) => {
     await page.goto(FRONTEND);
 
+    await expect(page.getByRole('heading', { level: 1, name: /من الفكرة إلى/ })).toBeVisible();
     await expect(page.getByRole('region', { name: 'مساحة العمل الذكية' })).toBeVisible();
-    await expect(page.getByPlaceholder('صف مشروعك أو اطرح سؤالك...')).toBeVisible();
+    await expect(page.getByPlaceholder('ما الذي تريد إنجازه اليوم؟')).toBeVisible();
     await expect(page.getByRole('button', { name: 'أبني منزلًا' }).first()).toBeVisible();
     await expect(page.getByRole('region', { name: 'منصات القطاعات' })).toBeVisible();
-    await expect(page.getByRole('region', { name: 'آخر المشاريع' })).toBeVisible();
-    await expect(page.getByRole('region', { name: 'إحصائيات المنصة' })).toBeVisible();
-    await expect(page.getByRole('region', { name: 'مشاريع مميزة' })).toBeVisible();
-    await expect(page.getByRole('region', { name: 'آخر الأنشطة' })).toBeVisible();
-    await expect(page.getByAltText('شعار إعمار الأصالة والمعاصرة')).toBeVisible();
+    await expect(page.locator('.homepage-dashboard')).toHaveCount(0);
+    await expect(page.getByRole('region', { name: 'نبذة عن EAM' })).toBeVisible();
+    await expect(page.getByRole('region', { name: 'الاستثمار' })).toBeVisible();
 
     const sectorLinks = page.locator('[aria-label="منصات القطاعات"] a');
     await expect(sectorLinks).toHaveCount(32);

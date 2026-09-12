@@ -117,7 +117,7 @@ test.describe('Visual evidence capture (WO-007 §51)', () => {
     await clearSession(page);
     await page.reload();
     await expect(page.getByText('ابدأ رحلتك معنا من هنا')).toBeVisible({ timeout: 15000 });
-    const input = page.getByPlaceholder('صف مشروعك أو اطرح سؤالك...');
+    const input = page.getByPlaceholder('ما الذي تريد إنجازه اليوم؟');
     await input.fill('أريد بناء فيلا في الرياض');
     await page.getByRole('button', { name: 'إرسال' }).click();
     await expect(

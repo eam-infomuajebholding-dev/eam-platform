@@ -13,7 +13,7 @@ async function openHomeHeroChat(page: import('@playwright/test').Page) {
 }
 
 async function sendHeroMessage(page: import('@playwright/test').Page, message: string) {
-  const input = page.getByPlaceholder('صف مشروعك أو اطرح سؤالك...');
+  const input = page.getByPlaceholder('ما الذي تريد إنجازه اليوم؟');
   await input.fill(message);
   await page.getByRole('button', { name: 'إرسال' }).click();
 }

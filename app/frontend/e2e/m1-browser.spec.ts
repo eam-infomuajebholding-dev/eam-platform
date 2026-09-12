@@ -46,7 +46,7 @@ async function openHomepage(page: Page) {
   await clearJourneySession(page);
   await page.reload();
   await expect(page.getByRole('region', { name: 'مساحة العمل الذكية' })).toBeVisible({ timeout: 15000 });
-  await expect(page.getByPlaceholder('صف مشروعك أو اطرح سؤالك...')).toBeVisible({ timeout: 15000 });
+  await expect(page.getByPlaceholder('ما الذي تريد إنجازه اليوم؟')).toBeVisible({ timeout: 15000 });
 }
 
 async function clickBuildVilla(page: Page) {

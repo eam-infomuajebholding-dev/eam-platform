@@ -15,7 +15,7 @@ test.describe('M1 auth browser smoke', () => {
 
     await page.goto(FRONTEND);
     await expect(page.getByRole('region', { name: 'مساحة العمل الذكية' })).toBeVisible({ timeout: 15000 });
-    await expect(page.getByPlaceholder('صف مشروعك أو اطرح سؤالك...')).toBeVisible({ timeout: 15000 });
+    await expect(page.getByPlaceholder('ما الذي تريد إنجازه اليوم؟')).toBeVisible({ timeout: 15000 });
 
     await page.evaluate(() => {
       const buttons = [...document.querySelectorAll('button')].filter((b) => b.textContent?.includes('أبني منزلًا'));

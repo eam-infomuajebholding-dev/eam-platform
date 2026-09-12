@@ -7,15 +7,20 @@
 
 **1586 × 992** (desktop primary)
 
-## Automated geometry gate
+## Automated geometry gate (light homepage — WO-021 Revised)
 
-| Check | Result (WO-021 session) |
-|-------|-------------------------|
-| `homepage-geometry.spec.ts` | **PASS** (11 tests in CI canonical pack) |
-| 27/42/27 column layout | Verified via geometry thresholds |
+| Check | Result |
+|-------|--------|
+| `homepage-geometry.spec.ts` | **5/5 PASS** |
+| Old 27/42/27 dashboard | **REMOVED** — not asserted |
 | Horizontal overflow | PASS |
-| Single H1 / single Footer | Verified in ui-structure tests |
+| Single H1 / single Footer | PASS |
 | Sector rail visibility | PASS |
+| Removed sections absent | PASS (Market/Insights/Partners/dashboard cards) |
+
+**NEW_SCROLL_HEIGHT:** 3978px (natural content height at 1586×992 full-page capture)
+
+**Primary evidence:** `app/frontend/screenshots/wo021-homepage-light-1586x992.png`
 
 ## Current evidence files (local — untracked)
 
