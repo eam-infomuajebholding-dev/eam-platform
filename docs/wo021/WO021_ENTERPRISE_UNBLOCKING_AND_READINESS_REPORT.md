@@ -7,7 +7,7 @@
 
 ```
 START_HEAD=0315ef4
-END_HEAD=9f5ed00 (docs commit pending)
+END_HEAD=39ecbdb
 BRANCH=feature/frontend-wo001-hero
 REMOTE=PUSHED (pre-WO-021 commits)
 WORKTREE=INTENTIONALLY_DIRTY → target CLEAN after logical commits

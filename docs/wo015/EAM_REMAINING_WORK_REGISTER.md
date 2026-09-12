@@ -1,6 +1,6 @@
 # EAM Remaining Work Register (WO-015 reconciliation)
 
-Deduplicated across Phase 2 / Master-008 / Delta-009 / WO-012–020. Status vocabulary only as listed.
+Deduplicated across Phase 2 / Master-008 / Delta-009 / WO-012–021. Status vocabulary only as listed.
 
 ## Product — Journeys (16-sector program)
 
@@ -31,7 +31,7 @@ Deduplicated across Phase 2 / Master-008 / Delta-009 / WO-012–020. Status voca
 |------|--------|
 | Service Request (submit → review → qualify) | DONE_VERIFIED |
 | Quote / Proposal | DONE_VERIFIED (WO-018 — draft → issued lifecycle) |
-| Acceptance | BLOCKED_BUSINESS_DECISION |
+| Acceptance | BLOCKED_BUSINESS_DECISION — owner pack in `docs/commercial/QUOTE_ACCEPTANCE_OWNER_DECISION_PACK.md` |
 | Contract | BLOCKED_UPSTREAM |
 | Payment | BLOCKED_BUSINESS_DECISION |
 | OperationalProject | BLOCKED_UPSTREAM |
@@ -53,7 +53,7 @@ Deduplicated across Phase 2 / Master-008 / Delta-009 / WO-012–020. Status voca
 | Evidence Drawer V1 | DONE_VERIFIED |
 | Executive AI (rule-assisted / degraded) | DONE_VERIFIED |
 | Executive AI live provider acceptance | UNVERIFIED_ENV_DEPENDENT |
-| Evidence Drawer V2 (scorecard/risk/commercial expansion) | DEFERRED_JIT |
+| Evidence Drawer V2 (lineage fields) | PARTIAL (contributing count, data quality WO-021) |
 | Decision Inbox (Quote surfacing in UI) | DONE_VERIFIED |
 | Watchlist | DEFERRED_JIT |
 | Decision Journal | DEFERRED_JIT |
@@ -65,7 +65,10 @@ Deduplicated across Phase 2 / Master-008 / Delta-009 / WO-012–020. Status voca
 | Item | Status |
 |------|--------|
 | CI configuration | DONE_VERIFIED |
-| CI runtime verification | DONE_VERIFIED (run 34633471478) |
+| CI runtime verification | VERIFIED @ 7a62c4f; WO-021 HEAD needs re-run |
+| E2E auth determinism | DONE (`docs/engineering/E2E_TEST_AUTH.md`) |
+| Backup/restore | NOT_CONFIGURED |
+| OIDC | BLOCKED_EXTERNAL (`OIDC_CLIENT_SECRET` absent) |
 | Migration report (formal) | DONE_VERIFIED (`docs/wo017/WO017_MIGRATION_REPORT.md`) |
 | Developer onboarding guide | DONE_VERIFIED (`docs/engineering/DEVELOPER_ONBOARDING.md`) |
 | Journey engineer guide | DONE_VERIFIED (`docs/wo017/JOURNEY_ENGINEER_GUIDE.md`) |
