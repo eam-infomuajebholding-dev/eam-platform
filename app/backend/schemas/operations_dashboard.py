@@ -168,6 +168,8 @@ class EvidenceResponse(BaseModel):
     freshness: str | None = None
     truth_state: TruthState = "LIVE"
     last_successful_calculation: datetime | None = None
+    contributing_record_count: int | None = None
+    data_quality: str | None = None
     limitations: list[str] = Field(default_factory=list)
     drill_down_path: str | None = None
     trace_id: str | None = None

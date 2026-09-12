@@ -169,6 +169,8 @@ export interface EvidenceResponse {
   freshness?: string | null;
   truth_state?: TruthState;
   last_successful_calculation?: string | null;
+  contributing_record_count?: number | null;
+  data_quality?: string | null;
   limitations?: string[];
   drill_down_path?: string | null;
   trace_id?: string | null;

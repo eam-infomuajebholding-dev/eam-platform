@@ -672,6 +672,16 @@ class OperationsDashboardService:
         if truth_state in {"NOT_AVAILABLE", "BLOCKED", "NOT_YET_OPERATIONAL"}:
             limitations.append(f"Metric truth_state={truth_state}")
 
+        contributing_record_count = None
+        data_quality = None
+        if kpi is not None and kpi.value is not None and truth_state == "LIVE":
+            contributing_record_count = int(kpi.value)
+            data_quality = "AUTHORITATIVE_COUNT"
+        elif truth_state in {"NOT_AVAILABLE", "BLOCKED", "NOT_YET_OPERATIONAL"}:
+            data_quality = "NOT_APPLICABLE"
+        else:
+            data_quality = "PARTIAL_OR_UNKNOWN"
+
         return EvidenceResponse(
             metric_id=definition.metric_id,
             label_ar=definition.label_ar,
@@ -683,6 +693,8 @@ class OperationsDashboardService:
             freshness="LIVE at overview generation",
             truth_state=truth_state,
             last_successful_calculation=overview.generated_at,
+            contributing_record_count=contributing_record_count,
+            data_quality=data_quality,
             limitations=limitations,
             drill_down_path=definition.drill_down_path,
             trace_id=f"cc-evidence-{metric_id}",

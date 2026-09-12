@@ -111,6 +111,48 @@ async def test_executive_brief_endpoint_returns_rule_assisted():
 
 
 @pytest.mark.asyncio
+async def test_metric_evidence_includes_lineage_fields(db_session: AsyncSession):
+    db_session.add(
+        ServiceRequest(
+            user_id="u1",
+            journey_instance_id=1,
+            journey_type="build_villa",
+            request_type="build_villa_discovery",
+            status="submitted",
+            reference_code="BV-00000002",
+            intake_snapshot={"journey_type": "build_villa"},
+        )
+    )
+    await db_session.commit()
+
+    evidence = await OperationsDashboardService(db_session).get_metric_evidence("service_requests_total")
+    assert evidence is not None
+    assert evidence.metric_id == "service_requests_total"
+    assert evidence.truth_state == "LIVE"
+    assert evidence.contributing_record_count == 1
+    assert evidence.data_quality == "AUTHORITATIVE_COUNT"
+    assert evidence.owner_domain == "OPERATIONS"
+    assert evidence.period is not None
+
+
+@pytest.mark.asyncio
+async def test_metric_evidence_endpoint_requires_admin():
+    transport = ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        anon = await client.get("/api/v1/operations/command-center/evidence/service_requests_total")
+        admin = await client.get(
+            "/api/v1/operations/command-center/evidence/service_requests_total",
+            headers=auth_headers(role="admin"),
+        )
+    assert anon.status_code == 401
+    assert admin.status_code == 200
+    body = admin.json()
+    assert body["metric_id"] == "service_requests_total"
+    assert "formula" in body
+    assert "truth_state" in body
+
+
+@pytest.mark.asyncio
 async def test_executive_brief_is_rule_assisted(db_session: AsyncSession):
     service = OperationsDashboardService(db_session)
     overview = await service.get_overview()

@@ -64,15 +64,41 @@ export default function EvidenceDrawer({ metricId, labelOverride, onClose }: Pro
               <dd>{evidence.source}</dd>
             </div>
             <div>
-              <dt className="text-ink/50">الصيغة</dt>
+              <dt className="text-ink/50">الصيغة / الحساب</dt>
               <dd className="font-mono text-xs">{evidence.formula}</dd>
+            </div>
+            <div>
+              <dt className="text-ink/50">مجال الملكية</dt>
+              <dd>{evidence.owner_domain}</dd>
             </div>
             <div>
               <dt className="text-ink/50">الفترة</dt>
               <dd>{evidence.period ?? '—'}</dd>
             </div>
             <div>
-              <dt className="text-ink/50">الحالة</dt>
+              <dt className="text-ink/50">حداثة البيانات</dt>
+              <dd>{evidence.freshness ?? '—'}</dd>
+            </div>
+            {evidence.last_successful_calculation ? (
+              <div>
+                <dt className="text-ink/50">آخر حساب ناجح</dt>
+                <dd>{new Date(evidence.last_successful_calculation).toLocaleString('ar-SA')}</dd>
+              </div>
+            ) : null}
+            {evidence.contributing_record_count != null ? (
+              <div>
+                <dt className="text-ink/50">عدد السجلات المساهمة</dt>
+                <dd>{evidence.contributing_record_count}</dd>
+              </div>
+            ) : null}
+            {evidence.data_quality ? (
+              <div>
+                <dt className="text-ink/50">جودة البيانات</dt>
+                <dd>{evidence.data_quality}</dd>
+              </div>
+            ) : null}
+            <div>
+              <dt className="text-ink/50">حالة الحقيقة</dt>
               <dd>
                 <TruthStateBadge state={(evidence.truth_state ?? 'UNKNOWN') as TruthState} />
               </dd>
