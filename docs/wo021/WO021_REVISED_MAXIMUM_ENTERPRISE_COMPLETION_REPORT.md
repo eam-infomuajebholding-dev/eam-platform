@@ -79,7 +79,7 @@ CONSOLE_ERRORS=not re-run dedicated gate
 
 DESKTOP_SCREENSHOT=app/frontend/screenshots/wo021-homepage-light-1586x992.png
 TECHNICAL_VISUAL_GATE=PASS
-USER_VISUAL_ACCEPTANCE=AWAITING_USER
+USER_VISUAL_ACCEPTANCE=APPROVED_BY_USER (2026-09-12, owner: موافق)
 ```
 
 ## Journeys (16)
@@ -109,7 +109,7 @@ OIDC=BLOCKED_EXTERNAL (OIDC_CLIENT_SECRET absent)
 M1=PARTIAL
 BACKUP/RESTORE=NOT_CONFIGURED
 PRODUCTION_READINESS=PARTIAL
-USER_VISUAL_ACCEPTANCE=AWAITING_USER
+USER_VISUAL_ACCEPTANCE=APPROVED_BY_USER
 ```
 
 ## Acceptance layers
@@ -125,9 +125,9 @@ PRODUCTION_READINESS=PARTIAL
 
 ```
 NEXT_READY_NOW=
-  1. Owner visual approval (light homepage screenshot)
-  2. Business Lab Quote acceptance pack
-  3. CI on new HEAD
+  1. Business Lab Quote acceptance pack
+  2. CI on HEAD d583be4+
+  3. OIDC external prerequisites for M1
 
 NEXT_BLOCKED_BUSINESS_DECISION=Quote acceptance, Payment
 NEXT_BLOCKED_UPSTREAM=Investment, Suppliers, Delivery journeys

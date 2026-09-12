@@ -74,7 +74,7 @@ Deduplicated across Phase 2 / Master-008 / Delta-009 / WO-012–021. Status voca
 | Journey engineer guide | DONE_VERIFIED (`docs/wo017/JOURNEY_ENGINEER_GUIDE.md`) |
 | Repository-wide cleanup WO | NOT_YET_REQUIRED (APPROACHING_READY) |
 | Backup/restore tested | UNKNOWN |
-| USER_VISUAL_ACCEPTANCE (homepage) | AWAITING_USER |
+| USER_VISUAL_ACCEPTANCE (light homepage) | APPROVED_BY_USER (2026-09-12) |
 
 ## Business objects (JIT)
 

@@ -43,7 +43,7 @@ Each item appears once. Supersedes duplicate entries in phase archives.
 |------|--------|
 | OIDC production | BLOCKED_EXTERNAL |
 | M1 full acceptance | PARTIAL |
-| USER_VISUAL_ACCEPTANCE | AWAITING_USER |
+| USER_VISUAL_ACCEPTANCE | APPROVED_BY_USER (light homepage, 2026-09-12) |
 | CI config | DONE_VERIFIED |
 | CI runtime | VERIFIED @ 7a62c4f; **current HEAD needs re-run** after WO-021 ci.yml change |
 | E2E auth determinism | DONE (`docs/engineering/E2E_TEST_AUTH.md`) |

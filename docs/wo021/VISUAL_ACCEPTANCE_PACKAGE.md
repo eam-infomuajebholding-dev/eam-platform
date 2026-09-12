@@ -1,7 +1,7 @@
 # Owner Visual Acceptance Package (WO-021)
 
-**Status:** USER_VISUAL_ACCEPTANCE=AWAITING_USER  
-**Do not self-approve.**
+**Status:** USER_VISUAL_ACCEPTANCE=**APPROVED_BY_USER** (2026-09-12)  
+**Scope:** Light homepage @ `d583be4` — reference `wo021-homepage-light-1586x992.png`
 
 ## Reference viewport
 
@@ -56,10 +56,10 @@
 
 ## Owner review checklist
 
-- [ ] Homepage desktop 1586×992 matches approved brand layout
-- [ ] Command Center desktop readable for leadership use
-- [ ] Tablet/mobile homepage acceptable (optional responsive captures)
-- [ ] Console clean on `/` and `/command-center` (admin)
+- [x] Homepage desktop 1586×992 — **approved by owner 2026-09-12**
+- [ ] Command Center desktop (optional follow-up)
+- [ ] Tablet/mobile homepage (optional follow-up)
+- [ ] Console clean on `/` (optional follow-up)
 
 ## Routes to verify manually
 
