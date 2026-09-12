@@ -1,6 +1,6 @@
 # EAM Remaining Work Register
 
-**Canonical roadmap register** — reconciled through WO-020 (2026-09-11).  
+**Canonical roadmap register** — reconciled through WO-021 (2026-09-12).  
 Each item appears once. Supersedes duplicate entries in phase archives.
 
 ## Product — Journeys (16-sector)
@@ -32,7 +32,7 @@ Each item appears once. Supersedes duplicate entries in phase archives.
 |-------|--------|
 | Service Request → Review → Qualify | DONE_VERIFIED |
 | Quote / Proposal | DONE_VERIFIED |
-| Acceptance | BLOCKED_BUSINESS_DECISION (`docs/commercial/QUOTE_ACCEPTANCE_DECISION_RECORD.md`) |
+| Acceptance | BLOCKED_BUSINESS_DECISION — owner pack: `docs/commercial/QUOTE_ACCEPTANCE_OWNER_DECISION_PACK.md` |
 | Contract | BLOCKED_UPSTREAM |
 | Payment | BLOCKED_BUSINESS_DECISION |
 | OperationalProject | BLOCKED_UPSTREAM |
@@ -45,7 +45,10 @@ Each item appears once. Supersedes duplicate entries in phase archives.
 | M1 full acceptance | PARTIAL |
 | USER_VISUAL_ACCEPTANCE | AWAITING_USER |
 | CI config | DONE_VERIFIED |
-| CI runtime | DONE_VERIFIED (GitHub Actions run 34633471478 @ 7a62c4f) |
+| CI runtime | VERIFIED @ 7a62c4f; **current HEAD needs re-run** after WO-021 ci.yml change |
+| E2E auth determinism | DONE (`docs/engineering/E2E_TEST_AUTH.md`) |
+| Backup/restore | NOT_CONFIGURED (`docs/engineering/BACKUP_RESTORE_READINESS.md`) |
+| OIDC | BLOCKED_EXTERNAL — `OIDC_CLIENT_SECRET` absent |
 | Alembic head alignment | DONE_VERIFIED (`t0u1v2w3x4y5`) |
 | Git logical commits (WO-017/018/019) | DONE_VERIFIED |
 

@@ -1,6 +1,6 @@
 # EAM Engineering Cleanup Register
 
-**Updated:** 2026-09-11 (WO-020)
+**Updated:** 2026-09-12 (WO-021)
 
 | ID | Category | Location | Notes | Status |
 |----|----------|----------|-------|--------|
@@ -15,7 +15,7 @@
 | CLN-007 | RESPONSIBILITY_VIOLATION | — | None P0 found | — |
 | CLN-008 | UNUSED_DEPENDENCY_CANDIDATE | — | Not audited (no blind removal) | UNKNOWN |
 
-| CLN-011 | LOCAL_ENV | `pnpm-workspace.yaml` regenerated locally (pnpm 11) | Untracked; breaks local eslint/build — DO NOT COMMIT | OPEN — delete locally or ignore |
-| CLN-012 | TEST_ENV | `command-center-visual.spec.ts` | Requires JWT_SECRET alignment with running uvicorn | OPEN — use CI secret locally or skip |
+| CLN-011 | LOCAL_ENV | `pnpm-workspace.yaml` regenerated locally (pnpm 11) | **MITIGATED** — gitignored + `packageManager: pnpm@9.15.4` WO-021 |
+| CLN-012 | TEST_ENV | `command-center-visual.spec.ts` | **MITIGATED** — `e2e/helpers/testAuth.ts` + preflight + E2E_TEST_AUTH.md WO-021 |
 
 **Cleanup readiness:** APPROACHING_READY — WO-017/018 committed; dead-code pass deferred until READY.
