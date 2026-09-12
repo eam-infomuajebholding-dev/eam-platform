@@ -1,22 +1,5 @@
-import HeroChat from '@/components/sections/Hero/HeroChat';
-import QuickActions from '@/components/home/QuickActions';
+import HomeAIWorkspace from '@/components/home/HomeAIWorkspace';
 import { HOME_HERO_IMAGE } from '@/data/homeAssets';
-import { useWorkspace } from '@/features/ai-workspace/WorkspaceContext';
-import { BUILD_VILLA_QUICK_ACTION_LABEL } from '@/features/ai-workspace/types';
-
-function HeroQuickActions() {
-  const { startBuildVillaFromQuickAction } = useWorkspace();
-
-  return (
-    <QuickActions
-      onSelect={(label) => {
-        if (label === BUILD_VILLA_QUICK_ACTION_LABEL) {
-          void startBuildVillaFromQuickAction();
-        }
-      }}
-    />
-  );
-}
 
 /** Approved light homepage hero — full-width imagery + EAM AI panel */
 export default function HomeLightHero() {
@@ -35,6 +18,8 @@ export default function HomeLightHero() {
           className="h-full w-full object-cover object-center"
           fetchPriority="high"
           decoding="async"
+          width={1800}
+          height={900}
         />
         <div className="absolute inset-0 bg-gradient-to-l from-[#fff9f1]/96 via-[#fff9f1]/78 to-[#fff9f1]/55" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#fbf3e7]/90 via-transparent to-[#fff9f1]/40" />
@@ -49,22 +34,16 @@ export default function HomeLightHero() {
             من الفكرة إلى{' '}
             <span className="text-[var(--eam-home-gold-deep)]">الأثر</span>
           </h1>
-          <p className="mt-4 max-w-xl text-sm leading-7 text-[var(--eam-home-ink)]/75 sm:text-base">
-            منصة هندسية واستثمارية ورقمية تجمع الاستشارات، التطوير، التنفيذ، والاستثمار
-            في مسار واحد — بدعم ذكاء EAM الذي يوجّه رحلتك من اللحظة الأولى.
+          <p className="mt-3 text-base font-semibold text-[var(--eam-home-ink)]/85">
+            منصة هندسية واستثمارية ورقمية متكاملة.
+          </p>
+          <p className="mt-2 max-w-xl text-sm leading-7 text-[var(--eam-home-ink)]/75 sm:text-base">
+            تجمع الاستشارات، التطوير، التنفيذ، والاستثمار في مسار واحد — بدعم ذكاء EAM
+            الذي يوجّه رحلتك من اللحظة الأولى.
           </p>
         </div>
 
-        <div
-          role="region"
-          className="min-w-0 rounded-[18px] border border-[var(--eam-home-border)] bg-[var(--eam-home-cream-light)]/95 p-3 shadow-[0_2px_16px_rgba(139,77,0,0.1)] backdrop-blur-sm sm:p-4"
-          aria-label="مساحة العمل الذكية"
-        >
-          <HeroChat variant="homepage" />
-          <div className="mt-2 border-t border-[var(--eam-home-border)]/60 pt-2">
-            <HeroQuickActions />
-          </div>
-        </div>
+        <HomeAIWorkspace />
       </div>
     </section>
   );

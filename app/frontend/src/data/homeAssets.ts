@@ -1,8 +1,10 @@
 /** Demo/presentation imagery for homepage — not live project records */
 
-/** Approved light homepage hero — architectural skyline (presentation) */
-export const HOME_HERO_IMAGE =
-  'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1800&q=80';
+/** Approved light homepage hero — local presentation asset (WO-021) */
+export const HOME_HERO_IMAGE = '/images/eam/home/hero-architecture.png';
+
+/** About section media placeholder — replace when official video is available */
+export const HOME_ABOUT_MEDIA_IMAGE = '/images/eam/home/about-media-placeholder.png';
 
 const u = (id: string, w = 480) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`;
