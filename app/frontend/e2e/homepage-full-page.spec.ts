@@ -8,7 +8,7 @@ const HOME_SECTION_SELECTORS = [
   '#home-about',
   '#home-solutions',
   '#home-projects-showcase',
-  '#home-why-eam',
+  '#home-investment',
   '#home-contact',
   'footer',
 ] as const;
@@ -39,7 +39,7 @@ test.describe('Homepage full-page section order', () => {
     const about = await sectionY(page, '#home-about');
     const solutions = await sectionY(page, '#home-solutions');
     const projects = await sectionY(page, '#home-projects-showcase');
-    const why = await sectionY(page, '#home-why-eam');
+    const investment = await sectionY(page, '#home-investment');
     const contact = await sectionY(page, '#home-contact');
     const footer = await sectionY(page, 'footer');
 
@@ -47,15 +47,15 @@ test.describe('Homepage full-page section order', () => {
     expect(about).not.toBeNull();
     expect(solutions).not.toBeNull();
     expect(projects).not.toBeNull();
-    expect(why).not.toBeNull();
+    expect(investment).not.toBeNull();
     expect(contact).not.toBeNull();
     expect(footer).not.toBeNull();
 
     expect(command!).toBeLessThan(about!);
     expect(about!).toBeLessThan(solutions!);
     expect(solutions!).toBeLessThan(projects!);
-    expect(projects!).toBeLessThan(why!);
-    expect(why!).toBeLessThan(contact!);
+    expect(projects!).toBeLessThan(investment!);
+    expect(investment!).toBeLessThan(contact!);
     expect(contact!).toBeLessThan(footer!);
   });
 
@@ -112,24 +112,32 @@ test.describe('Homepage full-page section order', () => {
     expect(footerMeta.footerTop!).toBeGreaterThanOrEqual(footerMeta.contactBottom!);
   });
 
-  test('about section does not bleed into reference viewport', async ({ page }) => {
-    const bleed = await page.evaluate(() => {
+  test('about section follows first viewport (natural height)', async ({ page }) => {
+    const layout = await page.evaluate(() => {
+      const command = document.querySelector('#home-command-center');
       const about = document.querySelector('#home-about');
-      if (!about) return null;
-      const top = about.getBoundingClientRect().top;
-      const visible = Math.max(0, Math.round(window.innerHeight - top));
+      if (!command || !about) return null;
+      const commandBottom = command.getBoundingClientRect().bottom + window.scrollY;
+      const aboutTop = about.getBoundingClientRect().top + window.scrollY;
       return {
-        ABOUT_TOP_Y: Math.round(top + window.scrollY),
-        ABOUT_VISIBLE_PIXELS_IN_REFERENCE_VIEWPORT: top >= window.innerHeight ? 0 : visible,
+        commandBottom: Math.round(commandBottom),
+        aboutTop: Math.round(aboutTop),
+        scrollHeight: document.documentElement.scrollHeight,
       };
     });
 
-    expect(bleed).not.toBeNull();
-    expect(bleed!.ABOUT_VISIBLE_PIXELS_IN_REFERENCE_VIEWPORT).toBe(0);
+    expect(layout).not.toBeNull();
+    expect(layout!.aboutTop).toBeGreaterThanOrEqual(layout!.commandBottom - 8);
+    expect(layout!.scrollHeight).toBeGreaterThan(992);
   });
 
-  test('contact card route reachable', async ({ page }) => {
-    await page.goto(`${FRONTEND}/contact-card`);
-    await expect(page.getByText('إعمار الأصالة والمعاصرة').first()).toBeVisible();
+  test('platform grid uses canonical 16 sectors', async ({ page }) => {
+    const count = await page.locator('#home-solutions [data-sector-slug]').count();
+    expect(count).toBe(16);
+  });
+
+  test('contact route reachable', async ({ page }) => {
+    await page.goto(`${FRONTEND}/contact`);
+    await expect(page.getByRole('heading', { name: /تواصل/i }).first()).toBeVisible();
   });
 });

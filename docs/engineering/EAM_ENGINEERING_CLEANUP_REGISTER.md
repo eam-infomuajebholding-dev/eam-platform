@@ -17,5 +17,8 @@
 
 | CLN-011 | LOCAL_ENV | `pnpm-workspace.yaml` regenerated locally (pnpm 11) | **MITIGATED** — gitignored + `packageManager: pnpm@9.15.4` WO-021 |
 | CLN-012 | TEST_ENV | `command-center-visual.spec.ts` | **MITIGATED** — `e2e/helpers/testAuth.ts` + preflight + E2E_TEST_AUTH.md WO-021 |
+| CLN-013 | LEGACY_INACTIVE | `SolutionsSection.tsx` | Replaced by `HomePlatformsGridSection` (same heading, canonical 16 sectors) WO-021 final |
+| CLN-014 | DUPLICATE_CONFIRMED | Post-hero sector cards vs registry | **FIXED** — carousel + grid both consume `SECTOR_DEFINITIONS` WO-021 final |
+| CLN-015 | MISPLACED_FILE | Unverified stats in `HomeStatsRibbon` | **FIXED** — qualitative trust pillars only WO-021 final |
 
 **Cleanup readiness:** APPROACHING_READY — WO-017/018 committed; dead-code pass deferred until READY.
