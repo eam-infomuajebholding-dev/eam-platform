@@ -5,7 +5,7 @@ export default defineConfig({
   timeout: 180000,
   expect: { timeout: 45000 },
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: process.env.E2E_FRONTEND_URL ?? 'http://localhost:3000',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },

@@ -26,6 +26,9 @@ app/backend/pytest_ops_quotes.db
 app/frontend/test-results/
 app/frontend/test-screenshots/
 
+# pnpm 11 may regenerate this invalid workspace stub locally — never commit (WO-021)
+app/frontend/pnpm-workspace.yaml
+
 # Local build/test logs (disposable — WO-019A)
 app/frontend/build-log.txt
 app/frontend/lint-log.txt

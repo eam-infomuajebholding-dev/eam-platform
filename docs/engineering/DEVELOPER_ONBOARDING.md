@@ -2,13 +2,18 @@
 
 ## Requirements
 
-- Node.js + npm (frontend)
+- Node.js 20+ (frontend)
+- **pnpm 9.15.4** (canonical — matches CI; use Corepack)
 - Python 3.11+ (backend)
 - Git
 
 ## Setup
 
 ```powershell
+# Enable canonical pnpm (once per machine)
+corepack enable
+corepack prepare pnpm@9.15.4 --activate
+
 # Backend
 Set-Location C:\Projects\eam-platform\app\backend
 pip install -r requirements.txt
@@ -16,8 +21,10 @@ python -m alembic upgrade head
 
 # Frontend
 Set-Location C:\Projects\eam-platform\app\frontend
-npm install
+pnpm install --frozen-lockfile
 ```
+
+> **Note:** pnpm 11 may generate `pnpm-workspace.yaml` locally — this file is **gitignored** and must not be committed. Use pnpm 9 per `packageManager` in `package.json`.
 
 ## Environment variables
 
@@ -43,10 +50,14 @@ python -m pytest tests/test_real_estate_development_journey.py -q
 python -m pytest -q
 
 # Frontend
-npm run lint
-npm run build
-npx playwright test
+pnpm run lint
+pnpm run build
+pnpm exec playwright test
 ```
+
+## E2E authentication
+
+Visual/admin Playwright specs require JWT alignment with running backend. See `docs/engineering/E2E_TEST_AUTH.md`.
 
 ## Architecture entry points
 
