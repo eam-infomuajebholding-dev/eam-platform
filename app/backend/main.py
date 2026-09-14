@@ -83,6 +83,18 @@ async def lifespan(app: FastAPI):
 
     async with db_manager.async_session_maker() as session:
         await initialize_jos_definitions(session)
+
+    from services.payment_config import is_stripe_configured
+    from services.payment import initialize_stripe
+
+    if is_stripe_configured():
+        try:
+            await initialize_stripe()
+            logger.info("Stripe payment integration initialized")
+        except Exception as exc:
+            logger.warning("Stripe initialization skipped: %s", type(exc).__name__)
+    else:
+        logger.info("Stripe not configured — online quote payments disabled")
     # MODULE_STARTUP_END
 
     logger.info("=== Application startup completed successfully ===")
@@ -100,10 +112,45 @@ app = FastAPI(
 )
 
 
+def _get_allowed_cors_origins() -> list[str]:
+    """Build the list of origins allowed to make credentialed requests.
+
+    Sessions are cookie-based (withCredentials: true), so combining
+    allow_origin_regex=".*" with allow_credentials=True let ANY site read
+    responses using a logged-in user's cookies. Origins are now sourced
+    explicitly from FRONTEND_URL / CORS_ALLOWED_ORIGINS instead.
+    """
+    logger = logging.getLogger(__name__)
+    origins: set[str] = set()
+
+    frontend_url = os.environ.get("FRONTEND_URL")
+    if frontend_url:
+        origins.add(frontend_url.rstrip("/"))
+
+    extra_origins = os.environ.get("CORS_ALLOWED_ORIGINS", "")
+    for origin in extra_origins.split(","):
+        origin = origin.strip().rstrip("/")
+        if origin:
+            origins.add(origin)
+
+    if os.environ.get("IS_LAMBDA") != "true":
+        # Convenience defaults for local development only.
+        origins.update({"http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3001", "http://127.0.0.1:3001"})
+
+    if not origins:
+        logger.warning(
+            "No CORS origins configured (set FRONTEND_URL and/or "
+            "CORS_ALLOWED_ORIGINS); defaulting to localhost only."
+        )
+        origins.add("http://localhost:3000")
+
+    return sorted(origins)
+
+
 # MODULE_MIDDLEWARE_START
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r".*",
+    allow_origins=_get_allowed_cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
