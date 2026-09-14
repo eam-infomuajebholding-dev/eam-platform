@@ -13,6 +13,51 @@ class EnvVariable(BaseModel):
     key: str
     value: str
     description: str = ""
+    is_secret: bool = False
+    is_set: bool = False
+
+
+# Keys / patterns whose values must never be returned in full over the API.
+_SENSITIVE_EXACT_KEYS = frozenset(
+    {
+        "DATABASE_URL",
+        "STRIPE_SECRET_KEY",
+        "STRIPE_WEBHOOK_SECRET",
+        "OIDC_CLIENT_SECRET",
+        "JWT_SECRET_KEY",
+    }
+)
+_SENSITIVE_KEY_MARKERS = ("SECRET", "PASSWORD", "TOKEN", "PRIVATE_KEY")
+_SENSITIVE_KEY_SUFFIXES = ("_KEY", "_SECRET")
+
+
+def _is_sensitive_env_key(key: str) -> bool:
+    upper = key.upper()
+    if upper in _SENSITIVE_EXACT_KEYS:
+        return True
+    if any(marker in upper for marker in _SENSITIVE_KEY_MARKERS):
+        return True
+    if any(upper.endswith(suffix) for suffix in _SENSITIVE_KEY_SUFFIXES):
+        # Non-secret exceptions (public identifiers / algorithms).
+        return upper not in {"JWT_ALGORITHM"}
+    return False
+
+
+def _mask_secret_value(value: str) -> str:
+    """Return a display-safe placeholder — never the full secret."""
+    if not value:
+        return ""
+    if len(value) <= 4:
+        return "********"
+    return f"{'*' * 12}{value[-4:]}"
+
+
+def _public_env_value(key: str, value: str) -> tuple[str, bool, bool]:
+    is_secret = _is_sensitive_env_key(key)
+    is_set = bool(value)
+    if is_secret:
+        return _mask_secret_value(value), True, is_set
+    return value, False, is_set
 
 
 class EnvConfig(BaseModel):
@@ -74,6 +119,7 @@ async def get_settings(current_user: UserResponse = Depends(get_admin_user)):
         backend_descriptions = {
             "DATABASE_URL": "Database connection string",
             "STRIPE_SECRET_KEY": "Stripe secret key",
+            "STRIPE_WEBHOOK_SECRET": "Stripe webhook signing secret (events: checkout.session.completed, async_payment_succeeded/failed, expired)",
             "STRIPE_SUCCESS_URL": "Payment success callback URL",
             "STRIPE_CANCEL_URL": "Payment cancellation callback URL",
             "ALLOWED_DOMAINS": "Allowed domains",
@@ -96,11 +142,25 @@ async def get_settings(current_user: UserResponse = Depends(get_admin_user)):
         # Build response data
         backend_config = {}
         for key, value in backend_vars.items():
-            backend_config[key] = EnvVariable(key=key, value=value, description=backend_descriptions.get(key, ""))
+            public_value, is_secret, is_set = _public_env_value(key, value)
+            backend_config[key] = EnvVariable(
+                key=key,
+                value=public_value,
+                description=backend_descriptions.get(key, ""),
+                is_secret=is_secret,
+                is_set=is_set,
+            )
 
         frontend_config = {}
         for key, value in frontend_vars.items():
-            frontend_config[key] = EnvVariable(key=key, value=value, description=frontend_descriptions.get(key, ""))
+            public_value, is_secret, is_set = _public_env_value(key, value)
+            frontend_config[key] = EnvVariable(
+                key=key,
+                value=public_value,
+                description=frontend_descriptions.get(key, ""),
+                is_secret=is_secret,
+                is_set=is_set,
+            )
 
         return EnvConfig(backend_vars=backend_config, frontend_vars=frontend_config)
     except Exception as e:

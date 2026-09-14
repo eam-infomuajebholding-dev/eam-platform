@@ -7,6 +7,10 @@ export interface EnvVariable {
   key: string;
   value: string;
   description: string;
+  /** True when the API returned a masked placeholder instead of the raw secret. */
+  is_secret?: boolean;
+  /** True when a non-empty value exists in the env file. */
+  is_set?: boolean;
 }
 
 export interface EnvConfig {
