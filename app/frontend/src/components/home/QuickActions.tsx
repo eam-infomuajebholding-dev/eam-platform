@@ -1,56 +1,22 @@
-import { useNavigate } from 'react-router-dom';
-import {
-  Building2,
-  HardHat,
-  Home,
-  ShoppingBag,
-  TrendingUp,
-  type LucideIcon,
-} from 'lucide-react';
-import { BUILD_VILLA_QUICK_ACTION_LABEL } from '@/features/ai-workspace/types';
+import { Link } from 'react-router-dom';
+import HorizontalMarquee from '@/components/home/HorizontalMarquee';
+import { QUICK_ACTIONS } from '@/data/quickActions';
+import { useLanguage } from '@/contexts/LanguageContext';
 
-type QuickActionItem = {
-  label: string;
-  icon: LucideIcon;
-  route?: string;
-};
-
-/** WO-021 B09 — suggestions aligned with real platform routes where available */
-const suggestions: QuickActionItem[] = [
-  { label: 'أريد إنشاء مشروع', icon: Home, route: '/sectors/project-management' },
-  { label: 'أحتاج خدمة هندسية', icon: Building2, route: '/engineering-services' },
-  { label: 'أبحث عن فرصة استثمارية', icon: TrendingUp, route: '/invest' },
-  { label: 'أبحث عن مقاول', icon: HardHat, route: '/services/contracting' },
-  { label: BUILD_VILLA_QUICK_ACTION_LABEL, icon: Home },
-  { label: 'أريد شراء منتج هندسي', icon: ShoppingBag, route: '/sectors/building-materials' },
-];
-
-interface QuickActionsProps {
-  onSelect?: (label: string) => void;
-}
-
-export default function QuickActions({ onSelect }: QuickActionsProps) {
-  const navigate = useNavigate();
-
-  const handleClick = (item: QuickActionItem) => {
-    if (item.route) {
-      navigate(item.route);
-      return;
-    }
-    onSelect?.(item.label);
-  };
+export default function QuickActions() {
+  const { t } = useLanguage();
 
   return (
-    <div className="home-quick-actions">
-      {suggestions.map((item) => {
+    <HorizontalMarquee speed={0.38} trackClassName="home-quick-actions flex w-max gap-2">
+      {QUICK_ACTIONS.map((item) => {
         const Icon = item.icon;
         return (
-          <button key={item.label} type="button" onClick={() => handleClick(item)}>
-            <Icon size={14} strokeWidth={1.75} />
-            <span>{item.label}</span>
-          </button>
+          <Link key={item.id} to={item.href} className="home-quick-action-pill">
+            <Icon size={14} strokeWidth={1.75} aria-hidden="true" />
+            <span>{t(item.labelKey)}</span>
+          </Link>
         );
       })}
-    </div>
+    </HorizontalMarquee>
   );
 }

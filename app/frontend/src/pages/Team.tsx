@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Plus, X, FileText, Upload, User, Video, Play, Loader2 } from 'lucide-react';
 import Layout from '@/components/Layout';
+import PageHero from '@/components/page/PageHero';
+import PageSection from '@/components/page/PageSection';
+import PageSectionHeader from '@/components/page/PageSectionHeader';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useEditMode } from '@/contexts/EditModeContext';
 import { toast } from 'sonner';
 import { savePageData, loadPageData } from '@/lib/dataStorage';
@@ -68,9 +72,9 @@ const defaultTeamMembers: TeamMember[] = [
 const TEAM_STORAGE_KEY = 'team-page-data';
 
 const gradientVariants = [
-  'from-[#a08530] to-[#C9A84C]',
-  'from-[#C9A84C] to-[#E8D48B]',
-  'from-gray-600 to-gray-400',
+  'from-[#a08530] to-[var(--gold-400)]',
+  'from-[var(--gold-400)] to-[#E8D48B]',
+  'from-stone-600 to-stone-400',
   'from-[#2D2A1E] to-[#a08530]',
 ];
 
@@ -87,6 +91,7 @@ const emptyForm: AddMemberFormData = {
 };
 
 export default function Team() {
+  const { t } = useLanguage();
   const { isEditMode } = useEditMode();
   const [members, setMembers] = useState<TeamMember[]>(defaultTeamMembers);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
@@ -230,33 +235,20 @@ export default function Team() {
 
   return (
     <Layout>
-      {/* Hero */}
-      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#5E5E5E]">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)]" />
-        <div className="relative z-10 text-center px-4">
-          <h1 className="gold-text text-4xl md:text-5xl lg:text-6xl font-bold font-playfair mb-4">فريقنا</h1>
-          <p className="text-gray-600 dark:text-white/70 text-lg md:text-xl max-w-2xl mx-auto font-tajawal">
-            فريق من المهندسين والخبراء المتخصصين
-          </p>
-        </div>
-      </section>
+      <PageHero
+        titleKey="page.team.hero.title"
+        subtitleKey="page.team.hero.subtitle"
+      />
 
-      {/* Team Grid */}
-      <section className="py-16 md:py-24 bg-white dark:bg-[#6B6B6B]">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center mb-14">
-            <p className="text-gray-600 dark:text-white/70 text-lg font-tajawal leading-relaxed">
-              يضم فريقنا نخبة من المهندسين والمتخصصين ذوي الخبرات الواسعة في مختلف المجالات الهندسية،
-              يعملون معاً لتقديم أفضل الحلول والخدمات لعملائنا الكرام.
-            </p>
-          </div>
+      <PageSection variant="cream">
+          <PageSectionHeader subtitleKey="page.team.intro" />
 
           {/* Add Member Button (Edit Mode) */}
           {isEditMode && (
             <div className="flex justify-center mb-8">
               <button
                 onClick={() => setShowAddModal(true)}
-                className="flex items-center gap-2 px-6 py-3 bg-gold text-dark font-bold rounded-xl hover:shadow-[0_0_20px_rgba(201,168,76,0.3)] transition-all duration-300 font-tajawal"
+                className="flex items-center gap-2 px-6 py-3 bg-gold text-dark font-bold rounded-xl hover:shadow-gold-sm transition-all duration-300"
               >
                 <Plus className="w-5 h-5" />
                 إضافة عضو جديد
@@ -268,7 +260,7 @@ export default function Team() {
             {members.map((member, i) => (
               <div
                 key={member.id}
-                className="group relative text-center p-6 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gold/20 hover:border-gold/30 transition-all duration-300 hover:shadow-[0_0_20px_rgba(201,168,76,0.1)] cursor-pointer"
+                className="group relative cursor-pointer rounded-2xl border border-soft-border/70 bg-cream p-6 text-center transition-all duration-300 hover:-translate-y-1 hover:border-gold-300/70 hover:shadow-gold-card dark:bg-surface"
                 onClick={() => setSelectedMember(member)}
               >
                 {/* Delete Button (Edit Mode) */}
@@ -287,19 +279,18 @@ export default function Team() {
                   {member.image ? (
                     <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
                   ) : (
-                    <span className="text-white text-3xl font-bold font-tajawal">
+                    <span className="text-white text-3xl font-bold">
                       {member.name.charAt(2)}
                     </span>
                   )}
                 </div>
-                <h3 className="text-gold font-bold text-lg mb-1 font-tajawal">{member.name}</h3>
-                <p className="text-gold-light/70 text-sm mb-3 font-tajawal">{member.title}</p>
-                <p className="text-gray-600 dark:text-white/55 text-xs leading-relaxed font-tajawal">{member.description}</p>
+                <h3 className="text-gold font-bold text-lg mb-1">{member.name}</h3>
+                <p className="text-gold-light/70 text-sm mb-3">{member.title}</p>
+                <p className="text-ink-secondary dark:text-white/55 text-xs leading-relaxed">{member.description}</p>
               </div>
             ))}
           </div>
-        </div>
-      </section>
+      </PageSection>
 
       {/* Member Details Modal */}
       {selectedMember && (
@@ -308,7 +299,7 @@ export default function Team() {
             className="absolute inset-0 bg-black/80 backdrop-blur-sm"
             onClick={() => { setSelectedMember(null); setShowMemberVideo(false); }}
           />
-          <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white dark:bg-[#4a4a4a] rounded-2xl border border-gold/30 shadow-2xl shadow-gold/10 p-8">
+          <div className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-soft-border/70 bg-cream p-8 shadow-gold-lg dark:bg-surface">
             <button
               onClick={() => { setSelectedMember(null); setShowMemberVideo(false); }}
               className="absolute top-4 left-4 z-10 w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
@@ -317,26 +308,26 @@ export default function Team() {
             </button>
 
             <div className="text-center mb-6">
-              <div className={`relative w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden ${!selectedMember.image ? 'bg-gradient-to-br from-[#a08530] to-[#C9A84C]' : ''} flex items-center justify-center`}>
+              <div className={`relative w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden ${!selectedMember.image ? 'bg-gradient-to-br from-[#a08530] to-[var(--gold-400)]' : ''} flex items-center justify-center`}>
                 {selectedMember.image ? (
                   <img src={selectedMember.image} alt={selectedMember.name} className="w-full h-full object-cover" />
                 ) : (
                   <User className="w-16 h-16 text-white/60" />
                 )}
               </div>
-              <h2 className="font-tajawal text-2xl font-bold gold-text mb-1">{selectedMember.name}</h2>
-              <p className="text-gold-light/70 font-tajawal">{selectedMember.title}</p>
+              <h2 className="text-2xl font-bold gold-text mb-1">{selectedMember.name}</h2>
+              <p className="text-gold-light/70">{selectedMember.title}</p>
             </div>
 
             <div className="mb-6">
-              <h3 className="font-tajawal text-lg font-bold text-gold mb-3">نبذة</h3>
-              <p className="text-gray-600 dark:text-white/60 leading-relaxed font-tajawal">{selectedMember.description}</p>
+              <h3 className="text-lg font-bold text-gold mb-3">نبذة</h3>
+              <p className="text-ink-muted leading-relaxed">{selectedMember.description}</p>
             </div>
 
             {/* Video Section */}
             {selectedMember.videoData && (
               <div className="mb-6">
-                <h3 className="font-tajawal text-lg font-bold text-gold mb-3">فيديو تعريفي</h3>
+                <h3 className="text-lg font-bold text-gold mb-3">فيديو تعريفي</h3>
                 {showMemberVideo ? (
                   <div className="rounded-xl overflow-hidden bg-black">
                     <video controls autoPlay className="w-full h-48 object-contain">
@@ -347,7 +338,7 @@ export default function Team() {
                 ) : (
                   <button
                     onClick={() => setShowMemberVideo(true)}
-                    className="w-full py-3 rounded-xl bg-gray-100 dark:bg-white/10 border border-gold/20 flex items-center justify-center gap-2 text-gold font-bold hover:bg-gold/10 transition-colors"
+                    className="w-full py-3 rounded-xl bg-surface-alt dark:bg-white/10 border border-gold/20 flex items-center justify-center gap-2 text-gold font-bold hover:bg-gold/10 transition-colors"
                   >
                     <Play className="w-5 h-5" />
                     تشغيل الفيديو
@@ -360,7 +351,7 @@ export default function Team() {
               <a
                 href={selectedMember.pdfData}
                 download={selectedMember.pdfName || 'cv.pdf'}
-                className="w-full py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold rounded-xl hover:shadow-[0_0_20px_rgba(201,168,76,0.3)] transition-all duration-300 flex items-center justify-center gap-2"
+                className="w-full py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold rounded-xl hover:shadow-gold-sm transition-all duration-300 flex items-center justify-center gap-2"
               >
                 <FileText className="w-5 h-5" />
                 تحميل السيرة الذاتية (PDF)
@@ -377,51 +368,51 @@ export default function Team() {
             className="absolute inset-0 bg-black/80 backdrop-blur-sm"
             onClick={() => setShowAddModal(false)}
           />
-          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-[#4a4a4a] rounded-2xl border border-gold/30 shadow-2xl p-8">
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-surface rounded-2xl border border-gold/30 shadow-2xl p-8">
             <button
               onClick={() => setShowAddModal(false)}
-              className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gray-200 dark:bg-white/10 text-gray-600 dark:text-white flex items-center justify-center hover:bg-gray-300 dark:hover:bg-white/20 transition-colors"
+              className="absolute top-4 left-4 w-10 h-10 rounded-full bg-surface-alt dark:bg-white/10 text-ink-secondary dark:text-white flex items-center justify-center hover:bg-gold-100 dark:hover:bg-white/20 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
 
-            <h2 className="font-tajawal text-2xl font-bold gold-text mb-6">إضافة عضو جديد</h2>
+            <h2 className="text-2xl font-bold gold-text mb-6">إضافة عضو جديد</h2>
 
             <form onSubmit={handleAddMember} className="space-y-4">
               <div>
-                <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">الاسم *</label>
+                <label className="block text-sm font-bold text-ink-secondary mb-1">الاسم *</label>
                 <input
                   type="text" name="name" required value={formData.name} onChange={handleFormChange}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gold/20 bg-white dark:bg-white/5 text-gray-800 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none font-tajawal"
+                  className="w-full px-4 py-3 rounded-xl border border-soft-border/80 dark:border-gold/20 bg-cream-light dark:bg-surface text-ink focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none"
                   placeholder="مثال: م. أحمد محمد"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">المسمى الوظيفي *</label>
+                <label className="block text-sm font-bold text-ink-secondary mb-1">المسمى الوظيفي *</label>
                 <input
                   type="text" name="title" required value={formData.title} onChange={handleFormChange}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gold/20 bg-white dark:bg-white/5 text-gray-800 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none font-tajawal"
+                  className="w-full px-4 py-3 rounded-xl border border-soft-border/80 dark:border-gold/20 bg-cream-light dark:bg-surface text-ink focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none"
                   placeholder="مثال: مدير المشاريع"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">نبذة *</label>
+                <label className="block text-sm font-bold text-ink-secondary mb-1">نبذة *</label>
                 <textarea
                   name="description" required rows={4} value={formData.description} onChange={handleFormChange}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gold/20 bg-white dark:bg-white/5 text-gray-800 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none font-tajawal resize-none"
+                  className="w-full px-4 py-3 rounded-xl border border-soft-border/80 dark:border-gold/20 bg-cream-light dark:bg-surface text-ink focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none resize-none"
                   placeholder="اكتب نبذة عن العضو..."
                 />
               </div>
 
               {/* Image Upload */}
               <div>
-                <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">الصورة الشخصية</label>
+                <label className="block text-sm font-bold text-ink-secondary mb-1">الصورة الشخصية</label>
                 <div className="flex items-center gap-3">
                   <label className={`flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors ${uploadingImage ? 'opacity-60 pointer-events-none' : ''}`}>
                     {uploadingImage ? <Loader2 className="w-5 h-5 text-gold animate-spin" /> : <Upload className="w-5 h-5 text-gold" />}
-                    <span className="text-sm text-gray-600 dark:text-white/60 font-tajawal">
+                    <span className="text-sm text-ink-muted">
                       {uploadingImage ? 'جاري الرفع...' : formImage ? 'تم اختيار صورة' : 'اختر صورة'}
                     </span>
                     <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" disabled={uploadingImage} />
@@ -434,11 +425,11 @@ export default function Team() {
 
               {/* Video Upload */}
               <div>
-                <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">فيديو تعريفي</label>
+                <label className="block text-sm font-bold text-ink-secondary mb-1">فيديو تعريفي</label>
                 <div className="flex items-center gap-3">
                   <label className={`flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors ${uploadingVideo ? 'opacity-60 pointer-events-none' : ''}`}>
                     {uploadingVideo ? <Loader2 className="w-5 h-5 text-gold animate-spin" /> : <Video className="w-5 h-5 text-gold" />}
-                    <span className="text-sm text-gray-600 dark:text-white/60 font-tajawal">
+                    <span className="text-sm text-ink-muted">
                       {uploadingVideo ? 'جاري الرفع...' : formVideoName || 'اختر فيديو'}
                     </span>
                     <input type="file" accept="video/*" onChange={handleVideoUpload} className="hidden" disabled={uploadingVideo} />
@@ -448,11 +439,11 @@ export default function Team() {
 
               {/* PDF Upload */}
               <div>
-                <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">السيرة الذاتية (PDF)</label>
+                <label className="block text-sm font-bold text-ink-secondary mb-1">السيرة الذاتية (PDF)</label>
                 <div className="flex items-center gap-3">
                   <label className={`flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors ${uploadingPdf ? 'opacity-60 pointer-events-none' : ''}`}>
                     {uploadingPdf ? <Loader2 className="w-5 h-5 text-gold animate-spin" /> : <FileText className="w-5 h-5 text-gold" />}
-                    <span className="text-sm text-gray-600 dark:text-white/60 font-tajawal">
+                    <span className="text-sm text-ink-muted">
                       {uploadingPdf ? 'جاري الرفع...' : formPdfName || 'اختر ملف PDF'}
                     </span>
                     <input type="file" accept=".pdf" onChange={handlePdfUpload} className="hidden" disabled={uploadingPdf} />
@@ -462,7 +453,7 @@ export default function Team() {
 
               <button
                 type="submit"
-                className="w-full py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold text-lg rounded-xl hover:shadow-[0_0_30px_rgba(201,168,76,0.4)] transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2"
+                className="w-full py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold text-lg rounded-xl hover:shadow-gold-lg transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2"
               >
                 <Plus className="w-5 h-5" />
                 إضافة العضو

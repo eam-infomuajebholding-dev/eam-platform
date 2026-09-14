@@ -37,7 +37,7 @@ export default function WhyEAMSection() {
     >
       <div className="container mx-auto px-4">
         <div ref={titleReveal.ref} className={titleReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}>
-          <h2 className="mb-12 text-center font-tajawal text-3xl font-bold text-[var(--eam-home-gold-soft)] md:text-4xl">
+          <h2 className="mb-12 text-center text-3xl font-bold text-[var(--eam-home-gold-soft)] md:text-4xl">
             لماذا EAM؟
           </h2>
         </div>
@@ -54,7 +54,7 @@ export default function WhyEAMSection() {
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--eam-home-gold)]/15">
                 <item.icon className="h-6 w-6 text-[var(--eam-home-gold-soft)]" strokeWidth={1.75} />
               </div>
-              <h3 className="font-tajawal text-lg font-bold text-[var(--eam-home-gold-soft)]">{item.title}</h3>
+              <h3 className="text-lg font-bold text-[var(--eam-home-gold-soft)]">{item.title}</h3>
               <p className="mt-2 text-sm leading-7 text-white/75">{item.description}</p>
             </article>
           ))}

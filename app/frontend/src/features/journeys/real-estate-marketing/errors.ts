@@ -1,7 +1,3 @@
-import type { FieldValidationErrorDetail } from './types';
-
-export type { FieldValidationErrorDetail };
-
 export interface RealEstateMarketingStepValues {
   marketingGoal: string;
   propertyDescription: string;
@@ -17,25 +13,14 @@ export interface RealEstateMarketingStepValues {
   submitConfirmed: boolean;
 }
 
-export function extractFieldErrors(error: unknown): FieldValidationErrorDetail[] {
-  if (!error || typeof error !== 'object') return [];
-  const maybeResponse = error as {
-    response?: { data?: { detail?: { errors?: FieldValidationErrorDetail[] } | string } };
-    data?: { detail?: { errors?: FieldValidationErrorDetail[] } | string };
-    detail?: { errors?: FieldValidationErrorDetail[] } | string;
-  };
-  const detail =
-    maybeResponse.response?.data?.detail ?? maybeResponse.data?.detail ?? maybeResponse.detail;
-  if (detail && typeof detail === 'object' && Array.isArray(detail.errors)) {
-    return detail.errors;
-  }
-  return [];
-}
+export {
+  extractFieldErrors,
+  getErrorMessage,
+  type FieldValidationErrorDetail,
+} from '@/features/journeys/core/journeyErrors';
 
-export function getErrorMessage(errors: FieldValidationErrorDetail[], fallback: string): string {
-  if (errors.length > 0) return errors.map((item) => item.message).join(' ');
-  return fallback;
-}
+import type { RealEstateMarketingContext } from './types';
+
 
 export function buildAdvanceInput(
   currentStep: string | null,
@@ -70,4 +55,38 @@ export function buildAdvanceInput(
     default:
       return {};
   }
+}
+
+export function emptyValues(): RealEstateMarketingStepValues {
+  return {
+    marketingGoal: '',
+    propertyDescription: '',
+    propertyLocation: '',
+    targetAudience: '',
+    marketingStage: '',
+    existingAssets: '',
+    channelsInterest: '',
+    targetTimeline: '',
+    urgency: '',
+    budgetContext: '',
+    scopeConfirmed: false,
+    submitConfirmed: false,
+  };
+}
+
+export function syncFromContext(context: RealEstateMarketingContext): RealEstateMarketingStepValues {
+  return {
+    marketingGoal: context.marketing_goal ?? '',
+    propertyDescription: context.property_description ?? '',
+    propertyLocation: context.property_location ?? '',
+    targetAudience: context.target_audience ?? '',
+    marketingStage: context.marketing_stage ?? '',
+    existingAssets: context.existing_assets ?? '',
+    channelsInterest: context.channels_interest ?? '',
+    targetTimeline: context.target_timeline ?? '',
+    urgency: context.urgency ?? '',
+    budgetContext: context.budget_context ?? '',
+    scopeConfirmed: context.scope_confirmed ?? false,
+    submitConfirmed: context.submit_confirmed ?? false,
+  };
 }

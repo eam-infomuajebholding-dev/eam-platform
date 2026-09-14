@@ -1,2 +1,8 @@
 User-agent: *
 Allow: /
+Disallow: /my-requests
+Disallow: /payment/
+Disallow: /command-center
+Disallow: /operations/
+Disallow: /auth/
+Disallow: /admin

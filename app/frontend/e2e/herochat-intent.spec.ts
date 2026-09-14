@@ -12,8 +12,19 @@ async function openHomeHeroChat(page: import('@playwright/test').Page) {
   await expect(page.getByText('ابدأ رحلتك معنا من هنا')).toBeVisible({ timeout: 15000 });
 }
 
-async function sendHeroMessage(page: import('@playwright/test').Page, message: string) {
-  const input = page.getByPlaceholder('ما الذي تريد إنجازه اليوم؟');
+async function selectJourneyMode(page: import('@playwright/test').Page) {
+  await page.getByRole('tab', { name: 'رحلة مخصصة' }).click();
+}
+
+async function sendHeroMessage(
+  page: import('@playwright/test').Page,
+  message: string,
+  options?: { journeyMode?: boolean },
+) {
+  if (options?.journeyMode !== false) {
+    await selectJourneyMode(page);
+  }
+  const input = page.getByPlaceholder(/ما الذي تريد إنجازه اليوم|صف احتياجك لبدء الرحلة المخصصة/);
   await input.fill(message);
   await page.getByRole('button', { name: 'إرسال' }).click();
 }
@@ -163,7 +174,7 @@ test.describe('HeroChat intent routing', () => {
 
   test('S25: ambiguous request asks for clarification without forced journey', async ({ page }) => {
     await openHomeHeroChat(page);
-    await sendHeroMessage(page, 'عندي مشروع');
+    await sendHeroMessage(page, 'عندي مشروع', { journeyMode: false });
     await expect(page.getByPlaceholder('صف المشكلة أو الاستشارة المطلوبة...')).not.toBeVisible({
       timeout: 15000,
     });

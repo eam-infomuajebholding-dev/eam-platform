@@ -2,6 +2,13 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { TrendingUp, Play, FileText, X, ChevronLeft, MapPin, Calendar, DollarSign, Building2, Plus, Upload, Video, Loader2 } from 'lucide-react';
 import Layout from '@/components/Layout';
+import PageHero from '@/components/page/PageHero';
+import PageSection from '@/components/page/PageSection';
+import PageSectionHeader from '@/components/page/PageSectionHeader';
+import PageStatGrid from '@/components/page/PageStatGrid';
+import PageFilterPills from '@/components/page/PageFilterPills';
+import PageCtaSection from '@/components/page/PageCtaSection';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { useEditMode } from '@/contexts/EditModeContext';
 import { toast } from 'sonner';
@@ -100,11 +107,11 @@ const defaultProjects: Project[] = [
 
 const PROJECTS_STORAGE_KEY = 'invest-projects-data';
 
-const statusLabels = {
-  available: { label: 'متاح للاستثمار', color: 'bg-green-500/10 text-green-600 border-green-500/30' },
-  'in-progress': { label: 'قيد التنفيذ', color: 'bg-blue-500/10 text-blue-600 border-blue-500/30' },
-  completed: { label: 'مكتمل', color: 'bg-gray-500/10 text-gray-600 border-gray-500/30' },
-};
+const statusColors = {
+  available: 'bg-green-500/10 text-green-600 border-green-500/30',
+  'in-progress': 'bg-blue-500/10 text-blue-600 border-blue-500/30',
+  completed: 'bg-stone-500/10 text-ink-secondary border-stone-500/30',
+} as const;
 
 interface AddProjectFormData {
   name: string;
@@ -183,14 +190,14 @@ function FileUploadField({ label, accept, multiple, onFiles, fileNames }: {
 
   return (
     <div>
-      <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">{label}</label>
+      <label className="block text-sm font-bold text-ink-secondary mb-1">{label}</label>
       <label className={`flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors ${uploading ? 'opacity-60 pointer-events-none' : ''}`}>
         {uploading ? (
           <Loader2 className="w-5 h-5 text-gold animate-spin" />
         ) : (
           <Upload className="w-5 h-5 text-gold" />
         )}
-        <span className="text-sm text-gray-600 dark:text-white/60 font-tajawal">
+        <span className="text-sm text-ink-muted">
           {uploading ? 'جاري الرفع...' : fileNames.length > 0 ? `تم اختيار ${fileNames.length} ملف` : 'اختر ملف'}
         </span>
         <input type="file" accept={accept} multiple={multiple} onChange={handleChange} className="hidden" disabled={uploading} />
@@ -207,9 +214,13 @@ function FileUploadField({ label, accept, multiple, onFiles, fileNames }: {
 }
 
 export default function Invest() {
-  const heroReveal = useScrollReveal({ threshold: 0.15 });
+  const { t } = useLanguage();
+  const statusLabels = {
+    available: { label: t('page.invest.status.available'), color: statusColors.available },
+    'in-progress': { label: t('page.invest.status.inProgress'), color: statusColors['in-progress'] },
+    completed: { label: t('page.invest.status.completed'), color: statusColors.completed },
+  };
   const projectsReveal = useScrollReveal({ threshold: 0.1 });
-  const ctaReveal = useScrollReveal({ threshold: 0.15 });
   const { isEditMode } = useEditMode();
 
   const [projects, setProjects] = useState<Project[]>(defaultProjects);
@@ -281,91 +292,49 @@ export default function Invest() {
 
   return (
     <Layout>
-      {/* Hero Section */}
-      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#5E5E5E]">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)]" />
-        <div
-          ref={heroReveal.ref}
-          className={`relative z-10 px-4 text-center ${heroReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}
-        >
-          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gold/10 flex items-center justify-center">
-            <TrendingUp className="w-10 h-10 text-gold" />
-          </div>
-          <h1 className="font-tajawal text-4xl md:text-5xl font-bold gold-text mb-4">
-            استثمر معنا
-          </h1>
-          <p className="text-gray-600 dark:text-white/70 text-lg max-w-2xl mx-auto leading-relaxed">
-            فرص استثمارية واعدة في مشاريع عقارية متنوعة. انضم إلينا وكن شريكاً في بناء المستقبل
-          </p>
-        </div>
-      </section>
+      <PageHero titleKey="page.invest.hero.title" subtitleKey="page.invest.hero.subtitle" />
 
-      {/* Statistics Section */}
-      <section className="py-16 bg-white dark:bg-[#6B6B6B] border-b border-gold/10">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-            {[
-              { number: '15+', label: 'مشروع منجز' },
-              { number: '200M+', label: 'حجم الاستثمارات' },
-              { number: '20%', label: 'متوسط العائد' },
-              { number: '50+', label: 'شريك نجاح' },
-            ].map((stat, index) => (
-              <div key={index} className="text-center p-4">
-                <p className="font-tajawal text-3xl md:text-4xl font-bold gold-text mb-2">{stat.number}</p>
-                <p className="text-sm text-gray-500 dark:text-white/50">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <PageSection variant="muted" className="py-10 md:py-14">
+        <PageStatGrid
+          columns={4}
+          stats={[
+            { value: '15+', labelKey: 'page.invest.stats.projects' },
+            { value: '200M+', labelKey: 'page.invest.stats.volume' },
+            { value: '20%', labelKey: 'page.invest.stats.return' },
+            { value: '50+', labelKey: 'page.invest.stats.partners' },
+          ]}
+        />
+      </PageSection>
 
-      {/* Projects Section */}
-      <section className="py-20 md:py-28 bg-gray-50 dark:bg-[#5E5E5E] relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.06)_0%,transparent_70%)]" />
-        <div className="container mx-auto px-4 relative z-10">
+      <PageSection variant="alt" withGlow>
           <div
             ref={projectsReveal.ref}
             className={`${projectsReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}
           >
-            <div className="text-center mb-12">
-              <h2 className="font-tajawal text-3xl md:text-4xl font-bold gold-text mb-4">
-                المشاريع المتاحة
-              </h2>
-              <p className="text-gray-600 dark:text-white/60 max-w-xl mx-auto mb-8">
-                اختر المشروع المناسب لك وتواصل معنا للحصول على تفاصيل أكثر
-              </p>
-
-              {/* Filter Buttons */}
-              <div className="flex flex-wrap justify-center gap-3">
-                {[
-                  { key: 'all', label: 'الكل' },
-                  { key: 'available', label: 'متاح للاستثمار' },
-                  { key: 'in-progress', label: 'قيد التنفيذ' },
-                ].map((f) => (
-                  <button
-                    key={f.key}
-                    onClick={() => setFilter(f.key as 'all' | 'available' | 'in-progress')}
-                    className={`px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 ${
-                      filter === f.key
-                        ? 'bg-gold text-dark shadow-lg shadow-gold/30'
-                        : 'bg-white dark:bg-white/5 border border-gold/20 text-gray-600 dark:text-white/60 hover:border-gold/60'
-                    }`}
-                  >
-                    {f.label}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <PageSectionHeader
+              titleKey="page.invest.section.title"
+              subtitleKey="page.invest.section.desc"
+            />
+            <PageFilterPills
+              options={[
+                { key: 'all', labelKey: 'page.invest.filter.all' },
+                { key: 'available', labelKey: 'page.invest.filter.available' },
+                { key: 'in-progress', labelKey: 'page.invest.filter.inProgress' },
+              ]}
+              active={filter}
+              onChange={(key) => setFilter(key)}
+              className="mb-10"
+            />
 
             {/* Add Project Button (Edit Mode) */}
             {isEditMode && (
               <div className="flex justify-center mb-8">
                 <button
                   onClick={() => setShowAddModal(true)}
-                  className="flex items-center gap-2 px-6 py-3 bg-gold text-dark font-bold rounded-xl hover:shadow-[0_0_20px_rgba(201,168,76,0.3)] transition-all duration-300"
+                  className="flex items-center gap-2 px-6 py-3 bg-gold text-dark font-bold rounded-xl hover:shadow-gold-sm transition-all duration-300"
                 >
                   <Plus className="w-5 h-5" />
-                  إضافة مشروع جديد
+                  {t('page.invest.addProject')}
                 </button>
               </div>
             )}
@@ -374,7 +343,7 @@ export default function Invest() {
               {filteredProjects.map((project, index) => (
                 <div
                   key={project.id}
-                  className="group relative rounded-2xl bg-white dark:bg-white/5 backdrop-blur-md border border-gold/20 hover:border-gold/60 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(201,168,76,0.15)] overflow-hidden"
+                  className="group relative rounded-2xl bg-cream-light dark:bg-surface backdrop-blur-md border border-gold/20 hover:border-gold/60 transition-all duration-500 hover:-translate-y-2 hover:shadow-gold-card overflow-hidden"
                   style={{ transitionDelay: `${index * 100}ms` }}
                 >
                   {/* Delete Button (Edit Mode) */}
@@ -402,7 +371,7 @@ export default function Invest() {
                       </span>
                     </div>
                     <div className="absolute bottom-4 right-4 left-4">
-                      <h3 className="font-tajawal text-xl font-bold text-white mb-1">{project.name}</h3>
+                      <h3 className="text-xl font-bold text-white mb-1">{project.name}</h3>
                       <div className="flex items-center gap-2 text-white/70 text-sm">
                         <MapPin className="w-4 h-4" />
                         <span>{project.location}</span>
@@ -415,15 +384,15 @@ export default function Invest() {
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div className="flex items-center gap-2 text-sm">
                         <Building2 className="w-4 h-4 text-gold" />
-                        <span className="text-gray-600 dark:text-white/60">{project.type}</span>
+                        <span className="text-ink-muted">{project.type}</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         <Calendar className="w-4 h-4 text-gold" />
-                        <span className="text-gray-600 dark:text-white/60">{project.duration}</span>
+                        <span className="text-ink-muted">{project.duration}</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         <DollarSign className="w-4 h-4 text-gold" />
-                        <span className="text-gray-600 dark:text-white/60">{project.investmentAmount}</span>
+                        <span className="text-ink-muted">{project.investmentAmount}</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         <TrendingUp className="w-4 h-4 text-gold" />
@@ -431,7 +400,7 @@ export default function Invest() {
                       </div>
                     </div>
 
-                    <p className="text-gray-600 dark:text-white/60 text-sm leading-relaxed mb-6 line-clamp-2">
+                    <p className="text-ink-muted text-sm leading-relaxed mb-6 line-clamp-2">
                       {project.description}
                     </p>
 
@@ -441,9 +410,9 @@ export default function Invest() {
                         setActiveImageIndex(0);
                         setShowVideo(false);
                       }}
-                      className="w-full py-3 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold rounded-xl hover:shadow-[0_0_20px_rgba(201,168,76,0.3)] transition-all duration-300 flex items-center justify-center gap-2"
+                      className="w-full py-3 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold rounded-xl hover:shadow-gold-sm transition-all duration-300 flex items-center justify-center gap-2"
                     >
-                      عرض التفاصيل
+                      {t('page.invest.viewDetails')}
                       <ChevronLeft className="w-5 h-5" />
                     </button>
                   </div>
@@ -451,29 +420,14 @@ export default function Invest() {
               ))}
             </div>
           </div>
-        </div>
-      </section>
+      </PageSection>
 
-      {/* CTA Section */}
-      <section className="py-20 md:py-28 bg-white dark:bg-[#6B6B6B] relative">
-        <div
-          ref={ctaReveal.ref}
-          className={`container mx-auto px-4 text-center ${ctaReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}
-        >
-          <h2 className="font-tajawal text-3xl md:text-4xl font-bold gold-text mb-6">
-            هل لديك مشروع تريد عرضه للاستثمار؟
-          </h2>
-          <p className="text-gray-600 dark:text-white/70 text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
-            نرحب بشركاء النجاح. إذا كان لديك مشروع عقاري وترغب في عرضه للاستثمار، تواصل معنا وسنساعدك في تحقيق أهدافك
-          </p>
-          <Link
-            to="/contact"
-            className="inline-block px-10 py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold text-lg rounded-lg hover:shadow-[0_0_30px_rgba(201,168,76,0.4)] transition-all duration-300 hover:scale-105"
-          >
-            تواصل معنا
-          </Link>
-        </div>
-      </section>
+      <PageCtaSection
+        titleKey="page.invest.cta.title"
+        descKey="page.invest.cta.desc"
+        buttonKey="common.contactUs"
+        buttonTo="/contact"
+      />
 
       {/* Project Details Modal */}
       {selectedProject && (
@@ -482,7 +436,7 @@ export default function Invest() {
             className="absolute inset-0 bg-black/80 backdrop-blur-sm"
             onClick={() => setSelectedProject(null)}
           />
-          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-[#4a4a4a] rounded-2xl border border-gold/30 shadow-2xl shadow-gold/10">
+          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-surface rounded-2xl border border-gold/30 shadow-2xl shadow-gold/10">
             <button
               onClick={() => setSelectedProject(null)}
               className="absolute top-4 left-4 z-10 w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
@@ -537,38 +491,38 @@ export default function Invest() {
                 </span>
               </div>
 
-              <h2 className="font-tajawal text-3xl font-bold gold-text mb-4">{selectedProject.name}</h2>
+              <h2 className="text-3xl font-bold gold-text mb-4">{selectedProject.name}</h2>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div className="p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gold/10">
+                <div className="p-4 rounded-xl bg-surface-alt dark:bg-surface border border-gold/10">
                   <MapPin className="w-5 h-5 text-gold mb-2" />
-                  <p className="text-xs text-gray-500 dark:text-white/50 mb-1">الموقع</p>
-                  <p className="text-sm font-bold text-gray-800 dark:text-white">{selectedProject.location}</p>
+                  <p className="text-xs text-ink-muted mb-1">الموقع</p>
+                  <p className="text-sm font-bold text-ink">{selectedProject.location}</p>
                 </div>
-                <div className="p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gold/10">
+                <div className="p-4 rounded-xl bg-surface-alt dark:bg-surface border border-gold/10">
                   <DollarSign className="w-5 h-5 text-gold mb-2" />
-                  <p className="text-xs text-gray-500 dark:text-white/50 mb-1">مبلغ الاستثمار</p>
-                  <p className="text-sm font-bold text-gray-800 dark:text-white">{selectedProject.investmentAmount}</p>
+                  <p className="text-xs text-ink-muted mb-1">مبلغ الاستثمار</p>
+                  <p className="text-sm font-bold text-ink">{selectedProject.investmentAmount}</p>
                 </div>
-                <div className="p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gold/10">
+                <div className="p-4 rounded-xl bg-surface-alt dark:bg-surface border border-gold/10">
                   <TrendingUp className="w-5 h-5 text-gold mb-2" />
-                  <p className="text-xs text-gray-500 dark:text-white/50 mb-1">العائد المتوقع</p>
+                  <p className="text-xs text-ink-muted mb-1">العائد المتوقع</p>
                   <p className="text-sm font-bold text-gold">{selectedProject.expectedReturn}</p>
                 </div>
-                <div className="p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gold/10">
+                <div className="p-4 rounded-xl bg-surface-alt dark:bg-surface border border-gold/10">
                   <Calendar className="w-5 h-5 text-gold mb-2" />
-                  <p className="text-xs text-gray-500 dark:text-white/50 mb-1">مدة المشروع</p>
-                  <p className="text-sm font-bold text-gray-800 dark:text-white">{selectedProject.duration}</p>
+                  <p className="text-xs text-ink-muted mb-1">مدة المشروع</p>
+                  <p className="text-sm font-bold text-ink">{selectedProject.duration}</p>
                 </div>
               </div>
 
               <div className="mb-6">
-                <h3 className="font-tajawal text-xl font-bold text-gold mb-3">وصف المشروع</h3>
-                <p className="text-gray-600 dark:text-white/60 leading-relaxed">{selectedProject.description}</p>
+                <h3 className="text-xl font-bold text-gold mb-3">وصف المشروع</h3>
+                <p className="text-ink-muted leading-relaxed">{selectedProject.description}</p>
               </div>
 
               <div className="mb-6">
-                <h3 className="font-tajawal text-xl font-bold text-gold mb-3">معرض الصور</h3>
+                <h3 className="text-xl font-bold text-gold mb-3">معرض الصور</h3>
                 <div className="grid grid-cols-3 gap-3">
                   {selectedProject.images.map((img, i) => (
                     <button
@@ -588,7 +542,7 @@ export default function Invest() {
                 <a
                   href={selectedProject.pdfUrl}
                   download
-                  className="flex-1 py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold rounded-xl hover:shadow-[0_0_20px_rgba(201,168,76,0.3)] transition-all duration-300 flex items-center justify-center gap-2"
+                  className="flex-1 py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold rounded-xl hover:shadow-gold-sm transition-all duration-300 flex items-center justify-center gap-2"
                 >
                   <FileText className="w-5 h-5" />
                   تحميل ملف تفاصيل المشروع (PDF)
@@ -613,40 +567,40 @@ export default function Invest() {
             className="absolute inset-0 bg-black/80 backdrop-blur-sm"
             onClick={() => setShowAddModal(false)}
           />
-          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-[#4a4a4a] rounded-2xl border border-gold/30 shadow-2xl p-8">
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-surface rounded-2xl border border-gold/30 shadow-2xl p-8">
             <button
               onClick={() => setShowAddModal(false)}
-              className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gray-200 dark:bg-white/10 text-gray-600 dark:text-white flex items-center justify-center hover:bg-gray-300 dark:hover:bg-white/20 transition-colors"
+              className="absolute top-4 left-4 w-10 h-10 rounded-full bg-surface-alt dark:bg-white/10 text-ink-secondary dark:text-white flex items-center justify-center hover:bg-gold-100 dark:hover:bg-white/20 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
 
-            <h2 className="font-tajawal text-2xl font-bold gold-text mb-6">إضافة مشروع جديد</h2>
+            <h2 className="text-2xl font-bold gold-text mb-6">إضافة مشروع جديد</h2>
 
             <form onSubmit={handleAddProject} className="space-y-4">
               <div>
-                <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">اسم المشروع *</label>
+                <label className="block text-sm font-bold text-ink-secondary mb-1">اسم المشروع *</label>
                 <input
                   type="text" name="name" required value={formData.name} onChange={handleFormChange}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gold/20 bg-white dark:bg-white/5 text-gray-800 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none font-tajawal"
+                  className="w-full px-4 py-3 rounded-xl border border-soft-border/80 dark:border-gold/20 bg-cream-light dark:bg-surface text-ink focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none"
                   placeholder="مثال: مجمع إعمار السكني"
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">الموقع *</label>
+                  <label className="block text-sm font-bold text-ink-secondary mb-1">الموقع *</label>
                   <input
                     type="text" name="location" required value={formData.location} onChange={handleFormChange}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gold/20 bg-white dark:bg-white/5 text-gray-800 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none font-tajawal"
+                    className="w-full px-4 py-3 rounded-xl border border-soft-border/80 dark:border-gold/20 bg-cream-light dark:bg-surface text-ink focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none"
                     placeholder="مثال: الرياض - حي النرجس"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">نوع المشروع *</label>
+                  <label className="block text-sm font-bold text-ink-secondary mb-1">نوع المشروع *</label>
                   <input
                     type="text" name="type" required value={formData.type} onChange={handleFormChange}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gold/20 bg-white dark:bg-white/5 text-gray-800 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none font-tajawal"
+                    className="w-full px-4 py-3 rounded-xl border border-soft-border/80 dark:border-gold/20 bg-cream-light dark:bg-surface text-ink focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none"
                     placeholder="مثال: سكني، تجاري، صناعي"
                   />
                 </div>
@@ -654,18 +608,18 @@ export default function Invest() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">مبلغ الاستثمار *</label>
+                  <label className="block text-sm font-bold text-ink-secondary mb-1">مبلغ الاستثمار *</label>
                   <input
                     type="text" name="investmentAmount" required value={formData.investmentAmount} onChange={handleFormChange}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gold/20 bg-white dark:bg-white/5 text-gray-800 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none font-tajawal"
+                    className="w-full px-4 py-3 rounded-xl border border-soft-border/80 dark:border-gold/20 bg-cream-light dark:bg-surface text-ink focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none"
                     placeholder="مثال: 5,000,000 ريال"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">العائد المتوقع *</label>
+                  <label className="block text-sm font-bold text-ink-secondary mb-1">العائد المتوقع *</label>
                   <input
                     type="text" name="expectedReturn" required value={formData.expectedReturn} onChange={handleFormChange}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gold/20 bg-white dark:bg-white/5 text-gray-800 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none font-tajawal"
+                    className="w-full px-4 py-3 rounded-xl border border-soft-border/80 dark:border-gold/20 bg-cream-light dark:bg-surface text-ink focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none"
                     placeholder="مثال: 18% سنوياً"
                   />
                 </div>
@@ -673,18 +627,18 @@ export default function Invest() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">مدة المشروع *</label>
+                  <label className="block text-sm font-bold text-ink-secondary mb-1">مدة المشروع *</label>
                   <input
                     type="text" name="duration" required value={formData.duration} onChange={handleFormChange}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gold/20 bg-white dark:bg-white/5 text-gray-800 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none font-tajawal"
+                    className="w-full px-4 py-3 rounded-xl border border-soft-border/80 dark:border-gold/20 bg-cream-light dark:bg-surface text-ink focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none"
                     placeholder="مثال: 24 شهر"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">حالة المشروع</label>
+                  <label className="block text-sm font-bold text-ink-secondary mb-1">حالة المشروع</label>
                   <select
                     name="status" value={formData.status} onChange={handleFormChange}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gold/20 bg-white dark:bg-white/5 text-gray-800 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none font-tajawal"
+                    className="w-full px-4 py-3 rounded-xl border border-soft-border/80 dark:border-gold/20 bg-cream-light dark:bg-surface text-ink focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none"
                   >
                     <option value="available">متاح للاستثمار</option>
                     <option value="in-progress">قيد التنفيذ</option>
@@ -694,10 +648,10 @@ export default function Invest() {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">وصف المشروع *</label>
+                <label className="block text-sm font-bold text-ink-secondary mb-1">وصف المشروع *</label>
                 <textarea
                   name="description" required rows={4} value={formData.description} onChange={handleFormChange}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gold/20 bg-white dark:bg-white/5 text-gray-800 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none font-tajawal resize-none"
+                  className="w-full px-4 py-3 rounded-xl border border-soft-border/80 dark:border-gold/20 bg-cream-light dark:bg-surface text-ink focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none resize-none"
                   placeholder="اكتب وصفاً تفصيلياً للمشروع..."
                 />
               </div>
@@ -736,7 +690,7 @@ export default function Invest() {
 
               <button
                 type="submit"
-                className="w-full py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold text-lg rounded-xl hover:shadow-[0_0_30px_rgba(201,168,76,0.4)] transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2"
+                className="w-full py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold text-lg rounded-xl hover:shadow-gold-lg transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2"
               >
                 <Plus className="w-5 h-5" />
                 إضافة المشروع

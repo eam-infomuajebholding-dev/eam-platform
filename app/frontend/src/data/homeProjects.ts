@@ -1,66 +1,26 @@
-/** Homepage project presentation data — images PHASE-LATER */
+import type { ProjectImageKey } from '@/config/assetKeys';
+
+/** Homepage project presentation — demo portfolio, not live CMS records */
 
 export type HomeProject = {
   id: number;
-  title: string;
-  location: string;
   status: 'active' | 'completed' | 'upcoming';
   progress: number;
-  category: string;
-  imageUrl?: string;
+  imageKey: ProjectImageKey;
 };
 
-export const FEATURED_HOME_PROJECT: HomeProject = {
-  id: 1,
-  title: 'برج الأعمال المركزي',
-  location: 'الرياض',
-  status: 'active',
-  progress: 72,
-  category: 'أبراج تجارية',
-};
-
-export const COMPACT_HOME_PROJECTS: HomeProject[] = [
-  {
-    id: 2,
-    title: 'مجمع الواحة السكني',
-    location: 'الدمام',
-    status: 'active',
-    progress: 45,
-    category: 'مجمعات سكنية',
-  },
-  {
-    id: 3,
-    title: 'جسر الملك عبدالله',
-    location: 'جدة',
-    status: 'completed',
-    progress: 100,
-    category: 'بنية تحتية',
-  },
-  {
-    id: 4,
-    title: 'مركز الابتكار التقني',
-    location: 'الرياض',
-    status: 'active',
-    progress: 58,
-    category: 'مباني تقنية',
-  },
+export const FEATURED_HOME_PROJECTS: HomeProject[] = [
+  { id: 1, status: 'active', progress: 72, imageKey: 'luxuryResidential' },
+  { id: 2, status: 'active', progress: 58, imageKey: 'businessCenter' },
+  { id: 3, status: 'active', progress: 45, imageKey: 'specializedHospital' },
+  { id: 4, status: 'upcoming', progress: 22, imageKey: 'commercialTower' },
 ];
 
-export const CAROUSEL_HOME_PROJECTS: HomeProject[] = [
-  FEATURED_HOME_PROJECT,
-  ...COMPACT_HOME_PROJECTS,
-  {
-    id: 5,
-    title: 'واجهة الكورنيش التجارية',
-    location: 'جدة',
-    status: 'upcoming',
-    progress: 12,
-    category: 'تجاري',
-  },
-];
+/** @deprecated use FEATURED_HOME_PROJECTS */
+export const FEATURED_HOME_PROJECT = FEATURED_HOME_PROJECTS[0];
 
-export const STATUS_LABELS: Record<HomeProject['status'], string> = {
-  active: 'قيد التنفيذ',
-  completed: 'مكتمل',
-  upcoming: 'قريباً',
-};
+/** @deprecated use FEATURED_HOME_PROJECTS */
+export const COMPACT_HOME_PROJECTS = FEATURED_HOME_PROJECTS.slice(1);
+
+/** @deprecated use FEATURED_HOME_PROJECTS */
+export const CAROUSEL_HOME_PROJECTS = FEATURED_HOME_PROJECTS;

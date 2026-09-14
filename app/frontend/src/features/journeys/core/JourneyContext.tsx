@@ -53,6 +53,8 @@ export function JourneyProvider({ children }: JourneyProviderProps) {
     setCurrentInstanceState(instance);
     if (instance) {
       josClient.setActiveJourneyInstanceId(instance.id);
+    } else {
+      josClient.clearActiveJourneyInstanceId();
     }
   }, []);
 

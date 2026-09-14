@@ -12,6 +12,8 @@ import {
   submitQuoteForApproval,
   type QuoteDetail,
 } from '@/features/operations/api/quotesClient';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { getOpsPaymentStatus, getPaymentConfig } from '@/features/payments/api/paymentClient';
 
 interface Props {
   serviceRequestId: number;
@@ -23,6 +25,7 @@ function formatDate(value?: string | null): string {
 }
 
 export default function QuoteProposalPanel({ serviceRequestId }: Props) {
+  const { t } = useLanguage();
   const queryClient = useQueryClient();
   const [description, setDescription] = useState('');
   const [quantity, setQuantity] = useState('1');
@@ -33,6 +36,21 @@ export default function QuoteProposalPanel({ serviceRequestId }: Props) {
     queryKey: ['operations', 'quotes', serviceRequestId],
     queryFn: () => getQuoteForServiceRequest(serviceRequestId),
     retry: false,
+  });
+
+  const paymentQuery = useQuery({
+    queryKey: ['operations', 'payment-status', serviceRequestId],
+    queryFn: () => getOpsPaymentStatus(serviceRequestId),
+    enabled:
+      quoteQuery.isSuccess &&
+      (quoteQuery.data?.status === 'issued' || quoteQuery.data?.status === 'paid'),
+    retry: false,
+  });
+
+  const paymentConfigQuery = useQuery({
+    queryKey: ['payments', 'config'],
+    queryFn: getPaymentConfig,
+    staleTime: 60_000,
   });
 
   const invalidate = () => {
@@ -73,7 +91,10 @@ export default function QuoteProposalPanel({ serviceRequestId }: Props) {
 
   const issueMutation = useMutation({
     mutationFn: (quoteId: number) => issueQuote(quoteId),
-    onSuccess: invalidate,
+    onSuccess: () => {
+      invalidate();
+      void queryClient.invalidateQueries({ queryKey: ['operations', 'payment-status', serviceRequestId] });
+    },
   });
 
   const quote = quoteQuery.data as QuoteDetail | undefined;
@@ -81,13 +102,13 @@ export default function QuoteProposalPanel({ serviceRequestId }: Props) {
   const isPending = createMutation.isPending || addLineMutation.isPending || submitMutation.isPending;
 
   if (quoteQuery.isLoading) {
-    return <p className="font-tajawal text-sm text-gray-600 dark:text-white/70">جاري تحميل العرض...</p>;
+    return <p className="text-sm text-ink-secondary">جاري تحميل العرض...</p>;
   }
 
   if (quoteQuery.isError && !quote) {
     return (
-      <div className="space-y-3 font-tajawal">
-        <p className="text-sm text-gray-600 dark:text-white/70">
+      <div className="space-y-3">
+        <p className="text-sm text-ink-secondary">
           لا يوجد عرض سعر بعد. أنشئ مسودة من البنود التي يحددها المراجع المهني — لا تسعير تلقائي.
         </p>
         <textarea
@@ -111,26 +132,69 @@ export default function QuoteProposalPanel({ serviceRequestId }: Props) {
   if (!quote) return null;
 
   return (
-    <div className="space-y-4 font-tajawal">
+    <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h3 className="font-bold">عرض سعر — {quote.reference_code}</h3>
-          <p className="text-sm text-gray-600 dark:text-white/70">
+          <p className="text-sm text-ink-secondary">
             الحالة: {QUOTE_STATUS_LABELS[quote.status] ?? quote.status}
           </p>
         </div>
-        {quote.status === 'issued' ? (
-          <p className="text-sm text-green-700 dark:text-green-300">
-            صالح حتى {formatDate(quote.valid_until)}
-          </p>
-        ) : null}
+        <div className="flex flex-col items-end gap-1">
+          {quote.status === 'issued' ? (
+            <p className="text-sm text-green-700 dark:text-green-300">
+              صالح حتى {formatDate(quote.valid_until)}
+            </p>
+          ) : null}
+          {paymentQuery.data?.paid || quote.status === 'paid' ? (
+            <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+              مدفوع
+              {paymentQuery.data?.paid_at
+                ? ` · ${formatDate(paymentQuery.data.paid_at)}`
+                : ''}
+            </span>
+          ) : paymentQuery.data?.status === 'failed' ? (
+            <span className="rounded-full bg-red-500/15 px-3 py-1 text-xs font-semibold text-red-700 dark:text-red-300">
+              {t('payment.failedBadge')}
+            </span>
+          ) : paymentQuery.data?.status === 'expired' ? (
+            <span className="rounded-full bg-slate-500/15 px-3 py-1 text-xs font-semibold text-slate-700 dark:text-slate-300">
+              {t('payment.expiredBadge')}
+            </span>
+          ) : quote.status === 'issued' && paymentQuery.data?.payments_enabled ? (
+            <span className="rounded-full bg-amber-500/15 px-3 py-1 text-xs font-semibold text-amber-800 dark:text-amber-200">
+              {t('payment.stageAwaitingPayment')}
+            </span>
+          ) : null}
+        </div>
       </div>
+
+      {paymentConfigQuery.data?.payments_enabled &&
+      !paymentConfigQuery.data?.webhook_configured &&
+      quote.status === 'issued' ? (
+        <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-900 dark:text-amber-100">
+          {t('payment.webhookWarning')}
+        </p>
+      ) : null}
+
+      {paymentQuery.data?.receipt_url ? (
+        <p className="text-sm">
+          <a
+            href={paymentQuery.data.receipt_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-gold underline underline-offset-2"
+          >
+            إيصال Stripe
+          </a>
+        </p>
+      ) : null}
 
       {quote.line_items.length > 0 ? (
         <div className="overflow-x-auto rounded-lg border">
           <table className="min-w-full text-sm">
             <thead>
-              <tr className="border-b bg-gray-50 dark:bg-white/5">
+              <tr className="border-b bg-surface-alt dark:bg-surface">
                 <th className="px-3 py-2 text-right">البند</th>
                 <th className="px-3 py-2 text-right">الكمية</th>
                 <th className="px-3 py-2 text-right">السعر</th>
@@ -164,14 +228,14 @@ export default function QuoteProposalPanel({ serviceRequestId }: Props) {
           </table>
         </div>
       ) : (
-        <p className="text-sm text-gray-500">لا توجد بنود بعد.</p>
+        <p className="text-sm text-ink-muted">لا توجد بنود بعد.</p>
       )}
 
       <div className="rounded-lg border border-gold/20 bg-gold/5 p-3 text-sm space-y-1">
         <p>المجموع الفرعي: {formatSar(quote.subtotal)}</p>
         <p>ضريبة القيمة المضافة (15%): {formatSar(quote.vat_amount)}</p>
         <p className="font-bold">الإجمالي: {formatSar(quote.total_amount)}</p>
-        <p className="text-xs text-gray-500">العملة: {quote.currency} · الأسعار حصرية للضريبة</p>
+        <p className="text-xs text-ink-muted">العملة: {quote.currency} · الأسعار حصرية للضريبة</p>
       </div>
 
       {isEditable ? (
@@ -200,7 +264,7 @@ export default function QuoteProposalPanel({ serviceRequestId }: Props) {
               type="button"
               onClick={() => addLineMutation.mutate(quote.id)}
               disabled={!description.trim() || !unitPrice || isPending}
-              className="rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60 dark:bg-white/20"
+              className="rounded-lg bg-dark-card px-4 py-2 text-sm font-semibold text-white disabled:opacity-60 dark:bg-white/20"
             >
               إضافة
             </button>

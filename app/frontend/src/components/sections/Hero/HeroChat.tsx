@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect, KeyboardEvent } from "react";
-import { ArrowUp, Loader2, Mic, Paperclip } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ArrowUp, ExternalLink, Loader2, Map, MessageCircle, Mic, Paperclip, Route, X } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useWorkspace } from "@/features/ai-workspace/WorkspaceContext";
+import { getJourneyRoute } from "@/features/ai-workspace/platformResources";
 import BuildVillaStepPanel from "@/features/journeys/build-villa/BuildVillaStepPanel";
 import EngineeringConsultingStepPanel from "@/features/journeys/engineering-consulting/EngineeringConsultingStepPanel";
 import ContractingStepPanel from "@/features/journeys/contracting/ContractingStepPanel";
@@ -43,9 +46,11 @@ import { ENGINEERING_CONSULTING_JOURNEY_TYPE } from "@/features/journeys/enginee
 
 type HeroChatProps = {
   variant?: "default" | "homepage";
+  /** Strip outer card chrome when parent provides the shell (homepage composer). */
+  shell?: "default" | "embedded" | "dock";
 };
 
-export default function HeroChat({ variant = "default" }: HeroChatProps) {
+export default function HeroChat({ variant = "default", shell = "default" }: HeroChatProps) {
   const {
     mode,
     messages,
@@ -81,14 +86,22 @@ export default function HeroChat({ variant = "default" }: HeroChatProps) {
     setEqStepValues,
     fieldErrors,
     formError,
+    interactionMode,
+    setInteractionMode,
     sendMessage,
+    acceptPendingJourney,
     advanceCurrentStep,
     revisitCurrentSection,
     completeCurrentJourney,
+    exitCurrentJourney,
   } = useWorkspace();
+  const { t, direction, language } = useLanguage();
 
   const [input, setInput] = useState("");
+  const [attachedFileName, setAttachedFileName] = useState<string | null>(null);
+  const [isListening, setIsListening] = useState(false);
   const messagesRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const isHomepage = variant === "homepage";
 
   const journeyType = currentInstance?.journey_type ?? null;
@@ -123,8 +136,15 @@ export default function HeroChat({ variant = "default" }: HeroChatProps) {
     if (!trimmed || isBusy || isJourneyMode) {
       return;
     }
+
+    let message = trimmed;
+    if (attachedFileName) {
+      message = `${trimmed}\n[${t("chat.attachmentAdded")}: ${attachedFileName}]`;
+      setAttachedFileName(null);
+    }
+
     setInput("");
-    await sendMessage(trimmed);
+    await sendMessage(message);
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -134,51 +154,202 @@ export default function HeroChat({ variant = "default" }: HeroChatProps) {
     }
   };
 
-  const cardClass = isHomepage
-    ? "home-hero-chat mx-auto w-full overflow-hidden rounded-[18px] border border-[var(--eam-home-border)] bg-[var(--eam-home-cream-light)]/92 shadow-[0_2px_14px_rgba(139,77,0,0.08)] dark:border-white/10 dark:bg-dark"
-    : "mx-auto w-full max-w-4xl overflow-hidden rounded-[28px] border border-soft-border bg-cream shadow-md dark:border-white/10 dark:bg-dark";
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setAttachedFileName(file.name);
+    }
+    event.target.value = "";
+  };
+
+  const startVoiceInput = () => {
+    if (isBusy || isJourneyMode || isListening) {
+      return;
+    }
+
+    const SpeechRecognitionCtor =
+      (window as Window & { SpeechRecognition?: new () => SpeechRecognition }).SpeechRecognition ??
+      (window as Window & { webkitSpeechRecognition?: new () => SpeechRecognition })
+        .webkitSpeechRecognition;
+
+    if (!SpeechRecognitionCtor) {
+      window.alert(t("chat.voiceUnsupported"));
+      return;
+    }
+
+    const recognition = new SpeechRecognitionCtor();
+    recognition.lang = language.startsWith("ar") ? "ar-SA" : language.startsWith("en") ? "en-US" : language;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = () => setIsListening(false);
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      const transcript = event.results[0]?.[0]?.transcript?.trim();
+      if (transcript) {
+        setInput((prev) => (prev ? `${prev} ${transcript}` : transcript));
+      }
+    };
+
+    recognition.start();
+  };
+
+  const isDock = isHomepage && shell === "dock";
+  const isEmbedded = isHomepage && (shell === "embedded" || shell === "dock");
+
+  const cardClass = isDock
+    ? "home-hero-chat home-hero-chat-dock w-full overflow-hidden bg-white dark:bg-[var(--eam-home-cream-light)]"
+    : isEmbedded
+    ? "home-hero-chat w-full overflow-hidden bg-white dark:bg-[var(--eam-home-cream-light)]"
+    : isHomepage
+      ? "home-hero-chat mx-auto w-full overflow-hidden rounded-[18px] border border-[var(--eam-home-border)] bg-[var(--eam-home-cream-light)]/92 shadow-[0_2px_14px_rgba(139,77,0,0.08)] dark:border-white/10 dark:bg-dark"
+      : "mx-auto w-full max-w-4xl overflow-hidden rounded-[28px] border border-soft-border bg-cream shadow-md dark:border-white/10 dark:bg-dark";
 
   const homepageCompact = isHomepage && !isJourneyMode && messages.length === 0 && !streamingContent;
+  const composerPlaceholder =
+    interactionMode === "journey"
+      ? t("chat.placeholder.journey")
+      : isHomepage
+        ? t("chat.placeholder.free")
+        : t("chat.placeholder.general");
 
   return (
     <div className={isHomepage ? "home-hero-chat-wrap" : "-mt-0"}>
-      {isHomepage ? (
+      {isHomepage && !isEmbedded ? (
         <p className="mb-1 text-center text-[13px] font-semibold text-[var(--eam-home-gold-deep)]">
-          EAM AI
+          {t("chat.brand")}
         </p>
-      ) : (
+      ) : !isHomepage ? (
         <div className="mb-1 text-center">
           <p className="mx-auto max-w-3xl text-base leading-7 text-ink/70 dark:text-white/80">
-            مساعد هندسي ذكي يساعدك في اختيار الخدمة المناسبة،
-            وتقدير المتطلبات، وبدء رحلتك مع فريق إعمار.
+            {t("chat.defaultDescription")}
           </p>
         </div>
-      )}
+      ) : null}
 
       <div className={cardClass}>
+        {!isJourneyMode ? (
+          <div
+            className="flex items-center gap-1 border-b border-[var(--eam-home-border)]/70 bg-[var(--eam-home-cream-light)] px-2 py-1.5 dark:border-white/10 dark:bg-white/5"
+            role="tablist"
+            aria-label={t("chat.interactionAria")}
+          >
+            <button
+              type="button"
+              role="tab"
+              aria-selected={interactionMode === "free"}
+              onClick={() => setInteractionMode("free")}
+              disabled={isBusy}
+              className={`inline-flex flex-1 items-center justify-center gap-1 rounded-full px-2 py-1 text-[11px] font-medium transition ${
+                interactionMode === "free"
+                  ? "bg-white text-[var(--eam-home-gold-deep)] shadow-sm dark:bg-white/10 dark:text-gold"
+                  : "text-[var(--eam-home-ink)]/60 hover:text-[var(--eam-home-gold-deep)] dark:text-white/60"
+              }`}
+            >
+              <MessageCircle className="h-3 w-3" />
+              {t("chat.tab.free")}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={interactionMode === "journey"}
+              onClick={() => setInteractionMode("journey")}
+              disabled={isBusy}
+              className={`inline-flex flex-1 items-center justify-center gap-1 rounded-full px-2 py-1 text-[11px] font-medium transition ${
+                interactionMode === "journey"
+                  ? "bg-white text-[var(--eam-home-gold-deep)] shadow-sm dark:bg-white/10 dark:text-gold"
+                  : "text-[var(--eam-home-ink)]/60 hover:text-[var(--eam-home-gold-deep)] dark:text-white/60"
+              }`}
+            >
+              <Route className="h-3 w-3" />
+              {t("chat.tab.journey")}
+            </button>
+          </div>
+        ) : null}
+
+        {isJourneyMode ? (
+          <div className="flex items-center justify-between gap-2 border-b border-[var(--eam-home-border)]/70 bg-[var(--eam-home-cream-light)] px-3 py-2 dark:border-white/10 dark:bg-white/5">
+            <span className="truncate text-[11px] font-medium text-[var(--eam-home-ink)]/70 dark:text-white/70">
+              {t("chat.journeyBanner")}
+            </span>
+            <button
+              type="button"
+              onClick={() => void exitCurrentJourney()}
+              disabled={isBusy}
+              className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[var(--eam-home-border)] bg-white px-2.5 py-1 text-[11px] font-medium text-[var(--eam-home-gold-deep)] transition hover:border-[var(--eam-home-gold)] hover:bg-[var(--eam-home-cream-light)] disabled:opacity-60 dark:border-white/15 dark:bg-transparent dark:text-gold"
+              aria-label={t("chat.exitJourney")}
+            >
+              <X className="h-3.5 w-3.5" />
+              {t("chat.exitJourney")}
+            </button>
+          </div>
+        ) : null}
+
         {(messages.length > 0 || streamingContent || isJourneyMode) && (
           <div
             ref={messagesRef}
-            className={`overflow-y-auto space-y-3 border-b border-gray-100 dark:border-white/10 ${
-              isHomepage ? "max-h-[220px] px-4 py-3" : "max-h-[320px] px-7 py-5"
+            className={`overflow-y-auto space-y-3 border-b border-soft-border/40 dark:border-white/10 ${
+              isHomepage ? "max-h-[min(38vh,280px)] px-4 py-3" : "max-h-[320px] px-7 py-5"
             }`}
-            dir="rtl"
+            dir={direction}
           >
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={`rounded-2xl px-4 py-3 text-sm font-tajawal leading-relaxed ${
+                className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                   message.role === "user"
-                    ? "ms-8 bg-gray-100 text-gray-900 dark:bg-white/10 dark:text-white"
-                    : "me-8 bg-gold/10 text-gray-800 dark:text-white/90"
+                    ? "ms-8 bg-surface-alt text-ink dark:bg-white/10 dark:text-white"
+                    : "me-8 bg-gold/10 text-ink/90"
                 }`}
               >
                 {message.content}
+
+                {message.role === "assistant" && message.resourceLinks && message.resourceLinks.length > 0 ? (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {message.resourceLinks.map((link) => (
+                      <Link
+                        key={`${message.id}-${link.href}`}
+                        to={link.href}
+                        className="inline-flex items-center gap-1 rounded-full border border-[var(--eam-home-border)] bg-white px-2.5 py-1 text-[11px] font-medium text-[var(--eam-home-gold-deep)] transition hover:border-[var(--eam-home-gold)] dark:border-white/15 dark:bg-transparent dark:text-gold"
+                      >
+                        <Map className="h-3 w-3" />
+                        {link.label}
+                        <ExternalLink className="h-3 w-3 opacity-70" />
+                      </Link>
+                    ))}
+                  </div>
+                ) : null}
+
+                {message.role === "assistant" &&
+                interactionMode === "free" &&
+                message.journeyOffer &&
+                !isJourneyMode ? (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => void acceptPendingJourney(message.journeyOffer!)}
+                      disabled={isBusy}
+                      className="inline-flex items-center gap-1 rounded-full bg-[var(--eam-home-gold-deep)] px-3 py-1.5 text-[11px] font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
+                    >
+                      <Route className="h-3 w-3" />
+                      {t("chat.enterJourney")}: {message.journeyOffer.label}
+                    </button>
+                    {getJourneyRoute(message.journeyOffer.journeyType) ? (
+                      <Link
+                        to={getJourneyRoute(message.journeyOffer.journeyType)!}
+                        className="inline-flex items-center gap-1 rounded-full border border-[var(--eam-home-border)] bg-white px-2.5 py-1 text-[11px] font-medium text-[var(--eam-home-ink)]/80 transition hover:border-[var(--eam-home-gold)] dark:border-white/15 dark:text-white/80"
+                      >
+                        {t("chat.explore")} {message.journeyOffer.label}
+                      </Link>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
             ))}
 
             {streamingContent ? (
-              <div className="me-8 rounded-2xl bg-gold/10 px-4 py-3 text-sm font-tajawal leading-relaxed dark:text-white/90">
+              <div className="me-8 rounded-2xl bg-gold/10 px-4 py-3 text-sm leading-relaxed dark:text-white/90">
                 {streamingContent}
                 <span className="inline-block h-4 w-1 animate-pulse bg-gold/70 align-middle" />
               </div>
@@ -395,49 +566,129 @@ export default function HeroChat({ variant = "default" }: HeroChatProps) {
             ) : null}
 
             {isCompleted ? (
-              <div className="rounded-xl border border-green-300 bg-green-50 px-4 py-3 text-sm font-tajawal text-green-800 dark:bg-green-950/20 dark:text-green-200">
-                تم إكمال رحلة جمع المعلومات بنجاح.
+              <div className="rounded-xl border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-800 dark:bg-green-950/20 dark:text-green-200">
+                {t("chat.journeyComplete")}
               </div>
             ) : null}
           </div>
         )}
 
         {workspaceError && !isJourneyMode ? (
-          <div className="border-b border-red-200 bg-red-50 px-4 py-2 text-sm font-tajawal text-red-700 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-200 md:px-7 md:py-3">
+          <div className="border-b border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-200 md:px-7 md:py-3">
             {workspaceError}
           </div>
         ) : null}
 
-        {homepageCompact ? (
-          <div className="flex min-h-[44px] items-center gap-1 px-2 py-1.5">
+        {attachedFileName && isDock ? (
+          <div className="flex items-center justify-between gap-2 border-b border-[var(--eam-home-border)]/60 bg-[var(--eam-home-cream-light)]/80 px-3 py-1.5 text-[11px] text-[var(--eam-home-ink)]/75">
+            <span className="truncate">
+              {t("chat.attachmentAdded")}: {attachedFileName}
+            </span>
+            <button
+              type="button"
+              onClick={() => setAttachedFileName(null)}
+              className="shrink-0 text-[var(--eam-home-gold-deep)]"
+              aria-label={t("chat.attach")}
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ) : null}
+
+        {isDock ? (
+          <div className="home-assistant-composer flex min-h-[48px] items-center gap-1.5 border-t border-[var(--eam-home-border)]/70 bg-white px-2.5 py-2 dark:bg-[var(--eam-home-cream-light)]">
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="hidden"
+              onChange={handleFileSelect}
+              aria-hidden
+              tabIndex={-1}
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isBusy || isJourneyMode}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[var(--eam-home-ink)]/55 transition hover:bg-[var(--eam-home-cream-light)] hover:text-[var(--eam-home-gold-deep)] disabled:opacity-50"
+              aria-label={t("chat.attach")}
+            >
+              <Paperclip className="h-4 w-4" />
+            </button>
+            <textarea
+              rows={1}
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={isBusy || isJourneyMode}
+              placeholder={
+                isListening
+                  ? t("chat.voiceListening")
+                  : isJourneyMode
+                    ? t("chat.placeholder.journeyActive")
+                    : composerPlaceholder
+              }
+              className={`min-h-[36px] max-h-[72px] flex-1 resize-none rounded-xl border border-[var(--eam-home-border)] bg-white px-3 py-2 text-[13px] leading-5 text-ink outline-none placeholder:text-ink/55 focus:border-[var(--eam-home-gold)] dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-white/55 ${
+                isJourneyMode ? "opacity-60" : ""
+              }`}
+              dir={direction}
+            />
+            <button
+              type="button"
+              onClick={startVoiceInput}
+              disabled={isBusy || isJourneyMode}
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition hover:bg-[var(--eam-home-cream-light)] disabled:opacity-50 ${
+                isListening ? "text-[var(--eam-home-gold-deep)]" : "text-[var(--eam-home-ink)]/55 hover:text-[var(--eam-home-gold-deep)]"
+              }`}
+              aria-label={t("chat.voice")}
+            >
+              {isListening ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mic className="h-4 w-4" />}
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleSend()}
+              disabled={isBusy || isJourneyMode || !input.trim()}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#2B2118] text-white transition hover:bg-[#1a1a2e] disabled:opacity-50"
+              aria-label={t("chat.send")}
+            >
+              {isBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUp className="h-4 w-4" />}
+            </button>
+          </div>
+        ) : homepageCompact ? (
+          <div
+            className={`flex min-h-[40px] items-center gap-1 px-2 py-1.5 ${
+              isEmbedded ? "bg-white dark:bg-[var(--eam-home-cream-light)]" : ""
+            }`}
+          >
             <textarea
               rows={1}
               value={input}
               onChange={(event) => setInput(event.target.value)}
               onKeyDown={handleKeyDown}
               disabled={isBusy}
-              placeholder="ما الذي تريد إنجازه اليوم؟"
-              className="min-h-[36px] flex-1 resize-none border-0 bg-transparent px-2 py-2 text-[13px] font-tajawal text-ink outline-none placeholder:text-ink/45 dark:text-white dark:placeholder:text-white/45"
-              dir="rtl"
+              placeholder={composerPlaceholder}
+              className={`min-h-[32px] max-h-[32px] flex-1 resize-none border-0 px-2 py-1.5 text-[12px] leading-5 text-ink outline-none placeholder:text-ink/55 dark:text-white dark:placeholder:text-white/55 ${
+                isEmbedded ? "bg-white dark:bg-[var(--eam-home-cream-light)]" : "bg-transparent"
+              }`}
+              dir={direction}
             />
             <button
               type="button"
               onClick={() => void handleSend()}
               disabled={isBusy || !input.trim()}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gold text-white disabled:opacity-50"
-              aria-label="إرسال"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gold text-white disabled:opacity-50"
+              aria-label={t("chat.send")}
             >
-              {isBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUp className="h-4 w-4" />}
+              {isBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ArrowUp className="h-3.5 w-3.5" />}
             </button>
           </div>
         ) : (
           <div className={`flex items-end gap-2 ${isHomepage ? "px-3 py-2" : "px-5 py-4 md:px-7"}`}>
             {!isHomepage ? (
               <>
-                <button type="button" className="rounded-full p-2 text-ink/50 hover:bg-gray-100 dark:hover:bg-white/10" aria-label="إرفاق">
+                <button type="button" className="rounded-full p-2 text-ink/50 hover:bg-surface-alt dark:hover:bg-white/10" aria-label={t("chat.attach")}>
                   <Paperclip className="h-5 w-5" />
                 </button>
-                <button type="button" className="rounded-full p-2 text-ink/50 hover:bg-gray-100 dark:hover:bg-white/10" aria-label="صوت">
+                <button type="button" className="rounded-full p-2 text-ink/50 hover:bg-surface-alt dark:hover:bg-white/10" aria-label={t("chat.voice")}>
                   <Mic className="h-5 w-5" />
                 </button>
               </>
@@ -449,21 +700,19 @@ export default function HeroChat({ variant = "default" }: HeroChatProps) {
               onKeyDown={handleKeyDown}
               disabled={isBusy || isJourneyMode}
               placeholder={
-                isJourneyMode
-                  ? "أكمل الخطوات أعلاه للمتابعة..."
-                  : "صف مشروعك أو اطرح سؤالك..."
+                isJourneyMode ? t("chat.placeholder.journeyActive") : composerPlaceholder
               }
-              className={`flex-1 resize-none rounded-2xl border border-gray-200 bg-white px-4 py-3 font-tajawal text-sm outline-none focus:border-gold dark:border-white/10 dark:bg-white/5 dark:text-white ${
+              className={`flex-1 resize-none rounded-2xl border border-soft-border/80 bg-white px-4 py-3 text-sm outline-none focus:border-gold dark:border-white/10 dark:bg-white/5 dark:text-white ${
                 isJourneyMode ? "opacity-60" : ""
               }`}
-              dir="rtl"
+              dir={direction}
             />
             <button
               type="button"
               onClick={() => void handleSend()}
               disabled={isBusy || isJourneyMode || !input.trim()}
               className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gold text-white disabled:opacity-50"
-              aria-label="إرسال"
+              aria-label={t("chat.send")}
             >
               {isBusy ? <Loader2 className="h-5 w-5 animate-spin" /> : <ArrowUp className="h-5 w-5" />}
             </button>

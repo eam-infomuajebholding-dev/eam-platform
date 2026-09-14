@@ -86,11 +86,3 @@ export const PROCUREMENT_PREFERENCE_OPTIONS = [
   { value: 'undecided', label: 'غير محدد' },
 ];
 
-export function getStepNumber(stepKey: string): number {
-  const index = STEP_ORDER.indexOf(stepKey as (typeof STEP_ORDER)[number]);
-  return index >= 0 ? index + 1 : 0;
-}
-
-export function getTotalSteps(): number {
-  return STEP_ORDER.length - 1;
-}

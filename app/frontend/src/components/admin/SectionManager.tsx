@@ -90,12 +90,12 @@ export default function SectionManager() {
     if (!allSections[afterIndex]) return;
 
     const newSection = document.createElement('section');
-    newSection.className = 'py-16 px-4 bg-gray-50 dark:bg-[#6B6B6B]';
+    newSection.className = 'py-16 px-4 bg-surface-alt dark:bg-background';
     newSection.setAttribute('data-custom-section', String(afterIndex));
     newSection.innerHTML = `
       <div class="container mx-auto text-center">
-        <h2 class="text-3xl font-bold mb-4 text-gray-800 dark:text-white">قسم جديد</h2>
-        <p class="text-gray-600 dark:text-gray-300">انقر على النص لتعديله</p>
+        <h2 class="text-3xl font-bold mb-4 text-ink">قسم جديد</h2>
+        <p class="text-ink-secondary dark:text-ink-subtle">انقر على النص لتعديله</p>
       </div>
     `;
     allSections[afterIndex].insertAdjacentElement('afterend', newSection);

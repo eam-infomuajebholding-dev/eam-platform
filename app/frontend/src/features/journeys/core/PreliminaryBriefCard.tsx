@@ -59,7 +59,7 @@ export default function PreliminaryBriefCard({ brief, className = '' }: Props) {
 
   return (
     <div
-      className={`space-y-3 rounded-xl border border-amber-200 bg-amber-50/80 dark:bg-amber-950/20 p-4 text-sm font-tajawal text-ink dark:text-white/90 ${className}`}
+      className={`space-y-3 rounded-xl border border-amber-200 bg-amber-50/80 dark:bg-amber-950/20 p-4 text-sm text-ink dark:text-white/90 ${className}`}
       dir="rtl"
     >
       <p className="font-bold text-amber-900 dark:text-amber-200">{brief.title}</p>

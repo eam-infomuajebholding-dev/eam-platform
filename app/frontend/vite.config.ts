@@ -7,6 +7,7 @@ import { vitePrerenderPlugin } from 'vite-prerender-plugin';
 import Sitemap from 'vite-plugin-sitemap';
 import { getBlogRoutes } from './prerender/blog-routes.js';
 import { getSitemapLastmod } from './prerender/blog-sitemap.js';
+import { getStaticRoutes } from './prerender/static-routes.js';
 
 function escapeHtmlAttr(str: string): string {
   return str
@@ -35,7 +36,17 @@ export default defineConfig(({ command }) => {
       react(),
       atoms(),
       Sitemap({
-        hostname: 'https://atoms.template.com',
+        hostname: (process.env.VITE_SITE_URL ?? 'https://eam.sa').replace(/\/+$/, ''),
+        dynamicRoutes:
+          command === 'build' ? [...getStaticRoutes(), ...getBlogRoutes()] : [],
+        exclude: [
+          '/my-requests',
+          '/payment',
+          '/command-center',
+          '/operations',
+          '/auth',
+          '/admin',
+        ],
         lastmod: getSitemapLastmod(),
         readable: true,
         generateRobotsTxt: true,

@@ -70,7 +70,7 @@ export default function SolutionsSection() {
     >
       <div className="container mx-auto px-4">
         <div ref={titleReveal.ref} className={titleReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}>
-          <h2 className="mb-10 text-center font-tajawal text-3xl font-bold text-[var(--eam-home-ink)] md:text-4xl">
+          <h2 className="mb-10 text-center text-3xl font-bold text-[var(--eam-home-ink)] md:text-4xl">
             حلول متكاملة لرحلة أكثر نجاحاً
           </h2>
           <p className="mx-auto mb-12 max-w-2xl text-center text-sm leading-7 text-[var(--eam-home-ink)]/70 md:text-base">
@@ -92,7 +92,7 @@ export default function SolutionsSection() {
                 <item.icon className="h-5 w-5 text-[var(--eam-home-gold-deep)]" strokeWidth={1.75} />
               </div>
               <div className="min-w-0">
-                <h3 className="font-tajawal text-base font-bold text-[var(--eam-home-ink)] group-hover:text-[var(--eam-home-gold-deep)]">
+                <h3 className="text-base font-bold text-[var(--eam-home-ink)] group-hover:text-[var(--eam-home-gold-deep)]">
                   {item.title}
                 </h3>
                 <p className="mt-1 text-xs leading-6 text-[var(--eam-home-ink)]/65 md:text-sm">{item.description}</p>

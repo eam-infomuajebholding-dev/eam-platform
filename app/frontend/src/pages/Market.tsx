@@ -1,39 +1,45 @@
+import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
-import { ShoppingBag, Clock } from 'lucide-react';
+import PageHero from '@/components/page/PageHero';
+import PageSection from '@/components/page/PageSection';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { ArrowLeft, Clock, ShoppingBag, Sparkles } from 'lucide-react';
 
 export default function Market() {
+  const { t } = useLanguage();
+
   return (
     <Layout>
-      {/* Hero */}
-      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#5E5E5E]">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)]" />
-        <div className="relative z-10 text-center px-4">
-          <h1 className="gold-text text-4xl md:text-5xl lg:text-6xl font-bold font-playfair mb-4">سوقنا</h1>
-          <p className="text-gray-600 dark:text-white/70 text-lg md:text-xl max-w-2xl mx-auto font-tajawal">
-            سوق المنتجات والخدمات الهندسية
-          </p>
-        </div>
-      </section>
+      <PageHero titleKey="page.market.hero.title" subtitleKey="page.market.hero.subtitle" />
 
-      {/* Coming Soon */}
-      <section className="py-24 md:py-36 bg-white dark:bg-[#6B6B6B]">
-        <div className="container mx-auto px-4 text-center">
-          <div className="max-w-lg mx-auto">
-            <div className="w-24 h-24 mx-auto mb-8 rounded-full bg-gold/10 flex items-center justify-center">
-              <ShoppingBag className="w-12 h-12 text-gold" />
+      <PageSection variant="cream" withGlow>
+        <div className="mx-auto max-w-2xl">
+          <div className="rounded-3xl border border-soft-border/70 bg-cream p-10 text-center shadow-gold-card dark:bg-surface md:p-14">
+            <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-2xl bg-gold-50 dark:bg-gold/10">
+              <ShoppingBag className="h-12 w-12 text-gold-600 dark:text-gold-400" />
             </div>
-            <h2 className="gold-text text-3xl md:text-4xl font-bold font-playfair mb-6">قريباً</h2>
-            <p className="text-gray-600 dark:text-white/65 text-lg leading-relaxed font-tajawal mb-8">
-              نعمل حالياً على تطوير سوق إلكتروني متكامل للمنتجات والخدمات الهندسية.
-              سيتيح لكم السوق الوصول إلى مجموعة واسعة من المواد والأدوات والخدمات الهندسية المتخصصة.
+            <p className="text-label mb-4 inline-flex items-center gap-2">
+              <Sparkles className="h-4 w-4" />
+              {t('common.comingSoon')}
             </p>
-            <div className="flex items-center justify-center gap-2 text-gold/70 text-sm font-tajawal">
-              <Clock className="w-4 h-4" />
-              <span>سيتم الإطلاق قريباً - ترقبونا</span>
+            <h2 className="gold-text mb-6 font-display text-display-sm md:text-display-md">
+              {t('page.market.comingSoon')}
+            </h2>
+            <p className="text-lead mb-8">{t('page.market.body')}</p>
+            <div className="mb-8 flex items-center justify-center gap-2 text-sm text-gold-600 dark:text-gold-400">
+              <Clock className="h-4 w-4" />
+              <span>{t('page.market.launchNote')}</span>
             </div>
+            <Link
+              to="/contact"
+              className="eam-btn-primary inline-flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
+              {t('common.contactUs')}
+            </Link>
           </div>
         </div>
-      </section>
+      </PageSection>
     </Layout>
   );
 }

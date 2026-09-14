@@ -74,15 +74,15 @@ export default function AIChatbot() {
   return (
     <>
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-[360px] max-w-[calc(100vw-2rem)] h-[500px] max-h-[calc(100vh-8rem)] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 fade-in duration-300">
+        <div className="fixed bottom-24 right-6 z-50 w-[360px] max-w-[calc(100vw-2rem)] h-[500px] max-h-[calc(100vh-8rem)] bg-white rounded-2xl shadow-2xl border border-soft-border/80 flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 fade-in duration-300">
           <div className="bg-[#1a1a2e] px-5 py-4 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-gold/20 flex items-center justify-center">
                 <Bot className="w-5 h-5 text-gold" />
               </div>
               <div>
-                <h3 className="text-white font-bold text-sm font-tajawal">المساعد الذكي</h3>
-                <p className="text-white/50 text-xs font-tajawal">إعمار الأصالة والمعاصرة</p>
+                <h3 className="text-white font-bold text-sm">المساعد الذكي</h3>
+                <p className="text-white/50 text-xs">إعمار الأصالة والمعاصرة</p>
               </div>
             </div>
             <button
@@ -93,13 +93,13 @@ export default function AIChatbot() {
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50" dir="rtl">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-surface-alt" dir="rtl">
             {messages.length === 0 && !streamingContent && (
               <div className="text-center py-8">
                 <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-gold/10 flex items-center justify-center">
                   <Bot className="w-7 h-7 text-gold" />
                 </div>
-                <p className="text-[#1a1a2e]/70 text-sm font-tajawal mb-4">
+                <p className="text-[#1a1a2e]/70 text-sm mb-4">
                   مرحباً! أنا المساعد الذكي لشركة إعمار الأصالة والمعاصرة. كيف يمكنني مساعدتك؟
                 </p>
                 <div className="space-y-2">
@@ -111,7 +111,7 @@ export default function AIChatbot() {
                     <button
                       key={q}
                       onClick={() => sendQuickQuestion(q)}
-                      className="block w-full text-right px-4 py-2 bg-white rounded-lg border border-gray-200 text-sm text-[#1a1a2e]/80 font-tajawal hover:border-gold/50 hover:bg-gold/5 transition-colors"
+                      className="block w-full text-right px-4 py-2 bg-white rounded-lg border border-soft-border/80 text-sm text-[#1a1a2e]/80 hover:border-gold/50 hover:bg-gold/5 transition-colors"
                     >
                       {q}
                     </button>
@@ -134,10 +134,10 @@ export default function AIChatbot() {
                   )}
                 </div>
                 <div
-                  className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-sm font-tajawal leading-relaxed whitespace-pre-wrap ${
+                  className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
                     msg.role === 'user'
                       ? 'bg-[#1a1a2e] text-white rounded-tr-sm'
-                      : 'bg-white text-[#1a1a2e] border border-gray-200 rounded-tl-sm'
+                      : 'bg-white text-[#1a1a2e] border border-soft-border/80 rounded-tl-sm'
                   }`}
                 >
                   {msg.content}
@@ -150,7 +150,7 @@ export default function AIChatbot() {
                 <div className="w-7 h-7 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
                   <Bot className="w-4 h-4 text-gold" />
                 </div>
-                <div className="max-w-[80%] px-4 py-2.5 rounded-2xl rounded-tl-sm bg-white text-[#1a1a2e] border border-gray-200 text-sm font-tajawal leading-relaxed whitespace-pre-wrap">
+                <div className="max-w-[80%] px-4 py-2.5 rounded-2xl rounded-tl-sm bg-white text-[#1a1a2e] border border-soft-border/80 text-sm leading-relaxed whitespace-pre-wrap">
                   {streamingContent}
                   <span className="inline-block w-1.5 h-4 bg-gold/60 animate-pulse mr-0.5 align-middle" />
                 </div>
@@ -162,7 +162,7 @@ export default function AIChatbot() {
                 <div className="w-7 h-7 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
                   <Bot className="w-4 h-4 text-gold" />
                 </div>
-                <div className="px-4 py-3 rounded-2xl rounded-tl-sm bg-white border border-gray-200">
+                <div className="px-4 py-3 rounded-2xl rounded-tl-sm bg-white border border-soft-border/80">
                   <div className="flex gap-1.5">
                     <span className="w-2 h-2 bg-gold/40 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                     <span className="w-2 h-2 bg-gold/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -175,7 +175,7 @@ export default function AIChatbot() {
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="p-3 border-t border-gray-200 bg-white flex-shrink-0" dir="rtl">
+          <div className="p-3 border-t border-soft-border/80 bg-white flex-shrink-0" dir="rtl">
             <div className="flex items-center gap-2">
               <input
                 ref={inputRef}
@@ -185,7 +185,7 @@ export default function AIChatbot() {
                 onKeyDown={handleKeyDown}
                 placeholder="اكتب سؤالك هنا..."
                 disabled={isLoading}
-                className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-[#1a1a2e] font-tajawal placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors disabled:opacity-60"
+                className="flex-1 bg-surface-alt border border-soft-border/80 rounded-xl px-4 py-2.5 text-sm text-[#1a1a2e] placeholder:text-ink-subtle focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-colors disabled:opacity-60"
               />
               <button
                 onClick={handleSend}
@@ -204,7 +204,7 @@ export default function AIChatbot() {
         className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-110 ${
           isOpen
             ? 'bg-[#1a1a2e] hover:bg-[#2a2a4e]'
-            : 'bg-gradient-to-br from-gold to-[#b8922e] hover:shadow-[0_4px_20px_rgba(201,168,76,0.4)]'
+            : 'bg-gradient-to-br from-gold to-gold-600 hover:shadow-gold-sm'
         }`}
         aria-label="المساعد الذكي"
       >

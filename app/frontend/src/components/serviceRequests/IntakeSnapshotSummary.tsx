@@ -1,5 +1,6 @@
 import type { ServiceRequestIntakeSnapshot } from '@/features/service-requests/api/types';
 import PreliminaryBriefCard from '@/features/journeys/core/PreliminaryBriefCard';
+import { URGENCY_OPTIONS } from '@/features/journeys/core/journeySharedOptions';
 import {
   DESIRED_SERVICE_OPTIONS,
   LAND_OWNERSHIP_OPTIONS,
@@ -47,33 +48,28 @@ import {
   FACILITY_TYPE_OPTIONS as FM_FACILITY_TYPE_OPTIONS,
   OPERATIONAL_CHALLENGE_OPTIONS as FM_OPERATIONAL_CHALLENGE_OPTIONS,
   SERVICE_MATURITY_OPTIONS as FM_SERVICE_MATURITY_OPTIONS,
-  URGENCY_OPTIONS as FM_URGENCY_OPTIONS,
 } from '@/features/journeys/facility-management/constants';
 import {
   ASSET_CONTEXT_OPTIONS,
   CURRENT_STATUS_OPTIONS,
   DOCUMENTS_READINESS_OPTIONS,
   INTENDED_USE_OPTIONS,
-  URGENCY_OPTIONS as RED_URGENCY_OPTIONS,
 } from '@/features/journeys/real-estate-development/constants';
 import {
   EXISTING_ASSETS_OPTIONS,
   MARKETING_GOAL_OPTIONS,
   MARKETING_STAGE_OPTIONS,
   TARGET_AUDIENCE_OPTIONS,
-  URGENCY_OPTIONS as RM_URGENCY_OPTIONS,
 } from '@/features/journeys/real-estate-marketing/constants';
 import {
   MATERIAL_CATEGORY_OPTIONS,
   PROCUREMENT_GOAL_OPTIONS as BM_PROCUREMENT_GOAL_OPTIONS,
   QUANTITY_SCOPE_OPTIONS,
-  URGENCY_OPTIONS as BM_URGENCY_OPTIONS,
 } from '@/features/journeys/building-materials/constants';
 import {
   ENGAGEMENT_TYPE_OPTIONS,
   EQUIPMENT_CATEGORY_OPTIONS,
   EQUIPMENT_NEED_OPTIONS,
-  URGENCY_OPTIONS as EQ_URGENCY_OPTIONS,
 } from '@/features/journeys/equipment/constants';
 
 interface IntakeSnapshotSummaryProps {
@@ -96,8 +92,8 @@ export default function IntakeSnapshotSummary({ snapshot }: IntakeSnapshotSummar
 
   if (journeyType === 'contracting') {
     return (
-      <div className="space-y-4 font-tajawal text-sm">
-        <div className="space-y-2 rounded-xl border border-gold/20 bg-gray-50 dark:bg-white/5 p-4">
+      <div className="space-y-4 text-sm">
+        <div className="space-y-2 rounded-xl border border-gold/20 bg-surface-alt dark:bg-surface p-4">
           <p><strong>نوع المشروع:</strong> {labelForValue(PROJECT_TYPE_OPTIONS, snapshot.project_type)}</p>
           <p><strong>الوصف:</strong> {snapshot.project_description ?? '—'}</p>
           <p><strong>الموقع:</strong> {snapshot.location ?? '—'}</p>
@@ -114,8 +110,8 @@ export default function IntakeSnapshotSummary({ snapshot }: IntakeSnapshotSummar
 
   if (journeyType === 'project_management') {
     return (
-      <div className="space-y-4 font-tajawal text-sm">
-        <div className="space-y-2 rounded-xl border border-gold/20 bg-gray-50 dark:bg-white/5 p-4">
+      <div className="space-y-4 text-sm">
+        <div className="space-y-2 rounded-xl border border-gold/20 bg-surface-alt dark:bg-surface p-4">
           <p><strong>نوع المشروع:</strong> {labelForValue(PM_PROJECT_TYPE_OPTIONS, snapshot.project_type)}</p>
           <p><strong>المرحلة:</strong> {labelForValue(PM_PROJECT_STAGE_OPTIONS, snapshot.project_stage)}</p>
           <p><strong>الهدف:</strong> {snapshot.project_objective ?? '—'}</p>
@@ -133,8 +129,8 @@ export default function IntakeSnapshotSummary({ snapshot }: IntakeSnapshotSummar
 
   if (journeyType === 'furnishing') {
     return (
-      <div className="space-y-4 font-tajawal text-sm">
-        <div className="space-y-2 rounded-xl border border-gold/20 bg-gray-50 dark:bg-white/5 p-4">
+      <div className="space-y-4 text-sm">
+        <div className="space-y-2 rounded-xl border border-gold/20 bg-surface-alt dark:bg-surface p-4">
           <p><strong>نوع المساحة:</strong> {labelForValue(SPACE_TYPE_OPTIONS, snapshot.space_type)}</p>
           <p><strong>المرحلة:</strong> {labelForValue(FR_PROJECT_STAGE_OPTIONS, snapshot.project_stage)}</p>
           <p><strong>هدف التأثيث:</strong> {labelForValue(FURNISHING_GOAL_OPTIONS, snapshot.furnishing_goal)}</p>
@@ -152,8 +148,8 @@ export default function IntakeSnapshotSummary({ snapshot }: IntakeSnapshotSummar
 
   if (journeyType === 'real_estate_development') {
     return (
-      <div className="space-y-4 font-tajawal text-sm">
-        <div className="space-y-2 rounded-xl border border-gold/20 bg-gray-50 dark:bg-white/5 p-4">
+      <div className="space-y-4 text-sm">
+        <div className="space-y-2 rounded-xl border border-gold/20 bg-surface-alt dark:bg-surface p-4">
           <p><strong>سياق الأصل:</strong> {labelForValue(ASSET_CONTEXT_OPTIONS, snapshot.asset_context)}</p>
           <p><strong>الموقع:</strong> {snapshot.asset_location ?? '—'}</p>
           <p><strong>الهدف التطويري:</strong> {snapshot.development_objective ?? '—'}</p>
@@ -162,7 +158,7 @@ export default function IntakeSnapshotSummary({ snapshot }: IntakeSnapshotSummar
           {snapshot.known_constraints ? <p><strong>القيود:</strong> {snapshot.known_constraints}</p> : null}
           <p><strong>المستندات:</strong> {labelForValue(DOCUMENTS_READINESS_OPTIONS, snapshot.documents_readiness)}</p>
           {snapshot.target_timeline ? <p><strong>الجدول:</strong> {snapshot.target_timeline}</p> : null}
-          {snapshot.urgency ? <p><strong>الاستعجال:</strong> {labelForValue(RED_URGENCY_OPTIONS, snapshot.urgency)}</p> : null}
+          {snapshot.urgency ? <p><strong>الاستعجال:</strong> {labelForValue(URGENCY_OPTIONS, snapshot.urgency)}</p> : null}
         </div>
         {brief ? <PreliminaryBriefCard brief={brief} /> : null}
       </div>
@@ -171,8 +167,8 @@ export default function IntakeSnapshotSummary({ snapshot }: IntakeSnapshotSummar
 
   if (journeyType === 'real_estate_marketing') {
     return (
-      <div className="space-y-4 font-tajawal text-sm">
-        <div className="space-y-2 rounded-xl border border-gold/20 bg-gray-50 dark:bg-white/5 p-4">
+      <div className="space-y-4 text-sm">
+        <div className="space-y-2 rounded-xl border border-gold/20 bg-surface-alt dark:bg-surface p-4">
           <p><strong>هدف التسويق:</strong> {labelForValue(MARKETING_GOAL_OPTIONS, snapshot.marketing_goal)}</p>
           <p><strong>وصف العقار:</strong> {snapshot.property_description ?? '—'}</p>
           <p><strong>الموقع:</strong> {snapshot.property_location ?? '—'}</p>
@@ -181,7 +177,7 @@ export default function IntakeSnapshotSummary({ snapshot }: IntakeSnapshotSummar
           <p><strong>الأصول التسويقية:</strong> {labelForValue(EXISTING_ASSETS_OPTIONS, snapshot.existing_assets)}</p>
           {snapshot.channels_interest ? <p><strong>القنوات:</strong> {snapshot.channels_interest}</p> : null}
           {snapshot.target_timeline ? <p><strong>الجدول:</strong> {snapshot.target_timeline}</p> : null}
-          {snapshot.urgency ? <p><strong>الاستعجال:</strong> {labelForValue(RM_URGENCY_OPTIONS, snapshot.urgency)}</p> : null}
+          {snapshot.urgency ? <p><strong>الاستعجال:</strong> {labelForValue(URGENCY_OPTIONS, snapshot.urgency)}</p> : null}
           {snapshot.budget_context ? <p><strong>الميزانية:</strong> {snapshot.budget_context}</p> : null}
         </div>
         {brief ? <PreliminaryBriefCard brief={brief} /> : null}
@@ -200,8 +196,8 @@ export default function IntakeSnapshotSummary({ snapshot }: IntakeSnapshotSummar
       supplier_context?: string;
     };
     return (
-      <div className="space-y-4 font-tajawal text-sm">
-        <div className="space-y-2 rounded-xl border border-gold/20 bg-gray-50 dark:bg-white/5 p-4">
+      <div className="space-y-4 text-sm">
+        <div className="space-y-2 rounded-xl border border-gold/20 bg-surface-alt dark:bg-surface p-4">
           <p><strong>هدف التوريد:</strong> {labelForValue(BM_PROCUREMENT_GOAL_OPTIONS, bmSnapshot.procurement_goal)}</p>
           <p><strong>فئة المواد:</strong> {labelForValue(MATERIAL_CATEGORY_OPTIONS, bmSnapshot.material_category)}</p>
           <p><strong>سياق المشروع:</strong> {bmSnapshot.project_context ?? '—'}</p>
@@ -209,7 +205,7 @@ export default function IntakeSnapshotSummary({ snapshot }: IntakeSnapshotSummar
           <p><strong>نطاق الكميات:</strong> {labelForValue(QUANTITY_SCOPE_OPTIONS, bmSnapshot.quantity_scope)}</p>
           {bmSnapshot.specifications_context ? <p><strong>المواصفات:</strong> {bmSnapshot.specifications_context}</p> : null}
           {bmSnapshot.target_timeline ? <p><strong>الجدول:</strong> {bmSnapshot.target_timeline}</p> : null}
-          {bmSnapshot.urgency ? <p><strong>الاستعجال:</strong> {labelForValue(BM_URGENCY_OPTIONS, bmSnapshot.urgency)}</p> : null}
+          {bmSnapshot.urgency ? <p><strong>الاستعجال:</strong> {labelForValue(URGENCY_OPTIONS, bmSnapshot.urgency)}</p> : null}
           {bmSnapshot.budget_context ? <p><strong>الميزانية:</strong> {bmSnapshot.budget_context}</p> : null}
           {bmSnapshot.supplier_context ? <p><strong>المورد:</strong> {bmSnapshot.supplier_context}</p> : null}
         </div>
@@ -229,8 +225,8 @@ export default function IntakeSnapshotSummary({ snapshot }: IntakeSnapshotSummar
       readiness_context?: string;
     };
     return (
-      <div className="space-y-4 font-tajawal text-sm">
-        <div className="space-y-2 rounded-xl border border-gold/20 bg-gray-50 dark:bg-white/5 p-4">
+      <div className="space-y-4 text-sm">
+        <div className="space-y-2 rounded-xl border border-gold/20 bg-surface-alt dark:bg-surface p-4">
           <p><strong>حاجة المعدات:</strong> {labelForValue(EQUIPMENT_NEED_OPTIONS, eqSnapshot.equipment_need)}</p>
           <p><strong>فئة المعدات:</strong> {labelForValue(EQUIPMENT_CATEGORY_OPTIONS, eqSnapshot.equipment_category)}</p>
           <p><strong>سياق الاستخدام:</strong> {eqSnapshot.usage_context ?? '—'}</p>
@@ -238,7 +234,7 @@ export default function IntakeSnapshotSummary({ snapshot }: IntakeSnapshotSummar
           <p><strong>نوع التعاقد:</strong> {labelForValue(ENGAGEMENT_TYPE_OPTIONS, eqSnapshot.engagement_type)}</p>
           {eqSnapshot.specifications_context ? <p><strong>المواصفات:</strong> {eqSnapshot.specifications_context}</p> : null}
           {eqSnapshot.target_timeline ? <p><strong>الجدول:</strong> {eqSnapshot.target_timeline}</p> : null}
-          {eqSnapshot.urgency ? <p><strong>الاستعجال:</strong> {labelForValue(EQ_URGENCY_OPTIONS, eqSnapshot.urgency)}</p> : null}
+          {eqSnapshot.urgency ? <p><strong>الاستعجال:</strong> {labelForValue(URGENCY_OPTIONS, eqSnapshot.urgency)}</p> : null}
           {eqSnapshot.budget_context ? <p><strong>الميزانية:</strong> {eqSnapshot.budget_context}</p> : null}
           {eqSnapshot.readiness_context ? <p><strong>الجاهزية:</strong> {eqSnapshot.readiness_context}</p> : null}
         </div>
@@ -249,8 +245,8 @@ export default function IntakeSnapshotSummary({ snapshot }: IntakeSnapshotSummar
 
   if (journeyType === 'government_services') {
     return (
-      <div className="space-y-4 font-tajawal text-sm">
-        <div className="space-y-2 rounded-xl border border-gold/20 bg-gray-50 dark:bg-white/5 p-4">
+      <div className="space-y-4 text-sm">
+        <div className="space-y-2 rounded-xl border border-gold/20 bg-surface-alt dark:bg-surface p-4">
           <p><strong>نوع الخدمة:</strong> {snapshot.service_category ?? '—'}</p>
           <p><strong>الموقع:</strong> {snapshot.property_location ?? '—'}</p>
           <p><strong>نوع العقار:</strong> {snapshot.property_type ?? '—'}</p>
@@ -265,8 +261,8 @@ export default function IntakeSnapshotSummary({ snapshot }: IntakeSnapshotSummar
 
   if (journeyType === 'facility_management') {
     return (
-      <div className="space-y-4 font-tajawal text-sm">
-        <div className="space-y-2 rounded-xl border border-gold/20 bg-gray-50 dark:bg-white/5 p-4">
+      <div className="space-y-4 text-sm">
+        <div className="space-y-2 rounded-xl border border-gold/20 bg-surface-alt dark:bg-surface p-4">
           <p><strong>نوع المنشأة:</strong> {labelForValue(FM_FACILITY_TYPE_OPTIONS, snapshot.facility_type)}</p>
           <p><strong>الموقع:</strong> {snapshot.location ?? '—'}</p>
           <p><strong>نطاق المرافق:</strong> {labelForValue(FM_FACILITY_SCOPE_OPTIONS, snapshot.facility_scope)}</p>
@@ -274,7 +270,7 @@ export default function IntakeSnapshotSummary({ snapshot }: IntakeSnapshotSummar
           <p><strong>نضج الخدمة:</strong> {labelForValue(FM_SERVICE_MATURITY_OPTIONS, snapshot.service_maturity)}</p>
           <p><strong>هدف التعاقد:</strong> {labelForValue(FM_ENGAGEMENT_GOAL_OPTIONS, snapshot.engagement_goal)}</p>
           {snapshot.target_timeline ? <p><strong>الجدول:</strong> {snapshot.target_timeline}</p> : null}
-          {snapshot.urgency ? <p><strong>الاستعجال:</strong> {labelForValue(FM_URGENCY_OPTIONS, snapshot.urgency)}</p> : null}
+          {snapshot.urgency ? <p><strong>الاستعجال:</strong> {labelForValue(URGENCY_OPTIONS, snapshot.urgency)}</p> : null}
           {snapshot.current_readiness ? <p><strong>الجاهزية الحالية:</strong> {snapshot.current_readiness}</p> : null}
         </div>
         {brief ? <PreliminaryBriefCard brief={brief} /> : null}
@@ -284,8 +280,8 @@ export default function IntakeSnapshotSummary({ snapshot }: IntakeSnapshotSummar
 
   if (journeyType === 'smart_maintenance') {
     return (
-      <div className="space-y-4 font-tajawal text-sm">
-        <div className="space-y-2 rounded-xl border border-gold/20 bg-gray-50 dark:bg-white/5 p-4">
+      <div className="space-y-4 text-sm">
+        <div className="space-y-2 rounded-xl border border-gold/20 bg-surface-alt dark:bg-surface p-4">
           <p><strong>نوع الصيانة:</strong> {labelForValue(MAINTENANCE_CATEGORY_OPTIONS, snapshot.maintenance_category)}</p>
           <p><strong>الموقع:</strong> {snapshot.location ?? '—'}</p>
           <p><strong>وصف المشكلة:</strong> {snapshot.issue_description ?? '—'}</p>
@@ -306,8 +302,8 @@ export default function IntakeSnapshotSummary({ snapshot }: IntakeSnapshotSummar
 
   if (journeyType === 'real_estate_valuation') {
     return (
-      <div className="space-y-4 font-tajawal text-sm">
-        <div className="space-y-2 rounded-xl border border-gold/20 bg-gray-50 dark:bg-white/5 p-4">
+      <div className="space-y-4 text-sm">
+        <div className="space-y-2 rounded-xl border border-gold/20 bg-surface-alt dark:bg-surface p-4">
           <p><strong>غرض التقييم:</strong> {labelForValue(VALUATION_PURPOSE_OPTIONS, snapshot.valuation_purpose)}</p>
           <p><strong>نوع الأصل:</strong> {labelForValue(ASSET_TYPE_OPTIONS, snapshot.asset_type)}</p>
           <p><strong>الوصف:</strong> {snapshot.asset_description ?? '—'}</p>
@@ -324,8 +320,8 @@ export default function IntakeSnapshotSummary({ snapshot }: IntakeSnapshotSummar
 
   if (journeyType === 'engineering_consulting') {
     return (
-      <div className="space-y-4 font-tajawal text-sm">
-        <div className="space-y-2 rounded-xl border border-gold/20 bg-gray-50 dark:bg-white/5 p-4">
+      <div className="space-y-4 text-sm">
+        <div className="space-y-2 rounded-xl border border-gold/20 bg-surface-alt dark:bg-surface p-4">
           <p><strong>المشكلة / الطلب:</strong> {snapshot.problem_statement ?? '—'}</p>
           {snapshot.desired_outcome ? <p><strong>النتيجة المرجوة:</strong> {snapshot.desired_outcome}</p> : null}
           <p><strong>التخصص:</strong> {labelForValue(DISCIPLINE_OPTIONS, snapshot.discipline)}</p>
@@ -338,8 +334,8 @@ export default function IntakeSnapshotSummary({ snapshot }: IntakeSnapshotSummar
   }
 
   return (
-    <div className="space-y-4 font-tajawal text-sm">
-      <div className="space-y-2 rounded-xl border border-gold/20 bg-gray-50 dark:bg-white/5 p-4">
+    <div className="space-y-4 text-sm">
+      <div className="space-y-2 rounded-xl border border-gold/20 bg-surface-alt dark:bg-surface p-4">
         <p><strong>المدينة:</strong> {snapshot.city ?? '—'}</p>
         <p><strong>حالة الأرض:</strong> {labelForValue(LAND_OWNERSHIP_OPTIONS, snapshot.land_ownership_type)}</p>
         <p><strong>المساحة:</strong> {snapshot.land_area_sqm != null ? `${snapshot.land_area_sqm} م²` : '—'}</p>

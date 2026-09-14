@@ -1,7 +1,3 @@
-import type { FieldValidationErrorDetail } from './types';
-
-export type { FieldValidationErrorDetail };
-
 export interface ValuationStepValues {
   valuationPurpose: string;
   assetType: string;
@@ -22,25 +18,14 @@ export interface ValuationStepValues {
   submitConfirmed: boolean;
 }
 
-export function extractFieldErrors(error: unknown): FieldValidationErrorDetail[] {
-  if (!error || typeof error !== 'object') return [];
-  const maybeResponse = error as {
-    response?: { data?: { detail?: { errors?: FieldValidationErrorDetail[] } | string } };
-    data?: { detail?: { errors?: FieldValidationErrorDetail[] } | string };
-    detail?: { errors?: FieldValidationErrorDetail[] } | string;
-  };
-  const detail =
-    maybeResponse.response?.data?.detail ?? maybeResponse.data?.detail ?? maybeResponse.detail;
-  if (detail && typeof detail === 'object' && Array.isArray(detail.errors)) {
-    return detail.errors;
-  }
-  return [];
-}
+export {
+  extractFieldErrors,
+  getErrorMessage,
+  type FieldValidationErrorDetail,
+} from '@/features/journeys/core/journeyErrors';
 
-export function getErrorMessage(errors: FieldValidationErrorDetail[], fallback: string): string {
-  if (errors.length > 0) return errors.map((item) => item.message).join(' ');
-  return fallback;
-}
+import type { RealEstateValuationContext } from './types';
+
 
 export function buildAdvanceInput(
   currentStep: string | null,
@@ -84,4 +69,48 @@ export function buildAdvanceInput(
     default:
       return {};
   }
+}
+
+export function emptyValues(): ValuationStepValues {
+  return {
+    valuationPurpose: '',
+    assetType: '',
+    location: '',
+    assetDescription: '',
+    areaSqm: '',
+    ownershipStatus: '',
+    deedAvailable: null,
+    titleDocsAvailable: null,
+    rentRollAvailable: null,
+    plansAvailable: null,
+    documentNotes: '',
+    inspectionReadiness: '',
+    desiredTimeline: '',
+    urgency: '',
+    engagementGoal: '',
+    scopeConfirmed: false,
+    submitConfirmed: false,
+  };
+}
+
+export function syncFromContext(context: RealEstateValuationContext): ValuationStepValues {
+  return {
+    valuationPurpose: context.valuation_purpose ?? '',
+    assetType: context.asset_type ?? '',
+    location: context.location ?? '',
+    assetDescription: context.asset_description ?? '',
+    areaSqm: context.area_sqm != null ? String(context.area_sqm) : '',
+    ownershipStatus: context.ownership_status ?? '',
+    deedAvailable: context.deed_available ?? null,
+    titleDocsAvailable: context.title_docs_available ?? null,
+    rentRollAvailable: context.rent_roll_available ?? null,
+    plansAvailable: context.plans_available ?? null,
+    documentNotes: context.document_notes ?? '',
+    inspectionReadiness: context.inspection_readiness ?? '',
+    desiredTimeline: context.desired_timeline ?? '',
+    urgency: context.urgency ?? '',
+    engagementGoal: context.engagement_goal ?? '',
+    scopeConfirmed: context.scope_confirmed ?? false,
+    submitConfirmed: context.submit_confirmed ?? false,
+  };
 }

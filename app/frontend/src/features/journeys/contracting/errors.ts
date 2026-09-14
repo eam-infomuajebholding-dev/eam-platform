@@ -1,30 +1,11 @@
-import type { FieldValidationErrorDetail } from './types';
+export {
+  extractFieldErrors,
+  getErrorMessage,
+  type FieldValidationErrorDetail,
+} from '@/features/journeys/core/journeyErrors';
 
-export type { FieldValidationErrorDetail };
+import type { ContractingContext } from './types';
 
-export function extractFieldErrors(error: unknown): FieldValidationErrorDetail[] {
-  if (!error || typeof error !== 'object') {
-    return [];
-  }
-  const maybeResponse = error as {
-    response?: { data?: { detail?: { errors?: FieldValidationErrorDetail[] } | string } };
-    data?: { detail?: { errors?: FieldValidationErrorDetail[] } | string };
-    detail?: { errors?: FieldValidationErrorDetail[] } | string;
-  };
-  const detail =
-    maybeResponse.response?.data?.detail ?? maybeResponse.data?.detail ?? maybeResponse.detail;
-  if (detail && typeof detail === 'object' && Array.isArray(detail.errors)) {
-    return detail.errors;
-  }
-  return [];
-}
-
-export function getErrorMessage(errors: FieldValidationErrorDetail[], fallback: string): string {
-  if (errors.length > 0) {
-    return errors.map((item) => item.message).join(' ');
-  }
-  return fallback;
-}
 
 export interface ContractingStepValues {
   projectType: string;
@@ -100,4 +81,56 @@ export function buildAdvanceInput(
     default:
       return {};
   }
+}
+
+export function emptyValues(): ContractingStepValues {
+  return {
+    projectType: '',
+    projectDescription: '',
+    currentStage: '',
+    location: '',
+    designReadiness: '',
+    boqReadiness: '',
+    siteReadiness: '',
+    scopeType: '',
+    procurementGoal: '',
+    desiredStart: '',
+    urgency: '',
+    budgetRange: '',
+    requirementsNotes: '',
+    experienceType: '',
+    drawingsAvailable: null,
+    boqAvailable: null,
+    permitsAvailable: null,
+    sitePhotosAvailable: null,
+    documentNotes: '',
+    scopeConfirmed: false,
+    submitConfirmed: false,
+  };
+}
+
+export function syncFromContext(context: ContractingContext): ContractingStepValues {
+  return {
+    projectType: context.project_type ?? '',
+    projectDescription: context.project_description ?? '',
+    currentStage: context.current_stage ?? '',
+    location: context.location ?? '',
+    designReadiness: context.design_readiness ?? '',
+    boqReadiness: context.boq_readiness ?? '',
+    siteReadiness: context.site_readiness ?? '',
+    scopeType: context.scope_type ?? '',
+    procurementGoal: context.procurement_goal ?? '',
+    desiredStart: context.desired_start ?? '',
+    urgency: context.urgency ?? '',
+    budgetRange: context.budget_range ?? '',
+    requirementsNotes: context.requirements_notes ?? '',
+    experienceType: context.experience_type ?? '',
+    drawingsAvailable: context.drawings_available ?? null,
+    boqAvailable: context.boq_available ?? null,
+    permitsAvailable: context.permits_available ?? null,
+    sitePhotosAvailable: context.site_photos_available ?? null,
+    documentNotes: context.document_notes ?? '',
+    scopeConfirmed: context.scope_confirmed ?? false,
+    submitConfirmed: context.submit_confirmed ?? false,
+  };
 }

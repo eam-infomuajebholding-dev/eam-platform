@@ -1,78 +1,115 @@
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Layers3 } from 'lucide-react';
-import { CAROUSEL_HOME_PROJECTS, STATUS_LABELS } from '@/data/homeProjects';
+import { ArrowLeft, Building2 } from 'lucide-react';
+import ProjectCard from '@/components/home/ProjectCard';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { FEATURED_HOME_PROJECTS } from '@/data/homeProjects';
+import { projectMessageKey } from '@/i18n/homeMessages';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 
-const PORTFOLIO_CATEGORIES = Array.from(new Set(CAROUSEL_HOME_PROJECTS.map((p) => p.category)));
+const PORTFOLIO_STATS = [
+  { valueKey: 'projects.stat1.value' as const, labelKey: 'projects.stat1.label' as const },
+  { valueKey: 'projects.stat2.value' as const, labelKey: 'projects.stat2.label' as const },
+  { valueKey: 'projects.stat3.value' as const, labelKey: 'projects.stat3.label' as const },
+] as const;
 
 export default function ProjectsShowcaseSection() {
-  const reveal = useScrollReveal({ threshold: 0.12 });
+  const headerReveal = useScrollReveal({ threshold: 0.15 });
+  const gridReveal = useScrollReveal({ threshold: 0.08 });
+  const { t, direction } = useLanguage();
+
+  const [featured, ...rest] = FEATURED_HOME_PROJECTS;
+  const portfolioCategories = FEATURED_HOME_PROJECTS.map((project) =>
+    t(projectMessageKey(project.id, 'category')),
+  );
 
   return (
     <section
       id="home-projects-showcase"
       data-home-section="projects-showcase"
-      className="border-t border-[var(--eam-home-border)]/40 bg-[var(--eam-home-cream-light)] py-16 md:py-20"
-      aria-label="استكشاف المشاريع"
+      className="home-section-block home-section-block--showcase relative overflow-hidden border-t border-[var(--eam-home-border)]/40 bg-[var(--eam-home-cream)]"
+      aria-label={t('projects.aria')}
     >
-      <div className="container mx-auto px-4">
-        <div ref={reveal.ref} className={reveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}>
-          <div className="mb-10 flex flex-col items-center gap-3 text-center md:flex-row md:justify-between md:text-right">
-            <div>
-              <h2 className="font-tajawal text-3xl font-bold text-[var(--eam-home-ink)] md:text-4xl">
-                أبرز المشاريع
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,color-mix(in_srgb,var(--gold-400)_12%,transparent),transparent)]"
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none absolute -end-24 top-1/4 h-64 w-64 rounded-full bg-[var(--eam-home-gold)]/5 blur-3xl"
+        aria-hidden="true"
+      />
+
+      <div className="container relative mx-auto px-4">
+        <div
+          ref={headerReveal.ref}
+          className={`mb-12 md:mb-16 ${headerReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}
+        >
+          <div className="grid gap-10 lg:grid-cols-12 lg:items-end">
+            <div className={`lg:col-span-7 ${direction === 'rtl' ? 'text-right' : 'text-left'}`}>
+              <p className="mb-3 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--eam-home-gold-deep)]">
+                <Building2 className="h-3.5 w-3.5" strokeWidth={2} />
+                {t('projects.eyebrow')}
+              </p>
+              <h2 className="font-display text-3xl font-semibold leading-tight text-[var(--eam-home-ink)] md:text-4xl lg:text-[2.65rem]">
+                {t('projects.title')}
               </h2>
-              <p className="mt-2 max-w-xl text-sm leading-7 text-[var(--eam-home-ink)]/70">
-                مشاريع حقيقية من محفظة EAM — استكشف القطاعات والمواقع دون ادعاءات
-                تشغيلية غير موثقة.
+              <p className="mt-4 max-w-xl text-sm leading-7 text-[var(--eam-home-ink)]/70 md:text-base">
+                {t('projects.subtitle')}
               </p>
             </div>
-            <Layers3 className="hidden h-10 w-10 text-[var(--eam-home-gold)]/50 md:block" strokeWidth={1.5} />
+
+            <div className="grid grid-cols-3 gap-3 lg:col-span-5 lg:gap-4">
+              {PORTFOLIO_STATS.map((stat) => (
+                <div
+                  key={stat.labelKey}
+                  className="rounded-2xl border border-[var(--eam-home-border)] bg-[var(--eam-home-cream-light)]/90 px-3 py-4 text-center shadow-[var(--eam-home-shadow)] backdrop-blur-sm sm:px-4"
+                >
+                  <p className="font-display text-2xl font-semibold tabular-nums text-[var(--eam-home-gold-deep)] md:text-3xl">
+                    {t(stat.valueKey)}
+                  </p>
+                  <p className="mt-1 text-[10px] font-medium leading-snug text-[var(--eam-home-ink)]/60 sm:text-xs">
+                    {t(stat.labelKey)}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="mb-8 flex flex-wrap justify-center gap-2 md:justify-start">
-            {PORTFOLIO_CATEGORIES.map((category) => (
+          <div className="mt-8 flex flex-wrap gap-2">
+            {portfolioCategories.map((category) => (
               <span
                 key={category}
-                className="rounded-full border border-[var(--eam-home-border)] bg-white/80 px-4 py-1.5 text-xs font-medium text-[var(--eam-home-ink)]"
+                className="rounded-full border border-[var(--eam-home-border)] bg-[var(--eam-home-cream-light)]/80 px-3.5 py-1.5 text-[11px] font-medium text-[var(--eam-home-ink)]/80 shadow-sm"
               >
                 {category}
               </span>
             ))}
           </div>
+        </div>
 
-          <div className="overflow-x-auto pb-2">
-            <div className="flex min-w-max gap-3 md:min-w-0 md:grid md:grid-cols-3 md:gap-4">
-              {CAROUSEL_HOME_PROJECTS.map((project) => (
-                <article
-                  key={`showcase-${project.id}`}
-                  className="w-[240px] shrink-0 rounded-2xl border border-[var(--eam-home-border)] bg-white/90 p-4 md:w-auto"
-                >
-                  <p className="text-[10px] font-medium text-[var(--eam-home-gold-deep)]">{project.category}</p>
-                  <h3 className="mt-1 font-tajawal text-base font-bold text-[var(--eam-home-ink)]">
-                    {project.title}
-                  </h3>
-                  <p className="text-xs text-[var(--eam-home-ink)]/60">{project.location}</p>
-                  <div className="mt-3 flex items-center justify-between text-[10px]">
-                    <span className="rounded-full border border-[var(--eam-home-border)] px-2 py-0.5 text-[var(--eam-home-gold-deep)]">
-                      {STATUS_LABELS[project.status]}
-                    </span>
-                    <span className="text-[var(--eam-home-ink)]/55">{project.progress}%</span>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
+        <div
+          ref={gridReveal.ref}
+          className={`grid grid-cols-1 gap-4 md:gap-5 lg:grid-cols-12 lg:grid-rows-[auto_auto_auto] ${gridReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}
+        >
+          <ProjectCard project={featured} variant="featured" className="lg:col-span-7 lg:row-span-2" />
+          {rest.slice(0, 2).map((project) => (
+            <ProjectCard key={project.id} project={project} variant="standard" className="lg:col-span-5" />
+          ))}
+          {rest[2] ? (
+            <ProjectCard project={rest[2]} variant="wide" className="lg:col-span-12" />
+          ) : null}
+        </div>
 
-          <div className="mt-8 text-center">
-            <Link
-              to="/projects"
-              className="inline-flex items-center gap-2 rounded-xl border border-[var(--eam-home-border)] px-6 py-2.5 text-sm font-semibold text-[var(--eam-home-gold-deep)] transition hover:border-[var(--eam-home-gold)]"
-            >
-              استكشف جميع المشاريع
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-          </div>
+        <div className="mt-10 flex justify-center md:mt-12">
+          <Link
+            to="/projects"
+            className="group inline-flex items-center gap-2.5 rounded-full border border-[var(--eam-home-gold)]/50 bg-[var(--eam-home-cream-light)] px-7 py-3 text-sm font-semibold text-[var(--eam-home-gold-deep)] shadow-[var(--eam-home-shadow)] transition hover:border-[var(--eam-home-gold)] hover:bg-[var(--eam-home-gold)] hover:text-[#2B2118] hover:shadow-gold-sm"
+          >
+            {t('projects.cta')}
+            <ArrowLeft
+              className={`h-4 w-4 transition group-hover:translate-x-0.5 ${direction === 'ltr' ? 'rotate-180 group-hover:-translate-x-0.5' : 'group-hover:-translate-x-0.5'}`}
+              strokeWidth={2}
+            />
+          </Link>
         </div>
       </div>
     </section>

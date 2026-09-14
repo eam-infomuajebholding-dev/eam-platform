@@ -1,8 +1,11 @@
-import { useEffect } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Link, Navigate, useLocation } from 'react-router-dom';
 import BlogArticleLayout from '@/components/blog/BlogArticleLayout';
+import BlogPostCard from '@/components/blog/BlogPostCard';
+import BlogSeo from '@/components/blog/BlogSeo';
 import MarkdownArticle from '@/components/blog/MarkdownArticle';
-import { getBlogPost, getPostSeoMeta } from '@/lib/blog';
+import Layout from '@/components/Layout';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { getBlogPost, getPostSeoMeta, getRelatedPosts } from '@/lib/blog';
 
 function getSlugFromPathname(pathname: string) {
   return pathname
@@ -11,159 +14,62 @@ function getSlugFromPathname(pathname: string) {
     .replace(/^\/+/, '');
 }
 
-function ensureMetaTag(
-  attribute: 'name' | 'property',
-  value: string,
-) {
-  let tag = document.head.querySelector(
-    `meta[${attribute}="${value}"]`,
-  ) as HTMLMetaElement | null;
-
-  if (!tag) {
-    tag = document.createElement('meta');
-    tag.setAttribute(attribute, value);
-    document.head.appendChild(tag);
-  }
-
-  return tag;
-}
-
-function getCurrentPageUrl(pathname: string) {
-  if (typeof window === 'undefined') {
-    return undefined;
-  }
-
-  return `${window.location.origin}${pathname}`;
-}
-
 const BlogPostPage = () => {
   const location = useLocation();
+  const { t } = useLanguage();
   const slug = getSlugFromPathname(location.pathname);
   const post = slug === '*' ? null : getBlogPost(slug);
-
-  useEffect(() => {
-    if (!post) {
-      return;
-    }
-
-    const seoMeta = getPostSeoMeta(post);
-    const resolvedUrl = seoMeta.url ?? getCurrentPageUrl(location.pathname);
-    const previousTitle = document.title;
-    const previousLang = document.documentElement.lang;
-
-    const metaDefinitions = [
-      { attribute: 'name' as const, key: 'description', value: seoMeta.description },
-      { attribute: 'name' as const, key: 'keywords', value: seoMeta.keywords },
-      { attribute: 'property' as const, key: 'og:url', value: resolvedUrl },
-      { attribute: 'property' as const, key: 'og:site_name', value: seoMeta.siteName },
-      { attribute: 'property' as const, key: 'og:title', value: seoMeta.ogTitle },
-      {
-        attribute: 'property' as const,
-        key: 'og:description',
-        value: seoMeta.ogDescription,
-      },
-      { attribute: 'property' as const, key: 'og:image', value: seoMeta.ogImage },
-      {
-        attribute: 'property' as const,
-        key: 'og:image:alt',
-        value: seoMeta.ogImageAlt,
-      },
-      { attribute: 'property' as const, key: 'og:type', value: seoMeta.ogType },
-      {
-        attribute: 'property' as const,
-        key: 'article:published_time',
-        value: seoMeta.publishedTime,
-      },
-      { attribute: 'name' as const, key: 'twitter:card', value: seoMeta.twitterCard },
-      { attribute: 'name' as const, key: 'twitter:site', value: seoMeta.twitterSite },
-      {
-        attribute: 'name' as const,
-        key: 'twitter:creator',
-        value: seoMeta.twitterCreator,
-      },
-      {
-        attribute: 'name' as const,
-        key: 'twitter:title',
-        value: seoMeta.twitterTitle,
-      },
-      {
-        attribute: 'name' as const,
-        key: 'twitter:description',
-        value: seoMeta.twitterDescription,
-      },
-      {
-        attribute: 'name' as const,
-        key: 'twitter:image',
-        value: seoMeta.twitterImage,
-      },
-      {
-        attribute: 'name' as const,
-        key: 'twitter:image:alt',
-        value: seoMeta.twitterImageAlt,
-      },
-    ];
-
-    const previousValues = metaDefinitions.map(({ attribute, key, value }) => {
-      if (!value) {
-        return null;
-      }
-
-      const tag = ensureMetaTag(attribute, key);
-      const previousContent = tag.content;
-      tag.content = value;
-      return { tag, previousContent };
-    });
-
-    document.title = seoMeta.title;
-    if (seoMeta.lang) {
-      document.documentElement.lang = seoMeta.lang;
-    }
-
-    const articleTagEntries = (seoMeta.tags ?? []).map((tag) => {
-      const metaTag = document.createElement('meta');
-      metaTag.setAttribute('property', 'article:tag');
-      metaTag.content = tag;
-      document.head.appendChild(metaTag);
-      return metaTag;
-    });
-
-    return () => {
-      document.title = previousTitle;
-      document.documentElement.lang = previousLang;
-      articleTagEntries.forEach((tag) => tag.remove());
-      previousValues.forEach((entry) => {
-        if (!entry) {
-          return;
-        }
-        entry.tag.content = entry.previousContent;
-      });
-    };
-  }, [post, location.pathname]);
+  const related = post ? getRelatedPosts(post.slug) : [];
 
   if (slug === '*') {
-    return <Navigate to="/blog/" replace />;
+    return <Navigate to="/blog" replace />;
   }
 
   if (!post) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50 p-6 text-center">
-        <div className="space-y-6 max-w-md">
-          <div className="space-y-4">
-            <h1 className="text-7xl font-bold text-gray-300">404</h1>
-            <h2 className="text-2xl font-bold text-gray-800">Page Not Found</h2>
-            <p className="text-base text-muted-foreground">
-              Sorry, the blog post you are looking for does not exist or has been removed.
-            </p>
-          </div>
+      <Layout>
+        <div className="flex min-h-[50vh] flex-col items-center justify-center px-4 py-20 text-center">
+          <h1 className="font-display text-6xl font-bold text-ink-subtle">404</h1>
+          <h2 className="mt-4 text-2xl font-bold text-ink">
+            {t('blog.notFound.title')}
+          </h2>
+          <p className="mt-2 max-w-md text-ink-secondary">
+            {t('blog.notFound.body')}
+          </p>
+          <Link
+            to="/blog"
+            className="mt-8 rounded-lg bg-gold px-6 py-3 font-bold text-dark hover:bg-gold-light"
+          >
+            {t('blog.backToBlog')}
+          </Link>
         </div>
-      </div>
+      </Layout>
     );
   }
 
   return (
-    <BlogArticleLayout title={post.title} description={post.description}>
-      <MarkdownArticle markdown={post.markdown} />
-    </BlogArticleLayout>
+    <>
+      <BlogSeo seo={getPostSeoMeta(post)} post={post} />
+      <BlogArticleLayout
+        post={post}
+        related={
+          related.length > 0 ? (
+            <div>
+              <h2 className="mb-6 font-display text-2xl font-bold text-ink">
+                {t('blog.related.title')}
+              </h2>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                {related.map((item) => (
+                  <BlogPostCard key={item.slug} post={item} />
+                ))}
+              </div>
+            </div>
+          ) : null
+        }
+      >
+        <MarkdownArticle markdown={post.markdown} />
+      </BlogArticleLayout>
+    </>
   );
 };
 

@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import Layout from '@/components/Layout';
+import PageMeta from '@/components/PageMeta';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/features/auth/context/AuthContext';
 import { getCustomerWorkspace } from '@/features/customer-workspace/api/customer360Client';
 import { customer360QueryKeys } from '@/features/customer-workspace/queryKeys';
@@ -37,6 +39,7 @@ function desiredServiceLabel(value?: string | null): string {
 }
 
 export default function CustomerWorkspace() {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: customer360QueryKeys.workspace(user?.id),
@@ -48,34 +51,35 @@ export default function CustomerWorkspace() {
 
   return (
     <Layout>
+      <PageMeta title="طلباتي — EAM" noIndex />
       <section className="py-16">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold font-tajawal text-gray-900 dark:text-white">طلباتي</h1>
-            <p className="mt-2 font-tajawal text-gray-600 dark:text-white/70">
+            <h1 className="text-3xl font-bold text-ink">طلباتي</h1>
+            <p className="mt-2 text-ink-secondary">
               متابعة حالة طلبات الخدمة بعد إكمال الرحلات التشغيلية.
             </p>
           </div>
 
           {isLoading ? (
-            <p className="font-tajawal text-gray-600 dark:text-white/70">جاري تحميل الطلبات...</p>
+            <p className="text-ink-secondary">{t('site.loading')}</p>
           ) : null}
 
           {isError ? (
-            <div className="rounded-xl border border-red-300 bg-red-50 dark:bg-red-950/20 p-4 font-tajawal">
-              <p className="text-red-700 dark:text-red-200">تعذر تحميل الطلبات.</p>
+            <div className="rounded-xl border border-red-300 bg-red-50 dark:bg-red-950/20 p-4">
+              <p className="text-red-700 dark:text-red-200">{t('ops.loadError')}</p>
               <button
                 type="button"
                 onClick={() => void refetch()}
                 className="mt-3 rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-white"
               >
-                إعادة المحاولة
+                {t('ops.retry')}
               </button>
             </div>
           ) : null}
 
           {!isLoading && !isError && data ? (
-            <div className="mb-6 rounded-xl border border-gold/20 bg-white dark:bg-white/5 p-4 font-tajawal text-sm text-gray-700 dark:text-white/80">
+            <div className="mb-6 rounded-xl border border-gold/20 bg-cream-light dark:bg-surface p-4 text-sm text-ink-secondary">
               <p>
                 لديك {data.summary.service_request_count ?? requests.length} طلب
                 {data.summary.active_journey_count ? ` · ${data.summary.active_journey_count} رحلة نشطة` : ''}
@@ -84,17 +88,23 @@ export default function CustomerWorkspace() {
           ) : null}
 
           {!isLoading && !isError && requests.length === 0 ? (
-            <div className="rounded-xl border border-gold/20 bg-white dark:bg-white/5 p-8 text-center font-tajawal">
-              <p className="text-lg text-gray-800 dark:text-white">لم تُقدّم أي طلبات بعد</p>
-              <p className="mt-2 text-gray-600 dark:text-white/70">
-                ابدأ رحلة بناء الفيلا من الصفحة الرئيسية لإنشاء طلبك الأول.
-              </p>
-              <Link
-                to="/"
-                className="mt-6 inline-flex rounded-xl bg-gold px-5 py-2.5 text-sm font-semibold text-white"
-              >
-                الذهاب إلى الصفحة الرئيسية
-              </Link>
+            <div className="rounded-xl border border-gold/20 bg-cream-light dark:bg-surface p-8 text-center">
+              <p className="text-lg text-ink">{t('customer.emptyRequests')}</p>
+              <p className="mt-2 text-ink-secondary">{t('customer.exploreServices')}</p>
+              <div className="mt-6 flex flex-wrap justify-center gap-3">
+                <Link
+                  to="/services"
+                  className="inline-flex rounded-xl bg-gold px-5 py-2.5 text-sm font-semibold text-white"
+                >
+                  {t('nav.services')}
+                </Link>
+                <Link
+                  to="/"
+                  className="inline-flex rounded-xl border border-gold/30 px-5 py-2.5 text-sm font-semibold text-ink"
+                >
+                  {t('common.backHome')}
+                </Link>
+              </div>
             </div>
           ) : null}
 
@@ -110,16 +120,16 @@ export default function CustomerWorkspace() {
                   <Link
                     key={item.id}
                     to={`/my-requests/${item.id}`}
-                    className="block rounded-xl border border-gold/20 bg-white dark:bg-white/5 p-5 transition hover:border-gold/40"
+                    className="block rounded-xl border border-gold/20 bg-cream-light dark:bg-surface p-5 transition hover:border-gold/40"
                   >
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
-                        <p className="font-tajawal text-sm text-gray-500 dark:text-white/60">{item.reference_code}</p>
-                        <p className="mt-1 text-xs font-tajawal text-gold">
+                        <p className="text-sm text-ink-muted">{item.reference_code}</p>
+                        <p className="mt-1 text-xs text-gold">
                           {JOURNEY_TYPE_LABELS[item.journey_type] ?? item.journey_type}
                         </p>
-                        <h2 className="mt-1 text-lg font-bold font-tajawal text-gray-900 dark:text-white">{title}</h2>
-                        <p className="mt-1 font-tajawal text-sm text-gray-600 dark:text-white/70">
+                        <h2 className="mt-1 text-lg font-bold text-ink">{title}</h2>
+                        <p className="mt-1 text-sm text-ink-secondary">
                           {item.journey_type === 'build_villa'
                             ? desiredServiceLabel(item.desired_service)
                             : stage.description}
@@ -129,8 +139,8 @@ export default function CustomerWorkspace() {
                         <span className="inline-flex rounded-full bg-gold/10 px-3 py-1 text-xs font-semibold text-gold">
                           {STATUS_LABELS[item.status] ?? item.status}
                         </span>
-                        <p className="mt-2 font-tajawal text-xs text-gray-600 dark:text-white/70">{stage.label}</p>
-                        <p className="mt-1 font-tajawal text-xs text-gray-500 dark:text-white/60">
+                        <p className="mt-2 text-xs text-ink-secondary">{stage.label}</p>
+                        <p className="mt-1 text-xs text-ink-muted">
                           {formatDate(item.created_at)}
                         </p>
                       </div>

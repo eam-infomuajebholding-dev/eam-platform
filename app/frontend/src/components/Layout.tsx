@@ -1,29 +1,30 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Sun, Moon } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import Footer from './Footer';
-import AIChatbot from './AIChatbot';
 import EditToolbar from './admin/EditToolbar';
+import { isAssistantVisible } from '@/config/assistant';
 import { GlobalEditOverlay, applySavedEdits } from './admin/InlineEditable';
 import SectionManager from './admin/SectionManager';
 import { getPageBackground, type PageBackground } from './admin/PageBackgroundEditor';
 import { getVideoFromIDB } from '@/lib/videoStorage';
 import { getCustomNavLinks, type CustomNavLink } from './admin/PageManager';
 import UserActions from './Navbar/UserActions';
+import PublicRouteMeta from './PublicRouteMeta';
 
 const navLinks = [
-  { path: '/about', label: 'عن EAM' },
-  { path: '/services', label: 'الخدمات' },
-  { path: '/projects', label: 'المشاريع' },
-  { path: '/invest', label: 'مستثمر معنا' },
-  { path: '/market', label: 'سوقنا' },
-  { path: '/careers', label: 'التوظيف' },
-  { path: '/blog', label: 'المدونة' },
-  { path: '/contact', label: 'تواصل معنا' },
+  { path: '/about', labelKey: 'nav.about' as const },
+  { path: '/services', labelKey: 'nav.services' as const },
+  { path: '/projects', labelKey: 'nav.projects' as const },
+  { path: '/invest', labelKey: 'nav.invest' as const },
+  { path: '/careers', labelKey: 'nav.careers' as const },
+  { path: '/blog', labelKey: 'nav.blog' as const },
+  { path: '/contact', labelKey: 'nav.contact' as const },
 ];
 
-const homeNavLink = { path: '/', label: 'الرئيسية' };
+const homeNavLink = { path: '/', labelKey: 'nav.home' as const };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
@@ -33,6 +34,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
   const [customNavLinks, setCustomNavLinks] = useState<CustomNavLink[]>([]);
   const { theme, toggleTheme } = useTheme();
+  const { direction, language, t } = useLanguage();
 
   // Load custom nav links
   useEffect(() => {
@@ -98,71 +100,27 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     setTimeout(() => setIsToggling(false), 600);
   }, [toggleTheme]);
 
-  const isHomepage = location.pathname === '/';
-  const navHeightClass = isHomepage ? 'h-[84px] min-h-[84px]' : 'h-[86px] min-h-[86px]';
-  const mainOffsetClass = isHomepage ? 'pt-[84px]' : 'pt-[86px]';
-  const resolvedNavLinks = isHomepage ? [homeNavLink, ...navLinks] : navLinks;
-  const shellClassName = isHomepage
-    ? 'min-h-screen bg-cream text-ink dark:bg-[#5E5E5E] dark:text-white font-tajawal transition-colors duration-300'
-    : 'min-h-screen bg-background dark:bg-[#5E5E5E] text-[#2D2A1E] dark:text-white font-tajawal transition-colors duration-300';
-  const navClassName = isHomepage
-    ? 'fixed top-0 right-0 left-0 z-50 border-b border-soft-border/80 bg-cream-light/95 backdrop-blur-md dark:border-gold/20 dark:bg-[#6B6B6B]/95 transition-colors duration-300'
-    : 'fixed top-0 right-0 left-0 z-50 bg-white/95 dark:bg-[#6B6B6B]/95 backdrop-blur-md border-b border-gold/30 dark:border-gold/20 transition-colors duration-300';
+  const resolvedNavLinks = [homeNavLink, ...navLinks];
+  const isNavActive = (path: string) => location.pathname === path;
+  const shellClassName =
+    'min-h-screen bg-background font-sans text-foreground antialiased transition-colors duration-300';
 
   return (
-    <div className={shellClassName} dir="rtl">
+    <div className={shellClassName} dir={direction}>
+      <PublicRouteMeta />
       {/* Navigation */}
-      <nav className={navClassName}>
-        <div className={`container mx-auto flex ${navHeightClass} items-center justify-between px-4 lg:px-7`}>
-          {/* Logo — far right in RTL */}
-          <Link to="/" className={`flex shrink-0 items-center gap-2 ${isHomepage ? 'max-w-[230px]' : ''}`}>
-            <img
-              src="/assets/eam-emblem-transparent.png"
-              alt="إعمار الأصالة والمعاصرة"
-              onError={(event) => {
-                event.currentTarget.src = '/assets/logo.png';
-              }}
-              className={`w-auto object-contain ${isHomepage ? 'h-11 max-h-11' : 'h-10 md:h-12'}`}
-              loading="eager"
-              decoding="async"
-            />
-            <span className={`hidden font-tajawal font-bold text-deep-gold sm:block ${isHomepage ? 'text-[14px] leading-tight' : 'text-[15px]'}`}>
-              إعمار الأصالة والمعاصرة
-              <span className={`block font-normal uppercase tracking-wide text-ink/55 ${isHomepage ? 'text-[9px]' : 'text-xs'}`}>
-                Emmar Al Asala Wa Al Muasara
-              </span>
-            </span>
-          </Link>
-
-          {/* Desktop Nav Links */}
-          <ul className="hidden lg:flex items-center gap-0.5 xl:gap-1.5">
-            {[...resolvedNavLinks, ...customNavLinks].map((link) => (
-              <li key={link.path}>
-                <Link
-                  to={link.path}
-                  className={`px-2 py-1 rounded-md transition-colors duration-200 xl:px-2.5 ${
-                    isHomepage ? 'text-[13px]' : 'text-[13px] xl:text-sm'
-                  } ${
-                    location.pathname === link.path
-                      ? 'font-bold text-deep-gold border-b-2 border-primary-gold'
-                      : 'text-ink/80 dark:text-white/80 hover:text-deep-gold hover:bg-primary-gold/10'
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-
-          {/* Account, theme & mobile menu */}
-          <div className="flex items-center gap-2">
+      <nav className="site-nav">
+        <div dir="ltr" className="site-nav-inner container mx-auto w-full">
+          {/* Utilities — physical left */}
+          <div className="site-nav-utilities">
             <div className="hidden md:block">
               <UserActions />
             </div>
             <button
+              type="button"
               onClick={handleToggleTheme}
-              className="relative rounded-full bg-primary-gold/10 p-2 transition-all duration-300 hover:bg-primary-gold/20 dark:bg-white/10 dark:hover:bg-white/20 group md:hidden"
-              aria-label="تبديل الوضع"
+              className="site-nav-icon-btn relative md:hidden"
+              aria-label={t('aria.toggleTheme')}
             >
               <div
                 className={`relative w-5 h-5 overflow-hidden transition-transform duration-600 ${
@@ -189,37 +147,81 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </div>
             </button>
 
-            {/* Mobile Menu Button */}
             <button
-              className="lg:hidden text-gold p-2 rounded-md hover:bg-gold/10 transition-colors"
+              type="button"
+              className="site-nav-menu-btn"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label={mobileMenuOpen ? 'إغلاق القائمة' : 'فتح القائمة'}
+              aria-expanded={mobileMenuOpen}
+              aria-label={mobileMenuOpen ? t('aria.closeMenu') : t('aria.openMenu')}
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
+
+          {/* Desktop Nav Links — center */}
+          <ul dir={direction} className="site-nav-links">
+            {[...resolvedNavLinks, ...customNavLinks].map((link) => {
+              const active = isNavActive(link.path);
+              return (
+                <li key={link.path} className="shrink-0">
+                  <Link
+                    to={link.path}
+                    className={`site-nav-link${active ? ' is-active' : ''}`}
+                    aria-current={active ? 'page' : undefined}
+                  >
+                    {'labelKey' in link ? t(link.labelKey) : link.label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+
+          {/* Brand lockup — emblem at physical far right */}
+          <Link to="/" className="site-nav-brand">
+            <span
+              dir={language === 'ar' ? 'rtl' : 'ltr'}
+              className="site-nav-brand-copy notranslate"
+            >
+              <span className="site-nav-brand-name">{t('brand.name')}</span>
+              {language === 'ar' ? (
+                <span dir="ltr" className="site-nav-brand-latin notranslate">
+                  {t('brand.nameLatin')}
+                </span>
+              ) : null}
+            </span>
+            <img
+              src="/assets/eam-emblem-transparent.png"
+              alt={t('brand.logoAlt')}
+              onError={(event) => {
+                event.currentTarget.src = '/assets/logo.png';
+              }}
+              className="site-nav-brand-emblem"
+              loading="eager"
+              decoding="async"
+            />
+          </Link>
         </div>
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-white/98 dark:bg-[#6B6B6B]/98 backdrop-blur-md border-t border-gold/20 dark:border-gold/10 transition-colors duration-300">
-            <ul className="container mx-auto px-4 py-4 flex flex-col gap-2">
-              {[...resolvedNavLinks, ...customNavLinks].map((link) => (
-                <li key={link.path}>
-                  <Link
-                    to={link.path}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`block px-4 py-3 rounded-md text-sm transition-colors duration-200 ${
-                      location.pathname === link.path
-                        ? 'text-gold bg-gold/10 font-bold border-r-4 border-gold'
-                        : 'text-ink/80 dark:text-white/80 hover:text-deep-gold hover:bg-primary-gold/10'
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-              <li className="mt-2 border-t border-gold/20 pt-3">
+          <div className="site-nav-mobile-panel lg:hidden">
+            <ul className="container mx-auto flex flex-col gap-0.5 px-4 py-3 sm:px-6">
+              {[...resolvedNavLinks, ...customNavLinks].map((link) => {
+                const active = isNavActive(link.path);
+                return (
+                  <li key={link.path}>
+                    <Link
+                      to={link.path}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`site-nav-mobile-link${active ? ' is-active' : ''}`}
+                      aria-current={active ? 'page' : undefined}
+                    >
+                      {'labelKey' in link ? t(link.labelKey) : link.label}
+                    </Link>
+                  </li>
+                );
+              })}
+              <li className="mt-2 border-t border-soft-border/60 pt-3 dark:border-gold/15">
                 <UserActions
                   variant="mobile"
                   onNavigate={() => setMobileMenuOpen(false)}
@@ -230,8 +232,21 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         )}
       </nav>
 
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:start-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-gold focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+      >
+        {t('site.skipToContent')}
+      </a>
+
       {/* Main Content */}
-      <main className={`relative ${mainOffsetClass}`}>
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className={`site-nav-offset relative ${
+          isAssistantVisible(location.pathname) ? 'pb-24 sm:pb-28' : ''
+        }`}
+      >
         {/* Background Layer */}
         {pageBg && pageBg.type === 'color' && (
           <div
@@ -264,9 +279,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </main>
 
       <Footer />
-
-      {/* AI Chatbot */}
-      <AIChatbot />
 
       {/* Edit Mode Toolbar */}
       <EditToolbar />

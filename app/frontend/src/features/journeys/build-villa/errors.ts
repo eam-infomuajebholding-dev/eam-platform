@@ -1,58 +1,11 @@
-import type { FieldValidationErrorDetail } from './types';
+export {
+  extractExistingInstanceId,
+  extractFieldErrors,
+  getErrorMessage,
+  type FieldValidationErrorDetail,
+} from '@/features/journeys/core/journeyErrors';
 
-export function extractFieldErrors(error: unknown): FieldValidationErrorDetail[] {
-  if (!error || typeof error !== 'object') {
-    return [];
-  }
-
-  const maybeResponse = error as {
-    response?: { data?: { detail?: { errors?: FieldValidationErrorDetail[] } | string } };
-    data?: { detail?: { errors?: FieldValidationErrorDetail[] } | string };
-    detail?: { errors?: FieldValidationErrorDetail[] } | string;
-  };
-
-  const detail =
-    maybeResponse.response?.data?.detail ??
-    maybeResponse.data?.detail ??
-    maybeResponse.detail;
-
-  if (detail && typeof detail === 'object' && Array.isArray(detail.errors)) {
-    return detail.errors;
-  }
-
-  return [];
-}
-
-export function getErrorMessage(errors: FieldValidationErrorDetail[], fallback: string): string {
-  if (errors.length > 0) {
-    return errors.map((item) => item.message).join(' ');
-  }
-  return fallback;
-}
-
-export function extractExistingInstanceId(error: unknown): number | null {
-  if (!error || typeof error !== 'object') {
-    return null;
-  }
-
-  const maybeError = error as {
-    status?: number;
-    detail?: { existing_instance_id?: number } | string;
-    response?: { status?: number; data?: { detail?: { existing_instance_id?: number } | string } };
-  };
-
-  const status = maybeError.status ?? maybeError.response?.status;
-  if (status !== 409) {
-    return null;
-  }
-
-  const detail = maybeError.detail ?? maybeError.response?.data?.detail;
-  if (detail && typeof detail === 'object' && typeof detail.existing_instance_id === 'number') {
-    return detail.existing_instance_id;
-  }
-
-  return null;
-}
+import type { BuildVillaContext } from './types';
 
 export interface BuildVillaStepValues {
   projectObjective: string;
@@ -151,35 +104,35 @@ export function buildAdvanceInput(
   return {};
 }
 
-export function syncStepValuesFromContext(context: Record<string, unknown>): BuildVillaStepValues {
+export function syncFromContext(context: BuildVillaContext): BuildVillaStepValues {
   return {
-    projectObjective: (context.project_objective as string) ?? '',
-    city: (context.city as string) ?? '',
-    landOwnershipType: (context.land_ownership_type as string) ?? '',
+    projectObjective: context.project_objective ?? '',
+    city: context.city ?? '',
+    landOwnershipType: context.land_ownership_type ?? '',
     landAreaSqm: context.land_area_sqm != null ? String(context.land_area_sqm) : '',
     householdSize: context.household_size != null ? String(context.household_size) : '',
-    useSummary: (context.use_summary as string) ?? '',
-    accessibilityNeeds: (context.accessibility_needs as string) ?? '',
-    staffAreasNeeded: (context.staff_areas_needed as string) ?? '',
-    futureExpansionNotes: (context.future_expansion_notes as string) ?? '',
+    useSummary: context.use_summary ?? '',
+    accessibilityNeeds: context.accessibility_needs ?? '',
+    staffAreasNeeded: context.staff_areas_needed ?? '',
+    futureExpansionNotes: context.future_expansion_notes ?? '',
     floors: context.floors != null ? String(context.floors) : '',
     bedrooms: context.bedrooms != null ? String(context.bedrooms) : '',
-    selectedSpaces: (context.selected_spaces as string[]) ?? [],
-    spaceNotes: (context.space_notes as string) ?? '',
-    budgetRange: (context.budget_range as string) ?? '',
-    desiredStart: (context.desired_start as string) ?? '',
-    urgency: (context.urgency as string) ?? '',
-    designStyle: (context.design_style as string) ?? '',
-    designNotes: (context.design_notes as string) ?? '',
-    hasDocuments: (context.has_documents as boolean | null) ?? null,
-    documentNotes: (context.document_notes as string) ?? '',
-    desiredService: (context.desired_service as string) ?? '',
-    scopeConfirmed: (context.scope_confirmed as boolean) ?? false,
-    submitConfirmed: (context.submit_confirmed as boolean) ?? false,
+    selectedSpaces: context.selected_spaces ?? [],
+    spaceNotes: context.space_notes ?? '',
+    budgetRange: context.budget_range ?? '',
+    desiredStart: context.desired_start ?? '',
+    urgency: context.urgency ?? '',
+    designStyle: context.design_style ?? '',
+    designNotes: context.design_notes ?? '',
+    hasDocuments: context.has_documents ?? null,
+    documentNotes: context.document_notes ?? '',
+    desiredService: context.desired_service ?? '',
+    scopeConfirmed: context.scope_confirmed ?? false,
+    submitConfirmed: context.submit_confirmed ?? false,
   };
 }
 
-export function emptyStepValues(): BuildVillaStepValues {
+export function emptyValues(): BuildVillaStepValues {
   return {
     projectObjective: '',
     city: '',

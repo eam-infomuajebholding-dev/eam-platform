@@ -1,10 +1,18 @@
-import { useState, useEffect } from 'react';
-import { Calendar, MapPin, Plus, X, FileText, ChevronLeft, Building2, Video, Play, Image, Loader2 } from 'lucide-react';
+import { useMemo, useState, useEffect } from 'react';
+import { Calendar, MapPin, Plus, X, FileText, Building2, Video, Play, Image, Loader2 } from 'lucide-react';
 import Layout from '@/components/Layout';
+import PageHero from '@/components/page/PageHero';
+import ProjectPortfolioCard, {
+  GRADIENT_VARIANTS,
+  statusMessageKey,
+  statusToneClass,
+} from '@/components/projects/ProjectPortfolioCard';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useEditMode } from '@/contexts/EditModeContext';
 import { toast } from 'sonner';
 import { savePageData, loadPageData } from '@/lib/dataStorage';
 import { isCloudinaryConfigured, uploadToCloudinary, uploadMultipleToCloudinary } from '@/lib/cloudinary';
+import type { MessageKey } from '@/i18n/messages';
 
 interface Project {
   id: number;
@@ -87,18 +95,30 @@ const defaultProjects: Project[] = [
 
 const PROJECTS_STORAGE_KEY = 'projects-page-data';
 
-const statusLabels = {
-  active: { label: 'قيد التنفيذ', color: 'bg-gold/10 text-gold border-gold/30' },
-  completed: { label: 'مكتمل', color: 'bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/30' },
-  upcoming: { label: 'قادم', color: 'bg-gold-light/10 text-gold-dark border-gold-light/30' },
-};
+type ProjectFilter = 'all' | 'active' | 'completed' | 'upcoming';
 
-const gradientVariants = [
-  'from-[#a08530] to-[#C9A84C]',
-  'from-[#C9A84C] to-[#E8D48B]',
-  'from-gray-700 to-gray-500',
-  'from-[#2D2A1E] to-[#a08530]',
+const FILTER_OPTIONS: { id: ProjectFilter; labelKey: MessageKey }[] = [
+  { id: 'all', labelKey: 'page.projects.filter.all' },
+  { id: 'active', labelKey: 'page.projects.filter.active' },
+  { id: 'completed', labelKey: 'page.projects.filter.completed' },
+  { id: 'upcoming', labelKey: 'page.projects.filter.upcoming' },
 ];
+
+function getCardLayout(
+  index: number,
+  total: number,
+): { variant: 'featured' | 'standard' | 'wide'; className: string } {
+  if (total <= 1) {
+    return { variant: 'featured', className: 'lg:col-span-12' };
+  }
+  if (index === 0) {
+    return { variant: 'featured', className: 'lg:col-span-7 lg:row-span-2' };
+  }
+  if (index === total - 1 && total >= 3) {
+    return { variant: 'wide', className: 'lg:col-span-12' };
+  }
+  return { variant: 'standard', className: 'lg:col-span-5' };
+}
 
 interface AddProjectFormData {
   title: string;
@@ -119,8 +139,10 @@ const emptyForm: AddProjectFormData = {
 };
 
 export default function Projects() {
+  const { t, direction } = useLanguage();
   const { isEditMode } = useEditMode();
   const [projects, setProjects] = useState<Project[]>(defaultProjects);
+  const [statusFilter, setStatusFilter] = useState<ProjectFilter>('all');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [formData, setFormData] = useState<AddProjectFormData>(emptyForm);
@@ -144,10 +166,24 @@ export default function Projects() {
     savePageData(PROJECTS_STORAGE_KEY, projects);
   }, [projects]);
 
+  const filteredProjects = useMemo(() => {
+    if (statusFilter === 'all') return projects;
+    return projects.filter((p) => p.status === statusFilter);
+  }, [projects, statusFilter]);
+
+  const portfolioStats = useMemo(
+    () => ({
+      total: projects.length,
+      active: projects.filter((p) => p.status === 'active').length,
+      cities: new Set(projects.map((p) => p.location.trim()).filter(Boolean)).size,
+    }),
+    [projects],
+  );
+
   const handleDeleteProject = (projectId: number) => {
-    if (window.confirm('هل أنت متأكد من حذف هذا المشروع؟')) {
-      setProjects(prev => prev.filter(p => p.id !== projectId));
-      toast.success('تم حذف المشروع بنجاح');
+    if (window.confirm(t('page.projects.deleteConfirm'))) {
+      setProjects((prev) => prev.filter((p) => p.id !== projectId));
+      toast.success(t('page.projects.deleteSuccess'));
     }
   };
 
@@ -285,7 +321,7 @@ export default function Projects() {
     setFormPdfData('');
     setFormPdfName('');
     setShowAddModal(false);
-    toast.success('تم إضافة المشروع بنجاح');
+    toast.success(t('page.projects.addSuccess'));
   };
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -294,116 +330,137 @@ export default function Projects() {
 
   return (
     <Layout>
-      {/* Hero */}
-      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#5E5E5E]">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)]" />
-        <div className="relative z-10 text-center px-4">
-          <h1 className="gold-text text-4xl md:text-5xl lg:text-6xl font-bold font-playfair mb-4">مشاريعنا</h1>
-          <p className="text-gray-600 dark:text-white/70 text-lg md:text-xl max-w-2xl mx-auto font-tajawal">
-            مشاريع تصنع الفارق في عالم الهندسة والبناء
-          </p>
-        </div>
-      </section>
+      <PageHero
+        titleKey="page.projects.hero.title"
+        subtitleKey="page.projects.hero.subtitle"
+      />
 
-      {/* Projects Grid */}
-      <section className="py-16 md:py-24 bg-white dark:bg-[#6B6B6B]">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between mb-12">
-            <h2 className="gold-text text-2xl md:text-3xl font-bold font-playfair">مشاريع تصنع الفارق</h2>
-            {isEditMode && (
+      <section className="relative overflow-hidden bg-cream py-16 dark:bg-background md:py-24">
+        <div
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,color-mix(in_srgb,var(--gold-400)_10%,transparent),transparent)]"
+          aria-hidden="true"
+        />
+
+        <div className="container relative mx-auto px-4">
+          <div className="mb-10 grid gap-8 lg:grid-cols-12 lg:items-end">
+            <div className={direction === 'rtl' ? 'lg:col-span-7 text-right' : 'lg:col-span-7 text-left'}>
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-gold-600">
+                {t('page.projects.eyebrow')}
+              </p>
+              <h2 className="font-display text-display-md text-ink">{t('page.projects.section.title')}</h2>
+              <p className="mt-3 max-w-xl text-sm leading-7 text-ink-secondary md:text-base">
+                {t('page.projects.disclaimer')}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 lg:col-span-5">
+              {[
+                { value: portfolioStats.total, labelKey: 'page.projects.statTotal' as const },
+                { value: portfolioStats.active, labelKey: 'page.projects.statActive' as const },
+                { value: portfolioStats.cities, labelKey: 'page.projects.statCities' as const },
+              ].map((stat) => (
+                <div
+                  key={stat.labelKey}
+                  className="rounded-2xl border border-soft-border/80 bg-cream-light px-3 py-4 text-center shadow-sm dark:bg-surface"
+                >
+                  <p className="font-display text-2xl font-semibold tabular-nums text-gold-600 md:text-3xl">
+                    {stat.value}
+                  </p>
+                  <p className="mt-1 text-[10px] font-medium leading-snug text-ink-muted sm:text-xs">
+                    {t(stat.labelKey)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-wrap gap-2">
+              {FILTER_OPTIONS.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => setStatusFilter(option.id)}
+                  className={`rounded-full border px-4 py-1.5 text-xs font-semibold transition ${
+                    statusFilter === option.id
+                      ? 'border-gold bg-gold text-[#2B2118] shadow-gold-sm'
+                      : 'border-soft-border/80 bg-cream-light text-ink-secondary hover:border-gold/50 dark:bg-surface'
+                  }`}
+                >
+                  {t(option.labelKey)}
+                </button>
+              ))}
+            </div>
+
+            {isEditMode ? (
               <button
+                type="button"
                 onClick={() => setShowAddModal(true)}
-                className="flex items-center gap-2 px-5 py-2.5 bg-gold text-dark font-bold rounded-xl hover:shadow-[0_0_20px_rgba(201,168,76,0.3)] transition-all duration-300 font-tajawal"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-gold bg-gold px-5 py-2.5 text-sm font-semibold text-[#2B2118] shadow-gold-sm transition hover:shadow-gold"
               >
-                <Plus className="w-5 h-5" />
-                إضافة مشروع
+                <Plus className="h-4 w-4" />
+                {t('page.projects.addProject')}
               </button>
-            )}
+            ) : null}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {projects.map((project, i) => (
-              <div key={project.id} className="group relative rounded-2xl overflow-hidden border border-gold/20 hover:border-gold/40 transition-all duration-300 hover:shadow-[0_0_30px_rgba(201,168,76,0.1)]">
-                {/* Delete Button (Edit Mode) */}
-                {isEditMode && (
-                  <button
-                    onClick={() => handleDeleteProject(project.id)}
-                    className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg"
-                    title="حذف المشروع"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-
-                {/* Image / Gradient Placeholder */}
-                <div className={`h-56 relative overflow-hidden ${!project.image ? `bg-gradient-to-br ${gradientVariants[i % gradientVariants.length]}` : ''}`}>
-                  {project.image ? (
-                    <img src={project.image} alt={project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Building2 className="w-16 h-16 text-white/40" />
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
-                  <div className="absolute top-4 left-4">
-                    <span className={`px-3 py-1 text-xs rounded-full border ${statusLabels[project.status].color}`}>
-                      {statusLabels[project.status].label}
-                    </span>
-                  </div>
-                  <div className="absolute top-4 right-4">
-                    <span className="bg-gold text-dark text-xs font-bold px-3 py-1.5 rounded-full font-tajawal">
-                      {project.category}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="p-6 bg-gray-50 dark:bg-white/5">
-                  <h3 className="text-gray-800 dark:text-white font-bold text-xl mb-3 font-tajawal group-hover:text-gold-light transition-colors">
-                    {project.title}
-                  </h3>
-                  <p className="text-gray-600 dark:text-white/60 text-sm leading-relaxed mb-4 font-tajawal line-clamp-2">{project.description}</p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-6 text-gray-500 dark:text-white/50 text-xs font-tajawal">
-                      <span className="flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5" /> {project.year}
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <MapPin className="w-3.5 h-3.5" /> {project.location}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => setSelectedProject(project)}
-                      className="text-gold text-sm font-bold hover:text-gold-light transition-colors flex items-center gap-1 font-tajawal"
-                    >
-                      التفاصيل
-                      <ChevronLeft className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          {filteredProjects.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-soft-border/80 bg-cream-light px-6 py-16 text-center dark:bg-surface">
+              <Building2 className="mx-auto mb-4 h-12 w-12 text-ink-subtle" strokeWidth={1.25} />
+              <p className="text-ink-secondary">{t('page.projects.empty')}</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 md:gap-5 lg:grid-cols-12">
+              {filteredProjects.map((project, i) => {
+                const layout = getCardLayout(i, filteredProjects.length);
+                return (
+                  <ProjectPortfolioCard
+                    key={project.id}
+                    project={project}
+                    variant={layout.variant}
+                    className={layout.className}
+                    gradientClass={GRADIENT_VARIANTS[i % GRADIENT_VARIANTS.length]}
+                    statusLabel={t(statusMessageKey(project.status))}
+                    statusTone={statusToneClass(project.status)}
+                    viewDetailsLabel={t('page.projects.viewDetails')}
+                    isEditMode={isEditMode}
+                    isRtl={direction === 'rtl'}
+                    onView={() => setSelectedProject(project)}
+                    onDelete={() => handleDeleteProject(project.id)}
+                  />
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Project Details Modal */}
       {selectedProject && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
-            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-            onClick={() => { setSelectedProject(null); setShowProjectVideo(false); setActiveImageIdx(0); }}
+            className="absolute inset-0 bg-[#1c1917]/80 backdrop-blur-md"
+            onClick={() => {
+              setSelectedProject(null);
+              setShowProjectVideo(false);
+              setActiveImageIdx(0);
+            }}
           />
-          <div className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-white dark:bg-[#4a4a4a] rounded-2xl border border-gold/30 shadow-2xl shadow-gold/10">
+          <div className="relative max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-soft-border/80 bg-cream-light shadow-gold-lg dark:bg-surface">
             <button
-              onClick={() => { setSelectedProject(null); setShowProjectVideo(false); setActiveImageIdx(0); }}
-              className="absolute top-4 left-4 z-10 w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
+              type="button"
+              onClick={() => {
+                setSelectedProject(null);
+                setShowProjectVideo(false);
+                setActiveImageIdx(0);
+              }}
+              className="absolute start-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white transition hover:bg-black/70"
             >
-              <X className="w-5 h-5" />
+              <X className="h-5 w-5" />
             </button>
 
-            {/* Image/Video Header */}
-            <div className={`relative h-64 overflow-hidden ${!selectedProject.image && (!selectedProject.images || selectedProject.images.length === 0) ? 'bg-gradient-to-br from-[#a08530] to-[#C9A84C]' : ''}`}>
+            <div
+              className={`relative h-72 overflow-hidden ${!selectedProject.image && (!selectedProject.images || selectedProject.images.length === 0) ? 'bg-gradient-to-br from-gold-600 to-gold-300' : ''}`}
+            >
               {showProjectVideo && selectedProject.videoData ? (
                 <div className="w-full h-full bg-black flex items-center justify-center">
                   <video controls autoPlay className="w-full h-full object-contain">
@@ -447,7 +504,7 @@ export default function Projects() {
                 </>
               )}
               <div className="absolute bottom-4 right-4 left-4">
-                <h2 className="font-tajawal text-2xl font-bold text-white mb-1">{selectedProject.title}</h2>
+                <h2 className="text-2xl font-bold text-white mb-1">{selectedProject.title}</h2>
                 <div className="flex items-center gap-2 text-white/70 text-sm">
                   <MapPin className="w-4 h-4" />
                   <span>{selectedProject.location}</span>
@@ -455,38 +512,43 @@ export default function Projects() {
               </div>
             </div>
 
-            <div className="p-8">
-              <div className="flex items-center gap-3 mb-4">
-                <span className={`px-3 py-1 text-xs rounded-full border ${statusLabels[selectedProject.status].color}`}>
-                  {statusLabels[selectedProject.status].label}
+            <div className="p-6 sm:p-8">
+              <div className="mb-5 flex flex-wrap items-center gap-2">
+                <span
+                  className={`rounded-full border px-3 py-1 text-xs font-semibold ${statusToneClass(selectedProject.status)}`}
+                >
+                  {t(statusMessageKey(selectedProject.status))}
                 </span>
-                <span className="px-3 py-1 text-xs rounded-full bg-gold/10 text-gold border border-gold/20">
+                <span className="rounded-full border border-gold/25 bg-gold/10 px-3 py-1 text-xs font-semibold text-gold-600">
                   {selectedProject.category}
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="p-4 rounded-xl bg-gray-50 dark:bg-white/10 border border-gold/10">
-                  <MapPin className="w-5 h-5 text-gold mb-2" />
-                  <p className="text-xs text-gray-500 dark:text-white/50 mb-1">الموقع</p>
-                  <p className="text-sm font-bold text-gray-800 dark:text-white">{selectedProject.location}</p>
+              <div className="mb-6 grid grid-cols-2 gap-4">
+                <div className="rounded-xl border border-soft-border/60 bg-surface-alt p-4 dark:bg-surface-muted">
+                  <MapPin className="mb-2 h-5 w-5 text-gold" strokeWidth={1.75} />
+                  <p className="mb-1 text-xs text-ink-muted">{t('page.projects.modal.location')}</p>
+                  <p className="text-sm font-semibold text-ink">{selectedProject.location}</p>
                 </div>
-                <div className="p-4 rounded-xl bg-gray-50 dark:bg-white/10 border border-gold/10">
-                  <Calendar className="w-5 h-5 text-gold mb-2" />
-                  <p className="text-xs text-gray-500 dark:text-white/50 mb-1">السنة</p>
-                  <p className="text-sm font-bold text-gray-800 dark:text-white">{selectedProject.year}</p>
+                <div className="rounded-xl border border-soft-border/60 bg-surface-alt p-4 dark:bg-surface-muted">
+                  <Calendar className="mb-2 h-5 w-5 text-gold" strokeWidth={1.75} />
+                  <p className="mb-1 text-xs text-ink-muted">{t('page.projects.modal.year')}</p>
+                  <p className="text-sm font-semibold text-ink">{selectedProject.year}</p>
                 </div>
               </div>
 
               <div className="mb-6">
-                <h3 className="font-tajawal text-xl font-bold text-gold mb-3">وصف المشروع</h3>
-                <p className="text-gray-600 dark:text-white/60 leading-relaxed">{selectedProject.description}</p>
+                <h3 className="mb-3 font-display text-xl font-semibold text-gold-600">
+                  {t('page.projects.modal.description')}
+                </h3>
+                <p className="leading-relaxed text-ink-secondary">{selectedProject.description}</p>
               </div>
 
-              {/* Image Gallery */}
               {selectedProject.images && selectedProject.images.length > 1 && (
                 <div className="mb-6">
-                  <h3 className="font-tajawal text-xl font-bold text-gold mb-3">معرض الصور</h3>
+                  <h3 className="mb-3 font-display text-xl font-semibold text-gold-600">
+                    {t('page.projects.modal.gallery')}
+                  </h3>
                   <div className="grid grid-cols-3 gap-3">
                     {selectedProject.images.map((img, i) => (
                       <button
@@ -507,10 +569,10 @@ export default function Projects() {
                 <a
                   href={selectedProject.pdfData}
                   download={selectedProject.pdfName || 'project-details.pdf'}
-                  className="w-full py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold rounded-xl hover:shadow-[0_0_20px_rgba(201,168,76,0.3)] transition-all duration-300 flex items-center justify-center gap-2"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-gold-600 via-gold to-gold-300 py-4 font-semibold text-[#2B2118] transition hover:shadow-gold-sm"
                 >
-                  <FileText className="w-5 h-5" />
-                  تحميل ملف تفاصيل المشروع (PDF)
+                  <FileText className="h-5 w-5" />
+                  {t('page.projects.modal.downloadPdf')}
                 </a>
               )}
             </div>
@@ -525,40 +587,40 @@ export default function Projects() {
             className="absolute inset-0 bg-black/80 backdrop-blur-sm"
             onClick={() => setShowAddModal(false)}
           />
-          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-[#4a4a4a] rounded-2xl border border-gold/30 shadow-2xl p-8">
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-surface rounded-2xl border border-gold/30 shadow-2xl p-8">
             <button
               onClick={() => setShowAddModal(false)}
-              className="absolute top-4 left-4 w-10 h-10 rounded-full bg-gray-200 dark:bg-white/10 text-gray-600 dark:text-white flex items-center justify-center hover:bg-gray-300 dark:hover:bg-white/20 transition-colors"
+              className="absolute top-4 left-4 w-10 h-10 rounded-full bg-surface-alt dark:bg-white/10 text-ink-secondary dark:text-white flex items-center justify-center hover:bg-gold-100 dark:hover:bg-white/20 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
 
-            <h2 className="font-tajawal text-2xl font-bold gold-text mb-6">إضافة مشروع جديد</h2>
+            <h2 className="gold-text mb-6 font-display text-2xl font-semibold">{t('page.projects.modal.addTitle')}</h2>
 
             <form onSubmit={handleAddProject} className="space-y-4">
               <div>
-                <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">اسم المشروع *</label>
+                <label className="block text-sm font-bold text-ink-secondary mb-1">اسم المشروع *</label>
                 <input
                   type="text" name="title" required value={formData.title} onChange={handleFormChange}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gold/20 bg-white dark:bg-white/5 text-gray-800 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none font-tajawal"
+                  className="w-full px-4 py-3 rounded-xl border border-soft-border/80 dark:border-gold/20 bg-cream-light dark:bg-surface text-ink focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none"
                   placeholder="مثال: برج الأعمال المركزي"
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">التصنيف *</label>
+                  <label className="block text-sm font-bold text-ink-secondary mb-1">التصنيف *</label>
                   <input
                     type="text" name="category" required value={formData.category} onChange={handleFormChange}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gold/20 bg-white dark:bg-white/5 text-gray-800 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none font-tajawal"
+                    className="w-full px-4 py-3 rounded-xl border border-soft-border/80 dark:border-gold/20 bg-cream-light dark:bg-surface text-ink focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none"
                     placeholder="مثال: أبراج تجارية"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">الموقع *</label>
+                  <label className="block text-sm font-bold text-ink-secondary mb-1">الموقع *</label>
                   <input
                     type="text" name="location" required value={formData.location} onChange={handleFormChange}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gold/20 bg-white dark:bg-white/5 text-gray-800 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none font-tajawal"
+                    className="w-full px-4 py-3 rounded-xl border border-soft-border/80 dark:border-gold/20 bg-cream-light dark:bg-surface text-ink focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none"
                     placeholder="مثال: الرياض"
                   />
                 </div>
@@ -566,18 +628,18 @@ export default function Projects() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">السنة *</label>
+                  <label className="block text-sm font-bold text-ink-secondary mb-1">السنة *</label>
                   <input
                     type="text" name="year" required value={formData.year} onChange={handleFormChange}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gold/20 bg-white dark:bg-white/5 text-gray-800 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none font-tajawal"
+                    className="w-full px-4 py-3 rounded-xl border border-soft-border/80 dark:border-gold/20 bg-cream-light dark:bg-surface text-ink focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none"
                     placeholder="مثال: 2024"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">حالة المشروع</label>
+                  <label className="block text-sm font-bold text-ink-secondary mb-1">حالة المشروع</label>
                   <select
                     name="status" value={formData.status} onChange={handleFormChange}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gold/20 bg-white dark:bg-white/5 text-gray-800 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none font-tajawal"
+                    className="w-full px-4 py-3 rounded-xl border border-soft-border/80 dark:border-gold/20 bg-cream-light dark:bg-surface text-ink focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none"
                   >
                     <option value="active">قيد التنفيذ</option>
                     <option value="completed">مكتمل</option>
@@ -587,21 +649,21 @@ export default function Projects() {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">وصف المشروع *</label>
+                <label className="block text-sm font-bold text-ink-secondary mb-1">وصف المشروع *</label>
                 <textarea
                   name="description" required rows={4} value={formData.description} onChange={handleFormChange}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gold/20 bg-white dark:bg-white/5 text-gray-800 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none font-tajawal resize-none"
+                  className="w-full px-4 py-3 rounded-xl border border-soft-border/80 dark:border-gold/20 bg-cream-light dark:bg-surface text-ink focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none resize-none"
                   placeholder="اكتب وصفاً تفصيلياً للمشروع..."
                 />
               </div>
 
               {/* Multiple Images Upload */}
               <div>
-                <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">صور المشروع (يمكن اختيار عدة صور)</label>
+                <label className="block text-sm font-bold text-ink-secondary mb-1">صور المشروع (يمكن اختيار عدة صور)</label>
                 <div className="flex items-center gap-3">
                   <label className={`flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors ${uploadingImages ? 'opacity-60 pointer-events-none' : ''}`}>
                     {uploadingImages ? <Loader2 className="w-5 h-5 text-gold animate-spin" /> : <Image className="w-5 h-5 text-gold" />}
-                    <span className="text-sm text-gray-600 dark:text-white/60 font-tajawal">
+                    <span className="text-sm text-ink-muted">
                       {uploadingImages ? 'جاري الرفع...' : formImageNames.length > 0 ? `تم اختيار ${formImageNames.length} صورة` : 'اختر صور'}
                     </span>
                     <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" disabled={uploadingImages} />
@@ -618,11 +680,11 @@ export default function Projects() {
 
               {/* Video Upload */}
               <div>
-                <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">فيديو المشروع</label>
+                <label className="block text-sm font-bold text-ink-secondary mb-1">فيديو المشروع</label>
                 <div className="flex items-center gap-3">
                   <label className={`flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors ${uploadingVideo ? 'opacity-60 pointer-events-none' : ''}`}>
                     {uploadingVideo ? <Loader2 className="w-5 h-5 text-gold animate-spin" /> : <Video className="w-5 h-5 text-gold" />}
-                    <span className="text-sm text-gray-600 dark:text-white/60 font-tajawal">
+                    <span className="text-sm text-ink-muted">
                       {uploadingVideo ? 'جاري الرفع...' : formVideoName || 'اختر فيديو'}
                     </span>
                     <input type="file" accept="video/*" onChange={handleVideoUpload} className="hidden" disabled={uploadingVideo} />
@@ -632,11 +694,11 @@ export default function Projects() {
 
               {/* PDF Upload */}
               <div>
-                <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-1 font-tajawal">ملف PDF</label>
+                <label className="block text-sm font-bold text-ink-secondary mb-1">ملف PDF</label>
                 <div className="flex items-center gap-3">
                   <label className={`flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors ${uploadingPdf ? 'opacity-60 pointer-events-none' : ''}`}>
                     {uploadingPdf ? <Loader2 className="w-5 h-5 text-gold animate-spin" /> : <FileText className="w-5 h-5 text-gold" />}
-                    <span className="text-sm text-gray-600 dark:text-white/60 font-tajawal">
+                    <span className="text-sm text-ink-muted">
                       {uploadingPdf ? 'جاري الرفع...' : formPdfName || 'اختر ملف PDF'}
                     </span>
                     <input type="file" accept=".pdf" onChange={handlePdfUpload} className="hidden" disabled={uploadingPdf} />
@@ -646,7 +708,7 @@ export default function Projects() {
 
               <button
                 type="submit"
-                className="w-full py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold text-lg rounded-xl hover:shadow-[0_0_30px_rgba(201,168,76,0.4)] transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2"
+                className="w-full py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold text-lg rounded-xl hover:shadow-gold-lg transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2"
               >
                 <Plus className="w-5 h-5" />
                 إضافة المشروع

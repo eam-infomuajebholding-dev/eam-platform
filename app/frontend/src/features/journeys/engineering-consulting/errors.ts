@@ -1,30 +1,11 @@
-import type { FieldValidationErrorDetail } from './types';
+export {
+  extractFieldErrors,
+  getErrorMessage,
+  type FieldValidationErrorDetail,
+} from '@/features/journeys/core/journeyErrors';
 
-export type { FieldValidationErrorDetail };
+import type { EngineeringConsultingContext } from './types';
 
-export function extractFieldErrors(error: unknown): FieldValidationErrorDetail[] {
-  if (!error || typeof error !== 'object') {
-    return [];
-  }
-  const maybeResponse = error as {
-    response?: { data?: { detail?: { errors?: FieldValidationErrorDetail[] } | string } };
-    data?: { detail?: { errors?: FieldValidationErrorDetail[] } | string };
-    detail?: { errors?: FieldValidationErrorDetail[] } | string;
-  };
-  const detail =
-    maybeResponse.response?.data?.detail ?? maybeResponse.data?.detail ?? maybeResponse.detail;
-  if (detail && typeof detail === 'object' && Array.isArray(detail.errors)) {
-    return detail.errors;
-  }
-  return [];
-}
-
-export function getErrorMessage(errors: FieldValidationErrorDetail[], fallback: string): string {
-  if (errors.length > 0) {
-    return errors.map((item) => item.message).join(' ');
-  }
-  return fallback;
-}
 
 export interface EngineeringStepValues {
   problemStatement: string;
@@ -72,4 +53,36 @@ export function buildAdvanceInput(
     return { scope_confirmed: values.scopeConfirmed };
   }
   return {};
+}
+
+export function emptyValues(): EngineeringStepValues {
+  return {
+    problemStatement: '',
+    desiredOutcome: '',
+    discipline: '',
+    projectType: '',
+    location: '',
+    objective: '',
+    currentStage: '',
+    urgency: '',
+    hasDocuments: null,
+    documentNotes: '',
+    scopeConfirmed: false,
+  };
+}
+
+export function syncFromContext(context: EngineeringConsultingContext): EngineeringStepValues {
+  return {
+    problemStatement: context.problem_statement ?? '',
+    desiredOutcome: context.desired_outcome ?? '',
+    discipline: context.discipline ?? '',
+    projectType: context.project_type ?? '',
+    location: context.location ?? '',
+    objective: context.objective ?? '',
+    currentStage: context.current_stage ?? '',
+    urgency: context.urgency ?? '',
+    hasDocuments: context.has_documents ?? null,
+    documentNotes: context.document_notes ?? '',
+    scopeConfirmed: context.scope_confirmed ?? false,
+  };
 }

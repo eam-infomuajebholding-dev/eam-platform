@@ -1,7 +1,3 @@
-import type { FieldValidationErrorDetail } from './types';
-
-export type { FieldValidationErrorDetail };
-
 export interface RealEstateDevelopmentStepValues {
   assetContext: string;
   assetLocation: string;
@@ -16,25 +12,14 @@ export interface RealEstateDevelopmentStepValues {
   submitConfirmed: boolean;
 }
 
-export function extractFieldErrors(error: unknown): FieldValidationErrorDetail[] {
-  if (!error || typeof error !== 'object') return [];
-  const maybeResponse = error as {
-    response?: { data?: { detail?: { errors?: FieldValidationErrorDetail[] } | string } };
-    data?: { detail?: { errors?: FieldValidationErrorDetail[] } | string };
-    detail?: { errors?: FieldValidationErrorDetail[] } | string;
-  };
-  const detail =
-    maybeResponse.response?.data?.detail ?? maybeResponse.data?.detail ?? maybeResponse.detail;
-  if (detail && typeof detail === 'object' && Array.isArray(detail.errors)) {
-    return detail.errors;
-  }
-  return [];
-}
+export {
+  extractFieldErrors,
+  getErrorMessage,
+  type FieldValidationErrorDetail,
+} from '@/features/journeys/core/journeyErrors';
 
-export function getErrorMessage(errors: FieldValidationErrorDetail[], fallback: string): string {
-  if (errors.length > 0) return errors.map((item) => item.message).join(' ');
-  return fallback;
-}
+import type { RealEstateDevelopmentContext } from './types';
+
 
 export function buildAdvanceInput(
   currentStep: string | null,
@@ -67,4 +52,36 @@ export function buildAdvanceInput(
     default:
       return {};
   }
+}
+
+export function emptyValues(): RealEstateDevelopmentStepValues {
+  return {
+    assetContext: '',
+    assetLocation: '',
+    developmentObjective: '',
+    intendedUse: '',
+    currentStatus: '',
+    knownConstraints: '',
+    documentsReadiness: '',
+    targetTimeline: '',
+    urgency: '',
+    scopeConfirmed: false,
+    submitConfirmed: false,
+  };
+}
+
+export function syncFromContext(context: RealEstateDevelopmentContext): RealEstateDevelopmentStepValues {
+  return {
+    assetContext: context.asset_context ?? '',
+    assetLocation: context.asset_location ?? '',
+    developmentObjective: context.development_objective ?? '',
+    intendedUse: context.intended_use ?? '',
+    currentStatus: context.current_status ?? '',
+    knownConstraints: context.known_constraints ?? '',
+    documentsReadiness: context.documents_readiness ?? '',
+    targetTimeline: context.target_timeline ?? '',
+    urgency: context.urgency ?? '',
+    scopeConfirmed: context.scope_confirmed ?? false,
+    submitConfirmed: context.submit_confirmed ?? false,
+  };
 }

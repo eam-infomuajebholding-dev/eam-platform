@@ -36,25 +36,25 @@ export default function EvidenceDrawer({ metricId, labelOverride, onClose }: Pro
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-tajawal text-lg font-bold text-ink dark:text-white">
+          <h2 className="text-lg font-bold text-ink dark:text-white">
             {labelOverride ?? evidence?.label_ar ?? 'دليل المقياس'}
           </h2>
           <button
             ref={closeRef}
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-gold/20 px-3 py-1 font-tajawal text-sm"
+            className="rounded-lg border border-gold/20 px-3 py-1 text-sm"
           >
             إغلاق
           </button>
         </div>
 
         {evidenceQuery.isLoading ? (
-          <p className="font-tajawal text-sm text-ink/60">جاري تحميل الأدلة...</p>
+          <p className="text-sm text-ink/60">جاري تحميل الأدلة...</p>
         ) : null}
 
         {evidence ? (
-          <dl className="space-y-3 font-tajawal text-sm text-ink/80 dark:text-white/80">
+          <dl className="space-y-3 text-sm text-ink/80 dark:text-white/80">
             <div>
               <dt className="text-ink/50">التعريف</dt>
               <dd>{evidence.description_ar}</dd>

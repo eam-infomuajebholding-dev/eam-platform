@@ -56,18 +56,3 @@ export const ENGAGEMENT_TYPE_OPTIONS = [
   { value: 'service_only', label: 'خدمة فقط' },
   { value: 'unknown', label: 'غير محدد' },
 ];
-
-export const URGENCY_OPTIONS = [
-  { value: 'standard', label: 'عادي' },
-  { value: 'soon', label: 'قريباً' },
-  { value: 'urgent', label: 'عاجل' },
-];
-
-export function getStepNumber(stepKey: string): number {
-  const index = STEP_ORDER.indexOf(stepKey as (typeof STEP_ORDER)[number]);
-  return index >= 0 ? index + 1 : 0;
-}
-
-export function getTotalSteps(): number {
-  return STEP_ORDER.length - 1;
-}

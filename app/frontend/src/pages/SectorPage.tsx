@@ -1,119 +1,136 @@
 import { Link, useParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
-import { getSectorBySlug } from '@/data/sectors';
+import PageSection from '@/components/page/PageSection';
+import PageSectionHeader from '@/components/page/PageSectionHeader';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { getSectorBySlug, SECTOR_DEFINITIONS } from '@/data/sectors';
+import { getSectorJourney } from '@/data/sectorJourneys';
+import { sectorDescMessageKey, sectorMessageKey } from '@/i18n/homeMessages';
+import { ArrowLeft, Layers, Route } from 'lucide-react';
 
 export default function SectorPage() {
   const { slug } = useParams<{ slug: string }>();
+  const { t } = useLanguage();
   const sector = slug ? getSectorBySlug(slug) : undefined;
 
   if (!sector) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="font-tajawal text-2xl font-bold text-ink">القطاع غير موجود</h1>
-          <Link to="/" className="mt-4 inline-block text-deep-gold hover:underline">
-            العودة للرئيسية
-          </Link>
-        </div>
+        <PageSection variant="cream">
+          <div className="mx-auto max-w-lg text-center">
+            <h1 className="font-display text-display-sm text-ink">{t('page.sector.notFound')}</h1>
+            <Link to="/" className="mt-6 inline-block text-deep-gold hover:underline">
+              {t('common.backHome')}
+            </Link>
+          </div>
+        </PageSection>
       </Layout>
     );
   }
 
   const Icon = sector.icon;
+  const journeyCta = getSectorJourney(sector.slug);
 
   return (
     <Layout>
-      <div className="bg-cream">
-        <div className="container mx-auto max-w-3xl px-4 py-12">
-          <div
-            className="mb-6 h-40 rounded-2xl border border-soft-border"
-            style={{ background: sector.imagePlaceholder }}
-          />
-          <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-cream-light text-sm font-bold text-deep-gold">
-              {sector.number}
-            </span>
-            <Icon size={28} className="text-primary-gold" />
-            <h1 className="font-tajawal text-3xl font-bold text-ink">{sector.title}</h1>
+      <section className="eam-page-hero min-h-[320px]">
+        <div className="container relative z-10 mx-auto px-4">
+          <div className="mx-auto max-w-4xl">
+            <div
+              className="mb-8 h-48 overflow-hidden rounded-2xl border border-soft-border/70 shadow-gold-card md:h-56"
+              style={{ background: sector.imagePlaceholder }}
+            />
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-cream text-sm font-bold text-deep-gold shadow-gold-sm">
+                {sector.number}
+              </span>
+              <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-gold-50 dark:bg-gold/10">
+                <Icon size={24} className="text-gold-600 dark:text-gold-400" />
+              </span>
+              <h1 className="gold-text font-display text-display-md md:text-display-xl">
+                {t(sectorMessageKey(sector.slug))}
+              </h1>
+            </div>
+            <p className="text-lead mt-4 max-w-3xl">{t(sectorDescMessageKey(sector.slug))}</p>
           </div>
-          <p className="mt-4 text-ink/70">
-            نعمل على إعداد المحتوى التفصيلي لهذا القطاع. تواصل معنا لمعرفة المزيد عن خدماتنا في هذا المجال.
-          </p>
-          {sector.slug === 'engineering-consulting' && (
-            <Link to="/journeys/engineering-consulting" className="eam-btn-outline mt-6 inline-block">
-              ابدأ الاستشارة الهندسية
-            </Link>
-          )}
-          {sector.slug === 'build-villa' && (
-            <Link to="/journeys/build-villa" className="eam-btn-outline mt-6 inline-block">
-              ابدأ رحلة بناء المنزل
-            </Link>
-          )}
-          {sector.slug === 'contracting' && (
-            <Link to="/journeys/contracting" className="eam-btn-outline mt-6 inline-block">
-              ابدأ رحلة جاهزية المقاولات
-            </Link>
-          )}
-          {sector.slug === 'real-estate-valuation' && (
-            <Link to="/journeys/real-estate-valuation" className="eam-btn-outline mt-6 inline-block">
-              ابدأ رحلة جاهزية التقييم العقاري
-            </Link>
-          )}
-          {sector.slug === 'smart-maintenance' && (
-            <Link to="/journeys/smart-maintenance" className="eam-btn-outline mt-6 inline-block">
-              ابدأ رحلة جاهزية الصيانة الذكية
-            </Link>
-          )}
-          {sector.slug === 'project-management' && (
-            <Link to="/journeys/project-management" className="eam-btn-outline mt-6 inline-block">
-              ابدأ رحلة جاهزية إدارة المشروع
-            </Link>
-          )}
-          {sector.slug === 'furnishing' && (
-            <Link to="/journeys/furnishing" className="eam-btn-outline mt-6 inline-block">
-              ابدأ رحلة جاهزية التأثيث
-            </Link>
-          )}
-          {sector.slug === 'facility-management' && (
-            <Link to="/journeys/facility-management" className="eam-btn-outline mt-6 inline-block">
-              ابدأ رحلة جاهزية إدارة المرافق
-            </Link>
-          )}
-          {sector.slug === 'government-services' && (
-            <Link to="/journeys/government-services" className="eam-btn-outline mt-6 inline-block">
-              ابدأ رحلة الخدمات الحكومية
-            </Link>
-          )}
-          {sector.slug === 'investment' && (
-            <Link to="/invest" className="eam-btn-outline mt-6 inline-block">
-              استثمر معنا
-            </Link>
-          )}
-          {sector.slug === 'real-estate-development' && (
-            <Link to="/journeys/real-estate-development" className="eam-btn-outline mt-6 inline-block">
-              ابدأ رحلة التطوير العقاري
-            </Link>
-          )}
-          {sector.slug === 'real-estate-marketing' && (
-            <Link to="/journeys/real-estate-marketing" className="eam-btn-outline mt-6 inline-block">
-              ابدأ رحلة التسويق العقاري
-            </Link>
-          )}
-          {sector.slug === 'building-materials' && (
-            <Link to="/journeys/building-materials" className="eam-btn-outline mt-6 inline-block">
-              ابدأ رحلة مواد البناء
-            </Link>
-          )}
-          {sector.slug === 'equipment' && (
-            <Link to="/journeys/equipment" className="eam-btn-outline mt-6 inline-block">
-              ابدأ رحلة المعدات والآلات
-            </Link>
-          )}
-          <Link to="/" className="mt-8 inline-block text-deep-gold hover:underline">
-            ← العودة للرئيسية
+        </div>
+      </section>
+
+      <PageSection variant="muted" className="py-10 md:py-14">
+        <div className="mx-auto grid max-w-3xl grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="rounded-2xl border border-soft-border/60 bg-cream px-5 py-6 text-center dark:bg-surface">
+            <Layers className="mx-auto mb-3 h-6 w-6 text-gold-500" strokeWidth={1.75} />
+            <p className="font-display text-3xl font-semibold text-gold-600 dark:text-gold-300">
+              {sector.number}
+            </p>
+            <p className="text-caption mt-1">{t('page.services.stat.sectors')}</p>
+          </div>
+          <div className="rounded-2xl border border-soft-border/60 bg-cream px-5 py-6 text-center dark:bg-surface">
+            <Route className="mx-auto mb-3 h-6 w-6 text-gold-500" strokeWidth={1.75} />
+            <p className="font-display text-3xl font-semibold text-gold-600 dark:text-gold-300">
+              {journeyCta ? '1' : '—'}
+            </p>
+            <p className="text-caption mt-1">{t('page.services.stat.journeys')}</p>
+          </div>
+        </div>
+      </PageSection>
+
+      <PageSection variant="cream">
+        <div className="mx-auto max-w-3xl">
+          <PageSectionHeader
+            titleKey="page.services.startJourney"
+            subtitleKey="page.sector.body"
+            center={false}
+          />
+          <div className="rounded-2xl border border-soft-border/70 bg-cream p-8 shadow-gold-card dark:bg-surface">
+            <div className="flex flex-wrap gap-3">
+              {journeyCta ? (
+                <Link to={journeyCta.to} className="eam-btn-primary inline-block">
+                  {t(journeyCta.labelKey)}
+                </Link>
+              ) : null}
+              <Link to="/services" className="eam-btn-outline inline-block">
+                {t('page.services.explore')}
+              </Link>
+              {sector.route.startsWith('/services/') ? (
+                <Link
+                  to={sector.route}
+                  className="inline-block rounded-xl border border-soft-border px-5 py-2.5 text-sm font-semibold text-ink-secondary transition hover:border-gold-300 hover:bg-gold-50"
+                >
+                  {t('common.learnMore')}
+                </Link>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="mt-10">
+            <p className="text-label mb-4">{t('page.services.grid.subtitle')}</p>
+            <div className="flex flex-wrap gap-2">
+              {SECTOR_DEFINITIONS.slice(0, 8).map((s) => (
+                <Link
+                  key={s.slug}
+                  to={`/sectors/${s.slug}`}
+                  className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                    s.slug === sector.slug
+                      ? 'border-gold-400 bg-gold-50 text-gold-700 dark:bg-gold/10 dark:text-gold-300'
+                      : 'border-soft-border text-ink-secondary hover:border-gold-300 hover:bg-gold-50'
+                  }`}
+                >
+                  {t(sectorMessageKey(s.slug))}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <Link
+            to="/"
+            className="mt-10 inline-flex items-center gap-2 text-deep-gold hover:underline"
+          >
+            <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
+            {t('common.backHome')}
           </Link>
         </div>
-      </div>
+      </PageSection>
     </Layout>
   );
 }

@@ -1,71 +1,121 @@
+import { useMemo, useState } from 'react';
+import Layout from '@/components/Layout';
+import PageHero from '@/components/page/PageHero';
+import BlogPostCard from '@/components/blog/BlogPostCard';
+import BlogSeo from '@/components/blog/BlogSeo';
+import { useLanguage } from '@/contexts/LanguageContext';
+import {
+  getAllTags,
+  getBlogIndexSeoMeta,
+  getPostsForLanguage,
+} from '@/lib/blog';
 import { Link } from 'react-router-dom';
-import { blogPosts, getBlogRoute } from '@/lib/blog';
 
-const BlogIndexPage = () => (
-  <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.14),_transparent_36%),linear-gradient(180deg,_#f8fafc_0%,_#eff6ff_100%)] text-slate-900">
-    <section className="mx-auto max-w-5xl px-6 py-16 sm:py-20">
-      <div className="max-w-3xl space-y-5">
-        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-700">
-          Blog Starter
-        </p>
-        <h1 className="font-serif text-4xl leading-tight text-slate-950 sm:text-5xl">
-          Start with a blog section that is ready to grow with your SEO site
-        </h1>
-        <p className="text-lg leading-8 text-slate-600">
-          This is the starter blog index. Add Markdown files under
-          `seo/content/` and the site will automatically generate the list,
-          article pages, and prerender routes.
-        </p>
-      </div>
+const BlogIndexPage = () => {
+  const { language, t } = useLanguage();
+  const [activeTag, setActiveTag] = useState<string | null>(null);
 
-      <div className="mt-12 grid gap-6">
-        {blogPosts.length > 0 ? (
-          blogPosts.map((post) => (
-            <article
-              key={post.slug}
-              className="rounded-3xl border border-sky-100 bg-white/90 p-6 shadow-sm shadow-sky-100/60 transition-transform duration-200 hover:-translate-y-1"
-            >
-              <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500">
-                {post.frontmatter.date ? <span>{post.frontmatter.date}</span> : null}
-                {post.frontmatter.tags?.map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-full bg-sky-50 px-3 py-1 text-sky-700"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              <h2 className="mt-4 font-serif text-2xl text-slate-950">
-                <Link className="hover:text-sky-700" to={getBlogRoute(post.slug)}>
-                  {post.title}
-                </Link>
+  const posts = useMemo(() => getPostsForLanguage(language), [language]);
+  const tags = useMemo(() => getAllTags(posts), [posts]);
+
+  const filteredPosts = useMemo(() => {
+    if (!activeTag) {
+      return posts;
+    }
+    return posts.filter((post) => post.frontmatter.tags?.includes(activeTag));
+  }, [activeTag, posts]);
+
+  const [featured, ...rest] = filteredPosts;
+
+  const seo = {
+    ...getBlogIndexSeoMeta(),
+    description: t('blog.index.metaDescription'),
+    ogDescription: t('blog.index.metaDescription'),
+    twitterDescription: t('blog.index.metaDescription'),
+  };
+
+  return (
+    <Layout>
+      <BlogSeo seo={seo} />
+
+      <PageHero titleKey="blog.hero.title" subtitleKey="blog.hero.subtitle" />
+
+      <section className="bg-cream-light py-16 dark:bg-background md:py-20">
+        <div className="container mx-auto px-4">
+          {posts.length === 0 ? (
+            <div className="mx-auto max-w-2xl rounded-2xl border border-dashed border-gold/30 bg-surface-alt p-10 text-center dark:bg-white/5">
+              <h2 className="font-display text-2xl font-bold text-ink">
+                {t('blog.noPosts.title')}
               </h2>
-              <p className="mt-3 text-base leading-7 text-slate-600">
-                {post.description}
+              <p className="mt-4 leading-relaxed text-ink-secondary">
+                {t('blog.noPosts.body')}
               </p>
               <Link
-                to={getBlogRoute(post.slug)}
-                className="mt-5 inline-flex text-sm font-semibold text-sky-700 underline underline-offset-4"
+                to="/contact"
+                className="mt-6 inline-block rounded-lg bg-gold px-6 py-3 font-bold text-dark hover:bg-gold-light"
               >
-                Read article
+                {t('blog.noPosts.cta')}
               </Link>
-            </article>
-          ))
-        ) : (
-          <section className="rounded-[2rem] border border-dashed border-sky-200 bg-white/80 p-8">
-            <h2 className="font-serif text-2xl text-slate-950">No articles yet</h2>
-            <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
-              Add Markdown files under `seo/content/` and article cards will
-              appear here automatically. This keeps the starter clean by default
-              while making it easy to begin publishing content for your own SEO
-              strategy.
-            </p>
-          </section>
-        )}
-      </div>
-    </section>
-  </main>
-);
+            </div>
+          ) : (
+            <>
+              {tags.length > 0 ? (
+                <div className="mb-10 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTag(null)}
+                    className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                      activeTag === null
+                        ? 'bg-gold text-dark'
+                        : 'border border-gold/30 text-ink-secondary hover:bg-gold/10 dark:text-white/70'
+                    }`}
+                  >
+                    {t('blog.tagFilter.all')}
+                  </button>
+                  {tags.map((tag) => (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => setActiveTag(tag)}
+                      className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                        activeTag === tag
+                          ? 'bg-gold text-dark'
+                          : 'border border-gold/30 text-ink-secondary hover:bg-gold/10 dark:text-white/70'
+                      }`}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+
+              {featured ? (
+                <div className="mb-12">
+                  <p className="mb-4 text-sm font-bold uppercase tracking-wide text-gold">
+                    {t('blog.featured')}
+                  </p>
+                  <BlogPostCard post={featured} featured />
+                </div>
+              ) : null}
+
+              {rest.length > 0 ? (
+                <>
+                  <h2 className="mb-6 font-display text-2xl font-bold text-ink">
+                    {t('blog.allPosts')}
+                  </h2>
+                  <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+                    {rest.map((post) => (
+                      <BlogPostCard key={post.slug} post={post} />
+                    ))}
+                  </div>
+                </>
+              ) : null}
+            </>
+          )}
+        </div>
+      </section>
+    </Layout>
+  );
+};
 
 export default BlogIndexPage;

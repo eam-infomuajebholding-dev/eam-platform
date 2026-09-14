@@ -9,12 +9,20 @@ import { useQueryClient } from '@tanstack/react-query';
 import { authApi } from '@/features/auth/api/auth';
 import { clearCustomerSensitiveQueries } from '@/features/auth/api/clearCustomerCache';
 
+export type CommandCenterAccess = {
+  role: 'owner' | 'delegate';
+  permissions: string[];
+  delegation_id?: number | null;
+  expires_at?: string | null;
+};
+
 interface User {
   id: string;
   email: string;
   name?: string;
   role: string;
   last_login?: string;
+  command_center?: CommandCenterAccess | null;
 }
 
 interface AuthContextType {
@@ -25,6 +33,9 @@ interface AuthContextType {
   logout: () => Promise<void>;
   refetch: () => Promise<void>;
   isAdmin: boolean;
+  canAccessCommandCenter: boolean;
+  isCommandCenterOwner: boolean;
+  commandCenterAccess: CommandCenterAccess | null;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -86,6 +97,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkAuthStatus();
   }, []);
 
+  const commandCenterAccess = user?.command_center ?? null;
+  const isAdmin = user?.role === 'admin';
+  const canAccessCommandCenter = Boolean(commandCenterAccess) || isAdmin;
+  const isCommandCenterOwner =
+    commandCenterAccess?.role === 'owner' ||
+    (isAdmin && commandCenterAccess?.role !== 'delegate');
+
   const value: AuthContextType = {
     user,
     loading,
@@ -93,7 +111,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     logout,
     refetch: checkAuthStatus,
-    isAdmin: user?.role === 'admin',
+    isAdmin,
+    canAccessCommandCenter,
+    isCommandCenterOwner,
+    commandCenterAccess,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

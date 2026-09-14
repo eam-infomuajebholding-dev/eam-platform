@@ -1,3 +1,4 @@
+import type { SectorImageKey } from '@/config/assetKeys';
 import type { LucideIcon } from 'lucide-react';
 import {
   HardHat,
@@ -23,7 +24,9 @@ export type SectorDefinition = {
   slug: string;
   title: string;
   icon: LucideIcon;
-  /** PHASE-LATER: replace with final sector photography */
+  /** Approved sector artwork key — resolved via config/assets */
+  imageKey: SectorImageKey;
+  /** Fallback when artwork unavailable (legacy gradient) */
   imagePlaceholder: string;
   route: string;
 };
@@ -34,6 +37,7 @@ const SECTOR_DEFINITIONS_RAW: SectorDefinition[] = [
     slug: 'real-estate-development',
     title: 'التطوير العقاري',
     icon: Building2,
+    imageKey: 'realEstateDevelopment',
     imagePlaceholder: 'linear-gradient(135deg, #FBF1E4 0%, #C5A059 100%)',
     route: '/services/real-estate-development',
   },
@@ -42,6 +46,7 @@ const SECTOR_DEFINITIONS_RAW: SectorDefinition[] = [
     slug: 'real-estate-marketing',
     title: 'التسويق العقاري',
     icon: Megaphone,
+    imageKey: 'realEstateMarketing',
     imagePlaceholder: 'linear-gradient(135deg, #FCEEDD 0%, #9A6B1F 100%)',
     route: '/services/real-estate-marketing',
   },
@@ -50,6 +55,7 @@ const SECTOR_DEFINITIONS_RAW: SectorDefinition[] = [
     slug: 'investment',
     title: 'الاستثمار',
     icon: TrendingUp,
+    imageKey: 'realEstateInvestment',
     imagePlaceholder: 'linear-gradient(135deg, #E6CFAE 0%, #C5A059 100%)',
     route: '/invest',
   },
@@ -58,6 +64,7 @@ const SECTOR_DEFINITIONS_RAW: SectorDefinition[] = [
     slug: 'build-villa',
     title: 'بناء منزل',
     icon: House,
+    imageKey: 'engineeringDesign',
     imagePlaceholder: 'linear-gradient(135deg, #FAEBDD 0%, #9A6B1F 100%)',
     route: '/journeys/build-villa',
   },
@@ -66,6 +73,7 @@ const SECTOR_DEFINITIONS_RAW: SectorDefinition[] = [
     slug: 'contracting',
     title: 'المقاولات والتشييد',
     icon: HardHat,
+    imageKey: 'contractingExecution',
     imagePlaceholder: 'linear-gradient(135deg, #C5A059 0%, #9A6B1F 100%)',
     route: '/services/contracting',
   },
@@ -74,6 +82,7 @@ const SECTOR_DEFINITIONS_RAW: SectorDefinition[] = [
     slug: 'building-materials',
     title: 'مواد البناء',
     icon: Package,
+    imageKey: 'buildingMaterials',
     imagePlaceholder: 'linear-gradient(135deg, #E6CFAE 0%, #C5A059 100%)',
     route: '/sectors/building-materials',
   },
@@ -82,6 +91,7 @@ const SECTOR_DEFINITIONS_RAW: SectorDefinition[] = [
     slug: 'equipment',
     title: 'المعدات والآلات',
     icon: Cog,
+    imageKey: 'equipmentMachinery',
     imagePlaceholder: 'linear-gradient(135deg, #FAEBDD 0%, #C5A059 100%)',
     route: '/sectors/equipment',
   },
@@ -90,6 +100,7 @@ const SECTOR_DEFINITIONS_RAW: SectorDefinition[] = [
     slug: 'factories-suppliers',
     title: 'المصانع والموردين',
     icon: Factory,
+    imageKey: 'factoriesSuppliers',
     imagePlaceholder: 'linear-gradient(135deg, #C5A059 0%, #2F2922 100%)',
     route: '/sectors/factories-suppliers',
   },
@@ -98,6 +109,7 @@ const SECTOR_DEFINITIONS_RAW: SectorDefinition[] = [
     slug: 'real-estate-valuation',
     title: 'التقييم العقاري',
     icon: Home,
+    imageKey: 'realEstateValuation',
     imagePlaceholder: 'linear-gradient(135deg, #FCEEDD 0%, #9A6B1F 100%)',
     route: '/sectors/real-estate-valuation',
   },
@@ -106,6 +118,7 @@ const SECTOR_DEFINITIONS_RAW: SectorDefinition[] = [
     slug: 'government-services',
     title: 'الخدمات الحكومية',
     icon: Landmark,
+    imageKey: 'governmentServices',
     imagePlaceholder: 'linear-gradient(135deg, #E6CFAE 0%, #9A6B1F 100%)',
     route: '/government-services',
   },
@@ -114,6 +127,7 @@ const SECTOR_DEFINITIONS_RAW: SectorDefinition[] = [
     slug: 'project-management',
     title: 'إدارة المشاريع',
     icon: ClipboardList,
+    imageKey: 'projectManagement',
     imagePlaceholder: 'linear-gradient(135deg, #FBF1E4 0%, #C5A059 100%)',
     route: '/sectors/project-management',
   },
@@ -122,6 +136,7 @@ const SECTOR_DEFINITIONS_RAW: SectorDefinition[] = [
     slug: 'engineering-consulting',
     title: 'الاستشارات الهندسية',
     icon: Ruler,
+    imageKey: 'engineeringConsulting',
     imagePlaceholder: 'linear-gradient(135deg, #C5A059 0%, #E6CFAE 100%)',
     route: '/engineering-services',
   },
@@ -130,6 +145,7 @@ const SECTOR_DEFINITIONS_RAW: SectorDefinition[] = [
     slug: 'smart-maintenance',
     title: 'التشغيل والصيانة الذكية',
     icon: Wrench,
+    imageKey: 'smartOperationsMaintenance',
     imagePlaceholder: 'linear-gradient(135deg, #9A6B1F 0%, #C5A059 100%)',
     route: '/services/maintenance',
   },
@@ -138,6 +154,7 @@ const SECTOR_DEFINITIONS_RAW: SectorDefinition[] = [
     slug: 'facility-management',
     title: 'إدارة المرافق',
     icon: Building,
+    imageKey: 'facilityManagement',
     imagePlaceholder: 'linear-gradient(135deg, #FAEBDD 0%, #9A6B1F 100%)',
     route: '/sectors/facility-management',
   },
@@ -146,6 +163,7 @@ const SECTOR_DEFINITIONS_RAW: SectorDefinition[] = [
     slug: 'furnishing',
     title: 'التأثيث والتجهيز',
     icon: Sofa,
+    imageKey: 'interiorFitoutFurnishing',
     imagePlaceholder: 'linear-gradient(135deg, #E6CFAE 0%, #FBF1E4 100%)',
     route: '/sectors/furnishing',
   },
@@ -154,6 +172,7 @@ const SECTOR_DEFINITIONS_RAW: SectorDefinition[] = [
     slug: 'delivery-warranty',
     title: 'التسليم وخدمات الملاك',
     icon: Truck,
+    imageKey: 'handoverAfterSales',
     imagePlaceholder: 'linear-gradient(135deg, #C5A059 0%, #2F2922 80%)',
     route: '/sectors/delivery-warranty',
   },
@@ -191,6 +210,13 @@ export function validateSectorRegistry(): { ok: boolean; errors: string[] } {
     if (!sector.route.startsWith('/')) {
       errors.push(`invalid route for ${sector.slug}: ${sector.route}`);
     }
+    if (!sector.imageKey) {
+      errors.push(`missing imageKey for ${sector.slug}`);
+    }
+  }
+  const imageKeys = SECTOR_DEFINITIONS.map((s) => s.imageKey);
+  if (new Set(imageKeys).size !== imageKeys.length) {
+    errors.push('duplicate sector imageKey detected');
   }
   return { ok: errors.length === 0, errors };
 }

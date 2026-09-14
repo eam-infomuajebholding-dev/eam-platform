@@ -3,6 +3,8 @@ export type OperationalStageKey =
   | 'PROFESSIONAL_REVIEW'
   | 'AWAITING_INFORMATION'
   | 'QUALIFIED'
+  | 'AWAITING_PAYMENT'
+  | 'PAID'
   | 'SCOPE_PREPARATION'
   | 'UNKNOWN';
 
@@ -41,6 +43,36 @@ export function resolveOperationalStage(status: string): OperationalStage {
     label: status,
     description: 'سيتم تحديث حالة الطلب عند توفر معلومات إضافية.',
   };
+}
+
+export interface PaymentStageInput {
+  paid?: boolean;
+  can_pay?: boolean;
+  status?: string;
+}
+
+/** Overlay commercial payment phase when quote/payment APIs are available. */
+export function resolvePaymentStage(
+  payment: PaymentStageInput | null | undefined,
+  labels: {
+    awaitingPayment: string;
+    awaitingPaymentDesc: string;
+    paid: string;
+    paidDesc: string;
+  },
+): OperationalStage | null {
+  if (!payment) return null;
+  if (payment.paid) {
+    return { key: 'PAID', label: labels.paid, description: labels.paidDesc };
+  }
+  if (payment.can_pay) {
+    return {
+      key: 'AWAITING_PAYMENT',
+      label: labels.awaitingPayment,
+      description: labels.awaitingPaymentDesc,
+    };
+  }
+  return null;
 }
 
 export const JOURNEY_TYPE_LABELS: Record<string, string> = {

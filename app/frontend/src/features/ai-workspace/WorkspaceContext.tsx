@@ -15,21 +15,28 @@ import {
   executeActionProposal,
   executeStartJourney,
 } from '@/features/ai-workspace/actionExecutor';
-import { setActiveJourneyInstanceId } from '@/features/journeys/core/josClient';
+import { clearActiveJourneyInstanceId, setActiveJourneyInstanceId } from '@/features/journeys/core/josClient';
+import {
+  extractResourceLinksFromActions,
+  getJourneyLabel,
+  resolveJourneyTypeFromTurn,
+} from '@/features/ai-workspace/platformResources';
 import {
   BUILD_VILLA_INTENT_HINT,
   BUILD_VILLA_QUICK_ACTION_LABEL,
+  type InteractionMode,
+  type PendingJourneyOffer,
   type WorkspaceMessage,
 } from '@/features/ai-workspace/types';
 import { useJourney } from '@/features/journeys/core/useJourney';
 import type { JourneyInstance } from '@/features/journeys/core/types';
 import {
   buildAdvanceInput as buildBvAdvanceInput,
-  emptyStepValues as emptyBvStepValues,
+  emptyValues as emptyBvStepValues,
   extractExistingInstanceId,
   extractFieldErrors as extractBvFieldErrors,
   getErrorMessage as getBvErrorMessage,
-  syncStepValuesFromContext as syncBvStepValuesFromContext,
+  syncFromContext as syncBvStepValuesFromContext,
   type BuildVillaStepValues,
 } from '@/features/journeys/build-villa/errors';
 import type { BuildVillaContext, FieldValidationErrorDetail } from '@/features/journeys/build-villa/types';
@@ -214,11 +221,15 @@ interface WorkspaceContextValue {
   setEqStepValues: (values: EquipmentStepValues) => void;
   fieldErrors: FieldValidationErrorDetail[];
   formError: string | null;
+  interactionMode: InteractionMode;
+  setInteractionMode: (mode: InteractionMode) => void;
   sendMessage: (message: string) => Promise<void>;
+  acceptPendingJourney: (offer: PendingJourneyOffer) => Promise<void>;
   startBuildVillaFromQuickAction: () => Promise<void>;
   advanceCurrentStep: () => Promise<void>;
   revisitCurrentSection: (targetStep: string) => Promise<void>;
   completeCurrentJourney: () => Promise<void>;
+  exitCurrentJourney: () => Promise<void>;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
@@ -414,11 +425,16 @@ const emptyEcStepValues = (): EngineeringStepValues => ({
   scopeConfirmed: false,
 });
 
-function createMessage(role: WorkspaceMessage['role'], content: string): WorkspaceMessage {
+function createMessage(
+  role: WorkspaceMessage['role'],
+  content: string,
+  extras?: Pick<WorkspaceMessage, 'journeyOffer' | 'resourceLinks'>,
+): WorkspaceMessage {
   return {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     role,
     content,
+    ...extras,
   };
 }
 
@@ -654,9 +670,12 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     complete,
     recordEvent,
     getInstance,
+    pause,
+    setCurrentInstance,
   } = useJourney();
 
   const [mode, setMode] = useState<WorkspaceMode>('chat');
+  const [interactionMode, setInteractionMode] = useState<InteractionMode>('free');
   const [messages, setMessages] = useState<WorkspaceMessage[]>([]);
   const [streamingContent, setStreamingContent] = useState('');
   const [isBusy, setIsBusy] = useState(false);
@@ -820,6 +839,60 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     }
   }, [handoffToJourney, isBusy, isJourneyActive]);
 
+  const appendAssistantTurn = useCallback(
+    (
+      turn: Awaited<ReturnType<typeof aiCoreClient.workspaceTurn>>,
+      content: string,
+      journeyType: string | null,
+    ) => {
+      const resourceLinks = extractResourceLinksFromActions(turn.actions);
+      const extras: Pick<WorkspaceMessage, 'journeyOffer' | 'resourceLinks'> = { resourceLinks };
+
+      if (
+        interactionMode === 'free' &&
+        journeyType &&
+        SUPPORTED_JOURNEY_TYPES.has(journeyType)
+      ) {
+        extras.journeyOffer = {
+          journeyType,
+          label: getJourneyLabel(journeyType),
+          traceId: turn.trace_id ?? null,
+          introMessage: content,
+        };
+      }
+
+      setMessages((prev) => [...prev, createMessage('assistant', content, extras)]);
+    },
+    [interactionMode],
+  );
+
+  const acceptPendingJourney = useCallback(
+    async (offer: PendingJourneyOffer) => {
+      if (isBusy || isJourneyActive) {
+        return;
+      }
+
+      setIsBusy(true);
+      setWorkspaceError(null);
+
+      try {
+        await handoffToJourney(
+          offer.journeyType,
+          offer.introMessage ??
+            `سأساعدك في بدء رحلة ${offer.label}. لنبدأ بجمع المعلومات خطوة بخطوة.`,
+          'free_text',
+          offer.traceId,
+        );
+      } catch (error) {
+        console.error(error);
+        setWorkspaceError('تعذر بدء الرحلة المخصصة. يرجى المحاولة مرة أخرى.');
+      } finally {
+        setIsBusy(false);
+      }
+    },
+    [handoffToJourney, isBusy, isJourneyActive],
+  );
+
   const sendMessage = useCallback(
     async (message: string) => {
       const trimmed = message.trim();
@@ -838,13 +911,14 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
       try {
         const turn = await aiCoreClient.workspaceTurn({ message: trimmed, stream: true });
-
-        const startAction = turn.actions?.find(
-          (proposal) =>
-            proposal.action === 'START_JOURNEY' &&
-            proposal.journey_type &&
-            SUPPORTED_JOURNEY_TYPES.has(proposal.journey_type),
+        const resourceLinks = extractResourceLinksFromActions(turn.actions);
+        const journeyType = resolveJourneyTypeFromTurn(
+          turn.actions,
+          turn.action,
+          turn.journey_type,
         );
+        const supportedJourney =
+          journeyType != null && SUPPORTED_JOURNEY_TYPES.has(journeyType) ? journeyType : null;
 
         const executableAction = turn.actions?.find((proposal) =>
           ['START_JOURNEY', 'REQUEST_HUMAN_HANDOFF'].includes(proposal.action),
@@ -854,14 +928,16 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
           const handoffResult = await executeActionProposal(executableAction, turn.trace_id);
           setMessages((prev) => [
             ...prev,
-            createMessage('assistant', handoffResult.safeMessage ?? turn.assistant_message),
+            createMessage('assistant', handoffResult.safeMessage ?? turn.assistant_message, {
+              resourceLinks,
+            }),
           ]);
           return;
         }
 
-        if (startAction?.journey_type) {
+        if (supportedJourney && interactionMode === 'journey') {
           await handoffToJourney(
-            startAction.journey_type,
+            supportedJourney,
             turn.assistant_message,
             'free_text',
             turn.trace_id,
@@ -869,17 +945,11 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        if (
-          turn.action === 'start_journey' &&
-          turn.journey_type &&
-          SUPPORTED_JOURNEY_TYPES.has(turn.journey_type)
-        ) {
-          await handoffToJourney(turn.journey_type, turn.assistant_message, 'free_text', turn.trace_id);
-          return;
-        }
-
         if (turn.action === 'ai_unavailable') {
-          setMessages((prev) => [...prev, createMessage('assistant', turn.assistant_message)]);
+          setMessages((prev) => [
+            ...prev,
+            createMessage('assistant', turn.assistant_message, { resourceLinks }),
+          ]);
           setWorkspaceError(turn.assistant_message);
           return;
         }
@@ -891,18 +961,18 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
               setStreamingContent(content);
             });
             setStreamingContent('');
-            setMessages((prev) => [...prev, createMessage('assistant', streamed || turn.assistant_message)]);
+            appendAssistantTurn(turn, streamed || turn.assistant_message, supportedJourney);
           } else {
-            setMessages((prev) => [...prev, createMessage('assistant', turn.assistant_message)]);
+            appendAssistantTurn(turn, turn.assistant_message, supportedJourney);
           }
           return;
         }
 
-        setMessages((prev) => [...prev, createMessage('assistant', turn.assistant_message)]);
+        appendAssistantTurn(turn, turn.assistant_message, supportedJourney);
       } catch (error) {
         console.error(error);
         const failure =
-          'تعذر معالجة رسالتك حالياً. يمكنك استخدام «أبني منزلًا» أو وصف احتياجك الهندسي لبدء رحلة مناسبة.';
+          'تعذر معالجة رسالتك حالياً. يمكنك متابعة المحادثة الحرة أو اختيار «رحلة مخصصة» لبدء جمع المعلومات.';
         setWorkspaceError(failure);
         setMessages((prev) => [...prev, createMessage('assistant', failure)]);
       } finally {
@@ -910,7 +980,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         setStreamingContent('');
       }
     },
-    [handoffToJourney, isBusy, isJourneyActive],
+    [appendAssistantTurn, handoffToJourney, interactionMode, isBusy, isJourneyActive],
   );
 
   const advanceCurrentStep = useCallback(async () => {
@@ -1021,6 +1091,39 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     [currentInstance, isBusy, revisit],
   );
 
+  const exitCurrentJourney = useCallback(async () => {
+    if (!currentInstance || isBusy) {
+      return;
+    }
+
+    setIsBusy(true);
+    setFormError(null);
+    setFieldErrors([]);
+
+    try {
+      if (currentInstance.status === 'active') {
+        try {
+          await pause(currentInstance.id);
+        } catch (error) {
+          console.warn('Failed to pause journey before exit', error);
+        }
+      }
+
+      clearActiveJourneyInstanceId();
+      setCurrentInstance(null);
+      setMode('chat');
+      setMessages((prev) => [
+        ...prev,
+        createMessage(
+          'assistant',
+          'تم الخروج من الرحلة. يمكنك متابعة المحادثة أو بدء رحلة جديدة متى شئت.',
+        ),
+      ]);
+    } finally {
+      setIsBusy(false);
+    }
+  }, [currentInstance, isBusy, pause, setCurrentInstance]);
+
   const completeCurrentJourney = useCallback(async () => {
     if (!currentInstance || isBusy) {
       return;
@@ -1092,11 +1195,15 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       setEqStepValues,
       fieldErrors,
       formError,
+      interactionMode,
+      setInteractionMode,
       sendMessage,
+      acceptPendingJourney,
       startBuildVillaFromQuickAction,
       advanceCurrentStep,
       revisitCurrentSection,
       completeCurrentJourney,
+      exitCurrentJourney,
     }),
     [
       mode,
@@ -1121,11 +1228,14 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       eqStepValues,
       fieldErrors,
       formError,
+      interactionMode,
       sendMessage,
+      acceptPendingJourney,
       startBuildVillaFromQuickAction,
       advanceCurrentStep,
       revisitCurrentSection,
       completeCurrentJourney,
+      exitCurrentJourney,
     ],
   );
 

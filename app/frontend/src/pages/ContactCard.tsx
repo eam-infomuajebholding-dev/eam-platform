@@ -155,15 +155,15 @@ END:VCARD`;
       <div className="w-full max-w-lg">
 
         {/* Main Card */}
-        <div className="relative bg-white rounded-3xl border-2 border-[#C9A84C] shadow-[0_20px_60px_rgba(201,168,76,0.18)] overflow-hidden">
+        <div className="relative overflow-hidden rounded-3xl border-2 border-gold-400 bg-cream shadow-gold-card">
 
           {/* Gold accent top bar */}
-          <div className="h-2 bg-gradient-to-l from-[#C9A84C] via-[#E8C84C] to-[#C9A84C]" />
+          <div className="h-2 bg-gradient-to-l from-[var(--gold-400)] via-[#E8C84C] to-[var(--gold-400)]" />
 
           {/* Header Section */}
           <div className="flex flex-col items-center pt-8 pb-6 px-6">
             {/* Logo */}
-            <div className="mb-8 w-[260px] md:w-[320px] bg-white rounded-2xl border-2 border-[#C9A84C] shadow-[0_0_40px_rgba(201,168,76,0.35)] p-5">
+            <div className="mb-8 w-[260px] rounded-2xl border-2 border-gold-400 bg-cream-light p-5 shadow-gold-lg md:w-[320px]">
               <img
                 src="/assets/logo.png"
                 alt={CONTACT_INFO.companyName}
@@ -171,15 +171,15 @@ END:VCARD`;
               />
             </div>
             {/* Company Name */}
-            <h1 className="text-2xl md:text-3xl font-bold text-[#1F2433] text-center font-tajawal leading-tight">
+            <h1 className="text-2xl md:text-3xl font-bold text-[#1F2433] text-center leading-tight">
               {CONTACT_INFO.companyName}
             </h1>
 
-            <p className="mt-2 text-[#C9A84C] text-base tracking-wide font-semibold font-tajawal">
+            <p className="mt-2 text-[var(--gold-400)] text-base tracking-wide font-semibold">
               {CONTACT_INFO.title}
             </p>
 
-            <p className="mt-6 text-center text-[#666666] leading-8 font-tajawal text-sm max-w-sm">
+            <p className="mt-6 text-center text-[#666666] leading-8 text-sm max-w-sm">
               يسعدنا مناقشة احتياجات مشروعكم وتقديم الحلول الهندسية المناسبة.
             </p>
           </div>
@@ -189,50 +189,50 @@ END:VCARD`;
             {/* Phone */}
             <a
               href={`tel:${CONTACT_INFO.phone.replace(/\s/g, '')}`}
-              className="flex items-center gap-4 p-5 rounded-2xl bg-[#FAFAFA] border border-[#E9D9A7] hover:border-[#C9A84C] hover:shadow-lg transition-all duration-300 group"
+              className="flex items-center gap-4 p-5 rounded-2xl bg-[#FAFAFA] border border-[#E9D9A7] hover:border-[var(--gold-400)] hover:shadow-lg transition-all duration-300 group"
             >
               <div className="w-10 h-10 rounded-full bg-[#F8F2DE] flex items-center justify-center group-hover:bg-[#EED88A] transition-all duration-300">
                 <Phone className="w-5 h-5 text-[#c9a84c]" />
               </div>
               <div className="flex-1">
-                <p className="text-[#A58A45] text-xs font-medium font-tajawal">الهاتف</p>
-                <p className="text-[#1F2433] font-semibold font-tajawal text-sm">{CONTACT_INFO.phone}</p>
+                <p className="text-[#A58A45] text-xs font-medium">الهاتف</p>
+                <p className="text-[#1F2433] font-semibold text-sm">{CONTACT_INFO.phone}</p>
               </div>
             </a>
 
             {/* Email */}
             <a
               href={`mailto:${CONTACT_INFO.email}`}
-              className="flex items-center gap-4 p-5 rounded-2xl bg-[#FAFAFA] border border-[#E9D9A7] hover:border-[#C9A84C] hover:shadow-lg transition-all duration-300 group"
+              className="flex items-center gap-4 p-5 rounded-2xl bg-[#FAFAFA] border border-[#E9D9A7] hover:border-[var(--gold-400)] hover:shadow-lg transition-all duration-300 group"
             >
               <div className="w-10 h-10 rounded-full bg-[#F8F2DE] flex items-center justify-center group-hover:bg-[#EED88A] transition-all duration-300">
                 <Mail className="w-5 h-5 text-[#c9a84c]" />
               </div>
               <div className="flex-1">
-                <p className="text-[#A58A45] text-xs font-medium font-tajawal">البريد الإلكتروني</p>
-                <p className="text-[#1F2433] font-semibold font-tajawal text-sm">{CONTACT_INFO.email}</p>
+                <p className="text-[#A58A45] text-xs font-medium">البريد الإلكتروني</p>
+                <p className="text-[#1F2433] font-semibold text-sm">{CONTACT_INFO.email}</p>
               </div>
             </a>
 
             {/* Location */}
-            <div className="flex items-center gap-4 p-5 rounded-2xl bg-[#FAFAFA] border border-[#E9D9A7] hover:border-[#C9A84C] hover:shadow-lg transition-all duration-300 group">
+            <div className="flex items-center gap-4 p-5 rounded-2xl bg-[#FAFAFA] border border-[#E9D9A7] hover:border-[var(--gold-400)] hover:shadow-lg transition-all duration-300 group">
               <div className="w-10 h-10 rounded-full bg-[#F8F2DE] flex items-center justify-center group-hover:bg-[#EED88A] transition-all duration-300">
                 <MapPin className="w-5 h-5 text-[#c9a84c]" />
               </div>
               <div className="flex-1">
-                <p className="text-[#A58A45] text-xs font-medium font-tajawal">الموقع</p>
-                <p className="text-[#1F2433] font-semibold font-tajawal text-sm">{CONTACT_INFO.address}</p>
+                <p className="text-[#A58A45] text-xs font-medium">الموقع</p>
+                <p className="text-[#1F2433] font-semibold text-sm">{CONTACT_INFO.address}</p>
               </div>
             </div>
           </div>
 
           {/* Divider */}
-          <div className="mx-6 my-6 h-px bg-gradient-to-r from-transparent via-[#C9A84C] to-transparent" />
+          <div className="mx-6 my-6 h-px bg-gradient-to-r from-transparent via-[var(--gold-400)] to-transparent" />
 
           {/* Social Media Section */}
           {activeSocialLinks.length > 0 && (
             <div className="px-6 pb-6">
-              <p className="text-[#A58A45] text-sm font-semibold font-tajawal mb-4 text-center">
+              <p className="text-[#A58A45] text-sm font-semibold mb-4 text-center">
                 منصاتنا الرقمية
               </p>
               <div className="grid grid-cols-4 gap-5">
@@ -242,13 +242,13 @@ END:VCARD`;
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex flex-col items-center gap-2 p-5 rounded-xl bg-white border border-[#E7D7A4] hover:bg-[#FFF8E8] hover:border-[#C9A84C] hover:scale-105 hover:shadow-lg transition-all duration-300 group"
+                    className="group flex flex-col items-center gap-2 rounded-xl border border-soft-border bg-cream-light p-5 transition-all duration-300 hover:scale-105 hover:border-gold-400 hover:bg-gold-50 hover:shadow-gold-sm"
                     title={getPlatformLabel(platform)}
                   >
-                    <div className="text-[#C9A84C] group-hover:text-[#B99128] transition-all duration-300">
+                    <div className="text-[var(--gold-400)] group-hover:text-gold-600 transition-all duration-300">
                       {getSocialIcon(platform)}
                     </div>
-                    <span className="text-[10px] text-[#7A7A7A] group-hover:text-[#B99128] font-tajawal transition-colors">
+                    <span className="text-[10px] text-ink-muted group-hover:text-gold-600 transition-colors">
                       {getPlatformLabel(platform)}
                     </span>
                   </a>
@@ -260,18 +260,18 @@ END:VCARD`;
           {/* If no social links configured, show all platforms as placeholders */}
           {activeSocialLinks.length === 0 && (
             <div className="px-6 pb-6">
-              <p className="text-[#A58A45] text-sm font-semibold font-tajawal mb-4 text-center">تابعنا على</p>
+              <p className="text-[#A58A45] text-sm font-semibold mb-4 text-center">تابعنا على</p>
               <div className="grid grid-cols-4 gap-5">
                 {Object.keys(socialLinks).map((platform) => (
                   <div
                     key={platform}
-                    className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white border border-[#C9A84C]/20 hover:border-[#C9A84C] hover:shadow-[0_0_20px_rgba(201,168,76,0.35)] hover:-translate-y-1 transition-all duration-300 group"
+                    className="group flex flex-col items-center gap-2 rounded-xl border border-soft-border bg-cream-light p-4 transition-all duration-300 hover:-translate-y-1 hover:border-gold-400 hover:shadow-gold-sm"
                     title={getPlatformLabel(platform)}
                   >
-                    <div className="text-[#B9912F] group-hover:text-[#D9BE69] transition-colors">
+                    <div className="text-gold-600 group-hover:text-gold-300 transition-colors">
                       {getSocialIcon(platform)}
                     </div>
-                    <span className="text-[10px] text-[#7A6A3A] group-hover:text-[#B9912F] font-tajawal transition-colors">
+                    <span className="text-[10px] text-ink-muted group-hover:text-gold-600 transition-colors">
                       {getPlatformLabel(platform)}
                     </span>
                   </div>
@@ -285,7 +285,7 @@ END:VCARD`;
             {/* Save Contact */}
             <button
               onClick={handleDownloadVCard}
-              className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-r from-[#B9912F] via-[#C9A84C] to-[#D9BE69] text-white font-bold font-tajawal hover:shadow-[0_0_20px_rgba(201,168,76,0.35)] transition-all duration-300"
+              className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-r from-gold-600 via-gold to-gold-300 text-white font-bold hover:shadow-gold-sm transition-all duration-300"
             >
               <Download className="w-5 h-5" />
               حفظ بيانات التواصل
@@ -297,7 +297,7 @@ END:VCARD`;
                 href="https://wa.me/966599555437"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 py-4 rounded-xl border border-[#C9A84C]/40 bg-white hover:bg-[#C9A84C] hover:text-white text-[#B9912F] font-bold transition-all duration-300"
+                className="flex items-center justify-center gap-2 rounded-xl border border-gold-400/40 bg-cream-light py-4 font-bold text-gold-600 transition-all duration-300 hover:bg-gold-500 hover:text-white"
               >
                 <Phone className="w-5 h-5" />
                 واتساب
@@ -306,7 +306,7 @@ END:VCARD`;
               {/* Call */}
               <a
                 href="tel:+966599555437"
-                className="flex items-center justify-center gap-2 py-4 rounded-xl border border-[#C9A84C]/40 bg-white hover:bg-[#C9A84C] hover:text-white text-[#B9912F] font-bold transition-all duration-300"
+                className="flex items-center justify-center gap-2 rounded-xl border border-gold-400/40 bg-cream-light py-4 font-bold text-gold-600 transition-all duration-300 hover:bg-gold-500 hover:text-white"
               >
                 <Phone className="w-5 h-5" />
                 اتصال مباشر
@@ -316,7 +316,7 @@ END:VCARD`;
             {/* Share */}
             <button
               onClick={handleShare}
-              className="w-full flex items-center justify-center gap-2 py-4 rounded-xl border border-[#C9A84C]/40 bg-white hover:bg-[#C9A84C] hover:text-white text-[#B9912F] font-bold transition-all duration-300"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-gold-400/40 bg-cream-light py-4 font-bold text-gold-600 transition-all duration-300 hover:bg-gold-500 hover:text-white"
             >
               <Share2 className="w-5 h-5" />
               مشاركة
@@ -326,8 +326,8 @@ END:VCARD`;
 
         {/* Footer */}
         <div className="mt-8 text-center">
-          <div className="w-24 h-px bg-gradient-to-r from-transparent via-[#C9A84C] to-transparent mx-auto mb-3" />
-          <p className="text-xs tracking-[0.08em] text-[#A9965A] font-tajawal">
+          <div className="w-24 h-px bg-gradient-to-r from-transparent via-[var(--gold-400)] to-transparent mx-auto mb-3" />
+          <p className="text-xs tracking-[0.08em] text-[#A9965A]">
             © {new Date().getFullYear()} إعمار الأصالة والمعاصرة للاستشارات الهندسية
           </p>
         </div>

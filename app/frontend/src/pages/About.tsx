@@ -1,90 +1,94 @@
 import Layout from '@/components/Layout';
-import { CheckCircle, Award, Eye, TrendingUp } from 'lucide-react';
+import PageHero from '@/components/page/PageHero';
+import PageSection from '@/components/page/PageSection';
+import PageSectionHeader from '@/components/page/PageSectionHeader';
+import PageStatGrid from '@/components/page/PageStatGrid';
+import { useLanguage } from '@/contexts/LanguageContext';
+import type { MessageKey } from '@/i18n/messages';
+import { Award, Building2, CheckCircle, Eye, TrendingUp, Users } from 'lucide-react';
 
-const commitments = [
-  'الالتزام بأعلى معايير الجودة في كل مشروع',
-  'فريق من المهندسين والخبراء المتخصصين',
-  'استخدام أحدث التقنيات والأنظمة العالمية',
-  'التسليم في الوقت المحدد وضمن الميزانية',
-  'خدمة ما بعد البيع وضمان شامل',
+const commitmentKeys: MessageKey[] = [
+  'page.about.commitments.1',
+  'page.about.commitments.2',
+  'page.about.commitments.3',
+  'page.about.commitments.4',
+  'page.about.commitments.5',
 ];
 
-const values = [
-  {
-    icon: Award,
-    title: 'جودة معتمدة',
-    description: 'حاصلون على شهادات الأيزو العالمية',
-  },
-  {
-    icon: Eye,
-    title: 'رؤية واضحة',
-    description: 'نسعى لنكون الرائدين إقليمياً',
-  },
-  {
-    icon: TrendingUp,
-    title: 'نمو مستدام',
-    description: 'نمو سنوي متواصل منذ التأسيس',
-  },
+const valueKeys = [
+  { icon: Award, titleKey: 'page.about.values.1.title' as MessageKey, descKey: 'page.about.values.1.desc' as MessageKey },
+  { icon: Eye, titleKey: 'page.about.values.2.title' as MessageKey, descKey: 'page.about.values.2.desc' as MessageKey },
+  { icon: TrendingUp, titleKey: 'page.about.values.3.title' as MessageKey, descKey: 'page.about.values.3.desc' as MessageKey },
+];
+
+const aboutStats = [
+  { icon: TrendingUp, value: '20+', labelKey: 'page.about.values.3.title' as MessageKey },
+  { icon: Building2, value: '200+', labelKey: 'page.invest.stats.projects' as MessageKey },
+  { icon: Users, value: '16+', labelKey: 'page.services.stat.sectors' as MessageKey },
 ];
 
 export default function About() {
+  const { t } = useLanguage();
+
   return (
     <Layout>
-      {/* Hero */}
-      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#5E5E5E]">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)]" />
-        <div className="relative z-10 text-center px-4">
-          <h1 data-editable-id="about-hero-title" className="gold-text text-4xl md:text-5xl lg:text-6xl font-bold font-playfair mb-4">من نحن</h1>
-          <p data-editable-id="about-hero-desc" className="text-gray-600 dark:text-white/70 text-lg md:text-xl max-w-2xl mx-auto font-tajawal">
-            تعرّف على قصتنا ورؤيتنا وقيمنا
-          </p>
-        </div>
-      </section>
+      <PageHero
+        titleKey="page.about.hero.title"
+        subtitleKey="page.about.hero.subtitle"
+        titleEditableId="about-hero-title"
+        subtitleEditableId="about-hero-desc"
+      />
 
-      {/* Company Intro */}
-      <section className="py-16 md:py-24 bg-white dark:bg-[#6B6B6B]">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="border border-gold/20 rounded-2xl p-8 md:p-12 bg-gray-50 dark:bg-white/5 backdrop-blur-sm">
-              <p data-editable-id="about-intro-text" className="text-gray-700 dark:text-white/85 text-lg md:text-xl leading-loose font-tajawal mb-8">
-                تأسست شركة <span className="text-gold font-bold">إعمار الأصالة والمعاصرة للاستشارات الهندسية</span> 
-                <span className="text-gold font-bold"> </span> لتكون نموذجاً يحتذى به في تقديم الاستشارات الهندسية
-                المتكاملة، نمزج بين أصالة الموروث المعماري وحداثة التصميم العصري، بفريق من أفضل المهندسين والاستشاريين
-                المتخصصين، ونعمل بشغف لتحويل رؤى عملائنا إلى مشاريع رائدة على أرض الواقع.
-              </p>
+      <PageSection variant="muted" className="py-10 md:py-14">
+        <PageStatGrid stats={aboutStats} columns={3} />
+      </PageSection>
 
-              {/* Commitments */}
-              <h3 className="text-gold font-bold text-xl mb-6 font-tajawal">التزاماتنا</h3>
-              <ul className="space-y-4">
-                {commitments.map((item, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <CheckCircle className="w-6 h-6 text-gold flex-shrink-0 mt-0.5" />
-                    <span className="text-gray-600 dark:text-white/80 text-base md:text-lg font-tajawal leading-relaxed">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+      <PageSection variant="cream">
+        <div className="mx-auto max-w-4xl">
+          <div className="rounded-2xl border border-soft-border/70 bg-cream p-8 shadow-gold-card dark:bg-surface md:p-12">
+            <p
+              data-editable-id="about-intro-text"
+              className="text-lead mb-8 md:text-xl"
+            >
+              {t('page.about.intro')}
+            </p>
+
+            <PageSectionHeader
+              title={t('page.about.commitments.title')}
+              center={false}
+              className="mb-6"
+            />
+            <ul className="space-y-4">
+              {commitmentKeys.map((key) => (
+                <li key={key} className="flex items-start gap-3">
+                  <CheckCircle className="mt-0.5 h-6 w-6 shrink-0 text-gold-500" />
+                  <span className="text-body md:text-lg">{t(key)}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
-      </section>
+      </PageSection>
 
-      {/* Values */}
-      <section className="py-16 md:py-24 bg-gray-50 dark:bg-[#5E5E5E]">
-        <div className="container mx-auto px-4">
-          <h2 data-editable-id="about-values-title" className="gold-text text-3xl md:text-4xl font-bold font-playfair text-center mb-14">قيمنا</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {values.map((v) => (
-              <div key={v.title} className="text-center group">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors duration-300">
-                  <v.icon className="w-10 h-10 text-gold" />
-                </div>
-                <h3 className="text-gold font-bold text-xl mb-3 font-tajawal">{v.title}</h3>
-                <p className="text-gray-600 dark:text-white/65 text-sm leading-relaxed font-tajawal">{v.description}</p>
+      <PageSection variant="alt" withGlow>
+        <PageSectionHeader titleKey="page.about.values.title" />
+        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3">
+          {valueKeys.map((value) => (
+            <div
+              key={value.titleKey}
+              className="group rounded-2xl border border-soft-border/60 bg-cream-light p-8 text-center transition-all duration-300 hover:-translate-y-1 hover:border-gold-300/70 hover:shadow-gold-card dark:bg-surface"
+            >
+              <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gold-50 transition-colors duration-300 group-hover:bg-gold-100 dark:bg-gold/10">
+                <value.icon className="h-10 w-10 text-gold-600 dark:text-gold-400" />
               </div>
-            ))}
-          </div>
+              <h3 className="mb-3 font-display text-xl font-semibold text-gold-700 dark:text-gold-300">
+                {t(value.titleKey)}
+              </h3>
+              <p className="text-body text-sm">{t(value.descKey)}</p>
+            </div>
+          ))}
         </div>
-      </section>
+      </PageSection>
     </Layout>
   );
 }

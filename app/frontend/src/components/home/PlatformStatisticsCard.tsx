@@ -12,7 +12,7 @@ export default function PlatformStatisticsCard() {
       aria-label="إحصائيات المنصة"
     >
       <div className="flex h-[32px] shrink-0 items-center border-b border-[var(--eam-home-border)] px-3">
-        <h2 className="font-tajawal text-[14px] font-bold text-[var(--eam-home-ink)]">إحصائيات المنصة</h2>
+        <h2 className="text-[14px] font-bold text-[var(--eam-home-ink)]">إحصائيات المنصة</h2>
       </div>
 
       <div className="flex h-[68px] shrink-0 items-stretch divide-x divide-x-reverse divide-[var(--eam-home-border)]/80 px-1.5 pt-0.5">
@@ -21,7 +21,7 @@ export default function PlatformStatisticsCard() {
             key={metric.label}
             className="flex flex-1 flex-col items-center justify-center px-0.5 py-1 text-center"
           >
-            <p className="font-playfair text-[21px] font-bold leading-none text-[var(--eam-home-gold-deep)] lg:text-[23px]">
+            <p className="font-display text-[21px] font-bold leading-none text-[var(--eam-home-gold-deep)] lg:text-[23px]">
               {metric.value}
             </p>
             <p className="mt-0.5 text-[9px] font-medium leading-tight text-[var(--eam-home-ink)]/68">

@@ -129,11 +129,3 @@ export function getStepIndex(stepKey: string): number {
   return STEP_ORDER.indexOf(stepKey as (typeof STEP_ORDER)[number]);
 }
 
-export function getStepNumber(stepKey: string): number {
-  const index = getStepIndex(stepKey);
-  return index >= 0 ? index + 1 : 0;
-}
-
-export function getTotalSteps(): number {
-  return STEP_ORDER.length - 1;
-}

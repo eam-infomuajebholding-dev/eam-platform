@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Instagram, Linkedin, Youtube, Globe, Facebook, Pencil } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import type { MessageKey } from '@/i18n/messages';
+import { useAuth } from '@/features/auth/context/AuthContext';
 import { useEditMode } from '../contexts/EditModeContext';
 
 const SOCIAL_STORAGE_KEY = 'social-media-links';
@@ -27,21 +30,15 @@ const defaultLinks: SocialLinks = {
   website: '#',
 };
 
-const primaryQuickLinks = [
-  { path: '/', label: 'الرئيسية' },
-  { path: '/about', label: 'عن EAM' },
-  { path: '/services', label: 'الخدمات' },
-  { path: '/projects', label: 'المشاريع' },
-  { path: '/invest', label: 'مستثمر معنا' },
-  { path: '/market', label: 'سوقنا' },
-  { path: '/careers', label: 'التوظيف' },
-  { path: '/blog', label: 'المدونة' },
-  { path: '/contact', label: 'تواصل معنا' },
-];
-
-const secondaryQuickLinks = [
-  { path: '/team', label: 'فريقنا' },
-  { path: '/consultation', label: 'طلب استشارة' },
+const primaryQuickLinks: { path: string; labelKey: MessageKey }[] = [
+  { path: '/', labelKey: 'nav.home' },
+  { path: '/about', labelKey: 'nav.about' },
+  { path: '/services', labelKey: 'nav.services' },
+  { path: '/projects', labelKey: 'nav.projects' },
+  { path: '/invest', labelKey: 'nav.invest' },
+  { path: '/careers', labelKey: 'nav.careers' },
+  { path: '/blog', labelKey: 'nav.blog' },
+  { path: '/contact', labelKey: 'nav.contact' },
 ];
 
 function XIcon({ className }: { className?: string }) {
@@ -76,6 +73,7 @@ interface SocialIconProps {
 }
 
 function SocialIcon({ platform, url, isEditMode, onEdit }: SocialIconProps) {
+  const { t } = useLanguage();
   const iconClass = "w-5 h-5";
 
   const getIcon = () => {
@@ -115,7 +113,7 @@ function SocialIcon({ platform, url, isEditMode, onEdit }: SocialIconProps) {
         target="_blank"
         rel="noopener noreferrer"
         onClick={handleClick}
-        className="flex items-center justify-center w-10 h-10 rounded-lg border border-gold/40 dark:border-gold/30 text-gray-700 dark:text-gold/80 hover:text-gold hover:border-gold dark:hover:text-gold dark:hover:border-gold transition-all duration-200 hover:scale-110"
+        className="flex items-center justify-center w-10 h-10 rounded-lg border border-gold/40 dark:border-gold/30 text-ink-secondary dark:text-gold/80 hover:text-gold hover:border-gold dark:hover:text-gold dark:hover:border-gold transition-all duration-200 hover:scale-110"
         title={platform}
       >
         {getIcon()}
@@ -124,7 +122,7 @@ function SocialIcon({ platform, url, isEditMode, onEdit }: SocialIconProps) {
         <button
           onClick={() => onEdit(platform)}
           className="absolute -top-2 -right-2 w-5 h-5 bg-gold text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-          title={`تعديل رابط ${platform}`}
+          title={`${t('footer.editLink')} ${platform}`}
         >
           <Pencil className="w-3 h-3" />
         </button>
@@ -136,6 +134,8 @@ function SocialIcon({ platform, url, isEditMode, onEdit }: SocialIconProps) {
 export default function Footer() {
   const [email, setEmail] = useState('');
   const { isEditMode } = useEditMode();
+  const { t, direction } = useLanguage();
+  const { canAccessCommandCenter } = useAuth();
   const [socialLinks, setSocialLinks] = useState<SocialLinks>(defaultLinks);
 
   useEffect(() => {
@@ -152,7 +152,7 @@ export default function Footer() {
 
   const handleEditLink = useCallback((platform: keyof SocialLinks) => {
     const currentUrl = socialLinks[platform] === '#' ? '' : socialLinks[platform];
-    const newUrl = window.prompt(`أدخل رابط ${platform}:`, currentUrl);
+    const newUrl = window.prompt(`${t('footer.editLinkPrompt')} ${platform}:`, currentUrl);
     if (newUrl !== null) {
       const updatedLinks = { ...socialLinks, [platform]: newUrl || '#' };
       setSocialLinks(updatedLinks);
@@ -171,22 +171,18 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="border-t border-soft-border bg-cream-light py-12 transition-colors duration-300 dark:border-gold/20 dark:bg-[#5E5E5E]" dir="rtl">
+    <footer className="border-t border-soft-border bg-background py-12 transition-colors duration-300 dark:border-gold/20 dark:bg-background" dir={direction}>
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Company Info */}
           <div className="flex flex-col items-start gap-4">
             <img
               src="/assets/logo.png"
-              alt="إعمار الأصالة والمعاصرة"
+              alt={t('footer.logoAlt')}
               className="h-16 w-auto rounded-lg object-contain border-2 border-gold/50"
             />
-            <h3 className="font-tajawal text-lg font-bold text-deep-gold">
-              إعمار الأصالة والمعاصرة للاستشارات الهندسية
-            </h3>
-            <p className="text-sm leading-relaxed text-ink/70 dark:text-white/60">
-              نقدم خدمات هندسية واستشارية متميزة تجمع بين الأصالة والمعاصرة لتحقيق رؤية عملائنا بأعلى معايير الجودة والاحترافية.
-            </p>
+            <h3 className="text-lg font-bold text-deep-gold">{t('footer.companyName')}</h3>
+            <p className="text-sm leading-relaxed text-ink/70 dark:text-white/60">{t('footer.description')}</p>
 
             {/* Social Media Icons */}
             <div className="flex flex-wrap items-center gap-2 mt-2">
@@ -204,28 +200,25 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="mb-4 text-lg font-bold text-deep-gold">روابط سريعة</h4>
+            <h4 className="mb-4 text-lg font-bold text-deep-gold">{t('footer.quickLinks')}</h4>
             <ul className="space-y-2">
+              {canAccessCommandCenter ? (
+                <li>
+                  <Link
+                    to="/command-center"
+                    className="text-sm font-semibold text-deep-gold transition-colors hover:text-gold-600"
+                  >
+                    {t('auth.commandCenter')}
+                  </Link>
+                </li>
+              ) : null}
               {primaryQuickLinks.map((link) => (
                 <li key={link.path}>
                   <Link
                     to={link.path}
                     className="text-sm text-ink/70 transition-colors hover:text-deep-gold dark:text-white/70"
                   >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <h4 className="mb-3 mt-6 text-sm font-semibold text-ink/50 dark:text-white/50">روابط إضافية</h4>
-            <ul className="space-y-2">
-              {secondaryQuickLinks.map((link) => (
-                <li key={link.path}>
-                  <Link
-                    to={link.path}
-                    className="text-sm text-ink/70 transition-colors hover:text-deep-gold dark:text-white/70"
-                  >
-                    {link.label}
+                    {t(link.labelKey)}
                   </Link>
                 </li>
               ))}
@@ -234,16 +227,14 @@ export default function Footer() {
 
           {/* Newsletter */}
           <div>
-            <h4 className="mb-4 text-lg font-bold text-deep-gold">النشرة البريدية</h4>
-            <p className="mb-4 text-sm text-ink/70 dark:text-white/60">
-              اشترك للحصول على آخر الأخبار والمشاريع.
-            </p>
+            <h4 className="mb-4 text-lg font-bold text-deep-gold">{t('footer.newsletter.title')}</h4>
+            <p className="mb-4 text-sm text-ink/70 dark:text-white/60">{t('footer.newsletter.body')}</p>
             <form onSubmit={handleSubscribe} className="flex flex-col gap-3">
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="بريدك الإلكتروني"
+                placeholder={t('footer.newsletter.placeholder')}
                 className="eam-input dark:border-white/20 dark:bg-white/10 dark:text-white dark:placeholder:text-white/40"
                 required
               />
@@ -251,7 +242,7 @@ export default function Footer() {
                 type="submit"
                 className="eam-btn-primary w-full"
               >
-                اشترك الآن
+                {t('footer.newsletter.cta')}
               </button>
             </form>
           </div>
@@ -260,15 +251,15 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-soft-border pt-6 md:flex-row dark:border-gold/10">
           <p className="text-sm text-ink/50 dark:text-white/50">
-            © {new Date().getFullYear()} إعمار الأصالة والمعاصرة للاستشارات الهندسية. جميع الحقوق محفوظة.
+            © {new Date().getFullYear()} {t('footer.copyright')}
           </p>
           <div className="flex items-center gap-4">
             <Link to="/privacy" className="text-sm text-ink/50 transition-colors hover:text-deep-gold dark:text-white/50">
-              سياسة الخصوصية
+              {t('footer.privacy')}
             </Link>
             <span className="text-ink/20 dark:text-white/30">|</span>
             <Link to="/terms" className="text-sm text-ink/50 transition-colors hover:text-deep-gold dark:text-white/50">
-              الشروط والأحكام
+              {t('footer.terms')}
             </Link>
           </div>
         </div>

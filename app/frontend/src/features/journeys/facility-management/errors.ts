@@ -1,7 +1,3 @@
-import type { FieldValidationErrorDetail } from './types';
-
-export type { FieldValidationErrorDetail };
-
 export interface FacilityManagementStepValues {
   facilityType: string;
   location: string;
@@ -16,25 +12,14 @@ export interface FacilityManagementStepValues {
   submitConfirmed: boolean;
 }
 
-export function extractFieldErrors(error: unknown): FieldValidationErrorDetail[] {
-  if (!error || typeof error !== 'object') return [];
-  const maybeResponse = error as {
-    response?: { data?: { detail?: { errors?: FieldValidationErrorDetail[] } | string } };
-    data?: { detail?: { errors?: FieldValidationErrorDetail[] } | string };
-    detail?: { errors?: FieldValidationErrorDetail[] } | string;
-  };
-  const detail =
-    maybeResponse.response?.data?.detail ?? maybeResponse.data?.detail ?? maybeResponse.detail;
-  if (detail && typeof detail === 'object' && Array.isArray(detail.errors)) {
-    return detail.errors;
-  }
-  return [];
-}
+export {
+  extractFieldErrors,
+  getErrorMessage,
+  type FieldValidationErrorDetail,
+} from '@/features/journeys/core/journeyErrors';
 
-export function getErrorMessage(errors: FieldValidationErrorDetail[], fallback: string): string {
-  if (errors.length > 0) return errors.map((item) => item.message).join(' ');
-  return fallback;
-}
+import type { FacilityManagementContext } from './types';
+
 
 export function buildAdvanceInput(
   currentStep: string | null,
@@ -67,4 +52,36 @@ export function buildAdvanceInput(
     default:
       return {};
   }
+}
+
+export function emptyValues(): FacilityManagementStepValues {
+  return {
+    facilityType: '',
+    location: '',
+    facilityScope: '',
+    operationalChallenge: '',
+    serviceMaturity: '',
+    engagementGoal: '',
+    targetTimeline: '',
+    urgency: '',
+    currentReadiness: '',
+    scopeConfirmed: false,
+    submitConfirmed: false,
+  };
+}
+
+export function syncFromContext(context: FacilityManagementContext): FacilityManagementStepValues {
+  return {
+    facilityType: context.facility_type ?? '',
+    location: context.location ?? '',
+    facilityScope: context.facility_scope ?? '',
+    operationalChallenge: context.operational_challenge ?? '',
+    serviceMaturity: context.service_maturity ?? '',
+    engagementGoal: context.engagement_goal ?? '',
+    targetTimeline: context.target_timeline ?? '',
+    urgency: context.urgency ?? '',
+    currentReadiness: context.current_readiness ?? '',
+    scopeConfirmed: context.scope_confirmed ?? false,
+    submitConfirmed: context.submit_confirmed ?? false,
+  };
 }

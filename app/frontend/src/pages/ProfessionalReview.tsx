@@ -2,7 +2,10 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Layout from '@/components/Layout';
+import { Loader2 } from 'lucide-react';
+import PageMeta from '@/components/PageMeta';
 import IntakeSnapshotSummary from '@/components/serviceRequests/IntakeSnapshotSummary';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
   getOperationsServiceRequest,
   listOperationsServiceRequests,
@@ -21,6 +24,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export default function ProfessionalReviewPage() {
+  const { t } = useLanguage();
   const { id } = useParams<{ id: string }>();
   const requestId = id ? Number.parseInt(id, 10) : null;
   const queryClient = useQueryClient();
@@ -70,9 +74,10 @@ export default function ProfessionalReviewPage() {
 
   return (
     <Layout>
+      <PageMeta title="مراجعة الطلبات — EAM" noIndex />
       <section className="py-12">
         <div className="container mx-auto px-4 max-w-5xl">
-          <h1 className="text-2xl font-bold font-tajawal text-gray-900 dark:text-white mb-6">
+          <h1 className="text-2xl font-bold text-ink mb-6">
             مراجعة الطلبات المهنية
           </h1>
 
@@ -90,10 +95,10 @@ export default function ProfessionalReviewPage() {
                     key={option.value || 'all'}
                     type="button"
                     onClick={() => setStatusFilter(option.value)}
-                    className={`rounded-full px-3 py-1 text-sm font-tajawal ${
+                    className={`rounded-full px-3 py-1 text-sm ${
                       statusFilter === option.value
                         ? 'bg-gold text-white'
-                        : 'border border-gold/30 text-gray-700 dark:text-white/80'
+                        : 'border border-gold/30 text-ink-secondary'
                     }`}
                   >
                     {option.label}
@@ -109,30 +114,50 @@ export default function ProfessionalReviewPage() {
                     key={option.value || 'all-journeys'}
                     type="button"
                     onClick={() => setJourneyFilter(option.value)}
-                    className={`rounded-full px-3 py-1 text-sm font-tajawal ${
+                    className={`rounded-full px-3 py-1 text-sm ${
                       journeyFilter === option.value
-                        ? 'bg-gray-800 text-white dark:bg-white/20'
-                        : 'border border-gray-300 text-gray-700 dark:border-white/20 dark:text-white/80'
+                        ? 'bg-dark-card text-white dark:bg-white/20'
+                        : 'border border-soft-border text-ink-secondary dark:border-white/20 dark:text-white/80'
                     }`}
                   >
                     {option.label}
                   </button>
                 ))}
               </div>
-              {listQuery.isLoading ? <p className="font-tajawal">جاري التحميل...</p> : null}
+              {listQuery.isLoading ? (
+                <div className="flex items-center gap-2 text-ink-secondary">
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                  {t('ops.loading')}
+                </div>
+              ) : null}
+              {listQuery.isError ? (
+                <div className="rounded-xl border border-red-300 bg-red-50 p-4 dark:bg-red-950/20">
+                  <p className="text-red-800 dark:text-red-200">{t('ops.loadError')}</p>
+                  <button
+                    type="button"
+                    onClick={() => void listQuery.refetch()}
+                    className="mt-3 rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-white"
+                  >
+                    {t('ops.retry')}
+                  </button>
+                </div>
+              ) : null}
+              {!listQuery.isLoading && !listQuery.isError && listQuery.data?.length === 0 ? (
+                <p className="text-ink-secondary">{t('ops.emptyList')}</p>
+              ) : null}
               {listQuery.data?.map((item) => (
                 <Link
                   key={item.id}
                   to={`/operations/service-requests/${item.id}`}
-                  className="block rounded-xl border border-gold/20 bg-white dark:bg-white/5 p-4 font-tajawal hover:border-gold/40"
+                  className="block rounded-xl border border-gold/20 bg-cream-light dark:bg-surface p-4 hover:border-gold/40"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="font-semibold">{item.reference_code}</span>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-ink-muted">
                       {STATUS_LABELS[item.status] ?? item.status}
                     </span>
                   </div>
-                  <p className="mt-1 text-sm text-gray-600 dark:text-white/70">
+                  <p className="mt-1 text-sm text-ink-secondary">
                     {JOURNEY_TYPE_LABELS[item.journey_type] ?? item.journey_type}
                   </p>
                 </Link>
@@ -140,31 +165,47 @@ export default function ProfessionalReviewPage() {
             </div>
           ) : null}
 
+          {requestId && detailQuery.isLoading ? (
+            <div className="flex items-center gap-2 text-ink-secondary">
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+              {t('site.loading')}
+            </div>
+          ) : null}
+
+          {requestId && detailQuery.isError ? (
+            <div className="rounded-xl border border-red-300 bg-red-50 p-4 dark:bg-red-950/20">
+              <p className="text-red-800 dark:text-red-200">{t('ops.notFound')}</p>
+              <Link to="/operations/service-requests" className="mt-3 inline-block text-sm text-gold hover:underline">
+                ← العودة إلى قائمة المراجعة
+              </Link>
+            </div>
+          ) : null}
+
           {requestId && detailQuery.data ? (
             <div className="space-y-6">
-              <Link to="/operations/service-requests" className="text-sm text-gold hover:underline font-tajawal">
+              <Link to="/operations/service-requests" className="text-sm text-gold hover:underline">
                 ← العودة إلى قائمة المراجعة
               </Link>
 
-              <div className="rounded-xl border border-gold/20 p-5 font-tajawal">
-                <p className="text-sm text-gray-500">{detailQuery.data.reference_code}</p>
+              <div className="rounded-xl border border-gold/20 p-5">
+                <p className="text-sm text-ink-muted">{detailQuery.data.reference_code}</p>
                 <h2 className="text-xl font-bold mt-1">
                   {JOURNEY_TYPE_LABELS[detailQuery.data.journey_type] ?? detailQuery.data.journey_type}
                 </h2>
                 <p className="mt-2">
                   الحالة: {STATUS_LABELS[detailQuery.data.status] ?? detailQuery.data.status}
                 </p>
-                <p className="text-sm text-gray-600 dark:text-white/70 mt-1">
+                <p className="text-sm text-ink-secondary mt-1">
                   {resolveOperationalStage(detailQuery.data.status).description}
                 </p>
               </div>
 
               <div>
-                <h3 className="font-bold font-tajawal mb-3">لقطة الاستلام الأولية (مجمدة)</h3>
+                <h3 className="font-bold mb-3">لقطة الاستلام الأولية (مجمدة)</h3>
                 <IntakeSnapshotSummary snapshot={detailQuery.data.intake_snapshot} />
               </div>
 
-              <div className="rounded-xl border border-gray-200 dark:border-white/10 p-4 space-y-3 font-tajawal">
+              <div className="rounded-xl border border-soft-border/80 dark:border-white/10 p-4 space-y-3">
                 <h3 className="font-bold">إجراءات المراجعة</h3>
                 <textarea
                   value={internalNote}
@@ -219,20 +260,20 @@ export default function ProfessionalReviewPage() {
               ) : null}
 
               <div>
-                <h3 className="font-bold font-tajawal mb-3">سجل المراجعة</h3>
-                <ul className="space-y-2 font-tajawal text-sm">
+                <h3 className="font-bold mb-3">سجل المراجعة</h3>
+                <ul className="space-y-2 text-sm">
                   {detailQuery.data.transitions.map((transition) => (
                     <li key={transition.id} className="rounded-lg border px-3 py-2">
                       <p>
                         {transition.from_status} → {transition.to_status} · {transition.actor_role}
                       </p>
                       {transition.customer_message ? (
-                        <p className="text-gray-600 dark:text-white/70 mt-1">
+                        <p className="text-ink-secondary mt-1">
                           للعميل: {transition.customer_message}
                         </p>
                       ) : null}
                       {transition.internal_note ? (
-                        <p className="text-gray-500 mt-1">داخلي: {transition.internal_note}</p>
+                        <p className="text-ink-muted mt-1">داخلي: {transition.internal_note}</p>
                       ) : null}
                     </li>
                   ))}

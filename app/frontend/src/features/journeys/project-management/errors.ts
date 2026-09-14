@@ -1,7 +1,3 @@
-import type { FieldValidationErrorDetail } from './types';
-
-export type { FieldValidationErrorDetail };
-
 export interface ProjectManagementStepValues {
   projectType: string;
   projectStage: string;
@@ -19,25 +15,14 @@ export interface ProjectManagementStepValues {
   submitConfirmed: boolean;
 }
 
-export function extractFieldErrors(error: unknown): FieldValidationErrorDetail[] {
-  if (!error || typeof error !== 'object') return [];
-  const maybeResponse = error as {
-    response?: { data?: { detail?: { errors?: FieldValidationErrorDetail[] } | string } };
-    data?: { detail?: { errors?: FieldValidationErrorDetail[] } | string };
-    detail?: { errors?: FieldValidationErrorDetail[] } | string;
-  };
-  const detail =
-    maybeResponse.response?.data?.detail ?? maybeResponse.data?.detail ?? maybeResponse.detail;
-  if (detail && typeof detail === 'object' && Array.isArray(detail.errors)) {
-    return detail.errors;
-  }
-  return [];
-}
+export {
+  extractFieldErrors,
+  getErrorMessage,
+  type FieldValidationErrorDetail,
+} from '@/features/journeys/core/journeyErrors';
 
-export function getErrorMessage(errors: FieldValidationErrorDetail[], fallback: string): string {
-  if (errors.length > 0) return errors.map((item) => item.message).join(' ');
-  return fallback;
-}
+import type { ProjectManagementContext } from './types';
+
 
 export function buildAdvanceInput(
   currentStep: string | null,
@@ -78,4 +63,42 @@ export function buildAdvanceInput(
     default:
       return {};
   }
+}
+
+export function emptyValues(): ProjectManagementStepValues {
+  return {
+    projectType: '',
+    projectStage: '',
+    projectObjective: '',
+    currentStatus: '',
+    scopeClarity: '',
+    desiredTimeline: '',
+    urgency: '',
+    budgetState: '',
+    mainChallenges: '',
+    topRisks: '',
+    stakeholderNotes: '',
+    engagementGoal: '',
+    scopeConfirmed: false,
+    submitConfirmed: false,
+  };
+}
+
+export function syncFromContext(context: ProjectManagementContext): ProjectManagementStepValues {
+  return {
+    projectType: context.project_type ?? '',
+    projectStage: context.project_stage ?? '',
+    projectObjective: context.project_objective ?? '',
+    currentStatus: context.current_status ?? '',
+    scopeClarity: context.scope_clarity ?? '',
+    desiredTimeline: context.desired_timeline ?? '',
+    urgency: context.urgency ?? '',
+    budgetState: context.budget_state ?? '',
+    mainChallenges: context.main_challenges ?? '',
+    topRisks: context.top_risks ?? '',
+    stakeholderNotes: context.stakeholder_notes ?? '',
+    engagementGoal: context.engagement_goal ?? '',
+    scopeConfirmed: context.scope_confirmed ?? false,
+    submitConfirmed: context.submit_confirmed ?? false,
+  };
 }

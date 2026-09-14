@@ -1,13 +1,13 @@
 import { useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import { Upload, Mail, User, Phone, FileText, CheckCircle, Briefcase, GraduationCap } from 'lucide-react';
 import Layout from '@/components/Layout';
-import { useScrollReveal } from '@/hooks/useScrollReveal';
+import PageHero from '@/components/page/PageHero';
+import PageSection from '@/components/page/PageSection';
+import PageSectionHeader from '@/components/page/PageSectionHeader';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Careers() {
-  const heroReveal = useScrollReveal({ threshold: 0.15 });
-  const formReveal = useScrollReveal({ threshold: 0.15 });
-
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -48,53 +48,31 @@ export default function Careers() {
 
   return (
     <Layout>
-      {/* Hero Section */}
-      <section className="relative h-[35vh] min-h-[260px] flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#5E5E5E]">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.08)_0%,transparent_70%)]" />
-        <div
-          ref={heroReveal.ref}
-          className={`relative z-10 px-4 text-center ${heroReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}
-        >
-          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gold/10 flex items-center justify-center">
-            <Briefcase className="w-10 h-10 text-gold" />
-          </div>
-          <h1 data-editable-id="careers-hero-title" className="font-tajawal text-4xl md:text-5xl font-bold gold-text mb-4">
-            انضم إلى فريقنا
-          </h1>
-          <p data-editable-id="careers-hero-desc" className="text-gray-600 dark:text-white/70 text-lg max-w-2xl mx-auto leading-relaxed">
-            نرحب دائماً بالمواهب المتميزة. أرسل سيرتك الذاتية وسنتواصل معك عند توفر الفرصة المناسبة
-          </p>
-        </div>
-      </section>
+      <PageHero
+        titleKey="page.careers.hero.title"
+        subtitleKey="page.careers.hero.subtitle"
+        titleEditableId="careers-hero-title"
+        subtitleEditableId="careers-hero-desc"
+      />
 
-      {/* Application Form Section */}
-      <section className="py-20 md:py-28 bg-white dark:bg-[#6B6B6B] relative">
-        <div className="container mx-auto px-4">
-          <div
-            ref={formReveal.ref}
-            className={`max-w-3xl mx-auto ${formReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}
-          >
-            <div className="text-center mb-12">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gold/10 flex items-center justify-center">
-                <FileText className="w-8 h-8 text-gold" />
-              </div>
-              <h2 data-editable-id="careers-form-title" className="font-tajawal text-3xl md:text-4xl font-bold gold-text mb-4">
-                قدم طلبك الآن
-              </h2>
-              <p data-editable-id="careers-form-desc" className="text-gray-600 dark:text-white/60">
-                املأ النموذج أدناه وارفع سيرتك الذاتية
-              </p>
-            </div>
+      <PageSection variant="cream">
+        <div className="mx-auto max-w-3xl">
+          <PageSectionHeader
+            titleKey="page.careers.apply.title"
+            subtitleKey="page.careers.form.desc"
+            titleEditableId="careers-form-title"
+            subtitleEditableId="careers-form-desc"
+          />
 
-            <div className="p-8 md:p-10 rounded-2xl border border-gold/20 dark:border-gold/10 bg-white dark:bg-white/5 backdrop-blur-md shadow-lg shadow-gold/5">
+            <div className="rounded-2xl border border-soft-border/70 bg-cream p-8 shadow-gold-card dark:bg-surface md:p-10">
               {submitted ? (
                 <div className="text-center py-10">
                   <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-500/10 flex items-center justify-center">
                     <CheckCircle className="w-10 h-10 text-green-500" />
                   </div>
-                  <h3 className="font-tajawal text-2xl font-bold text-gold mb-2">تم إرسال طلبك بنجاح!</h3>
-                  <p className="text-gray-600 dark:text-white/60">
-                    سيتم فتح تطبيق البريد الإلكتروني لإرسال سيرتك الذاتية. شكراً لاهتمامك بالانضمام إلينا.
+                  <h3 className="text-2xl font-bold text-gold mb-2">{t('page.careers.success.title')}</h3>
+                  <p className="text-ink-muted">
+                    {t('page.careers.success.body')}
                   </p>
                 </div>
               ) : (
@@ -107,7 +85,7 @@ export default function Careers() {
                       className={`p-4 rounded-xl border-2 transition-all duration-300 text-center ${
                         formData.type === 'job'
                           ? 'border-gold bg-gold/10 text-gold'
-                          : 'border-gray-200 dark:border-white/10 text-gray-600 dark:text-white/60 hover:border-gold/50'
+                          : 'border-soft-border/80 dark:border-white/10 text-ink-muted hover:border-gold/50'
                       }`}
                     >
                       <Briefcase className="w-6 h-6 mx-auto mb-2" />
@@ -119,7 +97,7 @@ export default function Careers() {
                       className={`p-4 rounded-xl border-2 transition-all duration-300 text-center ${
                         formData.type === 'training'
                           ? 'border-gold bg-gold/10 text-gold'
-                          : 'border-gray-200 dark:border-white/10 text-gray-600 dark:text-white/60 hover:border-gold/50'
+                          : 'border-soft-border/80 dark:border-white/10 text-ink-muted hover:border-gold/50'
                       }`}
                     >
                       <GraduationCap className="w-6 h-6 mx-auto mb-2" />
@@ -129,7 +107,7 @@ export default function Careers() {
 
                   {/* Full Name */}
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-2">
+                    <label className="block text-sm font-bold text-ink-secondary mb-2">
                       <User className="w-4 h-4 inline-block ml-2 text-gold" />
                       الاسم الكامل
                     </label>
@@ -139,7 +117,7 @@ export default function Careers() {
                       value={formData.fullName}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-900 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all duration-200 outline-none"
+                      className="eam-input"
                       placeholder="أدخل اسمك الكامل"
                     />
                   </div>
@@ -147,7 +125,7 @@ export default function Careers() {
                   {/* Email & Phone */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-2">
+                      <label className="block text-sm font-bold text-ink-secondary mb-2">
                         <Mail className="w-4 h-4 inline-block ml-2 text-gold" />
                         البريد الإلكتروني
                       </label>
@@ -157,12 +135,12 @@ export default function Careers() {
                         value={formData.email}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-900 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all duration-200 outline-none"
+                        className="eam-input"
                         placeholder="example@email.com"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-2">
+                      <label className="block text-sm font-bold text-ink-secondary mb-2">
                         <Phone className="w-4 h-4 inline-block ml-2 text-gold" />
                         رقم الجوال
                       </label>
@@ -172,7 +150,7 @@ export default function Careers() {
                         value={formData.phone}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-900 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all duration-200 outline-none"
+                        className="eam-input"
                         placeholder="05xxxxxxxx"
                       />
                     </div>
@@ -180,7 +158,7 @@ export default function Careers() {
 
                   {/* Position/Field */}
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-2">
+                    <label className="block text-sm font-bold text-ink-secondary mb-2">
                       <Briefcase className="w-4 h-4 inline-block ml-2 text-gold" />
                       {formData.type === 'job' ? 'المجال الوظيفي المطلوب' : 'مجال التدريب المطلوب'}
                     </label>
@@ -190,23 +168,23 @@ export default function Careers() {
                       value={formData.position}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-900 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all duration-200 outline-none"
+                      className="eam-input"
                       placeholder={formData.type === 'job' ? 'مثال: مهندس معماري، إداري، محاسب...' : 'مثال: هندسي، إداري، تقني...'}
                     />
                   </div>
 
                   {/* CV Upload */}
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-2">
+                    <label className="block text-sm font-bold text-ink-secondary mb-2">
                       <Upload className="w-4 h-4 inline-block ml-2 text-gold" />
                       السيرة الذاتية (CV)
                     </label>
                     <div
                       onClick={() => fileInputRef.current?.click()}
-                      className="w-full px-4 py-6 rounded-xl border-2 border-dashed border-gray-300 dark:border-white/20 bg-white dark:bg-white/5 text-center cursor-pointer hover:border-gold hover:bg-gold/5 transition-all duration-200"
+                      className="w-full px-4 py-6 rounded-xl border-2 border-dashed border-soft-border dark:border-white/20 bg-cream-light dark:bg-surface text-center cursor-pointer hover:border-gold hover:bg-gold/5 transition-all duration-200"
                     >
                       <Upload className="w-8 h-8 mx-auto mb-2 text-gold" />
-                      <p className="text-sm text-gray-600 dark:text-white/60">
+                      <p className="text-sm text-ink-muted">
                         {fileName ? (
                           <span className="text-gold font-bold">✓ {fileName}</span>
                         ) : (
@@ -221,14 +199,14 @@ export default function Careers() {
                         className="hidden"
                       />
                     </div>
-                    <p className="text-xs text-gray-400 mt-2">
+                    <p className="text-xs text-ink-subtle mt-2">
                       * سيتم فتح تطبيق البريد الإلكتروني لإرفاق وإرسال السيرة الذاتية
                     </p>
                   </div>
 
                   {/* Message */}
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 dark:text-white/80 mb-2">
+                    <label className="block text-sm font-bold text-ink-secondary mb-2">
                       <FileText className="w-4 h-4 inline-block ml-2 text-gold" />
                       رسالة إضافية (اختياري)
                     </label>
@@ -237,7 +215,7 @@ export default function Careers() {
                       value={formData.message}
                       onChange={handleInputChange}
                       rows={4}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-900 dark:text-white focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all duration-200 outline-none resize-none"
+                      className="eam-input resize-none"
                       placeholder="اكتب أي معلومات إضافية تريد مشاركتها..."
                     />
                   </div>
@@ -245,7 +223,7 @@ export default function Careers() {
                   {/* Submit Button */}
                   <button
                     type="submit"
-                    className="w-full py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold text-lg rounded-xl hover:shadow-[0_0_30px_rgba(201,168,76,0.4)] transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2"
+                    className="w-full py-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-dark font-bold text-lg rounded-xl hover:shadow-gold-lg transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2"
                   >
                     <Mail className="w-5 h-5" />
                     إرسال الطلب عبر البريد الإلكتروني
@@ -253,9 +231,8 @@ export default function Careers() {
                 </form>
               )}
             </div>
-          </div>
         </div>
-      </section>
+      </PageSection>
     </Layout>
   );
 }

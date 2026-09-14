@@ -82,10 +82,27 @@ export interface WorkspaceTurnResponse {
   error?: AIError | null;
 }
 
+export type InteractionMode = 'free' | 'journey';
+
+export interface PendingJourneyOffer {
+  journeyType: string;
+  label: string;
+  traceId?: string | null;
+  introMessage?: string;
+}
+
+export interface PlatformResourceLink {
+  label: string;
+  href: string;
+  ref: string;
+}
+
 export interface WorkspaceMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
+  journeyOffer?: PendingJourneyOffer | null;
+  resourceLinks?: PlatformResourceLink[];
 }
 
 export const BUILD_VILLA_QUICK_ACTION_LABEL = 'أبني منزلًا';

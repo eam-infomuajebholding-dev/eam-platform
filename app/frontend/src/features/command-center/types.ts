@@ -120,6 +120,13 @@ export interface CommercialFunnelStage {
   detail_ar?: string | null;
 }
 
+export interface PlatformTrendPoint {
+  period_start: string;
+  period_label: string;
+  service_requests: number;
+  qualified_requests: number;
+}
+
 export interface CommandCenterOverview {
   generated_at: string;
   real_journey_count: number;
@@ -141,6 +148,7 @@ export interface CommandCenterOverview {
   risk_items?: RiskItem[];
   control_assurance?: ControlAssuranceItem[];
   commercial_funnel?: CommercialFunnelStage[];
+  platform_trends?: PlatformTrendPoint[];
 }
 
 export interface ExecutiveBrief {

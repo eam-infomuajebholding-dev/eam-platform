@@ -6,6 +6,9 @@ type BlogFrontmatter = Record<string, FrontmatterValue | undefined> & {
   title?: string;
   description?: string;
   date?: string;
+  author?: string;
+  category?: string;
+  lang?: string;
   tags?: string[];
 };
 
@@ -182,7 +185,95 @@ function getBlogPost(slug: string) {
 }
 
 function getBlogRoute(slug: string) {
-  return `/blog/${slug}/`.replace(/\/+/g, '/');
+  return `/blog/${slug}`.replace(/\/+/g, '/');
+}
+
+function getReadingTimeMinutes(markdown: string) {
+  const words = markdown
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/[#>*_\[\]()!`-]/g, ' ')
+    .split(/\s+/)
+    .filter(Boolean).length;
+
+  return Math.max(1, Math.ceil(words / 200));
+}
+
+function getPostsForLanguage(lang: string) {
+  const normalized = lang.split('-')[0];
+  const filtered = blogPosts.filter(
+    (post) => !post.frontmatter.lang || post.frontmatter.lang.split('-')[0] === normalized,
+  );
+
+  return filtered.length > 0 ? filtered : blogPosts;
+}
+
+function getAllTags(posts: BlogPost[] = blogPosts) {
+  const tags = new Set<string>();
+  posts.forEach((post) => {
+    post.frontmatter.tags?.forEach((tag) => tags.add(tag));
+  });
+  return Array.from(tags).sort((a, b) => a.localeCompare(b, 'ar'));
+}
+
+function getRelatedPosts(slug: string, limit = 3) {
+  const current = getBlogPost(slug);
+  if (!current) {
+    return [];
+  }
+
+  const currentTags = new Set(current.frontmatter.tags ?? []);
+  const scored = blogPosts
+    .filter((post) => post.slug !== slug)
+    .map((post) => ({
+      post,
+      score: (post.frontmatter.tags ?? []).filter((tag) => currentTags.has(tag)).length,
+    }))
+    .sort((a, b) => {
+      if (b.score !== a.score) {
+        return b.score - a.score;
+      }
+      return compareBlogPosts(a.post, b.post);
+    });
+
+  const related = scored.filter((entry) => entry.score > 0).map((entry) => entry.post);
+  if (related.length >= limit) {
+    return related.slice(0, limit);
+  }
+
+  const filler = blogPosts.filter(
+    (post) => post.slug !== slug && !related.some((item) => item.slug === post.slug),
+  );
+
+  return [...related, ...filler].slice(0, limit);
+}
+
+function getHeroImage(post: BlogPost) {
+  return (
+    frontmatterString(post.frontmatter, 'hero_image') ??
+    frontmatterString(post.frontmatter, 'og_image')
+  );
+}
+
+function getBlogIndexSeoMeta(): SeoMeta {
+  const siteName = getSiteName();
+  const title = `Blog | ${siteName}`;
+  const description =
+    'Engineering consultancy, real estate, maintenance, and government services insights for Saudi Arabia.';
+
+  return {
+    title,
+    description,
+    url: getAbsoluteUrl('/blog/'),
+    siteName,
+    ogTitle: title,
+    ogDescription: description,
+    ogType: 'website',
+    twitterCard: 'summary_large_image',
+    twitterSite: getTwitterSiteHandle(),
+    twitterCreator: getTwitterCreatorHandle(),
+    twitterTitle: title,
+    twitterDescription: description,
+  };
 }
 
 function getSiteDomainUrl() {
@@ -191,7 +282,7 @@ function getSiteDomainUrl() {
 }
 
 function getSiteName() {
-  return import.meta.env.VITE_APP_TITLE?.trim() || 'Atoms';
+  return import.meta.env.VITE_APP_TITLE?.trim() || 'Emmar Al Asala Wa Al Muasara';
 }
 
 function getTwitterSiteHandle() {
@@ -271,7 +362,7 @@ function getPostSeoMeta(post?: BlogPost | null): SeoMeta {
     };
   }
 
-  const title = `${post.title} | Blog`;
+  const title = `${post.title} | ${siteName}`;
   const description = post.description;
   const url =
     frontmatterString(post.frontmatter, 'og_url') ??
@@ -322,9 +413,15 @@ function getPostSeoMeta(post?: BlogPost | null): SeoMeta {
 
 export {
   blogPosts,
+  getAllTags,
+  getBlogIndexSeoMeta,
   getBlogPost,
   getBlogRoute,
+  getHeroImage,
   getPostSeoMeta,
+  getPostsForLanguage,
+  getReadingTimeMinutes,
+  getRelatedPosts,
   hasBlogPosts,
 };
 export type { BlogFrontmatter, BlogPost, SeoMeta };

@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/features/auth/context/AuthContext';
+import { saveAuthReturnTo } from '@/features/auth/utils/authReturnTo';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
 interface ProtectedRouteProps {
@@ -11,15 +12,13 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const location = useLocation();
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (!user) {
-    return <Navigate to="/" replace state={{ from: location.pathname }} />;
+    const returnTo = `${location.pathname}${location.search}`;
+    saveAuthReturnTo(returnTo);
+    return <Navigate to="/" replace state={{ from: returnTo }} />;
   }
 
   return <>{children}</>;

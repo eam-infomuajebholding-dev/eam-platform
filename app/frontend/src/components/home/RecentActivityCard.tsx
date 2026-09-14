@@ -19,7 +19,7 @@ export default function RecentActivityCard() {
       aria-label="آخر الأنشطة"
     >
       <div className="flex h-[30px] shrink-0 items-center border-b border-[var(--eam-home-border)] px-3">
-        <h2 className="font-tajawal text-[14px] font-bold text-[var(--eam-home-ink)]">آخر الأنشطة</h2>
+        <h2 className="text-[14px] font-bold text-[var(--eam-home-ink)]">آخر الأنشطة</h2>
       </div>
 
       <ul className="flex-1 space-y-0 overflow-hidden px-2.5 py-0.5">

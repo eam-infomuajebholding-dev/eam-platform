@@ -2,6 +2,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { AuthProvider } from '@/features/auth/context/AuthContext';
 import { EditModeProvider } from '@/contexts/EditModeContext';
@@ -24,29 +25,25 @@ import Careers from './pages/Careers';
 import Invest from './pages/Invest';
 import AuthCallback from '@/features/auth/pages/AuthCallback';
 import AuthError from '@/features/auth/pages/AuthError';
+import LogoutCallbackPage from './pages/LogoutCallbackPage';
 import AdminDashboard from './pages/AdminDashboard';
 import CustomerWorkspace from './pages/CustomerWorkspace';
 import ServiceRequestDetail from './pages/ServiceRequestDetail';
 import ProtectedRoute from '@/features/auth/components/ProtectedRoute';
 import ProtectedAdminRoute from '@/components/ProtectedAdminRoute';
+import ProtectedCommandCenterRoute from '@/components/ProtectedCommandCenterRoute';
 import ProfessionalReviewPage from './pages/ProfessionalReview';
 import OwnerCommandCenterPage from './pages/OwnerCommandCenter';
-import BuildVillaJourneyPage from '@/features/journeys/build-villa/BuildVillaJourneyPage';
-import EngineeringConsultingJourneyPage from '@/features/journeys/engineering-consulting/EngineeringConsultingJourneyPage';
-import ContractingJourneyPage from '@/features/journeys/contracting/ContractingJourneyPage';
-import RealEstateValuationJourneyPage from '@/features/journeys/real-estate-valuation/RealEstateValuationJourneyPage';
-import SmartMaintenanceJourneyPage from '@/features/journeys/smart-maintenance/SmartMaintenanceJourneyPage';
-import ProjectManagementJourneyPage from '@/features/journeys/project-management/ProjectManagementJourneyPage';
-import FurnishingJourneyPage from '@/features/journeys/furnishing/FurnishingJourneyPage';
-import FacilityManagementJourneyPage from '@/features/journeys/facility-management/FacilityManagementJourneyPage';
-import GovernmentServicesJourneyPage from '@/features/journeys/government-services/GovernmentServicesJourneyPage';
-import RealEstateDevelopmentJourneyPage from '@/features/journeys/real-estate-development/RealEstateDevelopmentJourneyPage';
-import RealEstateMarketingJourneyPage from '@/features/journeys/real-estate-marketing/RealEstateMarketingJourneyPage';
-import BuildingMaterialsJourneyPage from '@/features/journeys/building-materials/BuildingMaterialsJourneyPage';
-import EquipmentJourneyPage from '@/features/journeys/equipment/EquipmentJourneyPage';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentCancel from './pages/PaymentCancel';
+import NotFoundPage from './pages/NotFoundPage';
+import AppErrorBoundary from '@/components/AppErrorBoundary';
+import { JourneyRoute, journeyRouteElements } from '@/features/journeys/journeyRoutes';
 import SectorPage from './pages/SectorPage';
 import BlogRoutes from './blog-routes';
 import { JourneyProvider } from '@/features/journeys/core/JourneyContext';
+import GlobalAssistantDock from '@/components/GlobalAssistantDock';
+import { WorkspaceProvider } from '@/features/ai-workspace/WorkspaceContext';
 
 const queryClient = new QueryClient();
 
@@ -71,13 +68,30 @@ const AppRoutes = () => (
     <Route path="/invest" element={<Invest />} />
     <Route path="/auth/callback" element={<AuthCallback />} />
     <Route path="/auth/error" element={<AuthError />} />
+    <Route path="/auth/logout-callback" element={<LogoutCallbackPage />} />
+    <Route
+      path="/payment/success"
+      element={
+        <ProtectedRoute>
+          <PaymentSuccess />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/payment/cancel"
+      element={
+        <ProtectedRoute>
+          <PaymentCancel />
+        </ProtectedRoute>
+      }
+    />
     <Route path="/admin" element={<AdminDashboard />} />
     <Route
       path="/command-center"
       element={
-        <ProtectedAdminRoute>
+        <ProtectedCommandCenterRoute>
           <OwnerCommandCenterPage />
-        </ProtectedAdminRoute>
+        </ProtectedCommandCenterRoute>
       }
     />
     <Route
@@ -97,19 +111,7 @@ const AppRoutes = () => (
       }
     />
     <Route path="/blog/*" element={<BlogRoutes />} />
-    <Route path="/journeys/build-villa" element={<BuildVillaJourneyPage />} />
-    <Route path="/journeys/engineering-consulting" element={<EngineeringConsultingJourneyPage />} />
-    <Route path="/journeys/contracting" element={<ContractingJourneyPage />} />
-    <Route path="/journeys/real-estate-valuation" element={<RealEstateValuationJourneyPage />} />
-    <Route path="/journeys/smart-maintenance" element={<SmartMaintenanceJourneyPage />} />
-    <Route path="/journeys/project-management" element={<ProjectManagementJourneyPage />} />
-    <Route path="/journeys/furnishing" element={<FurnishingJourneyPage />} />
-    <Route path="/journeys/facility-management" element={<FacilityManagementJourneyPage />} />
-    <Route path="/journeys/government-services" element={<GovernmentServicesJourneyPage />} />
-    <Route path="/journeys/real-estate-development" element={<RealEstateDevelopmentJourneyPage />} />
-    <Route path="/journeys/real-estate-marketing" element={<RealEstateMarketingJourneyPage />} />
-    <Route path="/journeys/building-materials" element={<BuildingMaterialsJourneyPage />} />
-    <Route path="/journeys/equipment" element={<EquipmentJourneyPage />} />
+    {journeyRouteElements}
     <Route path="/sectors/:slug" element={<SectorPage />} />
     <Route
       path="/my-requests"
@@ -127,6 +129,7 @@ const AppRoutes = () => (
         </ProtectedRoute>
       }
     />
+    <Route path="*" element={<NotFoundPage />} />
   </Routes>
 );
 
@@ -136,12 +139,19 @@ const App = () => (
       <ThemeProvider>
         <AuthProvider>
           <BrowserRouter>
-            <JourneyProvider>
-              <EditModeProvider>
-                <Toaster />
-                <AppRoutes />
-              </EditModeProvider>
-            </JourneyProvider>
+            <LanguageProvider>
+              <JourneyProvider>
+                <EditModeProvider>
+                  <WorkspaceProvider>
+                    <AppErrorBoundary>
+                      <Toaster />
+                      <AppRoutes />
+                    </AppErrorBoundary>
+                    <GlobalAssistantDock />
+                  </WorkspaceProvider>
+                </EditModeProvider>
+              </JourneyProvider>
+            </LanguageProvider>
           </BrowserRouter>
         </AuthProvider>
       </ThemeProvider>

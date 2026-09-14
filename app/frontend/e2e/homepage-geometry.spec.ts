@@ -63,6 +63,7 @@ test.describe('Homepage light layout at 1586x992', () => {
 
     expect(sectorCard).not.toBeNull();
     expect(sectorCard!.visible).toBeTruthy();
-    expect(sectorCard!.h).toBeGreaterThanOrEqual(195);
+    expect(sectorCard!.w).toBeGreaterThanOrEqual(280);
+    expect(sectorCard!.h).toBeGreaterThanOrEqual(220);
   });
 });

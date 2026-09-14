@@ -1,6 +1,10 @@
-import type { FieldValidationErrorDetail } from './types';
+export {
+  extractFieldErrors,
+  getErrorMessage,
+  type FieldValidationErrorDetail,
+} from '@/features/journeys/core/journeyErrors';
 
-export type { FieldValidationErrorDetail };
+import type { SmartMaintenanceContext } from './types';
 
 export interface MaintenanceStepValues {
   maintenanceCategory: string;
@@ -16,26 +20,6 @@ export interface MaintenanceStepValues {
   urgency: string;
   scopeConfirmed: boolean;
   submitConfirmed: boolean;
-}
-
-export function extractFieldErrors(error: unknown): FieldValidationErrorDetail[] {
-  if (!error || typeof error !== 'object') return [];
-  const maybeResponse = error as {
-    response?: { data?: { detail?: { errors?: FieldValidationErrorDetail[] } | string } };
-    data?: { detail?: { errors?: FieldValidationErrorDetail[] } | string };
-    detail?: { errors?: FieldValidationErrorDetail[] } | string;
-  };
-  const detail =
-    maybeResponse.response?.data?.detail ?? maybeResponse.data?.detail ?? maybeResponse.detail;
-  if (detail && typeof detail === 'object' && Array.isArray(detail.errors)) {
-    return detail.errors;
-  }
-  return [];
-}
-
-export function getErrorMessage(errors: FieldValidationErrorDetail[], fallback: string): string {
-  if (errors.length > 0) return errors.map((item) => item.message).join(' ');
-  return fallback;
 }
 
 export function buildAdvanceInput(
@@ -74,4 +58,40 @@ export function buildAdvanceInput(
     default:
       return {};
   }
+}
+
+export function emptyValues(): MaintenanceStepValues {
+  return {
+    maintenanceCategory: '',
+    location: '',
+    issueDescription: '',
+    severityLevel: '',
+    accessReadiness: '',
+    systemNotes: '',
+    priorMaintenance: null,
+    serviceNotes: '',
+    engagementGoal: '',
+    desiredTimeline: '',
+    urgency: '',
+    scopeConfirmed: false,
+    submitConfirmed: false,
+  };
+}
+
+export function syncFromContext(context: SmartMaintenanceContext): MaintenanceStepValues {
+  return {
+    maintenanceCategory: context.maintenance_category ?? '',
+    location: context.location ?? '',
+    issueDescription: context.issue_description ?? '',
+    severityLevel: context.severity_level ?? '',
+    accessReadiness: context.access_readiness ?? '',
+    systemNotes: context.system_notes ?? '',
+    priorMaintenance: context.prior_maintenance ?? null,
+    serviceNotes: context.service_notes ?? '',
+    engagementGoal: context.engagement_goal ?? '',
+    desiredTimeline: context.desired_timeline ?? '',
+    urgency: context.urgency ?? '',
+    scopeConfirmed: context.scope_confirmed ?? false,
+    submitConfirmed: context.submit_confirmed ?? false,
+  };
 }

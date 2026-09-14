@@ -1,11 +1,38 @@
-import { Link } from "react-router-dom";
-import { Globe, Sun, Moon } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import { LayoutDashboard, Sun, Moon } from "lucide-react";
+import LanguageSelector from "@/components/Navbar/LanguageSelector";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { client } from "@/lib/api";
+import { saveAuthReturnTo } from "@/features/auth/utils/authReturnTo";
 
-const iconBtnClass =
-  "flex h-10 w-10 items-center justify-center rounded-full border border-soft-border text-ink/70 transition-all duration-200 hover:border-primary-gold hover:bg-cream-soft hover:text-deep-gold dark:border-white/10 dark:text-white/70 dark:hover:bg-white/10";
+const iconBtnClass = 'site-nav-icon-btn';
+const textLinkClass = 'site-nav-text-btn';
+const primaryBtnClass = 'site-nav-cta-btn';
+const commandCenterBtnClass = 'site-nav-command-center-btn';
+
+function CommandCenterEntry({
+  variant,
+  onNavigate,
+  label,
+}: {
+  variant: 'desktop' | 'mobile';
+  onNavigate?: () => void;
+  label: string;
+}) {
+  const className =
+    variant === 'mobile'
+      ? `${commandCenterBtnClass} site-nav-command-center-btn--mobile w-full`
+      : commandCenterBtnClass;
+
+  return (
+    <Link to="/command-center" onClick={onNavigate} className={className}>
+      <LayoutDashboard size={variant === 'mobile' ? 18 : 16} strokeWidth={2} aria-hidden="true" />
+      <span>{label}</span>
+    </Link>
+  );
+}
 
 type UserActionsProps = {
   variant?: "desktop" | "mobile";
@@ -13,11 +40,14 @@ type UserActionsProps = {
 };
 
 export default function UserActions({ variant = "desktop", onNavigate }: UserActionsProps) {
+  const location = useLocation();
   const { theme, toggleTheme } = useTheme();
-  const { user, logout, isAdmin } = useAuth();
+  const { t } = useLanguage();
+  const { user, logout, canAccessCommandCenter } = useAuth();
 
   const handleAuthEntry = async () => {
     onNavigate?.();
+    saveAuthReturnTo(`${location.pathname}${location.search}`);
     await client.auth.toLogin();
   };
 
@@ -31,24 +61,18 @@ export default function UserActions({ variant = "desktop", onNavigate }: UserAct
       <div className="flex flex-col gap-2">
         {user ? (
           <>
-            {isAdmin ? (
-              <Link
-                to="/command-center"
-                onClick={onNavigate}
-                className="block rounded-lg px-4 py-3 text-sm font-medium text-ink/80 transition-colors hover:text-deep-gold hover:bg-primary-gold/10 dark:text-white/80"
-              >
-                لوحة القيادة
-              </Link>
+            {canAccessCommandCenter ? (
+              <CommandCenterEntry variant="mobile" onNavigate={onNavigate} label={t('auth.commandCenter')} />
             ) : null}
             <Link
               to="/my-requests"
               onClick={onNavigate}
               className="block rounded-lg px-4 py-3 text-sm font-medium text-ink/80 transition-colors hover:text-deep-gold hover:bg-primary-gold/10 dark:text-white/80"
             >
-              طلباتي
+              {t('auth.myRequests')}
             </Link>
-            <button type="button" onClick={() => void handleLogout()} className="eam-btn-primary w-full">
-              تسجيل الخروج
+            <button type="button" onClick={() => void handleLogout()} className={`${primaryBtnClass} w-full`}>
+              {t('auth.logout')}
             </button>
           </>
         ) : (
@@ -58,32 +82,27 @@ export default function UserActions({ variant = "desktop", onNavigate }: UserAct
               onClick={() => void handleAuthEntry()}
               className="block w-full rounded-lg px-4 py-3 text-sm font-medium text-ink/80 transition-colors hover:text-deep-gold hover:bg-primary-gold/10 dark:text-white/80"
             >
-              تسجيل الدخول
+              {t('auth.login')}
             </button>
-            <button type="button" onClick={() => void handleAuthEntry()} className="eam-btn-primary w-full">
-              إنشاء حساب
+            <button type="button" onClick={() => void handleAuthEntry()} className={`${primaryBtnClass} w-full`}>
+              {t('auth.signup')}
             </button>
           </>
         )}
       </div>
     ) : user ? (
       <>
-        {isAdmin ? (
-          <Link
-            to="/command-center"
-            className="rounded-lg px-2.5 py-2 text-[15px] font-medium text-ink/80 transition-colors hover:text-deep-gold dark:text-white/80"
-          >
-            لوحة القيادة
-          </Link>
+        {canAccessCommandCenter ? (
+          <CommandCenterEntry variant="desktop" label={t('auth.commandCenter')} />
         ) : null}
         <Link
           to="/my-requests"
-          className="rounded-lg px-2.5 py-2 text-[15px] font-medium text-ink/80 transition-colors hover:text-deep-gold dark:text-white/80"
+          className={`${textLinkClass} site-nav-text-btn--always`}
         >
-          طلباتي
+          {t('auth.myRequests')}
         </Link>
-        <button type="button" onClick={() => void handleLogout()} className="eam-btn-primary">
-          تسجيل الخروج
+        <button type="button" onClick={() => void handleLogout()} className={primaryBtnClass}>
+          {t('auth.logout')}
         </button>
       </>
     ) : (
@@ -91,30 +110,32 @@ export default function UserActions({ variant = "desktop", onNavigate }: UserAct
         <button
           type="button"
           onClick={() => void handleAuthEntry()}
-          className="rounded-lg px-2.5 py-2 text-[15px] font-medium text-ink/80 transition-colors hover:text-deep-gold dark:text-white/80"
+          className={`${textLinkClass} site-nav-text-btn--always`}
         >
-          تسجيل الدخول
+          {t('auth.login')}
         </button>
-        <button type="button" onClick={() => void handleAuthEntry()} className="eam-btn-primary">
-          إنشاء حساب
+        <button type="button" onClick={() => void handleAuthEntry()} className={primaryBtnClass}>
+          {t('auth.signup')}
         </button>
       </>
     );
 
   if (variant === "mobile") {
-    return authControls;
+    return (
+      <div className="flex flex-col gap-2">
+        <LanguageSelector variant="mobile" onNavigate={onNavigate} />
+        {authControls}
+      </div>
+    );
   }
 
   return (
-    <div className="flex items-center gap-2 whitespace-nowrap">
-      <button type="button" aria-label="تغيير اللغة" className={iconBtnClass}>
-        <Globe size={18} />
+    <div className="site-nav-actions whitespace-nowrap">
+      <LanguageSelector />
+      <button type="button" onClick={toggleTheme} aria-label={t('aria.toggleTheme')} className={iconBtnClass}>
+        {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
       </button>
-
-      <button type="button" onClick={toggleTheme} aria-label="تبديل الوضع" className={iconBtnClass}>
-        {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-      </button>
-
+      <span className="site-nav-actions-divider" aria-hidden="true" />
       {authControls}
     </div>
   );

@@ -87,6 +87,7 @@ export const QUOTE_STATUS_LABELS: Record<string, string> = {
   pending_approval: 'بانتظار الموافقة',
   approved: 'معتمد',
   issued: 'صادر للعميل',
+  paid: 'مدفوع',
   cancelled: 'ملغى',
 };
 

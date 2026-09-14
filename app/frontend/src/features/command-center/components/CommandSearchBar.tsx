@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { searchCommandCenter } from '../api/commandCenterClient';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function CommandSearchBar() {
+  const { t } = useLanguage();
   const [query, setQuery] = useState('');
   const [submitted, setSubmitted] = useState('');
 
@@ -22,21 +24,21 @@ export default function CommandSearchBar() {
     <div className="rounded-2xl border border-gold/15 bg-white/70 p-4 dark:border-white/10 dark:bg-white/5">
       <form onSubmit={handleSubmit} className="flex flex-wrap gap-2">
         <label htmlFor="command-search" className="sr-only">
-          بحث لوحة القيادة
+          {t('commandCenter.search.label')}
         </label>
         <input
           id="command-search"
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="ابحث، اسأل، أو انتقل — مثال: الطلبات المؤهلة، المخاطر، OIDC"
-          className="min-w-[240px] flex-1 rounded-xl border border-gold/20 bg-white px-4 py-2 font-tajawal text-sm dark:bg-white/5"
+          placeholder={t('commandCenter.search.placeholder')}
+          className="min-w-[240px] flex-1 rounded-xl border border-gold/20 bg-white px-4 py-2 text-sm dark:bg-white/5"
         />
         <button
           type="submit"
-          className="rounded-xl bg-gold px-4 py-2 font-tajawal text-sm font-bold text-white"
+          className="rounded-xl bg-gold px-4 py-2 text-sm font-bold text-white"
         >
-          تنفيذ
+          {t('commandCenter.search.submit')}
         </button>
       </form>
 
@@ -47,12 +49,12 @@ export default function CommandSearchBar() {
               {result.navigation_path ? (
                 <Link
                   to={result.navigation_path}
-                  className="block rounded-lg border border-gold/10 px-3 py-2 font-tajawal text-sm hover:bg-gold/5"
+                  className="block rounded-lg border border-gold/10 px-3 py-2 text-sm hover:bg-gold/5"
                 >
                   <span className="text-ink/50">{result.result_type}</span> — {result.label_ar}
                 </Link>
               ) : (
-                <div className="rounded-lg border border-gold/10 px-3 py-2 font-tajawal text-sm">
+                <div className="rounded-lg border border-gold/10 px-3 py-2 text-sm">
                   <span className="text-ink/50">{result.result_type}</span> — {result.label_ar}
                   {result.description_ar ? (
                     <p className="text-xs text-ink/60">{result.description_ar}</p>
@@ -65,7 +67,7 @@ export default function CommandSearchBar() {
       ) : null}
 
       {searchQuery.data?.limitations?.length ? (
-        <p className="mt-2 font-tajawal text-xs text-ink/50">{searchQuery.data.limitations.join(' ')}</p>
+        <p className="mt-2 text-xs text-ink/50">{searchQuery.data.limitations.join(' ')}</p>
       ) : null}
     </div>
   );
