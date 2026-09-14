@@ -25,8 +25,12 @@ process.env.VITE_APP_DESCRIPTION = escapeHtmlAttr(process.env.VITE_APP_DESCRIPTI
 process.env.VITE_APP_LOGO_URL ??= process.env.OVERVIEW_LOGO_URL ?? 'https://public-frontend-cos.metadl.com/mgx/img/favicon_atoms.ico';
 
 // https://vitejs.dev/config/
-export default defineConfig(({ command }) => {
+export default defineConfig(({ command, isSsrBuild }) => {
   const blogPrerenderRoutes = command === 'build' ? getBlogRoutes() : [];
+  // Blog prerender requires an isolated entry chunk; manualChunks below prevents that.
+  // Set VITE_ENABLE_BLOG_PRERENDER=true once prerender/entry is wired for production builds.
+  const enableBlogPrerender =
+    process.env.VITE_ENABLE_BLOG_PRERENDER === 'true' && blogPrerenderRoutes.length > 0;
 
   return {
     plugins: [
@@ -51,10 +55,10 @@ export default defineConfig(({ command }) => {
         readable: true,
         generateRobotsTxt: true,
       }),
-      ...(blogPrerenderRoutes.length > 0
+      ...(enableBlogPrerender
         ? vitePrerenderPlugin({
             renderTarget: '#root',
-            prerenderScript: path.resolve(__dirname, 'prerender/blog.js'),
+            prerenderScript: path.resolve(__dirname, 'prerender/entry.js'),
             additionalPrerenderRoutes: blogPrerenderRoutes,
           })
         : []),
@@ -62,6 +66,11 @@ export default defineConfig(({ command }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
+        ...(isSsrBuild
+          ? {
+              '@metagptx/web-sdk': path.resolve(__dirname, 'prerender/stubs/web-sdk.js'),
+            }
+          : {}),
       },
     },
     server: {

@@ -4,6 +4,7 @@ import { Route, Routes } from 'react-router-dom';
 import { StaticRouter } from 'react-router-dom/server';
 import BlogRoutes from '../src/blog-routes';
 import { getBlogPost, getPostSeoMeta } from '../src/lib/blog';
+import PrerenderProviders from './PrerenderProviders';
 
 function getHeadElements(url) {
   if (!url.startsWith('/blog')) {
@@ -157,17 +158,35 @@ function getHeadElements(url) {
   };
 }
 
+function syncWindowLocation(url) {
+  if (typeof globalThis.window === 'undefined' || !url) {
+    return;
+  }
+
+  const resolved = new URL(url, 'http://localhost');
+  globalThis.window.location.pathname = resolved.pathname;
+  globalThis.window.location.href = resolved.href;
+  globalThis.window.location.search = resolved.search;
+  globalThis.window.location.origin = resolved.origin;
+}
+
 export async function prerender({ url }) {
+  syncWindowLocation(url);
+
   const html = renderToString(
     React.createElement(
       StaticRouter,
       { location: url },
       React.createElement(
-        Routes,
+        PrerenderProviders,
         null,
         React.createElement(
-          Route,
-          { path: '/blog/*', element: React.createElement(BlogRoutes) },
+          Routes,
+          null,
+          React.createElement(Route, {
+            path: '/blog/*',
+            element: React.createElement(BlogRoutes),
+          }),
         ),
       ),
     ),

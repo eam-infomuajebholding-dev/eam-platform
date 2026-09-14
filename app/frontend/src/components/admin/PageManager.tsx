@@ -11,6 +11,10 @@ export interface CustomNavLink {
 const STORAGE_KEY = 'custom-nav-links';
 
 export function getCustomNavLinks(): CustomNavLink[] {
+  if (typeof window === 'undefined') {
+    return [];
+  }
+
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     return stored ? JSON.parse(stored) : [];

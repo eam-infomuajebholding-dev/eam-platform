@@ -22,6 +22,10 @@ function getStorageKey(pathname: string) {
 }
 
 export function getPageBackground(pathname: string): PageBackground | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
   try {
     const stored = localStorage.getItem(getStorageKey(pathname));
     if (stored) return JSON.parse(stored);
