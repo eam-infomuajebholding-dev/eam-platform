@@ -15,6 +15,7 @@ app/frontend/.env
 app/backend/.env
 app/backend/eam.db
 app/backend/ci_test.db
+app/frontend/ci_test.db
 app/backend/ci_e2e.db
 app/backend/pytest_ops_quotes.db
 

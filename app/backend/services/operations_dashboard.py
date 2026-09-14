@@ -10,7 +10,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models.consultations import Consultations
 from models.contact_messages import Contact_messages
 from models.journey_instances import JourneyInstance
+from models.payments import (
+    PAYMENT_STATUS_COMPLETED,
+    PAYMENT_STATUS_EXPIRED,
+    PAYMENT_STATUS_FAILED,
+    PAYMENT_STATUS_PENDING,
+    Payment,
+)
 from models.service_requests import ServiceRequest
+from services.payment_config import is_checkout_ready, is_stripe_configured, is_stripe_webhook_configured
 from schemas.operations_dashboard import (
     AttentionItem,
     ChangeItem,
@@ -24,6 +32,7 @@ from schemas.operations_dashboard import (
     MetricValue,
     OperatingPulseItem,
     PlatformHealthDomain,
+    PlatformTrendPoint,
     RecentServiceRequestRow,
     RiskItem,
     ScorecardItem,
@@ -63,15 +72,17 @@ class OperationsDashboardService:
         lead_counts = await self._lead_counts()
         attention = self._attention_items(sr_status, lead_counts)
         kpis = self._executive_kpis(sr_status, ji_status, lead_counts)
-        financial = self._financial_pulse(sr_status)
-        commercial = self._commercial_readiness()
+        payment_summary = await self._payment_summary()
+        financial = self._financial_pulse(sr_status, payment_summary)
+        commercial = self._commercial_readiness(payment_summary)
         recent = await self._recent_service_requests()
-        what_changed = await self._what_changed()
+        what_changed = await self._what_changed(sr_status, ji_status, lead_counts)
+        platform_trends = await self._platform_trends()
         scorecard = self._strategic_scorecard(len(UPSERT_JOURNEY_TYPES), sr_status)
         pulse = self._operating_pulse(sr_status, ji_status, lead_counts)
         risks = self._risk_items()
         controls = self._control_assurance()
-        funnel = self._commercial_funnel(sr_status)
+        funnel = self._commercial_funnel(sr_status, payment_summary)
 
         return CommandCenterOverviewResponse(
             generated_at=now,
@@ -93,7 +104,24 @@ class OperationsDashboardService:
             risk_items=risks,
             control_assurance=controls,
             commercial_funnel=funnel,
+            platform_trends=platform_trends,
         )
+
+    async def _payment_summary(self) -> dict[str, float | int]:
+        result = await self.db.execute(
+            select(func.count(Payment.id), func.coalesce(func.sum(Payment.amount), 0)).where(
+                Payment.status == PAYMENT_STATUS_COMPLETED
+            )
+        )
+        row = result.one()
+        status_counts = await self._count_grouped(Payment.status)
+        return {
+            "count": int(row[0]),
+            "total": float(row[1]),
+            "pending": status_counts.get(PAYMENT_STATUS_PENDING, 0),
+            "failed": status_counts.get(PAYMENT_STATUS_FAILED, 0),
+            "expired": status_counts.get(PAYMENT_STATUS_EXPIRED, 0),
+        }
 
     async def _count_grouped(self, column) -> dict[str, int]:
         result = await self.db.execute(
@@ -220,38 +248,87 @@ class OperationsDashboardService:
             ),
         ]
 
-    async def _what_changed(self) -> list[ChangeItem]:
+    async def _count_sr_between(
+        self,
+        since: datetime,
+        until: datetime,
+        *,
+        status: str | None = None,
+    ) -> int:
+        query = select(func.count()).select_from(ServiceRequest).where(
+            ServiceRequest.created_at >= since,
+            ServiceRequest.created_at < until,
+        )
+        if status is not None:
+            query = query.where(ServiceRequest.status == status)
+        result = await self.db.execute(query)
+        return int(result.scalar_one() or 0)
+
+    @staticmethod
+    def _direction(current: int, previous: int) -> str:
+        if current > previous:
+            return "up"
+        if current < previous:
+            return "down"
+        return "flat"
+
+    async def _what_changed(
+        self,
+        _sr_status: dict[str, int],
+        _ji_status: dict[str, int],
+        _lead_counts: dict[str, int],
+    ) -> list[ChangeItem]:
         now = datetime.now(timezone.utc)
         current_start = now - timedelta(days=7)
         previous_start = now - timedelta(days=14)
 
-        async def count_sr_since(since: datetime, until: datetime | None = None) -> int:
-            query = select(func.count()).select_from(ServiceRequest).where(ServiceRequest.created_at >= since)
-            if until is not None:
-                query = query.where(ServiceRequest.created_at < until)
-            result = await self.db.execute(query)
-            return int(result.scalar_one() or 0)
+        current_sr = await self._count_sr_between(current_start, now)
+        previous_sr = await self._count_sr_between(previous_start, current_start)
+        current_qualified = await self._count_sr_between(current_start, now, status="qualified")
+        previous_qualified = await self._count_sr_between(previous_start, current_start, status="qualified")
 
-        current_sr = await count_sr_since(current_start)
-        previous_sr = await count_sr_since(previous_start, current_start)
-        direction = "flat"
-        if current_sr > previous_sr:
-            direction = "up"
-        elif current_sr < previous_sr:
-            direction = "down"
-
-        items: list[ChangeItem] = [
+        return [
             ChangeItem(
-                metric_id="sr_created_7d",
+                metric_id="service_requests_total",
                 label_ar="طلبات خدمة جديدة (7 أيام)",
                 baseline=previous_sr,
                 current=current_sr,
-                direction=direction,
+                direction=self._direction(current_sr, previous_sr),
                 domain="OPERATIONS",
                 evidence="service_requests.created_at",
-            )
+            ),
+            ChangeItem(
+                metric_id="qualified_requests",
+                label_ar="طلبات مؤهلة (7 أيام)",
+                baseline=previous_qualified,
+                current=current_qualified,
+                direction=self._direction(current_qualified, previous_qualified),
+                domain="COMMERCIAL",
+                evidence="service_requests.status=qualified",
+            ),
         ]
-        return items
+
+    async def _platform_trends(self, weeks: int = 8) -> list[PlatformTrendPoint]:
+        now = datetime.now(timezone.utc)
+        points: list[PlatformTrendPoint] = []
+
+        for index in range(weeks - 1, -1, -1):
+            period_end = now - timedelta(days=index * 7)
+            period_start = period_end - timedelta(days=7)
+            service_requests = await self._count_sr_between(period_start, period_end)
+            qualified_requests = await self._count_sr_between(
+                period_start, period_end, status="qualified"
+            )
+            points.append(
+                PlatformTrendPoint(
+                    period_start=period_start,
+                    period_label=period_start.strftime("%Y-%m-%d"),
+                    service_requests=service_requests,
+                    qualified_requests=qualified_requests,
+                )
+            )
+
+        return points
 
     def _strategic_scorecard(self, journey_count: int, sr_status: dict[str, int]) -> list[ScorecardItem]:
         qualified = sr_status.get("qualified", 0)
@@ -399,7 +476,11 @@ class OperationsDashboardService:
             ),
         ]
 
-    def _commercial_funnel(self, sr_status: dict[str, int]) -> list[CommercialFunnelStage]:
+    def _commercial_funnel(
+        self,
+        sr_status: dict[str, int],
+        payment_summary: dict[str, float | int],
+    ) -> list[CommercialFunnelStage]:
         qualified = sr_status.get("qualified", 0)
         submitted = sum(sr_status.values())
         return [
@@ -420,7 +501,16 @@ class OperationsDashboardService:
                 detail_ar="WO-018 Quote BO",
             ),
             CommercialFunnelStage(stage_id="contract", label_ar="عقد", status="NOT_YET_OPERATIONAL"),
-            CommercialFunnelStage(stage_id="payment", label_ar="دفع", status="NOT_YET_OPERATIONAL"),
+            CommercialFunnelStage(
+                stage_id="payment",
+                label_ar="دفع",
+                status="LIVE" if is_stripe_configured() else "NOT_YET_OPERATIONAL",
+                detail_ar=(
+                    f"Stripe Checkout — {payment_summary['count']} مدفوعة"
+                    if payment_summary["count"]
+                    else "Stripe Checkout — quote payments"
+                ),
+            ),
             CommercialFunnelStage(
                 stage_id="operational_project",
                 label_ar="مشروع تشغيلي",
@@ -462,12 +552,19 @@ class OperationsDashboardService:
             "متابعة طلبات بانتظار معلومات العميل" if awaiting else "لا طلبات بانتظار معلومات حالياً",
         ]
 
+        paid_count = next(
+            (m.value for m in overview.financial_pulse if m.metric_id == "payments_collected_count"),
+            None,
+        )
         what_matters = [
             "الطلب المؤهل يمكن إصدار عرض سعر له — Quote BO نشط (WO-018)",
+            "الدفع الإلكتروني عبر Stripe Checkout — issued quote → pay",
             f"الرحلات النشطة: {overview.journey_status_counts.get('active', 0)}",
         ]
+        if paid_count:
+            what_matters.append(f"مدفوعات محصّلة: {int(paid_count)} عملية")
         why = [
-            "لا مصدر مالي معتمد — Financial Pulse يعرض NOT_AVAILABLE/ BLOCKED",
+            "Financial Pulse يعرض مدفوعات Stripe المحصّلة — الرصيد البنكي يتطلب تسوية",
             "Command Center read model فقط — لا سلطة تجارية جديدة",
         ]
         recommendations = [
@@ -492,8 +589,15 @@ class OperationsDashboardService:
             ],
         )
 
-    def _financial_pulse(self, sr_status: dict[str, int]) -> list[MetricValue]:
+    def _financial_pulse(
+        self,
+        sr_status: dict[str, int],
+        payment_summary: dict[str, float | int],
+    ) -> list[MetricValue]:
         qualified = sr_status.get("qualified", 0)
+        paid_count = int(payment_summary["count"])
+        paid_total = float(payment_summary["total"])
+        paid_total_display = f"{paid_total:,.2f} SAR" if paid_count else None
         return [
             MetricValue(
                 metric_id="cash_balance",
@@ -501,14 +605,40 @@ class OperationsDashboardService:
                 value=None,
                 truth_state="NOT_AVAILABLE",
                 source="payment_authority",
-                context="لا يوجد مصدر مالي معتمد بعد",
+                context="تسوية بنكية / Stripe payouts — غير متصل بعد",
+            ),
+            MetricValue(
+                metric_id="payments_collected_total",
+                label_ar="مدفوعات محصّلة",
+                value=paid_total_display,
+                truth_state="LIVE" if paid_count else "NOT_AVAILABLE",
+                source="stripe_payments",
+                context=f"{paid_count} عملية دفع مكتملة" if paid_count else "لا مدفوعات بعد",
+            ),
+            MetricValue(
+                metric_id="payments_collected_count",
+                label_ar="عدد المدفوعات",
+                value=paid_count if paid_count else None,
+                truth_state="LIVE" if paid_count else "NOT_AVAILABLE",
+                source="stripe_payments",
+                context=f"معلّقة: {payment_summary['pending']} · فاشلة: {payment_summary['failed']}"
+                if payment_summary.get("pending") or payment_summary.get("failed")
+                else None,
+            ),
+            MetricValue(
+                metric_id="payments_pending_count",
+                label_ar="مدفوعات معلّقة",
+                value=int(payment_summary["pending"]) if payment_summary.get("pending") else None,
+                truth_state="LIVE" if payment_summary.get("pending") else "NOT_AVAILABLE",
+                source="stripe_payments",
             ),
             MetricValue(
                 metric_id="revenue",
-                label_ar="الإيرادات",
+                label_ar="الإيرادات المعترف بها",
                 value=None,
                 truth_state="NOT_AVAILABLE",
                 source="commercial_authority",
+                context="سياسة الاعتراف بالإيراد — خارج نطاق M1",
             ),
             MetricValue(
                 metric_id="quote_pipeline",
@@ -528,7 +658,20 @@ class OperationsDashboardService:
             ),
         ]
 
-    def _commercial_readiness(self) -> list[CommercialReadinessItem]:
+    def _commercial_readiness(self, payment_summary: dict[str, float | int]) -> list[CommercialReadinessItem]:
+        stripe_live = is_stripe_configured()
+        webhook_ready = is_stripe_webhook_configured()
+        checkout_ready = is_checkout_ready()
+
+        if not stripe_live:
+            payment_blocker = "STRIPE_SECRET_KEY غير مُعدّ"
+        elif not webhook_ready:
+            payment_blocker = "STRIPE_WEBHOOK_SECRET غير مُعدّ — الدفع قد لا يُؤكَّد تلقائياً"
+        elif payment_summary["count"]:
+            payment_blocker = None
+        else:
+            payment_blocker = "جاهز — بانتظار أول دفعة"
+
         return [
             CommercialReadinessItem(
                 item_id="quote",
@@ -545,8 +688,8 @@ class OperationsDashboardService:
             CommercialReadinessItem(
                 item_id="payment",
                 label_ar="المدفوعات",
-                status="NOT_YET_OPERATIONAL",
-                blocker="BLOCKED_BUSINESS_DECISION",
+                status="LIVE" if checkout_ready else ("NOT_YET_OPERATIONAL" if not stripe_live else "PARTIAL"),
+                blocker=payment_blocker,
             ),
             CommercialReadinessItem(
                 item_id="operational_project",
@@ -667,6 +810,8 @@ class OperationsDashboardService:
 
         overview = await self.get_overview()
         kpi = next((k for k in overview.executive_kpis if k.metric_id == metric_id), None)
+        if kpi is None:
+            kpi = next((k for k in overview.financial_pulse if k.metric_id == metric_id), None)
         truth_state = kpi.truth_state if kpi else "UNKNOWN"
         limitations: list[str] = []
         if truth_state in {"NOT_AVAILABLE", "BLOCKED", "NOT_YET_OPERATIONAL"}:
@@ -675,8 +820,16 @@ class OperationsDashboardService:
         contributing_record_count = None
         data_quality = None
         if kpi is not None and kpi.value is not None and truth_state == "LIVE":
-            contributing_record_count = int(kpi.value)
-            data_quality = "AUTHORITATIVE_COUNT"
+            if isinstance(kpi.value, (int, float)) or (
+                isinstance(kpi.value, str) and kpi.value.replace(",", "").replace(".", "", 1).isdigit()
+            ):
+                try:
+                    contributing_record_count = int(float(str(kpi.value).replace(",", "").split()[0]))
+                except ValueError:
+                    contributing_record_count = None
+            else:
+                contributing_record_count = None
+            data_quality = "AUTHORITATIVE_COUNT" if contributing_record_count is not None else "PARTIAL_OR_UNKNOWN"
         elif truth_state in {"NOT_AVAILABLE", "BLOCKED", "NOT_YET_OPERATIONAL"}:
             data_quality = "NOT_APPLICABLE"
         else:

@@ -26,6 +26,7 @@ from schemas.auth import (
     UserResponse,
 )
 from services.auth import AuthService
+from services.command_center_access import resolve_command_center_access
 from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/api/v1/auth", tags=["authentication"])
@@ -309,8 +310,14 @@ async def exchange_platform_token(
 
 
 @router.get("/me", response_model=UserResponse)
-async def get_current_user_info(current_user: UserResponse = Depends(get_current_user)):
-    """Get current user info."""
+async def get_current_user_info(
+    current_user: UserResponse = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get current user info including command center access when authorized."""
+    access = await resolve_command_center_access(db, current_user)
+    if access is not None:
+        current_user.command_center = access
     return current_user
 
 

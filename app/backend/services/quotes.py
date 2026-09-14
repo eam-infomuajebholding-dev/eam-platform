@@ -11,10 +11,12 @@ from sqlalchemy.orm import selectinload
 
 from models.quotes import (
     QUOTE_ACTIVE_STATUSES,
+    QUOTE_CUSTOMER_VISIBLE_STATUSES,
     QUOTE_STATUS_APPROVED,
     QUOTE_STATUS_CANCELLED,
     QUOTE_STATUS_DRAFT,
     QUOTE_STATUS_ISSUED,
+    QUOTE_STATUS_PAID,
     QUOTE_STATUS_PENDING_APPROVAL,
     QUOTE_VALIDITY_DAYS,
     VAT_RATE,
@@ -286,12 +288,27 @@ class QuoteService:
         *,
         user_id: str,
     ) -> Quote | None:
-        sr = await self._get_service_request(service_request_id)
-        if sr.user_id != user_id:
+        result = await self.db.execute(
+            select(ServiceRequest).where(ServiceRequest.id == service_request_id)
+        )
+        sr = result.scalar_one_or_none()
+        if sr is None or sr.user_id != user_id:
             return None
         quote = await self.get_by_service_request_id(service_request_id)
-        if quote is None or quote.status != QUOTE_STATUS_ISSUED:
+        if quote is None or quote.status not in QUOTE_CUSTOMER_VISIBLE_STATUSES:
             return None
+        return quote
+
+    async def mark_paid(self, quote_id: int) -> Quote:
+        quote = await self.get_by_id(quote_id)
+        if quote is None:
+            raise QuoteValidationError("Quote not found")
+        if quote.status != QUOTE_STATUS_ISSUED:
+            raise QuoteTransitionError("Only issued quotes can be marked as paid")
+
+        quote.status = QUOTE_STATUS_PAID
+        quote.updated_at = datetime.now(timezone.utc)
+        await self.db.flush()
         return quote
 
     def to_detail(self, quote: Quote) -> dict:

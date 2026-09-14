@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from copy import deepcopy
 from datetime import datetime, timezone
+from decimal import Decimal
 from typing import Any
 
 from sqlalchemy import select
@@ -205,6 +206,8 @@ class ServiceRequestService:
             return "تم استلام الطلب"
         if metadata.get("event") == "customer_response":
             return "تم استلام المعلومات"
+        if metadata.get("event") == "payment_received":
+            return "تم استلام الدفع"
         if transition.from_status != transition.to_status:
             return CUSTOMER_STATUS_TRANSITION_LABELS.get(
                 (transition.from_status, transition.to_status),
@@ -221,7 +224,7 @@ class ServiceRequestService:
         if transition.from_status != transition.to_status:
             return False
         metadata = transition.metadata_json or {}
-        if metadata.get("event") in {"received", "customer_response"}:
+        if metadata.get("event") in {"received", "customer_response", "payment_received"}:
             return False
         return bool(transition.internal_note or transition.reason)
 
@@ -363,6 +366,49 @@ class ServiceRequestService:
             actor_role="customer",
             customer_message=message.strip(),
             metadata_json={"event": "customer_response"},
+            created_at=now,
+        )
+        self.db.add(transition)
+        request.updated_at = now
+        await self.db.flush()
+        return transition
+
+    async def record_payment_received(
+        self,
+        request_id: int,
+        *,
+        user_id: str,
+        payment_id: int,
+        amount: Decimal,
+        currency: str,
+        quote_reference: str,
+    ) -> ServiceRequestStatusTransition:
+        request = await self.get_by_id(request_id)
+        if not request:
+            raise ServiceRequestValidationError("Service request not found")
+
+        transitions = await self.list_transitions(request_id)
+        for row in transitions:
+            metadata = row.metadata_json or {}
+            if metadata.get("event") == "payment_received" and metadata.get("payment_id") == payment_id:
+                return row
+
+        now = datetime.now(timezone.utc)
+        customer_message = f"تم استلام دفعتك — {quote_reference} · {amount} {currency}"
+        transition = ServiceRequestStatusTransition(
+            service_request_id=request.id,
+            from_status=request.status,
+            to_status=request.status,
+            actor_user_id=user_id,
+            actor_role="customer",
+            customer_message=customer_message,
+            metadata_json={
+                "event": "payment_received",
+                "payment_id": payment_id,
+                "amount": str(amount),
+                "currency": currency,
+                "quote_reference": quote_reference,
+            },
             created_at=now,
         )
         self.db.add(transition)

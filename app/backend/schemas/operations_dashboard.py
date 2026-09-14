@@ -118,6 +118,15 @@ class ChangeItem(BaseModel):
     evidence: str | None = None
 
 
+class PlatformTrendPoint(BaseModel):
+    """Weekly operational volume — authoritative counts from created_at."""
+
+    period_start: datetime
+    period_label: str
+    service_requests: int = 0
+    qualified_requests: int = 0
+
+
 class RiskItem(BaseModel):
     risk_id: str
     title_ar: str
@@ -230,3 +239,4 @@ class CommandCenterOverviewResponse(BaseModel):
     risk_items: list[RiskItem] = Field(default_factory=list)
     control_assurance: list[ControlAssuranceItem] = Field(default_factory=list)
     commercial_funnel: list[CommercialFunnelStage] = Field(default_factory=list)
+    platform_trends: list[PlatformTrendPoint] = Field(default_factory=list)

@@ -1,7 +1,14 @@
 from datetime import datetime
-from typing import Optional
+from typing import Literal, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+
+class CommandCenterAccessInfo(BaseModel):
+    role: Literal["owner", "delegate"]
+    permissions: list[str] = Field(default_factory=list)
+    delegation_id: Optional[int] = None
+    expires_at: Optional[datetime] = None
 
 
 class UserResponse(BaseModel):
@@ -10,6 +17,7 @@ class UserResponse(BaseModel):
     name: Optional[str] = None
     role: str = "user"  # user/admin
     last_login: Optional[datetime] = None
+    command_center: Optional[CommandCenterAccessInfo] = None
 
     class Config:
         from_attributes = True

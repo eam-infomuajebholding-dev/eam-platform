@@ -6,7 +6,10 @@ from typing import Optional
 from core.auth import AccessTokenError, decode_access_token
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from schemas.auth import UserResponse
+from core.database import get_db
+from schemas.auth import CommandCenterAccessInfo, UserResponse
+from services.command_center_access import resolve_command_center_access, user_has_command_center_permission
+from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
 
@@ -66,3 +69,55 @@ async def get_admin_user(current_user: UserResponse = Depends(get_current_user))
 async def get_owner_user(current_user: UserResponse = Depends(get_admin_user)) -> UserResponse:
     """V1 owner authority — maps platform admin to OWNER until dedicated owner role exists."""
     return current_user
+
+
+async def get_command_center_access(
+    current_user: UserResponse = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> CommandCenterAccessInfo:
+    """Resolve command center access for owner or active delegate."""
+    access = await resolve_command_center_access(db, current_user)
+    if access is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Command center access required",
+        )
+    return access
+
+
+async def get_command_center_user(
+    current_user: UserResponse = Depends(get_current_user),
+    access: CommandCenterAccessInfo = Depends(get_command_center_access),
+) -> UserResponse:
+    """Authenticated user with verified command center access."""
+    current_user.command_center = access
+    return current_user
+
+
+async def get_command_center_owner(
+    current_user: UserResponse = Depends(get_current_user),
+    access: CommandCenterAccessInfo = Depends(get_command_center_access),
+) -> UserResponse:
+    """Owner-only operations such as delegation management."""
+    if access.role != "owner":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Owner access required",
+        )
+    return current_user
+
+
+def require_command_center_permission(permission: str):
+    """Factory for endpoint-level delegate permission checks."""
+
+    async def _dependency(
+        access: CommandCenterAccessInfo = Depends(get_command_center_access),
+    ) -> CommandCenterAccessInfo:
+        if not user_has_command_center_permission(access, permission):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Command center permission required: {permission}",
+            )
+        return access
+
+    return _dependency
