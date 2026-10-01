@@ -45,7 +45,7 @@ Each item appears once. Supersedes duplicate entries in phase archives.
 | M1 full acceptance | PARTIAL |
 | USER_VISUAL_ACCEPTANCE | APPROVED_BY_USER (light homepage, 2026-09-12) |
 | CI config | DONE_VERIFIED |
-| CI runtime | VERIFIED @ 7a62c4f; **current HEAD needs re-run** after WO-021 ci.yml change |
+| CI runtime | READY — push `5df813f+` triggers workflow (readiness + alembic head + E2E migrate) |
 | E2E auth determinism | DONE (`docs/engineering/E2E_TEST_AUTH.md`) |
 | Backup/restore | NOT_CONFIGURED (`docs/engineering/BACKUP_RESTORE_READINESS.md`) |
 | OIDC | BLOCKED_EXTERNAL — `OIDC_CLIENT_SECRET` absent |

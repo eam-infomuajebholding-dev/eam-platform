@@ -100,3 +100,7 @@ pnpm exec playwright test   # optional
 ```
 
 CI: push branch and confirm pipeline green.
+
+## 8. Dev backup (optional)
+
+`docs/operations/BACKUP_SQLITE_DEV.md`

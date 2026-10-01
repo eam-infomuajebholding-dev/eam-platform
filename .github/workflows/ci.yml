@@ -32,6 +32,13 @@ jobs:
           JWT_ALGORITHM: HS256
           DATABASE_URL: sqlite:///./ci_test.db
         run: python -m pytest -q
+      - name: Platform readiness (core)
+        env:
+          JWT_SECRET_KEY: ci-test-jwt-secret
+          JWT_EXPIRE_MINUTES: '60'
+          JWT_ALGORITHM: HS256
+          DATABASE_URL: sqlite:///./ci_test.db
+        run: python scripts/verify_platform_readiness.py
 
   alembic-single-head:
     name: alembic-single-head
@@ -54,6 +61,11 @@ jobs:
           if [ "$heads" != "1" ]; then
             echo "Expected 1 Alembic head, found $heads"
             alembic heads
+            exit 1
+          fi
+          head_id=$(alembic heads | awk '{print $1}')
+          if [ "$head_id" != "c0d1e2f4a5b6" ]; then
+            echo "Unexpected head: $head_id (expected c0d1e2f4a5b6)"
             exit 1
           fi
 
@@ -139,6 +151,7 @@ jobs:
           ENVIRONMENT: dev
         run: |
           cd ../backend
+          python -m alembic upgrade head
           python -m uvicorn main:app --host 127.0.0.1 --port 8000 &
           BACKEND_PID=$!
           cd ../frontend
@@ -148,5 +161,5 @@ jobs:
             curl -sf http://127.0.0.1:8000/health >/dev/null && curl -sf http://127.0.0.1:3000 >/dev/null && break
             sleep 2
           done
-          pnpm exec playwright test e2e/homepage-geometry.spec.ts e2e/m1-auth-smoke.spec.ts e2e/sector-registry.spec.ts e2e/query-cache-keys.spec.ts e2e/command-center.spec.ts e2e/command-center-visual.spec.ts
+          pnpm exec playwright test e2e/homepage-geometry.spec.ts e2e/m1-auth-smoke.spec.ts e2e/sector-registry.spec.ts e2e/query-cache-keys.spec.ts e2e/command-center.spec.ts e2e/command-center-visual.spec.ts e2e/platform-readiness.spec.ts
           kill $BACKEND_PID $FRONTEND_PID || true
