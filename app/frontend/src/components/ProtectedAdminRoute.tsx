@@ -22,8 +22,15 @@ const ProtectedAdminRoute: React.FC<ProtectedAdminRouteProps> = ({ children }) =
   }
 
   if (!user) {
-    saveAuthReturnTo(`${location.pathname}${location.search}`);
-    return <Navigate to="/" replace state={{ from: `${location.pathname}${location.search}` }} />;
+    const returnTo = `${location.pathname}${location.search}`;
+    saveAuthReturnTo(returnTo);
+    return (
+      <Navigate
+        to={`/login?returnTo=${encodeURIComponent(returnTo)}`}
+        replace
+        state={{ from: returnTo }}
+      />
+    );
   }
 
   if (!isAdmin) {

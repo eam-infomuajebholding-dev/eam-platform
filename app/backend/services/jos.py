@@ -7,7 +7,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models.journey_definitions import JourneyDefinition
 from models.journey_events import JourneyEvent
 from models.journey_instances import JourneyInstance
-from services.build_villa_schema import BUILD_VILLA_STEP_ORDER, REVISIT_BLOCKED_FROM
+from services.build_villa_schema import BRIEF_REVIEW_STEP as BV_BRIEF_REVIEW_STEP
+from services.journey_revisit import (
+    invalidate_context_for_revisit,
+    revisit_blocked_step_keys,
+)
+from services.jos_validators import workflow_step_order
 from services.build_villa_validators import (
     FieldValidationError,
     assemble_intake_draft as assemble_build_villa_intake_draft,
@@ -65,8 +70,10 @@ from services.real_estate_marketing_validators import (
 from services.building_materials_validators import (
     BUILDING_MATERIALS_JOURNEY_TYPE,
     assemble_building_materials_intake_draft,
-    assemble_procurement_readiness_brief,
+    assemble_procurement_invoice,
+    create_phone_otp_challenge,
     validate_building_materials_step,
+    validate_phone_otp,
 )
 from services.equipment_validators import (
     EQUIPMENT_JOURNEY_TYPE,
@@ -198,7 +205,13 @@ class JosService:
 
         workflow = validate_workflow_definition(definition.workflow_definition)
         initial_step = workflow["initial_step"]
-        context = dict(initial_context or {})
+        from services.partner_attribution import enrich_journey_initial_context
+
+        context = await enrich_journey_initial_context(
+            self.db,
+            journey_type=journey_type,
+            initial_context=initial_context,
+        )
         context[PINNED_WORKFLOW_CONTEXT_KEY] = definition.workflow_definition
 
         instance = JourneyInstance(
@@ -402,7 +415,14 @@ class JosService:
                 raise
         elif instance.journey_type == BUILDING_MATERIALS_JOURNEY_TYPE:
             try:
-                validated_input = validate_building_materials_step(from_step, validated_input)
+                if from_step == "phone_verification":
+                    otp_payload = validate_building_materials_step(from_step, validated_input)
+                    validated_input = validate_phone_otp(
+                        dict(instance.context or {}),
+                        str(otp_payload.get("otp_code", "")),
+                    )
+                else:
+                    validated_input = validate_building_materials_step(from_step, validated_input)
             except FieldValidationError as exc:
                 await self._record_event(
                     instance.id,
@@ -579,13 +599,20 @@ class JosService:
 
         if (
             instance.journey_type == BUILDING_MATERIALS_JOURNEY_TYPE
-            and next_step == "procurement_readiness_brief"
+            and from_step == "requester_identity"
+            and next_step == "phone_verification"
         ):
-            merged_context["preliminary_brief"] = assemble_procurement_readiness_brief(merged_context)
+            merged_context.update(create_phone_otp_challenge(str(merged_context.get("requester_phone", ""))))
 
         if (
             instance.journey_type == BUILDING_MATERIALS_JOURNEY_TYPE
-            and next_step == VALUATION_INTAKE_COMPLETE_STEP
+            and next_step == "procurement_invoice"
+        ):
+            merged_context["procurement_invoice"] = assemble_procurement_invoice(merged_context)
+
+        if (
+            instance.journey_type == BUILDING_MATERIALS_JOURNEY_TYPE
+            and next_step == INTAKE_COMPLETE_STEP
         ):
             merged_context["intake_draft"] = assemble_building_materials_intake_draft(merged_context)
             merged_context["draft_status"] = "ready_for_handoff"
@@ -881,19 +908,19 @@ class JosService:
 
         if (
             instance.journey_type == BUILDING_MATERIALS_JOURNEY_TYPE
-            and next_step == "procurement_readiness_brief"
+            and next_step == "procurement_invoice"
         ):
             await self._record_event(
                 instance.id,
-                event_type="preliminary_brief_generated",
+                event_type="procurement_invoice_generated",
                 from_step=from_step,
                 to_step=next_step,
-                payload={"preliminary_brief": merged_context.get("preliminary_brief")},
+                payload={"procurement_invoice": merged_context.get("procurement_invoice")},
             )
 
         if (
             instance.journey_type == BUILDING_MATERIALS_JOURNEY_TYPE
-            and next_step == VALUATION_INTAKE_COMPLETE_STEP
+            and next_step == INTAKE_COMPLETE_STEP
         ):
             await self._record_event(
                 instance.id,
@@ -944,29 +971,39 @@ class JosService:
             anonymous_session_id=anonymous_session_id,
             user_id=user_id,
         )
-        if instance.journey_type != BUILD_VILLA_JOURNEY_TYPE:
-            raise JosStateError("Step revisit is supported for build_villa only")
         if instance.status != self.ACTIVE:
             raise JosStateError("Only active journeys can revisit a step")
-        if target_step_key in REVISIT_BLOCKED_FROM:
+
+        definition = await self._get_definition(instance.journey_definition_id)
+        workflow = self._workflow_for_instance(instance, definition)
+        order = workflow_step_order(workflow)
+        blocked = revisit_blocked_step_keys(workflow)
+
+        if target_step_key in blocked:
             raise JosStateError(f"Step '{target_step_key}' cannot be revisited")
-        if target_step_key not in BUILD_VILLA_STEP_ORDER:
+        if target_step_key not in order:
             raise JosStateError(f"Unknown revisit target step '{target_step_key}'")
 
         current_step = instance.current_step_key
-        if current_step not in BUILD_VILLA_STEP_ORDER:
+        if current_step not in order:
             raise JosStateError(f"Current step '{current_step}' is not revisitable")
 
-        target_index = BUILD_VILLA_STEP_ORDER.index(target_step_key)
-        current_index = BUILD_VILLA_STEP_ORDER.index(current_step)
+        target_index = order.index(target_step_key)
+        current_index = order.index(current_step)
         if target_index >= current_index:
             raise JosStateError("Revisit target must be before the current step")
 
-        context = dict(instance.context or {})
-        brief_index = BUILD_VILLA_STEP_ORDER.index(EC_BRIEF_REVIEW_STEP)
-        if target_index < brief_index:
-            for key in ("preliminary_brief", "intake_draft", "draft_status", "scope_confirmed", "submit_confirmed"):
-                context.pop(key, None)
+        context = invalidate_context_for_revisit(
+            dict(instance.context or {}),
+            order=order,
+            target_index=target_index,
+        )
+        # Preserve build_villa brief invalidation semantics (same threshold as brief_review).
+        if instance.journey_type == BUILD_VILLA_JOURNEY_TYPE and BV_BRIEF_REVIEW_STEP in order:
+            brief_index = order.index(BV_BRIEF_REVIEW_STEP)
+            if target_index < brief_index:
+                for key in ("preliminary_brief", "intake_draft", "draft_status", "scope_confirmed", "submit_confirmed"):
+                    context.pop(key, None)
 
         instance.context = context
         instance.current_step_key = target_step_key

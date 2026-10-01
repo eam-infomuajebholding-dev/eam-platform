@@ -6,7 +6,13 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from core.database import Base
-from services.equipment_validators import EQUIPMENT_JOURNEY_TYPE, assemble_equipment_readiness_brief
+import models.procurement_orders  # noqa: F401
+from services.equipment_validators import (
+    EQUIPMENT_JOURNEY_TYPE,
+    assemble_equipment_procurement_invoice,
+    assemble_equipment_readiness_brief,
+)
+from services.procurement_orders import ProcurementOrderService
 from services.jos import JosDuplicateActiveJourneyError, JosService
 from services.jos_seed import EQUIPMENT_WORKFLOW, upsert_journey_definition
 from services.service_requests import ServiceRequestService
@@ -84,6 +90,25 @@ async def test_equipment_full_path_creates_service_request(db_session: AsyncSess
     assert sr.reference_code.startswith("EQ-")
     assert sr.intake_snapshot.get("journey_type") == EQUIPMENT_JOURNEY_TYPE
     assert sr.intake_snapshot.get("preliminary_brief", {}).get("status") == "PRELIMINARY"
+    assert sr.intake_snapshot.get("procurement_invoice", {}).get("status") == "PROVISIONAL"
+    po = await ProcurementOrderService(db_session).get_by_service_request_id(sr.id)
+    assert po is not None
+    assert po.journey_type == EQUIPMENT_JOURNEY_TYPE
+
+
+def test_equipment_procurement_invoice_provisional():
+    invoice = assemble_equipment_procurement_invoice(
+        {
+            "equipment_need": "rental",
+            "equipment_category": "lifting",
+            "usage_context": "رافعة برجية للموقع",
+            "location": "الدمام",
+            "engagement_type": "rent",
+        }
+    )
+    assert invoice["status"] == "PROVISIONAL"
+    assert invoice["delivery_location"] == "الدمام"
+    assert invoice["line_items"][0]["description"]
 
 
 @pytest.mark.asyncio

@@ -18,6 +18,7 @@ import {
   PROJECT_STAGE_OPTIONS,
   SPACE_TYPE_OPTIONS,
   STEP_LABELS,
+  STEP_ORDER,
   STYLE_DIRECTION_OPTIONS,
 } from './constants';
 import { type FurnishingStepValues } from './errors';
@@ -37,6 +38,7 @@ export default function FurnishingStepPanel({
   isCompleted,
   onAdvance,
   onComplete,
+  onRevisit,
   completedMessage,
   sectorId,
 }: Props) {
@@ -175,8 +177,10 @@ export default function FurnishingStepPanel({
       isTerminal={isTerminal}
       isCompleted={isCompleted}
       completedMessage={completedMessage}
+      stepOrder={STEP_ORDER}
       onAdvance={onAdvance}
       onComplete={onComplete}
+      onRevisit={onRevisit}
     >
       {renderFields()}
     </JourneyStepPanelShell>

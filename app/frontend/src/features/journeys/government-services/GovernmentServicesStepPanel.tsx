@@ -16,6 +16,7 @@ import {
   PROPERTY_TYPE_OPTIONS,
   SERVICE_CATEGORY_OPTIONS,
   STEP_LABELS,
+  STEP_ORDER,
 } from './constants';
 import { type GovernmentServicesStepValues } from './errors';
 import type { GovernmentServicesContext } from './types';
@@ -34,6 +35,7 @@ export default function GovernmentServicesStepPanel({
   isCompleted,
   onAdvance,
   onComplete,
+  onRevisit,
   completedMessage,
   sectorId,
 }: Props) {
@@ -130,8 +132,10 @@ export default function GovernmentServicesStepPanel({
       isTerminal={isTerminal}
       isCompleted={isCompleted}
       completedMessage={completedMessage}
+      stepOrder={STEP_ORDER}
       onAdvance={onAdvance}
       onComplete={onComplete}
+      onRevisit={onRevisit}
     >
       {renderFields()}
     </JourneyStepPanelShell>

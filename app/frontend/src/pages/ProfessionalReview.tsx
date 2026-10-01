@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Layout from '@/components/Layout';
 import { Loader2 } from 'lucide-react';
@@ -14,6 +14,11 @@ import {
   startProfessionalReview,
 } from '@/features/operations/api/operationsClient';
 import QuoteProposalPanel from '@/features/operations/components/QuoteProposalPanel';
+import OperationsFulfillmentPanel from '@/features/operations/components/OperationsFulfillmentPanel';
+import OperationsProcurementCard from '@/features/operations/components/OperationsProcurementCard';
+import OperationsShipmentTimeline from '@/features/operations/components/OperationsShipmentTimeline';
+import DeliveryLogisticsCard from '@/features/logistics/DeliveryLogisticsCard';
+import { listOperationsPartners } from '@/features/partners/api/partnersClient';
 import { JOURNEY_TYPE_LABELS, resolveOperationalStage } from '@/features/service-requests/operationalStages';
 
 const STATUS_LABELS: Record<string, string> = {
@@ -23,20 +28,49 @@ const STATUS_LABELS: Record<string, string> = {
   qualified: 'تم التأهيل',
 };
 
+const PARTNER_ASSIGNMENT_AR: Record<string, string> = {
+  pending_partner: 'بانتظار الشريك',
+  accepted: 'قبل الشريك',
+  declined: 'رفض الشريك',
+};
+
 export default function ProfessionalReviewPage() {
   const { t } = useLanguage();
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const requestId = id ? Number.parseInt(id, 10) : null;
   const queryClient = useQueryClient();
   const [customerMessage, setCustomerMessage] = useState('');
   const [internalNote, setInternalNote] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [journeyFilter, setJourneyFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState(() => searchParams.get('status') ?? '');
+  const [journeyFilter, setJourneyFilter] = useState(() => searchParams.get('journey_type') ?? '');
+  const [partnerFilter, setPartnerFilter] = useState('');
+  const [partnerAssignmentFilter, setPartnerAssignmentFilter] = useState(
+    () => searchParams.get('partner_assignment_status') ?? '',
+  );
+
+  const partnersQuery = useQuery({
+    queryKey: ['operations', 'partners'],
+    queryFn: listOperationsPartners,
+    enabled: !requestId,
+  });
 
   const listQuery = useQuery({
-    queryKey: ['operations', 'service-requests', statusFilter, journeyFilter],
+    queryKey: [
+      'operations',
+      'service-requests',
+      statusFilter,
+      journeyFilter,
+      partnerFilter,
+      partnerAssignmentFilter,
+    ],
     queryFn: () =>
-      listOperationsServiceRequests(statusFilter || undefined, journeyFilter || undefined),
+      listOperationsServiceRequests(
+        statusFilter || undefined,
+        journeyFilter || undefined,
+        partnerFilter ? Number.parseInt(partnerFilter, 10) : undefined,
+        partnerAssignmentFilter || undefined,
+      ),
     enabled: !requestId,
   });
 
@@ -124,6 +158,31 @@ export default function ProfessionalReviewPage() {
                   </button>
                 ))}
               </div>
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                <label className="text-sm text-ink-secondary">الشريك:</label>
+                <select
+                  value={partnerFilter}
+                  onChange={(e) => setPartnerFilter(e.target.value)}
+                  className="rounded-lg border border-soft-border px-2 py-1 text-sm min-w-[160px]"
+                >
+                  <option value="">كل الشركاء</option>
+                  {partnersQuery.data?.items.map((p) => (
+                    <option key={p.id} value={String(p.id)}>
+                      {p.display_name_ar}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={partnerAssignmentFilter}
+                  onChange={(e) => setPartnerAssignmentFilter(e.target.value)}
+                  className="rounded-lg border border-soft-border px-2 py-1 text-sm min-w-[160px]"
+                >
+                  <option value="">إسناد الشريك (الكل)</option>
+                  <option value="pending_partner">بانتظار الشريك</option>
+                  <option value="accepted">مقبول</option>
+                  <option value="declined">مرفوض</option>
+                </select>
+              </div>
               {listQuery.isLoading ? (
                 <div className="flex items-center gap-2 text-ink-secondary">
                   <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
@@ -160,8 +219,15 @@ export default function ProfessionalReviewPage() {
                   <p className="mt-1 text-sm text-ink-secondary">
                     {JOURNEY_TYPE_LABELS[item.journey_type] ?? item.journey_type}
                   </p>
+                  {item.partner_assignment_status && item.partner_assignment_status !== 'none' ? (
+                    <p className="mt-1 text-xs text-ink-muted">
+                      إسناد الشريك:{' '}
+                      {PARTNER_ASSIGNMENT_AR[item.partner_assignment_status] ?? item.partner_assignment_status}
+                    </p>
+                  ) : null}
                 </Link>
               ))}
+              <OperationsFulfillmentPanel />
             </div>
           ) : null}
 
@@ -198,11 +264,25 @@ export default function ProfessionalReviewPage() {
                 <p className="text-sm text-ink-secondary mt-1">
                   {resolveOperationalStage(detailQuery.data.status).description}
                 </p>
+                {detailQuery.data.partner_assignment_status &&
+                detailQuery.data.partner_assignment_status !== 'none' ? (
+                  <p className="text-sm mt-2">
+                    إسناد الشريك:{' '}
+                    {PARTNER_ASSIGNMENT_AR[detailQuery.data.partner_assignment_status] ??
+                      detailQuery.data.partner_assignment_status}
+                    {detailQuery.data.partner_org_id != null
+                      ? ` · org #${detailQuery.data.partner_org_id}`
+                      : null}
+                  </p>
+                ) : null}
               </div>
 
               <div>
                 <h3 className="font-bold mb-3">لقطة الاستلام الأولية (مجمدة)</h3>
-                <IntakeSnapshotSummary snapshot={detailQuery.data.intake_snapshot} />
+                <IntakeSnapshotSummary
+                  snapshot={detailQuery.data.intake_snapshot}
+                  view="operations"
+                />
               </div>
 
               <div className="rounded-xl border border-soft-border/80 dark:border-white/10 p-4 space-y-3">
@@ -258,6 +338,16 @@ export default function ProfessionalReviewPage() {
                   <QuoteProposalPanel serviceRequestId={detailQuery.data.id} />
                 </div>
               ) : null}
+
+              <OperationsProcurementCard serviceRequestId={detailQuery.data.id} />
+              {detailQuery.data.intake_snapshot?.delivery_logistics ? (
+                <DeliveryLogisticsCard
+                  logistics={detailQuery.data.intake_snapshot.delivery_logistics as Parameters<
+                    typeof DeliveryLogisticsCard
+                  >[0]['logistics']}
+                />
+              ) : null}
+              <OperationsShipmentTimeline serviceRequestId={detailQuery.data.id} />
 
               <div>
                 <h3 className="font-bold mb-3">سجل المراجعة</h3>

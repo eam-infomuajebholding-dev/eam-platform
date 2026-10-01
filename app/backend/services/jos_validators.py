@@ -72,6 +72,23 @@ def get_next_step_key(workflow: dict[str, Any], current_step_key: str) -> str | 
     return step.get("next")
 
 
+def workflow_step_order(workflow: dict[str, Any]) -> list[str]:
+    """Linear step order following initial_step → next links."""
+    order: list[str] = []
+    key: str | None = workflow.get("initial_step")
+    seen: set[str] = set()
+    while key:
+        if key in seen:
+            raise JourneyValidationError(f"Workflow step cycle detected at '{key}'")
+        seen.add(key)
+        order.append(key)
+        step = get_step_definition(workflow, key)
+        if step.get("terminal") is True:
+            break
+        key = step.get("next")
+    return order
+
+
 def validate_step_input(
     workflow: dict[str, Any],
     step_key: str,

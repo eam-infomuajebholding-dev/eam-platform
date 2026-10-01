@@ -21,6 +21,7 @@ import {
   SITE_READINESS_OPTIONS,
   STAGE_OPTIONS,
   STEP_LABELS,
+  STEP_ORDER,
 } from './constants';
 import { type ContractingStepValues } from './errors';
 import type { ContractingContext } from './types';
@@ -39,6 +40,7 @@ export default function ContractingStepPanel({
   isCompleted,
   onAdvance,
   onComplete,
+  onRevisit,
   completedMessage,
   sectorId,
 }: Props) {
@@ -224,8 +226,10 @@ export default function ContractingStepPanel({
       isTerminal={isTerminal}
       isCompleted={isCompleted}
       completedMessage={completedMessage}
+      stepOrder={STEP_ORDER}
       onAdvance={onAdvance}
       onComplete={onComplete}
+      onRevisit={onRevisit}
     >
       {renderFields()}
     </JourneyStepPanelShell>

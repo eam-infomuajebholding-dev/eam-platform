@@ -8,6 +8,7 @@ export { JOURNEY_SECTOR_CATALOG } from './journeyCatalog';
 export { default as JourneyPageScaffold } from './JourneyPageScaffold';
 export { default as SectorJourneyPage } from './SectorJourneyPage';
 export { default as JourneyStepPanelShell } from './JourneyStepPanelShell';
+export * from './journeyRevisit';
 export * from './JourneyStandardConfirmSteps';
 export * from './journeySharedOptions';
 export { createStepHelpers } from './stepUtils';

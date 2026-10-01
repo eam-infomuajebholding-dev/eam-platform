@@ -1,0 +1,46 @@
+name: Deploy to Oracle
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - 'deploy/**'
+      - '.github/workflows/deploy-oracle.yml'
+
+concurrency:
+  group: deploy-oracle
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: deploy-oracle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.ORACLE_HOST }}
+          username: ${{ secrets.ORACLE_SSH_USER || 'ubuntu' }}
+          key: ${{ secrets.ORACLE_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+            REPO_DIR="${ORACLE_REPO_DIR:-$HOME/eam-platform}"
+            if [[ ! -d "$REPO_DIR/.git" ]]; then
+              git clone https://github.com/eam-infomuajebholding-dev/eam-platform.git "$REPO_DIR"
+            fi
+            cd "$REPO_DIR"
+            git fetch origin
+            git checkout main 2>/dev/null || git checkout feature/frontend-wo001-hero || true
+            git pull --ff-only || git pull
+            if [[ ! -f app/.env ]]; then
+              cp app/.env.example app/.env
+            fi
+            if [[ ! -f deploy/.env ]]; then
+              cp deploy/.env.oracle.example deploy/.env
+            fi
+            bash deploy/deploy-eam.sh

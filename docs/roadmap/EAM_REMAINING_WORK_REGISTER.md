@@ -9,7 +9,7 @@ Each item appears once. Supersedes duplicate entries in phase archives.
 |---|--------|--------|
 | 01 | Real Estate Development | DONE_VERIFIED |
 | 02 | Real Estate Marketing | DONE_VERIFIED |
-| 03 | Investment | BLOCKED_UPSTREAM |
+| 03 | Investment | BLOCKED_UPSTREAM — **مستثنى بقرار منتج** (لا JOS حتى Opportunity BO) |
 | 04 | Build Villa | DONE_VERIFIED |
 | 05 | Valuation | DONE_VERIFIED |
 | 06 | Government Services | DONE_VERIFIED |
@@ -49,7 +49,15 @@ Each item appears once. Supersedes duplicate entries in phase archives.
 | E2E auth determinism | DONE (`docs/engineering/E2E_TEST_AUTH.md`) |
 | Backup/restore | NOT_CONFIGURED (`docs/engineering/BACKUP_RESTORE_READINESS.md`) |
 | OIDC | BLOCKED_EXTERNAL — `OIDC_CLIENT_SECRET` absent |
-| Alembic head alignment | DONE_VERIFIED (`t0u1v2w3x4y5`) |
+| Alembic head alignment | DONE_VERIFIED (`c0d1e2f4a5b6` — logistics shipments) |
+| Partner / PO / logistics ops UI | DONE_VERIFIED (fulfillment panel, SR filters, partner dispatch form) |
+| Customer PO + logistics cards | DONE_VERIFIED (`/my-requests` — PO + delivery snapshot) |
+| Command Center fulfillment attention | DONE_VERIFIED (pending partner, awaiting dispatch) |
+| Equipment (#11) provisional PO + fulfillment chain | DONE_VERIFIED |
+| Partner webhook delivery log (ops API + CC) | DONE_VERIFIED |
+| Fulfillment runbook | DONE (`docs/engineering/FULFILLMENT_RUNBOOK.md`) |
+| Go-live readiness API + checklist | DONE (`GET /api/v1/platform/readiness`, `docs/operations/GO_LIVE_CHECKLIST.md`) |
+| Docker migrate-on-start | DONE (`deploy/entrypoint.sh`) |
 | Git logical commits (WO-017/018/019) | DONE_VERIFIED |
 
 ## Command Center (JIT deferred)
@@ -59,7 +67,8 @@ Foundation (overview, pulse, search, decision inbox surfacing) → **DONE_VERIFI
 
 ## Engineering docs
 
-Developer onboarding, runbooks, engineer guides → **DONE** (`docs/engineering/`)
+Developer onboarding, runbooks, engineer guides → **DONE** (`docs/engineering/`)  
+Journeys status report → **DONE** (`docs/product/JOURNEYS_STATUS_REPORT.md`)
 
 ## Cleanup
 

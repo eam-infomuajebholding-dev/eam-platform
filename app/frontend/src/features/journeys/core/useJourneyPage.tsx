@@ -42,6 +42,9 @@ export interface UseJourneyPageConfig<TValues, TContext extends Record<string, u
   messages: JourneyPageMessages;
   shell: JourneyPageShellConfig;
   supportsRevisit?: boolean;
+  journeyInitialContext?: Record<string, unknown>;
+  partnerBanner?: { partnerName: string; outletLabel?: string | null } | null;
+  partnerLinkInvalid?: boolean;
 }
 
 function isResumable(instance: JourneyInstance): boolean {
@@ -77,6 +80,9 @@ export function useJourneyPage<TValues, TContext extends Record<string, unknown>
     messages,
     shell,
     supportsRevisit,
+    journeyInitialContext,
+    partnerBanner,
+    partnerLinkInvalid,
   } = config;
 
   const terminalStep = configuredTerminalStep ?? 'intake_complete';
@@ -135,7 +141,10 @@ export function useJourneyPage<TValues, TContext extends Record<string, unknown>
     setFormError(null);
     setFieldErrors([]);
     try {
-      await startJourney({ journey_type: journeyType });
+      await startJourney({
+        journey_type: journeyType,
+        ...(journeyInitialContext ? { initial_context: journeyInitialContext } : {}),
+      });
       setResumableInstance(null);
     } catch (error) {
       const existingId = extractExistingInstanceId(error);
@@ -152,7 +161,7 @@ export function useJourneyPage<TValues, TContext extends Record<string, unknown>
     } finally {
       setIsLoading(false);
     }
-  }, [getInstance, journeyType, messages.startError, startJourney]);
+  }, [getInstance, journeyInitialContext, journeyType, messages.startError, startJourney]);
 
   const handleResume = useCallback(async () => {
     if (!resumableInstance) {
@@ -299,6 +308,8 @@ export function useJourneyPage<TValues, TContext extends Record<string, unknown>
       progressVariant: shell.progressVariant ?? 'bar',
       isHydrating,
       footer,
+      partnerBanner: partnerBanner ?? null,
+      partnerLinkInvalid: partnerLinkInvalid ?? false,
     },
   };
 }

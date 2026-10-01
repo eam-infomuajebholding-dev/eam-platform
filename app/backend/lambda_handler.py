@@ -11,6 +11,7 @@ import traceback
 from typing import Any, Dict
 from urllib.parse import unquote
 
+from core.public_api_base import resolve_public_api_base_url
 from mangum import Mangum
 
 # Configure logging
@@ -418,7 +419,7 @@ def handle_config_request(headers: dict, query_params: dict) -> Dict[str, Any]:
     # Security: Only return frontend-required configuration
     # Define what frontend actually needs (based on code analysis)
     frontend_required_config = {
-        "API_BASE_URL": os.environ.get("VITE_API_BASE_URL", "http://127.0.0.1:8000")
+        "API_BASE_URL": resolve_public_api_base_url(headers)
         # Only add other configs if frontend actually uses them
         # DO NOT expose: VITE_FRONTEND_URL, secrets, internal URLs, etc.
     }

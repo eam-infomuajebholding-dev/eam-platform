@@ -18,6 +18,7 @@ import {
   OPERATIONAL_CHALLENGE_OPTIONS,
   SERVICE_MATURITY_OPTIONS,
   STEP_LABELS,
+  STEP_ORDER,
 } from './constants';
 import { type FacilityManagementStepValues } from './errors';
 import type { FacilityManagementContext } from './types';
@@ -36,6 +37,7 @@ export default function FacilityManagementStepPanel({
   isCompleted,
   onAdvance,
   onComplete,
+  onRevisit,
   completedMessage,
   sectorId,
 }: Props) {
@@ -155,8 +157,10 @@ export default function FacilityManagementStepPanel({
       isTerminal={isTerminal}
       isCompleted={isCompleted}
       completedMessage={completedMessage}
+      stepOrder={STEP_ORDER}
       onAdvance={onAdvance}
       onComplete={onComplete}
+      onRevisit={onRevisit}
     >
       {renderFields()}
     </JourneyStepPanelShell>

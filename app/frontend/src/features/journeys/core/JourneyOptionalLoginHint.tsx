@@ -19,8 +19,9 @@ export default function JourneyOptionalLoginHint() {
         type="button"
         className="text-gold underline"
         onClick={() => {
-          saveAuthReturnTo(`${location.pathname}${location.search}`);
-          void client.auth.toLogin();
+          const returnTo = `${location.pathname}${location.search}`;
+          saveAuthReturnTo(returnTo);
+          client.auth.toLogin(returnTo);
         }}
       >
         {t('auth.optionalLogin')}

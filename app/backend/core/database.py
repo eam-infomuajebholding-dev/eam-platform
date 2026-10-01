@@ -200,6 +200,16 @@ class DatabaseManager:
 
             try:
                 logger.info("🔧 Starting table creation...")
+                import importlib
+                import pkgutil
+
+                import models as models_pkg
+
+                for _finder, module_name, _is_pkg in pkgutil.iter_modules(models_pkg.__path__):
+                    if module_name.startswith("_"):
+                        continue
+                    importlib.import_module(f"{models_pkg.__name__}.{module_name}")
+
                 async with self.engine.begin() as conn:
                     await conn.run_sync(Base.metadata.create_all)
                     self._initialized = True

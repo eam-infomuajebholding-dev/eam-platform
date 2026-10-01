@@ -14,10 +14,16 @@ Statuses: IMPLEMENTED | PARTIAL | BLOCKED | PLANNED_JIT
 | Evidence Drawer V1 | IMPLEMENTED | evidence endpoints |
 | Executive AI rule-assisted | IMPLEMENTED | RULE_ASSISTED brief |
 | Executive AI live provider | PARTIAL | UNVERIFIED_ENV_DEPENDENT |
-| OIDC production auth | BLOCKED | BLOCKED_EXTERNAL |
+| Auth entry UX (login/register, PKCE, token hygiene) | IMPLEMENTED | `/login`, `/register`, `docs/engineering/AUTH_UX.md` |
+| OIDC production auth | PARTIAL | UX + config API ready; IdP/env BLOCKED_EXTERNAL for prod |
+| Delivery logistics layer | IMPLEMENTED | Shipments, partner + ops APIs, `LOGISTICS_LAYER.md` |
 | Contract / Payment | BLOCKED | BLOCKED_UPSTREAM |
 | OperationalProject | BLOCKED | BLOCKED_UPSTREAM |
 | Investment journey | BLOCKED | BLOCKED_UPSTREAM |
+| Platform architecture registry (16 sectors) | IMPLEMENTED | `GET /api/v1/platform/architecture` |
+| Partner platform B2B | IMPLEMENTED | Portal, API keys, webhooks (3× retry) — `docs/partners/PARTNER_PLATFORM.md` |
+| Journeys program (13 LIVE) | IMPLEMENTED | `docs/product/JOURNEYS_STATUS_REPORT.md` |
+| Procurement order (building materials + equipment) | IMPLEMENTED | `procurement_orders` + ops API |
 | Marketplace | PLANNED_JIT | NOT_YET_REQUIRED |
 | Evidence Drawer V2 | PLANNED_JIT | DEFERRED |
 | Watchlist / Decision Journal | PLANNED_JIT | DEFERRED |

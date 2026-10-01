@@ -19,3 +19,16 @@ async def test_runtime_config_returns_json():
     body = response.json()
     assert "API_BASE_URL" in body
     assert body["API_BASE_URL"].startswith("http")
+
+
+@pytest.mark.asyncio
+async def test_runtime_config_uses_request_host_when_env_unset(monkeypatch):
+    monkeypatch.delenv("VITE_API_BASE_URL", raising=False)
+    transport = ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.get(
+            "/api/config",
+            headers={"host": "eam.sa", "x-forwarded-proto": "https"},
+        )
+    assert response.status_code == 200
+    assert response.json()["API_BASE_URL"] == "https://eam.sa"

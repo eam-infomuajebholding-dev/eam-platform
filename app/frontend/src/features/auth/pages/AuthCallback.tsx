@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/features/auth/context/AuthContext';
 import { persistWebSdkToken, readCallbackToken } from '@/features/auth/api/auth';
 import { consumeAuthReturnTo } from '@/features/auth/utils/authReturnTo';
+import { stripTokenFromBrowserUrl } from '@/features/auth/utils/authTokenStorage';
 import PageMeta from '@/components/PageMeta';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -18,6 +19,7 @@ export default function AuthCallback() {
         navigate('/auth/error', { replace: true });
         return;
       }
+      stripTokenFromBrowserUrl();
 
       await refetch();
       const returnTo = consumeAuthReturnTo();

@@ -1,19 +1,19 @@
 export const BUILDING_MATERIALS_JOURNEY_TYPE = 'building_materials';
 
 export interface BuildingMaterialsContext {
-  procurement_goal?: string;
-  material_category?: string;
-  project_context?: string;
+  intake_channel?: string;
+  materials_list?: string;
+  materials_image_url?: string;
+  assistant_transcript?: string;
+  requester_name?: string;
+  requester_phone?: string;
+  requester_phone_normalized?: string;
+  phone_verified?: boolean;
   delivery_location?: string;
-  quantity_scope?: string;
-  specifications_context?: string;
-  target_timeline?: string;
-  urgency?: string;
-  budget_context?: string;
-  supplier_context?: string;
-  preliminary_brief?: Record<string, unknown>;
-  scope_confirmed?: boolean;
-  submit_confirmed?: boolean;
+  procurement_invoice?: Record<string, unknown>;
+  invoice_confirmed?: boolean;
+  buyer_liability_terms_accepted?: boolean;
+  buyer_liability_terms_version?: string;
 }
 
 export interface FieldValidationErrorDetail {

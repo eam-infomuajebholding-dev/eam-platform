@@ -14,7 +14,8 @@ JIT policy: do not prebuild BOs without lifecycle/reuse evidence.
 | Quote | IMPLEMENTED | Commercial lifecycle | WO-018 draft→issued | `docs/wo018/WO018_MIGRATION_REPORT.md` |
 | Contract | BLOCKED | Post-quote | Upstream | — |
 | OperationalProject | BLOCKED | Delivery/Owner, PM execution | Distinct from CMS Project | — |
-| Order | NOT_YET_REQUIRED | Marketplace future | — | — |
+| ProcurementOrder (أمر شراء) | IMPLEMENTED | Building materials SR | Invoice v2 + partner fulfillment | `services/procurement_orders.py` |
+| Order (generic marketplace) | NOT_YET_REQUIRED | Marketplace future | — | — |
 | Payment | BLOCKED | Commercial | Provider + tax decisions | — |
 | Asset | TRIGGER_EMERGING | Smart Maintenance | Facility/asset naming in snapshots | **Defer** — audit semantic duplication first |
 | Facility | TRIGGER_EMERGING | Facility Management | Same | **Defer** |

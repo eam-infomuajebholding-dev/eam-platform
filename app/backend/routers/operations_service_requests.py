@@ -21,6 +21,7 @@ from services.service_requests import (
     SERVICE_REQUEST_STATUS_QUALIFIED,
     SERVICE_REQUEST_STATUS_SUBMITTED,
     SERVICE_REQUEST_STATUS_UNDER_REVIEW,
+    SUPPORTED_JOURNEY_TYPES,
     ServiceRequestService,
     ServiceRequestTransitionError,
     ServiceRequestValidationError,
@@ -44,6 +45,8 @@ def _map_validation_error(exc: Exception) -> HTTPException:
 async def list_operations_service_requests(
     status: str | None = None,
     journey_type: str | None = None,
+    partner_org_id: int | None = None,
+    partner_assignment_status: str | None = None,
     db: AsyncSession = Depends(get_db),
     _: UserResponse = Depends(get_admin_user),
 ):
@@ -68,17 +71,14 @@ async def list_operations_service_requests(
                 SERVICE_REQUEST_STATUS_QUALIFIED,
             }
         )
-    if journey_type and journey_type not in {
-        "build_villa",
-        "engineering_consulting",
-        "contracting",
-        "real_estate_valuation",
-        "smart_maintenance",
-        "project_management",
-        "furnishing",
-    }:
+    if journey_type and journey_type not in SUPPORTED_JOURNEY_TYPES:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid journey_type filter")
-    items = await service.list_for_operations(statuses=status_filter, journey_type=journey_type)
+    items = await service.list_for_operations(
+        statuses=status_filter,
+        journey_type=journey_type,
+        partner_org_id=partner_org_id,
+        partner_assignment_status=partner_assignment_status,
+    )
     return OperationsServiceRequestListResponse(
         items=[OperationsServiceRequestSummary.model_validate(item) for item in items]
     )

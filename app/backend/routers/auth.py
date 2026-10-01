@@ -12,6 +12,7 @@ from core.auth import (
     generate_code_verifier,
     generate_nonce,
     generate_state,
+    oidc_signup_extra_params,
     validate_id_token,
 )
 from core.config import settings
@@ -21,6 +22,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
 from models.auth import User
 from schemas.auth import (
+    AuthConfigResponse,
     PlatformTokenExchangeRequest,
     TokenExchangeResponse,
     UserResponse,
@@ -41,6 +43,14 @@ def _local_patch(url: str) -> str:
     patched_url = url.replace("https://", "http://").replace(":8000", ":3000")
     logger.debug("[get_dynamic_backend_url] patching URL from %s to %s", url, patched_url)
     return patched_url
+
+
+def get_frontend_base_url(request: Request) -> str:
+    """SPA origin for post-auth redirects (FRONTEND_URL in prod, LOCAL_PATCH host in dev)."""
+    frontend = os.environ.get("FRONTEND_URL", "").strip().rstrip("/")
+    if frontend:
+        return frontend
+    return get_dynamic_backend_url(request)
 
 
 def get_dynamic_backend_url(request: Request) -> str:
@@ -74,29 +84,80 @@ def derive_name_from_email(email: str) -> str:
     return email.split("@", 1)[0] if email else ""
 
 
-@router.get("/login")
-async def login(request: Request, db: AsyncSession = Depends(get_db)):
-    """Start OIDC login flow with PKCE."""
+def _oidc_is_configured() -> bool:
+    return bool(
+        os.environ.get("OIDC_ISSUER_URL")
+        and os.environ.get("OIDC_CLIENT_ID")
+        and os.environ.get("OIDC_CLIENT_SECRET")
+    )
+
+
+async def _start_oidc_flow(
+    request: Request,
+    db: AsyncSession,
+    *,
+    signup: bool = False,
+) -> RedirectResponse:
+    if not _oidc_is_configured():
+        frontend = get_frontend_base_url(request)
+        return RedirectResponse(
+            url=f"{frontend}/auth/error?{urlencode({'msg': 'Identity provider is not configured'})}",
+            status_code=status.HTTP_302_FOUND,
+        )
+
     state = generate_state()
     nonce = generate_nonce()
     code_verifier = generate_code_verifier()
     code_challenge = generate_code_challenge(code_verifier)
 
-    # Store state, nonce, and code verifier in database
     auth_service = AuthService(db)
     await auth_service.store_oidc_state(state, nonce, code_verifier)
 
-    # Build redirect_uri dynamically from request
     backend_url = get_dynamic_backend_url(request)
     redirect_uri = f"{backend_url}/api/v1/auth/callback"
-    logger.info("[login] Starting OIDC flow with redirect_uri=%s", redirect_uri)
+    extra = oidc_signup_extra_params() if signup else None
+    logger.info(
+        "[login] Starting OIDC flow signup=%s redirect_uri=%s",
+        signup,
+        redirect_uri,
+    )
 
-    auth_url = build_authorization_url(state, nonce, code_challenge, redirect_uri=redirect_uri)
+    auth_url = build_authorization_url(
+        state,
+        nonce,
+        code_challenge,
+        redirect_uri=redirect_uri,
+        extra_params=extra,
+    )
     return RedirectResponse(
         url=auth_url,
         status_code=status.HTTP_302_FOUND,
         headers={"X-Request-ID": state},
     )
+
+
+@router.get("/config", response_model=AuthConfigResponse)
+async def auth_config():
+    """Public auth capabilities for login/register UI."""
+    return AuthConfigResponse(
+        oidc_configured=_oidc_is_configured(),
+        login_path="/api/v1/auth/login",
+        register_path="/api/v1/auth/register",
+        provider_label=os.environ.get("OIDC_PROVIDER_LABEL", "EAM Identity"),
+        uses_pkce=True,
+    )
+
+
+@router.get("/login")
+async def login(request: Request, db: AsyncSession = Depends(get_db)):
+    """Start OIDC login flow with PKCE."""
+    return await _start_oidc_flow(request, db, signup=False)
+
+
+@router.get("/register")
+async def register(request: Request, db: AsyncSession = Depends(get_db)):
+    """Start OIDC registration (provider signup screen when supported)."""
+    return await _start_oidc_flow(request, db, signup=True)
 
 
 @router.get("/callback")
@@ -108,12 +169,13 @@ async def callback(
     db: AsyncSession = Depends(get_db),
 ):
     """Handle OIDC callback."""
+    frontend_base = get_frontend_base_url(request)
     backend_url = get_dynamic_backend_url(request)
 
     def redirect_with_error(message: str) -> RedirectResponse:
         fragment = urlencode({"msg": message})
         return RedirectResponse(
-            url=f"{backend_url}/auth/error?{fragment}",
+            url=f"{frontend_base}/auth/error?{fragment}",
             status_code=status.HTTP_302_FOUND,
         )
 
@@ -205,7 +267,7 @@ async def callback(
             }
         )
 
-        redirect_url = f"{backend_url}/auth/callback?{fragment}"
+        redirect_url = f"{frontend_base}/auth/callback?{fragment}"
         logger.info("[callback] OIDC callback successful, redirecting to %s", redirect_url)
         redirect_response = RedirectResponse(
             url=redirect_url,

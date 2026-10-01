@@ -16,6 +16,7 @@ import {
   MARKETING_GOAL_OPTIONS,
   MARKETING_STAGE_OPTIONS,
   STEP_LABELS,
+  STEP_ORDER,
   TARGET_AUDIENCE_OPTIONS,
 } from './constants';
 import { type RealEstateMarketingStepValues } from './errors';
@@ -35,6 +36,7 @@ export default function RealEstateMarketingStepPanel({
   isCompleted,
   onAdvance,
   onComplete,
+  onRevisit,
   completedMessage,
   sectorId,
 }: Props) {
@@ -164,8 +166,10 @@ export default function RealEstateMarketingStepPanel({
       isTerminal={isTerminal}
       isCompleted={isCompleted}
       completedMessage={completedMessage}
+      stepOrder={STEP_ORDER}
       onAdvance={onAdvance}
       onComplete={onComplete}
+      onRevisit={onRevisit}
     >
       {renderFields()}
     </JourneyStepPanelShell>

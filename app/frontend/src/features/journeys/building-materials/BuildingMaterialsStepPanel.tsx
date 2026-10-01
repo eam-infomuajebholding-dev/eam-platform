@@ -1,24 +1,13 @@
-import PreliminaryBriefCard from '@/features/journeys/core/PreliminaryBriefCard';
 import JourneyStepPanelShell from '@/features/journeys/core/JourneyStepPanelShell';
 import type { JourneyStepPanelProps } from '@/features/journeys/core/journeyStepPanel';
-import {
-  useJourneyStandardConfirmStep,
-  isStandardConfirmStep,
-} from '@/features/journeys/core/JourneyStandardConfirmSteps';
-import { useUrgencyOptions } from '@/features/journeys/core/journeySharedOptions';
-import {
-  JourneySelectField,
-  JourneyTextArea,
-  JourneyTextField,
-} from '@/features/journeys/core/JourneyFieldControls';
-import {
-  MATERIAL_CATEGORY_OPTIONS,
-  PROCUREMENT_GOAL_OPTIONS,
-  QUANTITY_SCOPE_OPTIONS,
-  STEP_LABELS,
-} from './constants';
+import { JourneyTextField } from '@/features/journeys/core/JourneyFieldControls';
+import { Checkbox } from '@/components/ui/checkbox';
+import { STEP_LABELS, STEP_ORDER } from './constants';
 import { type BuildingMaterialsStepValues } from './errors';
 import type { BuildingMaterialsContext } from './types';
+import MaterialsIntakeSection from './MaterialsIntakeSection';
+import ProcurementInvoiceCard from './ProcurementInvoiceCard';
+import { BUYER_LIABILITY_TERMS_VERSION, liabilityTermsCheckboxLabel } from './legalTerms';
 
 type Props = JourneyStepPanelProps<BuildingMaterialsStepValues, BuildingMaterialsContext>;
 
@@ -34,120 +23,124 @@ export default function BuildingMaterialsStepPanel({
   isCompleted,
   onAdvance,
   onComplete,
+  onRevisit,
   completedMessage,
-  sectorId,
 }: Props) {
-  const urgencyOptions = useUrgencyOptions();
   const update = (patch: Partial<BuildingMaterialsStepValues>) => onChange({ ...values, ...patch });
-  const standardConfirm = useJourneyStandardConfirmStep(sectorId, currentStep, values, update);
-  const brief = context.preliminary_brief;
+  const invoice = context.procurement_invoice as Record<string, unknown> | undefined;
 
   const renderFields = () => {
     if (!currentStep) return null;
 
-    if (isStandardConfirmStep(currentStep) && standardConfirm) {
-      return standardConfirm;
-    }
-
     switch (currentStep) {
-      case 'procurement_goal':
+      case 'materials_intake':
         return (
-          <JourneySelectField
-            label="ما هدفك من التوريد؟"
-            value={values.procurementGoal}
-            options={PROCUREMENT_GOAL_OPTIONS}
-            onChange={(procurementGoal) => update({ procurementGoal })}
+          <MaterialsIntakeSection
+            intakeChannel={values.intakeChannel}
+            materialsList={values.materialsList}
+            materialsImageUrl={values.materialsImageUrl}
+            assistantTranscript={values.assistantTranscript}
+            onChange={(patch) =>
+              update({
+                ...(patch.intakeChannel !== undefined ? { intakeChannel: patch.intakeChannel } : {}),
+                ...(patch.materialsList !== undefined ? { materialsList: patch.materialsList } : {}),
+                ...(patch.materialsImageUrl !== undefined
+                  ? { materialsImageUrl: patch.materialsImageUrl }
+                  : {}),
+                ...(patch.assistantTranscript !== undefined
+                  ? { assistantTranscript: patch.assistantTranscript }
+                  : {}),
+              })
+            }
           />
         );
-      case 'material_category':
+      case 'requester_identity':
         return (
-          <JourneySelectField
-            label="ما فئة المواد المطلوبة؟"
-            value={values.materialCategory}
-            options={MATERIAL_CATEGORY_OPTIONS}
-            onChange={(materialCategory) => update({ materialCategory })}
-          />
+          <div className="space-y-3">
+            <JourneyTextField
+              value={values.requesterName}
+              onChange={(requesterName) => update({ requesterName })}
+              placeholder="الاسم الكامل"
+            />
+            <JourneyTextField
+              value={values.requesterPhone}
+              onChange={(requesterPhone) => update({ requesterPhone })}
+              placeholder="05xxxxxxxx"
+              dir="ltr"
+            />
+            <p className="text-xs text-ink-secondary">سنرسل رمز تأكيد إلى هذا الرقم.</p>
+          </div>
         );
-      case 'project_context':
+      case 'phone_verification':
         return (
-          <JourneyTextArea
-            value={values.projectContext}
-            onChange={(projectContext) => update({ projectContext })}
-            placeholder="صف المشروع أو سياق التوريد المطلوب..."
-          />
+          <div className="space-y-3">
+            <JourneyTextField
+              value={values.otpCode}
+              onChange={(otpCode) => update({ otpCode })}
+              placeholder="رمز التحقق (6 أرقام)"
+              dir="ltr"
+            />
+            <p className="text-xs text-ink-secondary">
+              أدخل الرمز المرسل إلى جوالك. في بيئة التطوير يمكن ضبط `JOURNEY_DEV_OTP` في الخادم.
+            </p>
+          </div>
         );
       case 'delivery_location':
         return (
           <JourneyTextField
             value={values.deliveryLocation}
             onChange={(deliveryLocation) => update({ deliveryLocation })}
-            placeholder="أين موقع التسليم؟ (المدينة/الموقع)"
+            placeholder="المدينة، الحي، وصف الموقع أو رابط الخريطة"
           />
         );
-      case 'quantity_scope':
-        return (
-          <JourneySelectField
-            label="ما نطاق الكميات المتوقع؟"
-            value={values.quantityScope}
-            options={QUANTITY_SCOPE_OPTIONS}
-            onChange={(quantityScope) => update({ quantityScope })}
-          />
+      case 'procurement_invoice':
+        return invoice ? (
+          <ProcurementInvoiceCard invoice={invoice as Parameters<typeof ProcurementInvoiceCard>[0]['invoice']} />
+        ) : (
+          <p className="text-sm text-ink-secondary">جاري تجهيز الفاتورة...</p>
         );
-      case 'specifications_context':
+      case 'invoice_confirm': {
+        const termsVersion =
+          (invoice?.buyer_liability_terms as { version?: string } | undefined)?.version ??
+          BUYER_LIABILITY_TERMS_VERSION;
         return (
-          <JourneyTextArea
-            value={values.specificationsContext}
-            onChange={(specificationsContext) => update({ specificationsContext })}
-            placeholder="مواصفات أو معايير المواد إن وُجدت — اختياري"
-            minHeight="80px"
-          />
-        );
-      case 'timeline_context':
-        return (
-          <div className="space-y-3">
-            <JourneyTextField
-              value={values.targetTimeline}
-              onChange={(targetTimeline) => update({ targetTimeline })}
-              placeholder="متى تحتاج التوريد أو اتخاذ القرار؟"
-            />
-            <JourneySelectField
-              label="الاستعجال (اختياري)"
-              value={values.urgency}
-              options={urgencyOptions}
-              onChange={(urgency) => update({ urgency })}
-            />
+          <div className="space-y-4">
+            {invoice ? (
+              <ProcurementInvoiceCard invoice={invoice as Parameters<typeof ProcurementInvoiceCard>[0]['invoice']} />
+            ) : null}
+            <label className="flex items-start gap-2 text-sm cursor-pointer">
+              <Checkbox
+                checked={values.invoiceConfirmed}
+                onCheckedChange={(checked) => update({ invoiceConfirmed: checked === true })}
+              />
+              <span>أؤكد قائمة المشتريات والكميات الواردة في الفاتورة.</span>
+            </label>
+            <label className="flex items-start gap-2 text-sm cursor-pointer">
+              <Checkbox
+                checked={values.buyerLiabilityTermsAccepted}
+                onCheckedChange={(checked) =>
+                  update({ buyerLiabilityTermsAccepted: checked === true })
+                }
+              />
+              <span>{liabilityTermsCheckboxLabel(termsVersion)}</span>
+            </label>
           </div>
         );
-      case 'budget_context':
+      }
+      case 'intake_complete':
         return (
-          <JourneyTextField
-            value={values.budgetContext}
-            onChange={(budgetContext) => update({ budgetContext })}
-            placeholder="سياق ميزانية تقريبي إن وُجد — اختياري"
-          />
-        );
-      case 'supplier_context':
-        return (
-          <JourneyTextArea
-            value={values.supplierContext}
-            onChange={(supplierContext) => update({ supplierContext })}
-            placeholder="مورد مفضل أو متطلبات مصدر التوريد — اختياري"
-            minHeight="80px"
-          />
-        );
-      case 'summary_review':
-        return (
-          <div className="space-y-2 text-sm text-ink-secondary">
-            <p>راجع ملخص طلبك قبل عرض موجز الجاهزية الأولي.</p>
-            <ul className="list-disc pr-5">
-              <li>الموقع: {values.deliveryLocation || '—'}</li>
-              <li>السياق: {values.projectContext || '—'}</li>
-              <li>الفئة: {values.materialCategory || '—'}</li>
-            </ul>
+          <div className="space-y-4">
+            {invoice ? (
+              <ProcurementInvoiceCard
+                invoice={invoice as Parameters<typeof ProcurementInvoiceCard>[0]['invoice']}
+                showLiabilityTerms={false}
+              />
+            ) : null}
+            <p className="text-sm text-ink-secondary">
+              بعد إرسال الطلب، انتقل إلى «طلباتي» لإتمام الدفع عند إصدار عرض السعر النهائي.
+            </p>
           </div>
         );
-      case 'procurement_readiness_brief':
-        return brief ? <PreliminaryBriefCard brief={brief} /> : null;
       default:
         return null;
     }
@@ -163,8 +156,11 @@ export default function BuildingMaterialsStepPanel({
       isTerminal={isTerminal}
       isCompleted={isCompleted}
       completedMessage={completedMessage}
+      stepOrder={STEP_ORDER}
       onAdvance={onAdvance}
       onComplete={onComplete}
+      onRevisit={onRevisit}
+      completeLabel="إرسال الطلب"
     >
       {renderFields()}
     </JourneyStepPanelShell>

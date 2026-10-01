@@ -1,36 +1,15 @@
 import axios, { AxiosInstance } from 'axios';
 import { getAPIBaseURL } from '@/lib/config';
-
-const WEB_SDK_TOKEN_STORAGE_KEY = 'token';
-
-const WEB_SDK_LOGOUT_MANUAL_KEY = 'isLougOutManual';
-
-function persistWebSdkToken(token: string): boolean {
-  try {
-    window.localStorage.setItem(WEB_SDK_TOKEN_STORAGE_KEY, token);
-    window.localStorage.setItem(WEB_SDK_LOGOUT_MANUAL_KEY, 'false');
-    return true;
-  } catch {
-    return false;
-  }
-}
+import {
+  clearAuthToken,
+  getStoredAuthToken,
+  persistAuthToken,
+} from '@/features/auth/utils/authTokenStorage';
+import { startAuthFlow } from '@/features/auth/utils/authStartUrl';
 
 function readCallbackToken(): string | undefined {
   const token = new URLSearchParams(window.location.search).get('token');
   return token?.trim() ? token : undefined;
-}
-
-function getWebSdkBearerToken(): string | undefined {
-  if (typeof window === 'undefined') {
-    return undefined;
-  }
-
-  try {
-    const token = window.localStorage.getItem(WEB_SDK_TOKEN_STORAGE_KEY);
-    return token?.trim() ? token : undefined;
-  } catch {
-    return undefined;
-  }
 }
 
 class RPApi {
@@ -50,7 +29,7 @@ class RPApi {
   }
 
   private authHeaders(): Record<string, string> {
-    const token = getWebSdkBearerToken();
+    const token = getStoredAuthToken();
     if (!token) {
       return {};
     }
@@ -74,34 +53,34 @@ class RPApi {
     }
   }
 
-  async login() {
-    try {
-      const response = await this.client.get(
-        `${this.getBaseURL()}/api/v1/auth/login`
-      );
-      // The backend will redirect to OIDC provider
-      // SSO will work via cookies automatically
-      window.location.href = response.data.redirect_url;
-    } catch (error) {
-      throw new Error(
-        error.response?.data?.detail || 'Failed to initiate login'
-      );
-    }
+  login(returnTo?: string | null) {
+    startAuthFlow('login', returnTo);
+  }
+
+  register(returnTo?: string | null) {
+    startAuthFlow('register', returnTo);
   }
 
   async logout() {
+    clearAuthToken();
     try {
-      const response = await this.client.get(
-        `${this.getBaseURL()}/api/v1/auth/logout`
-      );
-      // The backend will redirect to OIDC provider logout
-      window.location.href = response.data.redirect_url;
-    } catch (error) {
-      throw new Error(error.response?.data?.detail || 'Failed to logout');
+      const response = await this.client.get(`${this.getBaseURL()}/api/v1/auth/logout`);
+      const redirectUrl = response.data?.redirect_url as string | undefined;
+      if (redirectUrl) {
+        window.location.assign(redirectUrl);
+        return;
+      }
+    } catch {
+      /* local session already cleared */
     }
+    window.location.assign('/');
   }
 }
 
 export const authApi = new RPApi();
 
-export { persistWebSdkToken, readCallbackToken };
+export function persistWebSdkToken(token: string): boolean {
+  return persistAuthToken(token);
+}
+
+export { readCallbackToken };

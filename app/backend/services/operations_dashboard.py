@@ -17,6 +17,9 @@ from models.payments import (
     PAYMENT_STATUS_PENDING,
     Payment,
 )
+from models.logistics import DeliveryShipment
+from models.partner_platform import PARTNER_ASSIGNMENT_PENDING
+from models.procurement_orders import ProcurementOrder
 from models.service_requests import ServiceRequest
 from services.payment_config import is_checkout_ready, is_stripe_configured, is_stripe_webhook_configured
 from schemas.operations_dashboard import (
@@ -70,7 +73,8 @@ class OperationsDashboardService:
         ji_status = await self._count_grouped(JourneyInstance.status)
         journey_rows = await self._journey_metrics(sr_journey)
         lead_counts = await self._lead_counts()
-        attention = self._attention_items(sr_status, lead_counts)
+        fulfillment_counts = await self._fulfillment_counts()
+        attention = self._attention_items(sr_status, lead_counts, fulfillment_counts)
         kpis = self._executive_kpis(sr_status, ji_status, lead_counts)
         payment_summary = await self._payment_summary()
         financial = self._financial_pulse(sr_status, payment_summary)
@@ -106,6 +110,28 @@ class OperationsDashboardService:
             commercial_funnel=funnel,
             platform_trends=platform_trends,
         )
+
+    async def _fulfillment_counts(self) -> dict[str, int]:
+        pending_partner = await self.db.scalar(
+            select(func.count())
+            .select_from(ServiceRequest)
+            .where(ServiceRequest.partner_assignment_status == PARTNER_ASSIGNMENT_PENDING)
+        )
+        awaiting_dispatch = await self.db.scalar(
+            select(func.count())
+            .select_from(DeliveryShipment)
+            .where(DeliveryShipment.status == "awaiting_dispatch")
+        )
+        open_po = await self.db.scalar(
+            select(func.count())
+            .select_from(ProcurementOrder)
+            .where(ProcurementOrder.status.in_(("provisional", "awaiting_partner", "partner_accepted")))
+        )
+        return {
+            "pending_partner": int(pending_partner or 0),
+            "shipments_awaiting_dispatch": int(awaiting_dispatch or 0),
+            "open_procurement_orders": int(open_po or 0),
+        }
 
     async def _payment_summary(self) -> dict[str, float | int]:
         result = await self.db.execute(
@@ -731,13 +757,33 @@ class OperationsDashboardService:
                 status="degraded",
                 detail_ar="OIDC=BLOCKED_EXTERNAL for authenticated acceptance",
             ),
+            PlatformHealthDomain(
+                domain="partner_platform",
+                label_ar="منصة الشركاء B2B",
+                status="healthy",
+                detail_ar="إسناد، بوابة /partner، API keys، Webhooks",
+            ),
+            PlatformHealthDomain(
+                domain="procurement_orders",
+                label_ar="أوامر الشراء (مواد البناء)",
+                status="healthy",
+                detail_ar="ProcurementOrder authority — PO من الفاتورة الأولية",
+            ),
+            PlatformHealthDomain(
+                domain="logistics",
+                label_ar="التوصيل والشحنات",
+                status="healthy",
+                detail_ar="DeliveryShipment — شريك + ops + snapshot عميل",
+            ),
         ]
 
     def _attention_items(
         self,
         sr_status: dict[str, int],
         leads: dict[str, int],
+        fulfillment: dict[str, int] | None = None,
     ) -> list[AttentionItem]:
+        fulfillment = fulfillment or {}
         items: list[AttentionItem] = []
 
         submitted = sr_status.get("submitted", 0)
@@ -765,6 +811,34 @@ class OperationsDashboardService:
                     domain="OPERATIONS",
                     source="service_requests",
                     drill_down_path="/operations/service-requests?status=awaiting_information",
+                )
+            )
+
+        pending_partner = fulfillment.get("pending_partner", 0)
+        if pending_partner > 0:
+            items.append(
+                AttentionItem(
+                    id="partner-pending-accept",
+                    title_ar=f"{pending_partner} طلب(ات) بانتظار قبول الشريك",
+                    why_ar="تأخر القبول يؤخر التوريد والشحن",
+                    severity="ACTION" if pending_partner >= 2 else "WATCH",
+                    domain="PARTNERS",
+                    source="service_requests",
+                    drill_down_path="/operations/service-requests?partner_assignment_status=pending_partner",
+                )
+            )
+
+        awaiting_ship = fulfillment.get("shipments_awaiting_dispatch", 0)
+        if awaiting_ship > 0:
+            items.append(
+                AttentionItem(
+                    id="shipments-awaiting-dispatch",
+                    title_ar=f"{awaiting_ship} شحنة(ات) بانتظار التجهيز",
+                    why_ar="الشريك لم يسجّل الشحن بعد",
+                    severity="WATCH",
+                    domain="LOGISTICS",
+                    source="delivery_shipments",
+                    drill_down_path="/operations/service-requests",
                 )
             )
 

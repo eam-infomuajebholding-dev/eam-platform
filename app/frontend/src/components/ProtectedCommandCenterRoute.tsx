@@ -28,7 +28,13 @@ export default function ProtectedCommandCenterRoute({ children }: ProtectedComma
   if (!user) {
     const returnTo = `${location.pathname}${location.search}`;
     saveAuthReturnTo(returnTo);
-    return <Navigate to="/" replace state={{ from: returnTo, commandCenterLogin: true }} />;
+    return (
+      <Navigate
+        to={`/login?returnTo=${encodeURIComponent(returnTo)}`}
+        replace
+        state={{ from: returnTo, commandCenterLogin: true }}
+      />
+    );
   }
 
   if (!canAccessCommandCenter) {

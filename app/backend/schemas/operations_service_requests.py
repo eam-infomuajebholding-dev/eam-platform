@@ -40,6 +40,9 @@ class OperationsServiceRequestDetail(BaseModel):
     intake_snapshot: dict[str, Any]
     journey_instance_id: int
     source_channel: str | None = None
+    partner_org_id: int | None = None
+    partner_outlet_id: int | None = None
+    partner_assignment_status: str | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
     transitions: list[ServiceRequestTransitionResponse] = Field(default_factory=list)
@@ -55,6 +58,8 @@ class OperationsServiceRequestSummary(BaseModel):
     request_type: str
     status: str
     user_id: str
+    partner_org_id: int | None = None
+    partner_assignment_status: str | None = None
     created_at: datetime | None = None
 
     class Config:

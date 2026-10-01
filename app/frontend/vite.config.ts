@@ -1,8 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import path from 'path';
-import { viteSourceLocator } from '@metagptx/vite-plugin-source-locator';
-import { atoms } from '@metagptx/web-sdk/plugins';
 import { vitePrerenderPlugin } from 'vite-prerender-plugin';
 import Sitemap from 'vite-plugin-sitemap';
 import { getBlogRoutes } from './prerender/blog-routes.js';
@@ -19,13 +17,13 @@ function escapeHtmlAttr(str: string): string {
 }
 
 process.env.VITE_APP_TITLE ??= process.env.OVERVIEW_TITLE ?? 'shadcnui';
-process.env.VITE_APP_DESCRIPTION ??= process.env.OVERVIEW_DESCRIPTION ?? 'Atoms Generated Project';
+process.env.VITE_APP_DESCRIPTION ??= process.env.OVERVIEW_DESCRIPTION ?? 'EAM Platform';
 process.env.VITE_APP_TITLE = escapeHtmlAttr(process.env.VITE_APP_TITLE);
 process.env.VITE_APP_DESCRIPTION = escapeHtmlAttr(process.env.VITE_APP_DESCRIPTION);
-process.env.VITE_APP_LOGO_URL ??= process.env.OVERVIEW_LOGO_URL ?? 'https://public-frontend-cos.metadl.com/mgx/img/favicon_atoms.ico';
+process.env.VITE_APP_LOGO_URL ??= process.env.OVERVIEW_LOGO_URL ?? '/favicon.ico';
 
 // https://vitejs.dev/config/
-export default defineConfig(({ command, isSsrBuild }) => {
+export default defineConfig(({ command }) => {
   const blogPrerenderRoutes = command === 'build' ? getBlogRoutes() : [];
   // Blog prerender requires an isolated entry chunk; manualChunks below prevents that.
   // Set VITE_ENABLE_BLOG_PRERENDER=true once prerender/entry is wired for production builds.
@@ -34,11 +32,7 @@ export default defineConfig(({ command, isSsrBuild }) => {
 
   return {
     plugins: [
-      viteSourceLocator({
-        prefix: 'mgx', // Prefix used to identify source locations; do not change.
-      }),
       react(),
-      atoms(),
       Sitemap({
         hostname: (process.env.VITE_SITE_URL ?? 'https://eam.sa').replace(/\/+$/, ''),
         dynamicRoutes:
@@ -66,11 +60,6 @@ export default defineConfig(({ command, isSsrBuild }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
-        ...(isSsrBuild
-          ? {
-              '@metagptx/web-sdk': path.resolve(__dirname, 'prerender/stubs/web-sdk.js'),
-            }
-          : {}),
       },
     },
     server: {

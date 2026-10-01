@@ -18,6 +18,7 @@ import {
   PROJECT_TYPE_OPTIONS,
   SCOPE_CLARITY_OPTIONS,
   STEP_LABELS,
+  STEP_ORDER,
 } from './constants';
 import { type ProjectManagementStepValues } from './errors';
 import type { ProjectManagementContext } from './types';
@@ -36,6 +37,7 @@ export default function ProjectManagementStepPanel({
   isCompleted,
   onAdvance,
   onComplete,
+  onRevisit,
   completedMessage,
   sectorId,
 }: Props) {
@@ -181,8 +183,10 @@ export default function ProjectManagementStepPanel({
       isTerminal={isTerminal}
       isCompleted={isCompleted}
       completedMessage={completedMessage}
+      stepOrder={STEP_ORDER}
       onAdvance={onAdvance}
       onComplete={onComplete}
+      onRevisit={onRevisit}
     >
       {renderFields()}
     </JourneyStepPanelShell>

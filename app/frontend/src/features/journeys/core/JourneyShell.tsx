@@ -3,6 +3,7 @@ import { CheckCircle } from 'lucide-react';
 import Layout from '@/components/Layout';
 import JourneyProgress from '@/features/journeys/core/JourneyProgress';
 import JourneyOptionalLoginHint from '@/features/journeys/core/JourneyOptionalLoginHint';
+import PartnerAttributionBanner from '@/features/journeys/core/PartnerAttributionBanner';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Props {
@@ -23,6 +24,8 @@ interface Props {
   onResume?: () => void;
   children?: ReactNode;
   footer?: ReactNode;
+  partnerBanner?: { partnerName: string; outletLabel?: string | null } | null;
+  partnerLinkInvalid?: boolean;
 }
 
 export default function JourneyShell({
@@ -43,6 +46,8 @@ export default function JourneyShell({
   onResume,
   children,
   footer,
+  partnerBanner,
+  partnerLinkInvalid = false,
 }: Props) {
   const { t } = useLanguage();
 
@@ -87,6 +92,17 @@ export default function JourneyShell({
           ) : (
             <div className="rounded-2xl border border-gold/20 bg-cream dark:bg-dark p-6 shadow-sm">
               <JourneyOptionalLoginHint />
+              {partnerLinkInvalid ? (
+                <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-200" dir="rtl">
+                  رابط الشريك غير صالح أو غير مفعّل. يمكنك متابعة الطلب مباشرة عبر المنصة.
+                </p>
+              ) : null}
+              {partnerBanner ? (
+                <PartnerAttributionBanner
+                  partnerName={partnerBanner.partnerName}
+                  outletLabel={partnerBanner.outletLabel}
+                />
+              ) : null}
               {!isCompleted ? (
                 <JourneyProgress current={stepProgress} total={totalSteps} variant={progressVariant} />
               ) : (

@@ -17,6 +17,7 @@ import {
   DOCUMENTS_READINESS_OPTIONS,
   INTENDED_USE_OPTIONS,
   STEP_LABELS,
+  STEP_ORDER,
 } from './constants';
 import { type RealEstateDevelopmentStepValues } from './errors';
 import type { RealEstateDevelopmentContext } from './types';
@@ -35,6 +36,7 @@ export default function RealEstateDevelopmentStepPanel({
   isCompleted,
   onAdvance,
   onComplete,
+  onRevisit,
   completedMessage,
   sectorId,
 }: Props) {
@@ -156,8 +158,10 @@ export default function RealEstateDevelopmentStepPanel({
       isTerminal={isTerminal}
       isCompleted={isCompleted}
       completedMessage={completedMessage}
+      stepOrder={STEP_ORDER}
       onAdvance={onAdvance}
       onComplete={onComplete}
+      onRevisit={onRevisit}
     >
       {renderFields()}
     </JourneyStepPanelShell>

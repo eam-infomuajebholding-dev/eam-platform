@@ -23,6 +23,7 @@ import {
   SPACE_OPTIONS,
   STEP_DESCRIPTIONS,
   STEP_LABELS,
+  STEP_ORDER,
 } from './constants';
 import { type BuildVillaStepValues } from './errors';
 
@@ -377,8 +378,10 @@ export default function BuildVillaStepPanel({
       completedMessage={completedMessage}
       advanceLabel={advanceLabel}
       completeLabel="إنهاء الرحلة"
+      stepOrder={STEP_ORDER}
       onAdvance={onAdvance}
       onComplete={onComplete}
+      onRevisit={onRevisit}
     >
       {currentStep && STEP_DESCRIPTIONS[currentStep] ? (
         <p className="text-sm text-ink-secondary">{STEP_DESCRIPTIONS[currentStep]}</p>

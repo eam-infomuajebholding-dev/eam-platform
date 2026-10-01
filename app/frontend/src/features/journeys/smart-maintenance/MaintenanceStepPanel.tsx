@@ -17,6 +17,7 @@ import {
   MAINTENANCE_CATEGORY_OPTIONS,
   SEVERITY_OPTIONS,
   STEP_LABELS,
+  STEP_ORDER,
 } from './constants';
 import { type MaintenanceStepValues } from './errors';
 import type { SmartMaintenanceContext } from './types';
@@ -35,6 +36,7 @@ export default function MaintenanceStepPanel({
   isCompleted,
   onAdvance,
   onComplete,
+  onRevisit,
   completedMessage,
   sectorId,
 }: Props) {
@@ -172,8 +174,10 @@ export default function MaintenanceStepPanel({
       isTerminal={isTerminal}
       isCompleted={isCompleted}
       completedMessage={completedMessage}
+      stepOrder={STEP_ORDER}
       onAdvance={onAdvance}
       onComplete={onComplete}
+      onRevisit={onRevisit}
     >
       {renderFields()}
     </JourneyStepPanelShell>

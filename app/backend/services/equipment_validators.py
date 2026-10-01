@@ -159,8 +159,45 @@ def assemble_equipment_readiness_brief(context: dict[str, Any]) -> dict[str, Any
     }
 
 
+def assemble_equipment_procurement_invoice(context: dict[str, Any]) -> dict[str, Any]:
+    need = context.get("equipment_need")
+    need_label = EQUIPMENT_NEED_LABELS_AR.get(need, "معدات")
+    category = context.get("equipment_category") or "other"
+    usage = (context.get("usage_context") or "").strip() or "—"
+    specs = (context.get("specifications_context") or "").strip()
+
+    description = f"{need_label} ({category}) — {usage[:400]}"
+    if specs:
+        description = f"{description} | {specs[:200]}"
+
+    return {
+        "title": "طلب توريد/تجهيز معدات (أولي)",
+        "status": "PROVISIONAL",
+        "currency": "SAR",
+        "line_items": [
+            {
+                "description": description,
+                "quantity": 1.0,
+                "unit": "طلب",
+                "unit_price": None,
+                "line_total": None,
+            }
+        ],
+        "subtotal": None,
+        "vat_amount": None,
+        "total_amount": None,
+        "delivery_location": context.get("location"),
+        "engagement_type": context.get("engagement_type"),
+        "payment_note": (
+            "طلب أولي للتأكيد. التسعير النهائي (شراء/إيجار/خدمة) يُصدر عبر «طلباتي» بعد المراجعة المهنية."
+        ),
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+
 def assemble_equipment_intake_draft(context: dict[str, Any]) -> dict[str, Any]:
     brief = context.get("preliminary_brief") or assemble_equipment_readiness_brief(context)
+    invoice = context.get("procurement_invoice") or assemble_equipment_procurement_invoice(context)
     return {
         "journey_type": EQUIPMENT_JOURNEY_TYPE,
         "sector_slug": "equipment",
@@ -175,6 +212,8 @@ def assemble_equipment_intake_draft(context: dict[str, Any]) -> dict[str, Any]:
         "budget_context": context.get("budget_context"),
         "readiness_context": context.get("readiness_context"),
         "preliminary_brief": brief,
+        "procurement_invoice": invoice,
+        "delivery_location": context.get("location"),
         "scope_confirmed": context.get("scope_confirmed"),
         "submit_confirmed": context.get("submit_confirmed"),
         "draft_status": "ready_for_handoff",

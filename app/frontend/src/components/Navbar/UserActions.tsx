@@ -4,7 +4,6 @@ import LanguageSelector from "@/components/Navbar/LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/features/auth/context/AuthContext";
-import { client } from "@/lib/api";
 import { saveAuthReturnTo } from "@/features/auth/utils/authReturnTo";
 
 const iconBtnClass = 'site-nav-icon-btn';
@@ -45,10 +44,18 @@ export default function UserActions({ variant = "desktop", onNavigate }: UserAct
   const { t } = useLanguage();
   const { user, logout, canAccessCommandCenter } = useAuth();
 
-  const handleAuthEntry = async () => {
+  const returnPath = `${location.pathname}${location.search}`;
+
+  const handleLogin = () => {
     onNavigate?.();
-    saveAuthReturnTo(`${location.pathname}${location.search}`);
-    await client.auth.toLogin();
+    saveAuthReturnTo(returnPath);
+    window.location.assign(`/login?returnTo=${encodeURIComponent(returnPath)}`);
+  };
+
+  const handleSignup = () => {
+    onNavigate?.();
+    saveAuthReturnTo(returnPath);
+    window.location.assign(`/register?returnTo=${encodeURIComponent(returnPath)}`);
   };
 
   const handleLogout = async () => {
@@ -79,12 +86,12 @@ export default function UserActions({ variant = "desktop", onNavigate }: UserAct
           <>
             <button
               type="button"
-              onClick={() => void handleAuthEntry()}
+              onClick={handleLogin}
               className="block w-full rounded-lg px-4 py-3 text-sm font-medium text-ink/80 transition-colors hover:text-deep-gold hover:bg-primary-gold/10 dark:text-white/80"
             >
               {t('auth.login')}
             </button>
-            <button type="button" onClick={() => void handleAuthEntry()} className={`${primaryBtnClass} w-full`}>
+            <button type="button" onClick={handleSignup} className={`${primaryBtnClass} w-full`}>
               {t('auth.signup')}
             </button>
           </>
@@ -109,12 +116,12 @@ export default function UserActions({ variant = "desktop", onNavigate }: UserAct
       <>
         <button
           type="button"
-          onClick={() => void handleAuthEntry()}
+          onClick={handleLogin}
           className={`${textLinkClass} site-nav-text-btn--always`}
         >
           {t('auth.login')}
         </button>
-        <button type="button" onClick={() => void handleAuthEntry()} className={primaryBtnClass}>
+        <button type="button" onClick={handleSignup} className={primaryBtnClass}>
           {t('auth.signup')}
         </button>
       </>

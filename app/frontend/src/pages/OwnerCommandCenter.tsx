@@ -5,6 +5,9 @@ import { useAuth } from '@/features/auth/context/AuthContext';
 import CommandCenterActivityFeed from '@/features/command-center/components/CommandCenterActivityFeed';
 import CommandCenterAssistantPanel from '@/features/command-center/components/CommandCenterAssistantPanel';
 import CommandCenterDelegationsPanel from '@/features/command-center/components/CommandCenterDelegationsPanel';
+import CommandCenterPartnersPanel from '@/features/command-center/components/CommandCenterPartnersPanel';
+import CommandCenterPlatformArchitecturePanel from '@/features/command-center/components/CommandCenterPlatformArchitecturePanel';
+import CommandCenterReadinessPanel from '@/features/command-center/components/CommandCenterReadinessPanel';
 import CommandCenterDistributionChart from '@/features/command-center/components/CommandCenterDistributionChart';
 import CommandCenterFeaturedProjects from '@/features/command-center/components/CommandCenterFeaturedProjects';
 import CommandCenterHero from '@/features/command-center/components/CommandCenterHero';
@@ -437,6 +440,8 @@ export default function OwnerCommandCenterPage() {
                   </ul>
                 </div>
               ) : null}
+              <CommandCenterReadinessPanel />
+              <CommandCenterPlatformArchitecturePanel />
               <p className="font-tajawal text-xs text-ink/50">{t('commandCenter.platform.footerNote')}</p>
             </section>
           ) : null}
@@ -459,6 +464,7 @@ export default function OwnerCommandCenterPage() {
             </section>
           ) : null}
 
+          {isCommandCenterOwner ? <CommandCenterPartnersPanel /> : null}
           {isCommandCenterOwner ? <CommandCenterDelegationsPanel /> : null}
           </div>
 

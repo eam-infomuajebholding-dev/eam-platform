@@ -7,6 +7,8 @@ export interface OperationsServiceRequestSummary {
   request_type: string;
   status: string;
   user_id: string;
+  partner_org_id?: number | null;
+  partner_assignment_status?: string | null;
   created_at?: string;
 }
 
@@ -26,6 +28,7 @@ export interface OperationsServiceRequestDetail extends OperationsServiceRequest
   intake_snapshot: Record<string, unknown>;
   journey_instance_id: number;
   source_channel?: string | null;
+  partner_outlet_id?: number | null;
   updated_at?: string;
   transitions: ServiceRequestTransition[];
 }
@@ -42,10 +45,14 @@ async function invokeOperations<T>(url: string, method: 'GET' | 'POST', body?: u
 export async function listOperationsServiceRequests(
   status?: string,
   journeyType?: string,
+  partnerOrgId?: number,
+  partnerAssignmentStatus?: string,
 ): Promise<OperationsServiceRequestSummary[]> {
   const params = new URLSearchParams();
   if (status) params.set('status', status);
   if (journeyType) params.set('journey_type', journeyType);
+  if (partnerOrgId != null) params.set('partner_org_id', String(partnerOrgId));
+  if (partnerAssignmentStatus) params.set('partner_assignment_status', partnerAssignmentStatus);
   const query = params.toString() ? `?${params.toString()}` : '';
   const response = await invokeOperations<{ items: OperationsServiceRequestSummary[] }>(
     `/api/v1/operations/service-requests${query}`,

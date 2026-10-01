@@ -24,6 +24,7 @@ import Contact from './pages/Contact';
 import Careers from './pages/Careers';
 import Invest from './pages/Invest';
 import AuthCallback from '@/features/auth/pages/AuthCallback';
+import AuthEntryPage from '@/features/auth/pages/AuthEntryPage';
 import AuthError from '@/features/auth/pages/AuthError';
 import LogoutCallbackPage from './pages/LogoutCallbackPage';
 import AdminDashboard from './pages/AdminDashboard';
@@ -34,6 +35,8 @@ import ProtectedAdminRoute from '@/components/ProtectedAdminRoute';
 import ProtectedCommandCenterRoute from '@/components/ProtectedCommandCenterRoute';
 import ProfessionalReviewPage from './pages/ProfessionalReview';
 import OwnerCommandCenterPage from './pages/OwnerCommandCenter';
+import PartnerPortalPage from './pages/PartnerPortal';
+import ProtectedPartnerRoute from '@/components/ProtectedPartnerRoute';
 import PaymentSuccess from './pages/PaymentSuccess';
 import PaymentCancel from './pages/PaymentCancel';
 import NotFoundPage from './pages/NotFoundPage';
@@ -66,6 +69,8 @@ const AppRoutes = () => (
     <Route path="/contact" element={<Contact />} />
     <Route path="/careers" element={<Careers />} />
     <Route path="/invest" element={<Invest />} />
+    <Route path="/login" element={<AuthEntryPage mode="login" />} />
+    <Route path="/register" element={<AuthEntryPage mode="register" />} />
     <Route path="/auth/callback" element={<AuthCallback />} />
     <Route path="/auth/error" element={<AuthError />} />
     <Route path="/auth/logout-callback" element={<LogoutCallbackPage />} />
@@ -113,6 +118,14 @@ const AppRoutes = () => (
     <Route path="/blog/*" element={<BlogRoutes />} />
     {journeyRouteElements}
     <Route path="/sectors/:slug" element={<SectorPage />} />
+    <Route
+      path="/partner"
+      element={
+        <ProtectedPartnerRoute>
+          <PartnerPortalPage />
+        </ProtectedPartnerRoute>
+      }
+    />
     <Route
       path="/my-requests"
       element={

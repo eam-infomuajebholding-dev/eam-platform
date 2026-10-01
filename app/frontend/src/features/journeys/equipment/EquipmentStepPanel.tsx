@@ -16,6 +16,7 @@ import {
   EQUIPMENT_CATEGORY_OPTIONS,
   EQUIPMENT_NEED_OPTIONS,
   STEP_LABELS,
+  STEP_ORDER,
 } from './constants';
 import { type EquipmentStepValues } from './errors';
 import type { EquipmentContext } from './types';
@@ -34,6 +35,7 @@ export default function EquipmentStepPanel({
   isCompleted,
   onAdvance,
   onComplete,
+  onRevisit,
   completedMessage,
   sectorId,
 }: Props) {
@@ -163,8 +165,10 @@ export default function EquipmentStepPanel({
       isTerminal={isTerminal}
       isCompleted={isCompleted}
       completedMessage={completedMessage}
+      stepOrder={STEP_ORDER}
       onAdvance={onAdvance}
       onComplete={onComplete}
+      onRevisit={onRevisit}
     >
       {renderFields()}
     </JourneyStepPanelShell>

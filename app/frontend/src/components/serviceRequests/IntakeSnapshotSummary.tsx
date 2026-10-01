@@ -66,6 +66,9 @@ import {
   PROCUREMENT_GOAL_OPTIONS as BM_PROCUREMENT_GOAL_OPTIONS,
   QUANTITY_SCOPE_OPTIONS,
 } from '@/features/journeys/building-materials/constants';
+import InternalReviewApprovalBlock, {
+  type InternalReviewAndApprovalSnapshot,
+} from '@/components/serviceRequests/InternalReviewApprovalBlock';
 import {
   ENGAGEMENT_TYPE_OPTIONS,
   EQUIPMENT_CATEGORY_OPTIONS,
@@ -74,6 +77,8 @@ import {
 
 interface IntakeSnapshotSummaryProps {
   snapshot: ServiceRequestIntakeSnapshot;
+  /** Customer-facing vs operations desk (shows internal memos). */
+  view?: 'customer' | 'operations';
 }
 
 function labelForValue(
@@ -86,13 +91,41 @@ function labelForValue(
   return options.find((option) => option.value === value)?.label ?? value;
 }
 
-export default function IntakeSnapshotSummary({ snapshot }: IntakeSnapshotSummaryProps) {
+function PartnerAttributionSummary({ attribution }: { attribution: Record<string, unknown> }) {
+  return (
+    <div className="rounded-xl border border-dashed border-gold/30 bg-gold/5 p-3 text-sm space-y-1" dir="rtl">
+      <p className="font-semibold text-ink">إسناد الشريك</p>
+      <p>
+        <strong>الشركة:</strong>{' '}
+        {(attribution.partner_display_name as string) ?? (attribution.partner_slug as string) ?? '—'}
+      </p>
+      {attribution.partner_outlet_name ? (
+        <p>
+          <strong>منفذ البيع:</strong> {String(attribution.partner_outlet_name)}
+          {attribution.partner_outlet_code ? ` (${String(attribution.partner_outlet_code)})` : ''}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+export default function IntakeSnapshotSummary({
+  snapshot,
+  view = 'customer',
+}: IntakeSnapshotSummaryProps) {
   const journeyType = snapshot.journey_type ?? 'build_villa';
   const brief = snapshot.preliminary_brief;
+  const partnerAttribution = (snapshot as { partner_attribution?: Record<string, unknown> }).partner_attribution;
+
+  const partnerBlock =
+    view === 'operations' && partnerAttribution ? (
+      <PartnerAttributionSummary attribution={partnerAttribution} />
+    ) : null;
 
   if (journeyType === 'contracting') {
     return (
       <div className="space-y-4 text-sm">
+        {partnerBlock}
         <div className="space-y-2 rounded-xl border border-gold/20 bg-surface-alt dark:bg-surface p-4">
           <p><strong>نوع المشروع:</strong> {labelForValue(PROJECT_TYPE_OPTIONS, snapshot.project_type)}</p>
           <p><strong>الوصف:</strong> {snapshot.project_description ?? '—'}</p>
@@ -194,21 +227,70 @@ export default function IntakeSnapshotSummary({ snapshot }: IntakeSnapshotSummar
       specifications_context?: string;
       budget_context?: string;
       supplier_context?: string;
+      materials_list?: string;
+      requester_name?: string;
+      requester_phone?: string;
+      procurement_invoice?: { total_amount?: number | null; status?: string };
+      procurement_order?: {
+        reference_code?: string;
+        status?: string;
+        total_amount?: number | null;
+        currency?: string;
+      };
+      internal_review_and_approval?: InternalReviewAndApprovalSnapshot;
     };
+    const isProcurementV2 = Boolean(
+      bmSnapshot.materials_list || bmSnapshot.procurement_invoice || bmSnapshot.requester_name,
+    );
     return (
       <div className="space-y-4 text-sm">
+        {partnerBlock}
         <div className="space-y-2 rounded-xl border border-gold/20 bg-surface-alt dark:bg-surface p-4">
-          <p><strong>هدف التوريد:</strong> {labelForValue(BM_PROCUREMENT_GOAL_OPTIONS, bmSnapshot.procurement_goal)}</p>
-          <p><strong>فئة المواد:</strong> {labelForValue(MATERIAL_CATEGORY_OPTIONS, bmSnapshot.material_category)}</p>
-          <p><strong>سياق المشروع:</strong> {bmSnapshot.project_context ?? '—'}</p>
-          <p><strong>موقع التسليم:</strong> {bmSnapshot.delivery_location ?? '—'}</p>
-          <p><strong>نطاق الكميات:</strong> {labelForValue(QUANTITY_SCOPE_OPTIONS, bmSnapshot.quantity_scope)}</p>
-          {bmSnapshot.specifications_context ? <p><strong>المواصفات:</strong> {bmSnapshot.specifications_context}</p> : null}
-          {bmSnapshot.target_timeline ? <p><strong>الجدول:</strong> {bmSnapshot.target_timeline}</p> : null}
-          {bmSnapshot.urgency ? <p><strong>الاستعجال:</strong> {labelForValue(URGENCY_OPTIONS, bmSnapshot.urgency)}</p> : null}
-          {bmSnapshot.budget_context ? <p><strong>الميزانية:</strong> {bmSnapshot.budget_context}</p> : null}
-          {bmSnapshot.supplier_context ? <p><strong>المورد:</strong> {bmSnapshot.supplier_context}</p> : null}
+          {isProcurementV2 ? (
+            <>
+              <p><strong>طالب التوريد:</strong> {bmSnapshot.requester_name ?? '—'}</p>
+              <p><strong>الجوال:</strong> {bmSnapshot.requester_phone ?? '—'}</p>
+              <p><strong>موقع التسليم:</strong> {bmSnapshot.delivery_location ?? '—'}</p>
+              {bmSnapshot.materials_list ? (
+                <p className="whitespace-pre-wrap">
+                  <strong>قائمة المواد:</strong> {bmSnapshot.materials_list}
+                </p>
+              ) : null}
+              {bmSnapshot.procurement_invoice ? (
+                <p>
+                  <strong>الفاتورة الأولية:</strong>{' '}
+                  {bmSnapshot.procurement_invoice.status ?? '—'}
+                  {bmSnapshot.procurement_invoice.total_amount != null
+                    ? ` — ${bmSnapshot.procurement_invoice.total_amount} SAR`
+                    : ''}
+                </p>
+              ) : null}
+              {bmSnapshot.procurement_order?.reference_code ? (
+                <p>
+                  <strong>أمر الشراء:</strong>{' '}
+                  <span dir="ltr">{bmSnapshot.procurement_order.reference_code}</span>
+                  {bmSnapshot.procurement_order.status ? ` (${bmSnapshot.procurement_order.status})` : ''}
+                </p>
+              ) : null}
+            </>
+          ) : (
+            <>
+              <p><strong>هدف التوريد:</strong> {labelForValue(BM_PROCUREMENT_GOAL_OPTIONS, bmSnapshot.procurement_goal)}</p>
+              <p><strong>فئة المواد:</strong> {labelForValue(MATERIAL_CATEGORY_OPTIONS, bmSnapshot.material_category)}</p>
+              <p><strong>سياق المشروع:</strong> {bmSnapshot.project_context ?? '—'}</p>
+              <p><strong>موقع التسليم:</strong> {bmSnapshot.delivery_location ?? '—'}</p>
+              <p><strong>نطاق الكميات:</strong> {labelForValue(QUANTITY_SCOPE_OPTIONS, bmSnapshot.quantity_scope)}</p>
+              {bmSnapshot.specifications_context ? <p><strong>المواصفات:</strong> {bmSnapshot.specifications_context}</p> : null}
+              {bmSnapshot.target_timeline ? <p><strong>الجدول:</strong> {bmSnapshot.target_timeline}</p> : null}
+              {bmSnapshot.urgency ? <p><strong>الاستعجال:</strong> {labelForValue(URGENCY_OPTIONS, bmSnapshot.urgency)}</p> : null}
+              {bmSnapshot.budget_context ? <p><strong>الميزانية:</strong> {bmSnapshot.budget_context}</p> : null}
+              {bmSnapshot.supplier_context ? <p><strong>المورد:</strong> {bmSnapshot.supplier_context}</p> : null}
+            </>
+          )}
         </div>
+        {view === 'operations' && bmSnapshot.internal_review_and_approval ? (
+          <InternalReviewApprovalBlock record={bmSnapshot.internal_review_and_approval} />
+        ) : null}
         {brief ? <PreliminaryBriefCard brief={brief} /> : null}
       </div>
     );
@@ -223,20 +305,36 @@ export default function IntakeSnapshotSummary({ snapshot }: IntakeSnapshotSummar
       specifications_context?: string;
       budget_context?: string;
       readiness_context?: string;
+      delivery_location?: string;
+      procurement_invoice?: { status?: string; title?: string };
+      procurement_order?: { reference_code?: string; status?: string; total_amount?: number | null };
     };
     return (
       <div className="space-y-4 text-sm">
+        {partnerBlock}
         <div className="space-y-2 rounded-xl border border-gold/20 bg-surface-alt dark:bg-surface p-4">
           <p><strong>حاجة المعدات:</strong> {labelForValue(EQUIPMENT_NEED_OPTIONS, eqSnapshot.equipment_need)}</p>
           <p><strong>فئة المعدات:</strong> {labelForValue(EQUIPMENT_CATEGORY_OPTIONS, eqSnapshot.equipment_category)}</p>
           <p><strong>سياق الاستخدام:</strong> {eqSnapshot.usage_context ?? '—'}</p>
-          <p><strong>الموقع:</strong> {eqSnapshot.location ?? '—'}</p>
+          <p><strong>الموقع / التسليم:</strong> {eqSnapshot.delivery_location ?? eqSnapshot.location ?? '—'}</p>
           <p><strong>نوع التعاقد:</strong> {labelForValue(ENGAGEMENT_TYPE_OPTIONS, eqSnapshot.engagement_type)}</p>
           {eqSnapshot.specifications_context ? <p><strong>المواصفات:</strong> {eqSnapshot.specifications_context}</p> : null}
           {eqSnapshot.target_timeline ? <p><strong>الجدول:</strong> {eqSnapshot.target_timeline}</p> : null}
           {eqSnapshot.urgency ? <p><strong>الاستعجال:</strong> {labelForValue(URGENCY_OPTIONS, eqSnapshot.urgency)}</p> : null}
           {eqSnapshot.budget_context ? <p><strong>الميزانية:</strong> {eqSnapshot.budget_context}</p> : null}
           {eqSnapshot.readiness_context ? <p><strong>الجاهزية:</strong> {eqSnapshot.readiness_context}</p> : null}
+          {eqSnapshot.procurement_invoice ? (
+            <p>
+              <strong>طلب التوريد الأولي:</strong> {eqSnapshot.procurement_invoice.status ?? '—'}
+            </p>
+          ) : null}
+          {eqSnapshot.procurement_order?.reference_code ? (
+            <p>
+              <strong>أمر الشراء:</strong>{' '}
+              <span dir="ltr">{eqSnapshot.procurement_order.reference_code}</span>
+              {eqSnapshot.procurement_order.status ? ` (${eqSnapshot.procurement_order.status})` : ''}
+            </p>
+          ) : null}
         </div>
         {brief ? <PreliminaryBriefCard brief={brief} /> : null}
       </div>
@@ -335,6 +433,7 @@ export default function IntakeSnapshotSummary({ snapshot }: IntakeSnapshotSummar
 
   return (
     <div className="space-y-4 text-sm">
+      {partnerBlock}
       <div className="space-y-2 rounded-xl border border-gold/20 bg-surface-alt dark:bg-surface p-4">
         <p><strong>المدينة:</strong> {snapshot.city ?? '—'}</p>
         <p><strong>حالة الأرض:</strong> {labelForValue(LAND_OWNERSHIP_OPTIONS, snapshot.land_ownership_type)}</p>

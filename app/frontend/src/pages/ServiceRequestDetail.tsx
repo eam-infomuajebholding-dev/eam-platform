@@ -13,6 +13,8 @@ import {
 } from '@/features/service-requests/api/serviceRequestClient';
 import { serviceRequestQueryKeys } from '@/features/service-requests/queryKeys';
 import CustomerQuoteView from '@/features/service-requests/components/CustomerQuoteView';
+import CustomerProcurementOrderCard from '@/features/logistics/CustomerProcurementOrderCard';
+import DeliveryLogisticsCard from '@/features/logistics/DeliveryLogisticsCard';
 import {
   JOURNEY_TYPE_LABELS,
   resolveOperationalStage,
@@ -161,6 +163,18 @@ export default function ServiceRequestDetail() {
               ) : null}
 
               <CustomerQuoteView requestId={data.id} />
+
+              {data.intake_snapshot?.procurement_order ? (
+                <CustomerProcurementOrderCard
+                  order={data.intake_snapshot.procurement_order as Parameters<
+                    typeof CustomerProcurementOrderCard
+                  >[0]['order']}
+                />
+              ) : null}
+
+              {data.intake_snapshot?.delivery_logistics ? (
+                <DeliveryLogisticsCard logistics={data.intake_snapshot.delivery_logistics} />
+              ) : null}
 
               <div>
                 <h2 className="mb-3 text-lg font-bold text-ink">

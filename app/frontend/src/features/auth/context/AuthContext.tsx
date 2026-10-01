@@ -29,7 +29,8 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   error: string | null;
-  login: () => Promise<void>;
+  login: (returnTo?: string | null) => Promise<void>;
+  register: (returnTo?: string | null) => Promise<void>;
   logout: () => Promise<void>;
   refetch: () => Promise<void>;
   isAdmin: boolean;
@@ -72,12 +73,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const login = async () => {
+  const login = async (returnTo?: string | null) => {
     try {
       setError(null);
-      await authApi.login();
+      authApi.login(returnTo);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
+    }
+  };
+
+  const register = async (returnTo?: string | null) => {
+    try {
+      setError(null);
+      authApi.register(returnTo);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Registration failed');
     }
   };
 
@@ -109,6 +119,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loading,
     error,
     login,
+    register,
     logout,
     refetch: checkAuthStatus,
     isAdmin,

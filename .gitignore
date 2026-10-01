@@ -1,6 +1,7 @@
 venv/
 *.log
 node_modules/
+.pnpm-store/
 build/
 __pycache__
 dist

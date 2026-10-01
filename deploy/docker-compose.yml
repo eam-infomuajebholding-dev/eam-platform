@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-eam}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-in-production}
+      POSTGRES_DB: ${POSTGRES_DB:-eam}
+    volumes:
+      - eam_pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-eam} -d ${POSTGRES_DB:-eam}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.backend
+    env_file:
+      - ../app/.env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-eam}:${POSTGRES_PASSWORD:-change-me-in-production}@db:5432/${POSTGRES_DB:-eam}
+      VITE_API_BASE_URL: ""
+      FRONTEND_URL: ${FRONTEND_URL:-https://eam.sa}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.frontend
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    restart: unless-stopped
+
+volumes:
+  eam_pgdata:

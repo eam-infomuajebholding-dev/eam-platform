@@ -65,6 +65,9 @@ async def get_service_request(
     detail = ServiceRequestDetail.model_validate(item)
     return detail.model_copy(
         update={
+            "intake_snapshot": ServiceRequestService.sanitize_intake_snapshot_for_customer(
+                detail.intake_snapshot
+            ),
             "activity": _activity_items(service, activity),
             "pending_customer_action": item.status == SERVICE_REQUEST_STATUS_AWAITING_INFORMATION,
         }
@@ -98,6 +101,9 @@ async def submit_customer_response(
     detail = ServiceRequestDetail.model_validate(item)
     return detail.model_copy(
         update={
+            "intake_snapshot": ServiceRequestService.sanitize_intake_snapshot_for_customer(
+                detail.intake_snapshot
+            ),
             "activity": _activity_items(service, activity),
             "pending_customer_action": item.status == SERVICE_REQUEST_STATUS_AWAITING_INFORMATION,
         }

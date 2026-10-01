@@ -33,3 +33,11 @@ class TokenExchangeResponse(BaseModel):
     """Response body for issued application token."""
 
     token: str
+
+
+class AuthConfigResponse(BaseModel):
+    oidc_configured: bool
+    login_path: str
+    register_path: str
+    provider_label: str = "EAM Identity"
+    uses_pkce: bool = True

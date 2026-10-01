@@ -17,6 +17,7 @@ import {
   INSPECTION_OPTIONS,
   OWNERSHIP_OPTIONS,
   STEP_LABELS,
+  STEP_ORDER,
   VALUATION_PURPOSE_OPTIONS,
 } from './constants';
 import { type ValuationStepValues } from './errors';
@@ -36,6 +37,7 @@ export default function ValuationStepPanel({
   isCompleted,
   onAdvance,
   onComplete,
+  onRevisit,
   completedMessage,
   sectorId,
 }: Props) {
@@ -187,8 +189,10 @@ export default function ValuationStepPanel({
       isTerminal={isTerminal}
       isCompleted={isCompleted}
       completedMessage={completedMessage}
+      stepOrder={STEP_ORDER}
       onAdvance={onAdvance}
       onComplete={onComplete}
+      onRevisit={onRevisit}
     >
       {renderFields()}
     </JourneyStepPanelShell>

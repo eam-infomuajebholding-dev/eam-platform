@@ -1,6 +1,7 @@
 import base64
 import hashlib
 import logging
+import os
 import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional
@@ -232,6 +233,7 @@ def build_authorization_url(
     nonce: str,
     code_challenge: Optional[str] = None,
     redirect_uri: Optional[str] = None,
+    extra_params: Optional[dict[str, str]] = None,
 ) -> str:
     """Build OIDC authorization URL with optional PKCE support."""
     import urllib.parse
@@ -250,15 +252,33 @@ def build_authorization_url(
         params["code_challenge"] = code_challenge
         params["code_challenge_method"] = "S256"
 
+    if extra_params:
+        params.update(extra_params)
+
     auth_url = f"{settings.oidc_issuer_url}/authorize?" + urllib.parse.urlencode(params)
     return auth_url
+
+
+def oidc_signup_extra_params() -> dict[str, str]:
+    """Provider-specific registration hints (Keycloak: kc_action=register, Auth0: screen_hint=signup)."""
+    raw = os.environ.get("OIDC_SIGNUP_EXTRA_PARAMS", "kc_action=register").strip()
+    if not raw:
+        return {}
+    out: dict[str, str] = {}
+    for part in raw.split("&"):
+        if "=" in part:
+            key, value = part.split("=", 1)
+            out[key.strip()] = value.strip()
+    return out
 
 
 def build_logout_url(id_token: Optional[str] = None) -> str:
     """Build OIDC logout URL."""
     import urllib.parse
 
-    params = {"post_logout_redirect_uri": f"{settings.frontend_url}/logout-callback"}
+    frontend = os.environ.get("FRONTEND_URL", "").strip().rstrip("/") or getattr(settings, "frontend_url", "")
+    post_logout = f"{frontend}/auth/logout-callback" if frontend else "/auth/logout-callback"
+    params = {"post_logout_redirect_uri": post_logout}
 
     if id_token:
         params["id_token_hint"] = id_token

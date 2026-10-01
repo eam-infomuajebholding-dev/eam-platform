@@ -42,6 +42,16 @@ export type SiteMessageKey =
   | 'journey.option.urgency.urgent'
   | 'auth.logoutSuccess'
   | 'auth.logoutRedirect'
+  | 'auth.entry.subtitle'
+  | 'auth.entry.benefitContinuity'
+  | 'auth.entry.benefitSecurity'
+  | 'auth.entry.benefitRequests'
+  | 'auth.entry.oidcUnavailable'
+  | 'auth.entry.continueLogin'
+  | 'auth.entry.continueRegister'
+  | 'auth.entry.legalNotice'
+  | 'auth.entry.switchToRegister'
+  | 'auth.entry.switchToLogin'
   | 'admin.verifying'
   | 'admin.deniedTitle'
   | 'admin.deniedBody'
@@ -93,6 +103,16 @@ export const SITE_MESSAGES_AR: Record<SiteMessageKey, string> = {
   'journey.option.urgency.urgent': 'عاجل',
   'auth.logoutSuccess': 'تم تسجيل الخروج بنجاح',
   'auth.logoutRedirect': 'جاري التحويل للرئيسية…',
+  'auth.entry.subtitle': 'حساب واحد لإكمال الرحلات، متابعة الطلبات، والدفع الآمن.',
+  'auth.entry.benefitContinuity': 'استئناف الرحلات بعد تسجيل الدخول دون فقدان البيانات',
+  'auth.entry.benefitSecurity': 'مصادقة موحّدة (OIDC) مع PKCE — بدون كلمة مرور داخل تطبيق EAM',
+  'auth.entry.benefitRequests': 'الوصول إلى «طلباتي» والإشعارات التشغيلية',
+  'auth.entry.oidcUnavailable': 'خدمة الهوية غير مهيأة في هذه البيئة. تواصل مع الدعم أو جرّب لاحقاً.',
+  'auth.entry.continueLogin': 'متابعة إلى تسجيل الدخول',
+  'auth.entry.continueRegister': 'متابعة إلى إنشاء حساب',
+  'auth.entry.legalNotice': 'بالمتابعة، تُوجَّه إلى مزود الهوية المعتمد لإتمام المصادقة بأمان.',
+  'auth.entry.switchToRegister': 'ليس لديك حساب؟ إنشاء حساب',
+  'auth.entry.switchToLogin': 'لديك حساب؟ تسجيل الدخول',
   'admin.verifying': 'جاري التحقق من الصلاحيات…',
   'admin.deniedTitle': 'صلاحيات غير كافية',
   'admin.deniedBody': 'الحساب الحالي لا يملك صلاحيات المسؤول.',
@@ -145,6 +165,16 @@ export const SITE_MESSAGES_EN: Record<SiteMessageKey, string> = {
   'journey.option.urgency.urgent': 'Urgent',
   'auth.logoutSuccess': 'Signed out successfully',
   'auth.logoutRedirect': 'Redirecting to home…',
+  'auth.entry.subtitle': 'One account to finish journeys, track requests, and pay securely.',
+  'auth.entry.benefitContinuity': 'Resume journeys after sign-in without losing progress',
+  'auth.entry.benefitSecurity': 'Unified OIDC sign-in with PKCE — no passwords stored in EAM',
+  'auth.entry.benefitRequests': 'Access My requests and operational updates',
+  'auth.entry.oidcUnavailable': 'Identity service is not configured in this environment.',
+  'auth.entry.continueLogin': 'Continue to sign in',
+  'auth.entry.continueRegister': 'Continue to create account',
+  'auth.entry.legalNotice': 'You will be redirected to our trusted identity provider to authenticate securely.',
+  'auth.entry.switchToRegister': 'No account? Create one',
+  'auth.entry.switchToLogin': 'Already have an account? Sign in',
   'admin.verifying': 'Verifying permissions…',
   'admin.deniedTitle': 'Insufficient permissions',
   'admin.deniedBody': 'Your current account does not have administrator rights.',

@@ -18,7 +18,8 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   if (!user) {
     const returnTo = `${location.pathname}${location.search}`;
     saveAuthReturnTo(returnTo);
-    return <Navigate to="/" replace state={{ from: returnTo }} />;
+    const loginTarget = `/login?returnTo=${encodeURIComponent(returnTo)}`;
+    return <Navigate to={loginTarget} replace state={{ from: returnTo }} />;
   }
 
   return <>{children}</>;

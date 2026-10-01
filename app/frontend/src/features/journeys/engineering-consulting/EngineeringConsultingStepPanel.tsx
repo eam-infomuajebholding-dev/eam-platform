@@ -11,7 +11,7 @@ import {
   JourneyTextArea,
   JourneyTextField,
 } from '@/features/journeys/core/JourneyFieldControls';
-import { DISCIPLINE_OPTIONS, PROJECT_TYPE_OPTIONS, STEP_LABELS } from './constants';
+import { DISCIPLINE_OPTIONS, PROJECT_TYPE_OPTIONS, STEP_LABELS, STEP_ORDER } from './constants';
 import { type EngineeringStepValues } from './errors';
 import type { EngineeringConsultingContext } from './types';
 
@@ -29,6 +29,7 @@ export default function EngineeringConsultingStepPanel({
   isCompleted,
   onAdvance,
   onComplete,
+  onRevisit,
   completedMessage,
   sectorId,
 }: Props) {
@@ -122,8 +123,10 @@ export default function EngineeringConsultingStepPanel({
       isTerminal={isTerminal}
       isCompleted={isCompleted}
       completedMessage={completedMessage}
+      stepOrder={STEP_ORDER}
       onAdvance={onAdvance}
       onComplete={onComplete}
+      onRevisit={onRevisit}
     >
       {renderFields()}
     </JourneyStepPanelShell>

@@ -7,6 +7,7 @@ import {
 import { JOURNEY_SECTOR_CATALOG } from '@/features/journeys/core/journeyCatalog';
 import { createStepHelpers } from '@/features/journeys/core/stepUtils';
 import { useJourneyPage } from '@/features/journeys/core/useJourneyPage';
+import { usePartnerAttribution } from '@/features/partners/usePartnerAttribution';
 
 export interface SectorJourneyDomainConfig<TValues, TContext extends Record<string, unknown>> {
   stepOrder: readonly string[];
@@ -21,6 +22,7 @@ export function useSectorJourneyPage<TValues, TContext extends Record<string, un
 ) {
   const { t } = useLanguage();
   const catalog = JOURNEY_SECTOR_CATALOG[sectorId];
+  const partnerAttribution = usePartnerAttribution();
   const stepHelpers = useMemo(() => createStepHelpers(config.stepOrder), [config.stepOrder]);
 
   const advanceErrorKey = journeySectorMessageKey(sectorId, 'advanceError');
@@ -32,6 +34,12 @@ export function useSectorJourneyPage<TValues, TContext extends Record<string, un
     journeyType: catalog.journeyType,
     terminalStep: catalog.terminalStep,
     supportsRevisit: catalog.supportsRevisit,
+    journeyInitialContext:
+      partnerAttribution.partnerSlug && !partnerAttribution.resolveError
+        ? partnerAttribution.initialContext
+        : undefined,
+    partnerBanner: partnerAttribution.banner,
+    partnerLinkInvalid: Boolean(partnerAttribution.partnerSlug && partnerAttribution.resolveError),
     emptyValues: config.emptyValues,
     syncFromContext: config.syncFromContext,
     buildAdvanceInput: config.buildAdvanceInput,

@@ -69,6 +69,13 @@ Deduplicated across Phase 2 / Master-008 / Delta-009 / WO-012–021. Status voca
 | E2E auth determinism | DONE (`docs/engineering/E2E_TEST_AUTH.md`) |
 | Backup/restore | NOT_CONFIGURED |
 | OIDC | BLOCKED_EXTERNAL (`OIDC_CLIENT_SECRET` absent) |
+| Alembic head | DONE_VERIFIED (`c0d1e2f4a5b6`) |
+| Partner / PO / logistics ops UI | DONE_VERIFIED |
+| Customer PO + logistics cards | DONE_VERIFIED |
+| Command Center fulfillment attention | DONE_VERIFIED |
+| Equipment (#11) provisional PO + fulfillment | DONE_VERIFIED |
+| Partner webhooks (HMAC + 3× retry) | DONE_VERIFIED |
+| Journeys status report | DONE (`docs/product/JOURNEYS_STATUS_REPORT.md`) |
 | Migration report (formal) | DONE_VERIFIED (`docs/wo017/WO017_MIGRATION_REPORT.md`) |
 | Developer onboarding guide | DONE_VERIFIED (`docs/engineering/DEVELOPER_ONBOARDING.md`) |
 | Journey engineer guide | DONE_VERIFIED (`docs/wo017/JOURNEY_ENGINEER_GUIDE.md`) |

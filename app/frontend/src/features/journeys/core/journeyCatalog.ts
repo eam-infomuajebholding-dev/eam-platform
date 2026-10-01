@@ -25,57 +25,69 @@ export const JOURNEY_SECTOR_CATALOG: Record<JourneySectorId, JourneySectorCatalo
     journeyType: BUILD_VILLA_JOURNEY_TYPE,
     terminalStep: 'intake_complete',
     supportsRevisit: true,
-    progressVariant: 'text',
+    progressVariant: 'bar',
   },
   'engineering-consulting': {
     journeyType: ENGINEERING_CONSULTING_JOURNEY_TYPE,
     terminalStep: 'handoff_complete',
+    supportsRevisit: true,
     progressVariant: 'bar',
   },
   contracting: {
     journeyType: CONTRACTING_JOURNEY_TYPE,
+    supportsRevisit: true,
     progressVariant: 'bar',
   },
   'real-estate-valuation': {
     journeyType: REAL_ESTATE_VALUATION_JOURNEY_TYPE,
+    supportsRevisit: true,
     progressVariant: 'bar',
   },
   'smart-maintenance': {
     journeyType: SMART_MAINTENANCE_JOURNEY_TYPE,
     terminalStep: 'intake_complete',
+    supportsRevisit: true,
     progressVariant: 'bar',
   },
   'project-management': {
     journeyType: PROJECT_MANAGEMENT_JOURNEY_TYPE,
+    supportsRevisit: true,
     progressVariant: 'bar',
   },
   furnishing: {
     journeyType: FURNISHING_JOURNEY_TYPE,
+    supportsRevisit: true,
     progressVariant: 'bar',
   },
   'facility-management': {
     journeyType: FACILITY_MANAGEMENT_JOURNEY_TYPE,
+    supportsRevisit: true,
     progressVariant: 'bar',
   },
   'government-services': {
     journeyType: GOVERNMENT_SERVICES_JOURNEY_TYPE,
     terminalStep: 'intake_complete',
+    supportsRevisit: true,
     progressVariant: 'bar',
   },
   'real-estate-development': {
     journeyType: REAL_ESTATE_DEVELOPMENT_JOURNEY_TYPE,
+    supportsRevisit: true,
     progressVariant: 'bar',
   },
   'real-estate-marketing': {
     journeyType: REAL_ESTATE_MARKETING_JOURNEY_TYPE,
+    supportsRevisit: true,
     progressVariant: 'bar',
   },
   'building-materials': {
     journeyType: BUILDING_MATERIALS_JOURNEY_TYPE,
+    supportsRevisit: true,
     progressVariant: 'bar',
   },
   equipment: {
     journeyType: EQUIPMENT_JOURNEY_TYPE,
+    supportsRevisit: true,
     progressVariant: 'bar',
   },
 };

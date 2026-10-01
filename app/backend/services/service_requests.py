@@ -160,6 +160,8 @@ class ServiceRequestService:
         *,
         statuses: frozenset[str] | None = None,
         journey_type: str | None = None,
+        partner_org_id: int | None = None,
+        partner_assignment_status: str | None = None,
         limit: int = 200,
     ) -> list[ServiceRequest]:
         query = select(ServiceRequest).order_by(ServiceRequest.created_at.desc())
@@ -167,6 +169,10 @@ class ServiceRequestService:
             query = query.where(ServiceRequest.status.in_(statuses))
         if journey_type:
             query = query.where(ServiceRequest.journey_type == journey_type)
+        if partner_org_id is not None:
+            query = query.where(ServiceRequest.partner_org_id == partner_org_id)
+        if partner_assignment_status:
+            query = query.where(ServiceRequest.partner_assignment_status == partner_assignment_status)
         query = query.limit(limit)
         result = await self.db.execute(query)
         return list(result.scalars().all())
@@ -416,6 +422,63 @@ class ServiceRequestService:
         await self.db.flush()
         return transition
 
+    async def record_delivery_logistics_event(
+        self,
+        request_id: int,
+        *,
+        shipment_reference: str,
+        logistics_status: str,
+        tracking_number: str | None = None,
+    ) -> ServiceRequestStatusTransition | None:
+        """Customer-visible activity entry for delivery milestones (status unchanged)."""
+        request = await self.get_by_id(request_id)
+        if not request:
+            return None
+
+        transitions = await self.list_transitions(request_id)
+        for row in transitions:
+            metadata = row.metadata_json or {}
+            if (
+                metadata.get("event") == "delivery_logistics"
+                and metadata.get("logistics_status") == logistics_status
+                and metadata.get("shipment_reference") == shipment_reference
+            ):
+                return row
+
+        labels = {
+            "dispatched": "تم تجهيز شحنتك للتوصيل",
+            "in_transit": "شحنتك في الطريق",
+            "out_for_delivery": "الشحنة خارج للتسليم",
+            "delivered": "تم تسليم مواد طلبك",
+            "delivery_failed": "تعذّر التسليم — سيتواصل معك فريق EAM",
+        }
+        base = labels.get(logistics_status, f"تحديث التوصيل: {logistics_status}")
+        if tracking_number and logistics_status == "dispatched":
+            customer_message = f"{base} — رقم التتبع: {tracking_number}"
+        else:
+            customer_message = base
+
+        now = datetime.now(timezone.utc)
+        transition = ServiceRequestStatusTransition(
+            service_request_id=request.id,
+            from_status=request.status,
+            to_status=request.status,
+            actor_user_id="system",
+            actor_role="system",
+            customer_message=customer_message,
+            metadata_json={
+                "event": "delivery_logistics",
+                "logistics_status": logistics_status,
+                "shipment_reference": shipment_reference,
+                "tracking_number": tracking_number,
+            },
+            created_at=now,
+        )
+        self.db.add(transition)
+        request.updated_at = now
+        await self.db.flush()
+        return transition
+
     async def create_from_journey(self, instance: Any) -> tuple[ServiceRequest, bool]:
         """Create or return existing service request for a completed journey instance."""
         existing = await self.get_by_journey_instance_id(instance.id)
@@ -427,8 +490,23 @@ class ServiceRequestService:
         now = datetime.now(timezone.utc)
         intake_draft = instance.context.get("intake_draft") or {}
         snapshot = self._build_intake_snapshot(intake_draft)
+        from services.partner_attribution import build_partner_attribution_snapshot
+
+        partner_snapshot = build_partner_attribution_snapshot(instance.context or {})
+        if partner_snapshot:
+            snapshot["partner_attribution"] = partner_snapshot
         source_channel = instance.context.get("source_channel")
         request_type = REQUEST_TYPE_BY_JOURNEY[instance.journey_type]
+        partner_org_id = instance.context.get("partner_org_id")
+        partner_outlet_id = instance.context.get("partner_outlet_id")
+        from models.partner_platform import PARTNER_ASSIGNMENT_NONE, PARTNER_ASSIGNMENT_PENDING
+        from models.partner_platform import WEBHOOK_EVENT_SERVICE_REQUEST_CREATED
+        from services.partner_events import service_request_partner_payload
+        from services.partner_webhooks import dispatch_partner_webhooks
+
+        partner_assignment_status = (
+            PARTNER_ASSIGNMENT_PENDING if partner_org_id else PARTNER_ASSIGNMENT_NONE
+        )
 
         service_request = ServiceRequest(
             user_id=instance.user_id,
@@ -439,11 +517,21 @@ class ServiceRequestService:
             reference_code=self._build_reference_code(instance.journey_type, instance.id),
             intake_snapshot=snapshot,
             source_channel=source_channel,
+            partner_org_id=partner_org_id,
+            partner_outlet_id=partner_outlet_id,
+            partner_assignment_status=partner_assignment_status,
             created_at=now,
             updated_at=now,
         )
         self.db.add(service_request)
         await self.db.flush()
+        if partner_org_id:
+            await dispatch_partner_webhooks(
+                self.db,
+                partner_org_id=int(partner_org_id),
+                event_type=WEBHOOK_EVENT_SERVICE_REQUEST_CREATED,
+                payload=service_request_partner_payload(service_request),
+            )
         self.db.add(
             ServiceRequestStatusTransition(
                 service_request_id=service_request.id,
@@ -456,6 +544,16 @@ class ServiceRequestService:
             )
         )
         await self.db.flush()
+
+        from services.procurement_orders import ProcurementOrderService
+
+        po = await ProcurementOrderService(self.db).create_for_service_request(service_request)
+        if po is not None:
+            snap = dict(service_request.intake_snapshot or {})
+            snap["procurement_order"] = ProcurementOrderService(self.db).summary_payload(po)
+            service_request.intake_snapshot = snap
+            await self.db.flush()
+
         logger.info(
             "Created service request %s for journey instance %s",
             service_request.reference_code,
@@ -506,13 +604,22 @@ class ServiceRequestService:
             raise ServiceRequestValidationError("intake_draft is required to create a service request")
 
     @staticmethod
+    def sanitize_intake_snapshot_for_customer(snapshot: dict[str, Any]) -> dict[str, Any]:
+        """Remove operations-only fields from snapshots returned to customers."""
+        cleaned = deepcopy(snapshot)
+        cleaned.pop("internal_review_and_approval", None)
+        return cleaned
+
+    @staticmethod
     def _build_intake_snapshot(intake_draft: dict[str, Any]) -> dict[str, Any]:
-        snapshot = {
+        snapshot: dict[str, Any] = {
             "snapshot_version": SNAPSHOT_VERSION,
             "journey_type": intake_draft.get("journey_type"),
             "draft_status": intake_draft.get("draft_status"),
             "assembled_at": intake_draft.get("assembled_at"),
         }
+        if intake_draft.get("partner_attribution"):
+            snapshot["partner_attribution"] = deepcopy(intake_draft["partner_attribution"])
         if intake_draft.get("journey_type") == BUILD_VILLA_JOURNEY_TYPE:
             snapshot.update(
                 {
@@ -746,19 +853,22 @@ class ServiceRequestService:
             snapshot.update(
                 {
                     "sector_slug": intake_draft.get("sector_slug"),
-                    "procurement_goal": intake_draft.get("procurement_goal"),
-                    "material_category": intake_draft.get("material_category"),
-                    "project_context": intake_draft.get("project_context"),
+                    "intake_channel": intake_draft.get("intake_channel"),
+                    "materials_list": intake_draft.get("materials_list"),
+                    "materials_image_url": intake_draft.get("materials_image_url"),
+                    "assistant_transcript": intake_draft.get("assistant_transcript"),
+                    "requester_name": intake_draft.get("requester_name"),
+                    "requester_phone": intake_draft.get("requester_phone"),
+                    "phone_verified": intake_draft.get("phone_verified"),
                     "delivery_location": intake_draft.get("delivery_location"),
-                    "quantity_scope": intake_draft.get("quantity_scope"),
-                    "specifications_context": intake_draft.get("specifications_context"),
-                    "target_timeline": intake_draft.get("target_timeline"),
-                    "urgency": intake_draft.get("urgency"),
-                    "budget_context": intake_draft.get("budget_context"),
-                    "supplier_context": intake_draft.get("supplier_context"),
-                    "preliminary_brief": deepcopy(intake_draft.get("preliminary_brief") or {}),
-                    "scope_confirmed": intake_draft.get("scope_confirmed"),
-                    "submit_confirmed": intake_draft.get("submit_confirmed"),
+                    "procurement_invoice": deepcopy(intake_draft.get("procurement_invoice") or {}),
+                    "invoice_confirmed": intake_draft.get("invoice_confirmed"),
+                    "buyer_liability_terms_accepted": intake_draft.get("buyer_liability_terms_accepted"),
+                    "buyer_liability_terms_version": intake_draft.get("buyer_liability_terms_version"),
+                    "buyer_liability_terms_accepted_at": intake_draft.get("buyer_liability_terms_accepted_at"),
+                    "internal_review_and_approval": deepcopy(
+                        intake_draft.get("internal_review_and_approval") or {}
+                    ),
                 }
             )
         elif intake_draft.get("journey_type") == EQUIPMENT_JOURNEY_TYPE:
@@ -776,6 +886,8 @@ class ServiceRequestService:
                     "budget_context": intake_draft.get("budget_context"),
                     "readiness_context": intake_draft.get("readiness_context"),
                     "preliminary_brief": deepcopy(intake_draft.get("preliminary_brief") or {}),
+                    "procurement_invoice": deepcopy(intake_draft.get("procurement_invoice") or {}),
+                    "delivery_location": intake_draft.get("delivery_location") or intake_draft.get("location"),
                     "scope_confirmed": intake_draft.get("scope_confirmed"),
                     "submit_confirmed": intake_draft.get("submit_confirmed"),
                 }

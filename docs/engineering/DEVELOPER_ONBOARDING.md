@@ -62,9 +62,11 @@ Visual/admin Playwright specs require JWT alignment with running backend. See `d
 ## Architecture entry points
 
 - Authorities: `docs/engineering/AUTHORITY_MAP.md`
-- Journeys: `docs/wo017/JOURNEY_ENGINEER_GUIDE.md`
+- Journeys: `docs/wo017/JOURNEY_ENGINEER_GUIDE.md`, status report `docs/product/JOURNEYS_STATUS_REPORT.md`
+- Partners / PO / logistics: `docs/partners/PARTNER_PLATFORM.md`, `docs/engineering/LOGISTICS_LAYER.md`, `docs/engineering/FULFILLMENT_RUNBOOK.md`
 - Commercial: `docs/commercial-architecture.md`
 - Blockers: `docs/roadmap/EAM_REMAINING_WORK_REGISTER.md`
+- **Go-live (when env secrets arrive):** `docs/operations/GO_LIVE_CHECKLIST.md`
 
 ## Common issues
 

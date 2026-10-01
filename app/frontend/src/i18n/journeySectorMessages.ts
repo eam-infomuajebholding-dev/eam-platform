@@ -281,7 +281,7 @@ const SECTOR_AR: Record<JourneySectorId, Record<SectorField, string>> = {
   'building-materials': {
     title: 'مواد البناء',
     description:
-      'رحلة جاهزية توريد مواد البناء — من فهم احتياج التوريد والمواصفات إلى موجز أولي قبل المراجعة المهنية.',
+      'شراء مواد البناء: أدخل القائمة (صورة، نص، أو مساعد ذكي)، أكّد جوالك، حدّد التوصيل، ثم راجع الفاتورة والدفع.',
     startLabel: 'ابدأ رحلة مواد البناء',
     startError: 'تعذر بدء رحلة مواد البناء. يرجى المحاولة مرة أخرى.',
     completedMessage: 'تم إرسال طلب مواد البناء بنجاح.',
@@ -376,7 +376,8 @@ const SECTOR_EN: Record<JourneySectorId, Record<SectorField, string>> = {
   },
   'building-materials': {
     title: 'Building materials',
-    description: 'Materials readiness — from supply needs to a preliminary brief before review.',
+    description:
+      'Buy building materials: list intake (image, text, or assistant), phone verification, delivery, invoice, and payment.',
     startLabel: 'Start building materials journey',
     startError: 'Could not start the building materials journey. Please try again.',
     completedMessage: 'Your building materials request was submitted successfully.',

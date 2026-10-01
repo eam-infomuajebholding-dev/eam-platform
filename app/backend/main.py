@@ -75,6 +75,20 @@ async def lifespan(app: FastAPI):
     await initialize_admin_user()
 
     await db_manager.ensure_initialized()
+    try:
+        from services.platform_readiness import get_platform_readiness
+
+        readiness = get_platform_readiness()
+        logger.info(
+            "Platform readiness: overall=%s core_operational=%s blockers=%s pending_external=%s",
+            readiness["overall"],
+            readiness["core_operational"],
+            [b["id"] for b in readiness["blockers"]],
+            [p["id"] for p in readiness["pending_external"]],
+        )
+    except Exception:
+        logger.exception("Could not evaluate platform readiness at startup")
+
     if db_manager.async_session_maker is None:
         logger.error(
             "Startup failed: async_session_maker unavailable after database initialization"
