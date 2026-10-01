@@ -82,11 +82,23 @@ export async function getCustomerIssuedQuote(requestId: number): Promise<QuoteDe
   return invokeQuotes<QuoteDetail>(`/api/v1/service-requests/${requestId}/quote`, 'GET');
 }
 
+export interface QuoteAcceptanceResult {
+  quote: QuoteDetail;
+  contract_reference: string;
+  operational_project_reference: string;
+  operational_project_status: string;
+}
+
+export async function acceptCustomerQuote(requestId: number): Promise<QuoteAcceptanceResult> {
+  return invokeQuotes<QuoteAcceptanceResult>(`/api/v1/service-requests/${requestId}/quote/accept`, 'POST');
+}
+
 export const QUOTE_STATUS_LABELS: Record<string, string> = {
   draft: 'مسودة',
   pending_approval: 'بانتظار الموافقة',
   approved: 'معتمد',
   issued: 'صادر للعميل',
+  accepted: 'مقبول',
   paid: 'مدفوع',
   cancelled: 'ملغى',
 };

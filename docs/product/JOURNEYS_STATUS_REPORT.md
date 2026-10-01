@@ -1,6 +1,6 @@
 # تقرير حالة الرحلات — EAM
 
-**آخر تحديث:** 2026-09-28  
+**آخر تحديث:** 2026-10-01  
 **مصدر الحقيقة:** `services/platform_architecture.py`، `GET /api/v1/platform/architecture`
 
 ## الملخص
@@ -8,52 +8,34 @@
 | المؤشر | القيمة |
 |--------|--------|
 | قطاعات مسجّلة | 16 |
-| رحلات JOS LIVE | **13** |
-| بدون رحلة تشغيلية | 3 (#03 استثمار، #12 مصانع/موردين، #16 تسليم/ملاك) |
+| رحلات JOS LIVE | **16** |
 | مسار بعد الإرسال | SR → مراجعة مهنية → تأهيل → عرض سعر |
-| حلقة تجارية كاملة | قبول عرض / عقد / دفع / مشروع تشغيلي — **محجوبة** |
+| حلقة تجارية | قبول عرض → عقد (سجل) → مشروع تشغيلي → دفع Stripe |
 
-## الرحلات LIVE (13)
+## الرحلات LIVE (16)
 
 1. التطوير العقاري — `/journeys/real-estate-development`  
 2. التسويق العقاري — `/journeys/real-estate-marketing`  
-3. بناء منزل — `/journeys/build-villa`  
-4. التقييم العقاري — `/journeys/real-estate-valuation`  
-5. الخدمات الحكومية — `/journeys/government-services`  
-6. إدارة المشاريع — `/journeys/project-management`  
-7. الاستشارات الهندسية — `/journeys/engineering-consulting`  
-8. المقاولات — `/journeys/contracting`  
-9. **مواد البناء** — `/journeys/building-materials` (+ PO + شريك + لوجistics)  
-10. المعدات — `/journeys/equipment` (+ PO أولي + شريك/شحن عند الإسناد)  
-11. الصيانة الذكية — `/journeys/smart-maintenance`  
-12. إدارة المرافق — `/journeys/facility-management`  
-13. التأثيث — `/journeys/furnishing`  
+3. **الاستثمار** — `/journeys/investment` (اهتمام أولي — بدون وعود عائد)  
+4. بناء منزل — `/journeys/build-villa`  
+5. التقييم العقاري — `/journeys/real-estate-valuation`  
+6. الخدمات الحكومية — `/journeys/government-services`  
+7. إدارة المشاريع — `/journeys/project-management`  
+8. الاستشارات الهندسية — `/journeys/engineering-consulting`  
+9. المقاولات — `/journeys/contracting`  
+10. مواد البناء — `/journeys/building-materials` (+ PO + شريك + logistics)  
+11. المعدات — `/journeys/equipment` (+ PO أولي)  
+12. **المصانع والموردين** — `/journeys/factories-suppliers`  
+13. الصيانة الذكية — `/journeys/smart-maintenance`  
+14. إدارة المرافق — `/journeys/facility-management`  
+15. التأثيث — `/journeys/furnishing`  
+16. **التسليم وخدمات الملاك** — `/journeys/delivery-warranty`  
 
-## آليات مشتركة
+## Alembic
 
-- JOS (خادم) + `JourneyShell` + `PreliminaryBriefCard`  
-- إرسال → `ServiceRequest` + `intake_snapshot`  
-- Ops: `/operations/service-requests`  
-- E2E: `app/frontend/e2e/*journey*.spec.ts`
-
-## مواد البناء — امتداد المنصة
-
-- `ProcurementOrder` عند الإرسال  
-- قبول الشريك → `DeliveryShipment`  
-- تتبع العميل: `procurement_order` + `delivery_logistics` في snapshot وواجهة «طلباتي»  
-- Ops: لوحة التوريد والتوصيل + PO/شحنة على تفاصيل الطلب (مع query `?partner_assignment_status=`)  
-- Command Center: تنبيهات قبول الشريك والشحنات المعلّقة  
-
-## محجوب / مخطط
-
-| قطاع | السبب |
-|------|--------|
-| استثمار | Opportunity BO، تنظيمي |
-| مصانع وموردين | Supplier BO، marketplace |
-| تسليم وملاك | OperationalProject |
+رأس السلسلة: **`d1e2f3a4b5c7`** (16 journeys + commercial tables)
 
 ## مراجع
 
-- `docs/journey-shared-mechanics.md`  
-- `docs/engineering/HOW_TO_ADD_A_JOURNEY.md`  
-- `docs/roadmap/EAM_REMAINING_WORK_REGISTER.md`
+- `docs/roadmap/EAM_REMAINING_WORK_REGISTER.md`  
+- `docs/engineering/HOW_TO_ADD_A_JOURNEY.md`

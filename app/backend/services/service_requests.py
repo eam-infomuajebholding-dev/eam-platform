@@ -29,6 +29,9 @@ REAL_ESTATE_DEVELOPMENT_JOURNEY_TYPE = "real_estate_development"
 REAL_ESTATE_MARKETING_JOURNEY_TYPE = "real_estate_marketing"
 BUILDING_MATERIALS_JOURNEY_TYPE = "building_materials"
 EQUIPMENT_JOURNEY_TYPE = "equipment"
+INVESTMENT_JOURNEY_TYPE = "investment"
+FACTORIES_SUPPLIERS_JOURNEY_TYPE = "factories_suppliers"
+DELIVERY_WARRANTY_JOURNEY_TYPE = "delivery_warranty"
 SUPPORTED_JOURNEY_TYPES = frozenset(
     {
         BUILD_VILLA_JOURNEY_TYPE,
@@ -44,6 +47,9 @@ SUPPORTED_JOURNEY_TYPES = frozenset(
         REAL_ESTATE_MARKETING_JOURNEY_TYPE,
         BUILDING_MATERIALS_JOURNEY_TYPE,
         EQUIPMENT_JOURNEY_TYPE,
+        INVESTMENT_JOURNEY_TYPE,
+        FACTORIES_SUPPLIERS_JOURNEY_TYPE,
+        DELIVERY_WARRANTY_JOURNEY_TYPE,
     }
 )
 
@@ -61,6 +67,9 @@ REQUEST_TYPE_BY_JOURNEY = {
     REAL_ESTATE_MARKETING_JOURNEY_TYPE: "real_estate_marketing_intake",
     BUILDING_MATERIALS_JOURNEY_TYPE: "building_materials_intake",
     EQUIPMENT_JOURNEY_TYPE: "equipment_intake",
+    INVESTMENT_JOURNEY_TYPE: "investment_intake",
+    FACTORIES_SUPPLIERS_JOURNEY_TYPE: "factories_suppliers_intake",
+    DELIVERY_WARRANTY_JOURNEY_TYPE: "delivery_warranty_intake",
 }
 
 REFERENCE_PREFIX_BY_JOURNEY = {
@@ -77,6 +86,9 @@ REFERENCE_PREFIX_BY_JOURNEY = {
     REAL_ESTATE_MARKETING_JOURNEY_TYPE: "RM",
     BUILDING_MATERIALS_JOURNEY_TYPE: "BM",
     EQUIPMENT_JOURNEY_TYPE: "EQ",
+    INVESTMENT_JOURNEY_TYPE: "IV",
+    FACTORIES_SUPPLIERS_JOURNEY_TYPE: "FS",
+    DELIVERY_WARRANTY_JOURNEY_TYPE: "DW",
 }
 
 SERVICE_REQUEST_STATUS_SUBMITTED = "submitted"
@@ -888,6 +900,58 @@ class ServiceRequestService:
                     "preliminary_brief": deepcopy(intake_draft.get("preliminary_brief") or {}),
                     "procurement_invoice": deepcopy(intake_draft.get("procurement_invoice") or {}),
                     "delivery_location": intake_draft.get("delivery_location") or intake_draft.get("location"),
+                    "scope_confirmed": intake_draft.get("scope_confirmed"),
+                    "submit_confirmed": intake_draft.get("submit_confirmed"),
+                }
+            )
+        elif intake_draft.get("journey_type") == INVESTMENT_JOURNEY_TYPE:
+            snapshot.update(
+                {
+                    "sector_slug": intake_draft.get("sector_slug"),
+                    "investor_profile": intake_draft.get("investor_profile"),
+                    "interest_focus": intake_draft.get("interest_focus"),
+                    "capital_horizon": intake_draft.get("capital_horizon"),
+                    "geography_focus": intake_draft.get("geography_focus"),
+                    "risk_comfort": intake_draft.get("risk_comfort"),
+                    "regulatory_notes": intake_draft.get("regulatory_notes"),
+                    "documents_readiness": intake_draft.get("documents_readiness"),
+                    "target_timeline": intake_draft.get("target_timeline"),
+                    "urgency": intake_draft.get("urgency"),
+                    "preliminary_brief": deepcopy(intake_draft.get("preliminary_brief") or {}),
+                    "scope_confirmed": intake_draft.get("scope_confirmed"),
+                    "submit_confirmed": intake_draft.get("submit_confirmed"),
+                }
+            )
+        elif intake_draft.get("journey_type") == FACTORIES_SUPPLIERS_JOURNEY_TYPE:
+            snapshot.update(
+                {
+                    "sector_slug": intake_draft.get("sector_slug"),
+                    "supplier_role": intake_draft.get("supplier_role"),
+                    "product_category": intake_draft.get("product_category"),
+                    "supply_coverage": intake_draft.get("supply_coverage"),
+                    "quality_standards": intake_draft.get("quality_standards"),
+                    "partnership_intent": intake_draft.get("partnership_intent"),
+                    "target_timeline": intake_draft.get("target_timeline"),
+                    "urgency": intake_draft.get("urgency"),
+                    "current_readiness": intake_draft.get("current_readiness"),
+                    "preliminary_brief": deepcopy(intake_draft.get("preliminary_brief") or {}),
+                    "scope_confirmed": intake_draft.get("scope_confirmed"),
+                    "submit_confirmed": intake_draft.get("submit_confirmed"),
+                }
+            )
+        elif intake_draft.get("journey_type") == DELIVERY_WARRANTY_JOURNEY_TYPE:
+            snapshot.update(
+                {
+                    "sector_slug": intake_draft.get("sector_slug"),
+                    "handover_context": intake_draft.get("handover_context"),
+                    "property_location": intake_draft.get("property_location"),
+                    "project_reference": intake_draft.get("project_reference"),
+                    "issue_description": intake_draft.get("issue_description"),
+                    "documentation_state": intake_draft.get("documentation_state"),
+                    "owner_objective": intake_draft.get("owner_objective"),
+                    "target_timeline": intake_draft.get("target_timeline"),
+                    "urgency": intake_draft.get("urgency"),
+                    "preliminary_brief": deepcopy(intake_draft.get("preliminary_brief") or {}),
                     "scope_confirmed": intake_draft.get("scope_confirmed"),
                     "submit_confirmed": intake_draft.get("submit_confirmed"),
                 }

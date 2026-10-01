@@ -13,6 +13,10 @@ import { REAL_ESTATE_MARKETING_JOURNEY_TYPE } from '@/features/journeys/real-est
 import { BUILDING_MATERIALS_JOURNEY_TYPE } from '@/features/journeys/building-materials/types';
 import { EQUIPMENT_JOURNEY_TYPE } from '@/features/journeys/equipment/types';
 
+export const INVESTMENT_JOURNEY_TYPE = 'investment';
+export const FACTORIES_SUPPLIERS_JOURNEY_TYPE = 'factories_suppliers';
+export const DELIVERY_WARRANTY_JOURNEY_TYPE = 'delivery_warranty';
+
 export interface JourneySectorCatalogEntry {
   journeyType: string;
   terminalStep?: string;
@@ -87,6 +91,21 @@ export const JOURNEY_SECTOR_CATALOG: Record<JourneySectorId, JourneySectorCatalo
   },
   equipment: {
     journeyType: EQUIPMENT_JOURNEY_TYPE,
+    supportsRevisit: true,
+    progressVariant: 'bar',
+  },
+  investment: {
+    journeyType: INVESTMENT_JOURNEY_TYPE,
+    supportsRevisit: true,
+    progressVariant: 'bar',
+  },
+  'factories-suppliers': {
+    journeyType: FACTORIES_SUPPLIERS_JOURNEY_TYPE,
+    supportsRevisit: true,
+    progressVariant: 'bar',
+  },
+  'delivery-warranty': {
+    journeyType: DELIVERY_WARRANTY_JOURNEY_TYPE,
     supportsRevisit: true,
     progressVariant: 'bar',
   },

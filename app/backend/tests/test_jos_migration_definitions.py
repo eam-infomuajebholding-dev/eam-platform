@@ -18,7 +18,7 @@ def test_single_alembic_head():
     script = ScriptDirectory.from_config(cfg)
     heads = script.get_heads()
     assert len(heads) == 1
-    assert heads[0] == "c0d1e2f4a5b6"
+    assert heads[0] == "d1e2f3a4b5c7"
 
 
 def test_build_villa_workflow_matches_canonical_v1_order():

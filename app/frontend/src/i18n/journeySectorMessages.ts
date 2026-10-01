@@ -12,6 +12,9 @@ export const JOURNEY_SECTOR_IDS = [
   'real-estate-marketing',
   'building-materials',
   'equipment',
+  'investment',
+  'factories-suppliers',
+  'delivery-warranty',
 ] as const;
 
 export type JourneySectorId = (typeof JOURNEY_SECTOR_IDS)[number];
@@ -116,6 +119,22 @@ const SECTOR_STEP_AR: Record<
     submitPreamble: SUBMIT_PREAMBLE_AR.replace('{sector}', 'المعدات والآلات'),
     intakeCompleteMessage: 'تم إكمال رحلة المعدات والآلات.',
   },
+  investment: {
+    scopeConfirmLabel:
+      'أؤكد أن المعلومات دقيقة — هذا اهتمام أولي وليس توصية استثمارية أو وعداً بعائد.',
+    submitPreamble: SUBMIT_PREAMBLE_AR.replace('{sector}', 'الاستثمار'),
+    intakeCompleteMessage: 'تم إكمال رحلة الاهتمام الاستثماري.',
+  },
+  'factories-suppliers': {
+    scopeConfirmLabel: SUPPLY_SCOPE_AR,
+    submitPreamble: SUBMIT_PREAMBLE_AR.replace('{sector}', 'المصانع والموردين'),
+    intakeCompleteMessage: 'تم إكمال رحلة الموردين.',
+  },
+  'delivery-warranty': {
+    scopeConfirmLabel: DEFAULT_SCOPE_AR,
+    submitPreamble: SUBMIT_PREAMBLE_AR.replace('{sector}', 'التسليم وخدمات الملاك'),
+    intakeCompleteMessage: 'تم إكمال رحلة التسليم/الضمان.',
+  },
 };
 
 const DEFAULT_SCOPE_EN = 'I confirm the information provided is accurate to the best of my knowledge.';
@@ -194,6 +213,22 @@ const SECTOR_STEP_EN: Record<
     scopeConfirmLabel: SUPPLY_SCOPE_EN,
     submitPreamble: SUBMIT_PREAMBLE_EN.replace('{sector}', 'equipment'),
     intakeCompleteMessage: 'Equipment journey completed.',
+  },
+  investment: {
+    scopeConfirmLabel:
+      'I confirm the information is accurate — preliminary interest only, not investment advice or return promise.',
+    submitPreamble: SUBMIT_PREAMBLE_EN.replace('{sector}', 'investment'),
+    intakeCompleteMessage: 'Investment interest journey completed.',
+  },
+  'factories-suppliers': {
+    scopeConfirmLabel: SUPPLY_SCOPE_EN,
+    submitPreamble: SUBMIT_PREAMBLE_EN.replace('{sector}', 'factories & suppliers'),
+    intakeCompleteMessage: 'Factories & suppliers journey completed.',
+  },
+  'delivery-warranty': {
+    scopeConfirmLabel: DEFAULT_SCOPE_EN,
+    submitPreamble: SUBMIT_PREAMBLE_EN.replace('{sector}', 'delivery & owner services'),
+    intakeCompleteMessage: 'Delivery & warranty journey completed.',
   },
 };
 
@@ -294,6 +329,27 @@ const SECTOR_AR: Record<JourneySectorId, Record<SectorField, string>> = {
     startError: 'تعذر بدء رحلة المعدات والآلات. يرجى المحاولة مرة أخرى.',
     completedMessage: 'تم إرسال طلب المعدات والآلات بنجاح.',
   },
+  investment: {
+    title: 'الاستثمار',
+    description: 'رحلة اهتمام استثماري أولي — بدون وعود عائد أو توصية.',
+    startLabel: 'ابدأ رحلة الاهتمام الاستثماري',
+    startError: 'تعذر بدء رحلة الاستثمار. يرجى المحاولة مرة أخرى.',
+    completedMessage: 'تم إرسال طلب الاهتمام الاستثماري بنجاح.',
+  },
+  'factories-suppliers': {
+    title: 'المصانع والموردين',
+    description: 'رحلة جاهزية مورد/مصنع قبل التحقق وربط B2B.',
+    startLabel: 'ابدأ رحلة الموردين',
+    startError: 'تعذر بدء رحلة الموردين. يرجى المحاولة مرة أخرى.',
+    completedMessage: 'تم إرسال طلب الموردين بنجاح.',
+  },
+  'delivery-warranty': {
+    title: 'التسليم وخدمات الملاك',
+    description: 'رحلة دعم تسليم أو ضمان — موجز أولي قبل المراجعة الميدانية.',
+    startLabel: 'ابدأ رحلة التسليم/الضمان',
+    startError: 'تعذر بدء الرحلة. يرجى المحاولة مرة أخرى.',
+    completedMessage: 'تم إرسال طلب التسليم/الضمان بنجاح.',
+  },
 };
 
 const SECTOR_EN: Record<JourneySectorId, Record<SectorField, string>> = {
@@ -388,6 +444,27 @@ const SECTOR_EN: Record<JourneySectorId, Record<SectorField, string>> = {
     startLabel: 'Start equipment journey',
     startError: 'Could not start the equipment journey. Please try again.',
     completedMessage: 'Your equipment request was submitted successfully.',
+  },
+  investment: {
+    title: 'Investment',
+    description: 'Preliminary investment interest — no return promises or advice.',
+    startLabel: 'Start investment interest journey',
+    startError: 'Could not start the investment journey. Please try again.',
+    completedMessage: 'Your investment interest request was submitted successfully.',
+  },
+  'factories-suppliers': {
+    title: 'Factories & suppliers',
+    description: 'Supplier/manufacturer readiness before B2B verification.',
+    startLabel: 'Start supplier journey',
+    startError: 'Could not start the supplier journey. Please try again.',
+    completedMessage: 'Your supplier request was submitted successfully.',
+  },
+  'delivery-warranty': {
+    title: 'Delivery & owner services',
+    description: 'Handover or warranty support — preliminary brief before field review.',
+    startLabel: 'Start delivery/warranty journey',
+    startError: 'Could not start the journey. Please try again.',
+    completedMessage: 'Your delivery/warranty request was submitted successfully.',
   },
 };
 

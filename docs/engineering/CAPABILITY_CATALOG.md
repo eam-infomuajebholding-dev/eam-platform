@@ -17,12 +17,13 @@ Statuses: IMPLEMENTED | PARTIAL | BLOCKED | PLANNED_JIT
 | Auth entry UX (login/register, PKCE, token hygiene) | IMPLEMENTED | `/login`, `/register`, `docs/engineering/AUTH_UX.md` |
 | OIDC production auth | PARTIAL | UX + config API ready; IdP/env BLOCKED_EXTERNAL for prod |
 | Delivery logistics layer | IMPLEMENTED | Shipments, partner + ops APIs, `LOGISTICS_LAYER.md` |
-| Contract / Payment | BLOCKED | BLOCKED_UPSTREAM |
-| OperationalProject | BLOCKED | BLOCKED_UPSTREAM |
-| Investment journey | BLOCKED | BLOCKED_UPSTREAM |
+| Quote acceptance + Contract record | IMPLEMENTED | accept API + commercial_contracts |
+| Payment (Stripe) | PARTIAL | env-dependent checkout |
+| OperationalProject | IMPLEMENTED | on quote acceptance |
+| Investment journey | IMPLEMENTED | Preliminary interest (#03) |
 | Platform architecture registry (16 sectors) | IMPLEMENTED | `GET /api/v1/platform/architecture` |
 | Partner platform B2B | IMPLEMENTED | Portal, API keys, webhooks (3× retry) — `docs/partners/PARTNER_PLATFORM.md` |
-| Journeys program (13 LIVE) | IMPLEMENTED | `docs/product/JOURNEYS_STATUS_REPORT.md` |
+| Journeys program (16 LIVE) | IMPLEMENTED | `docs/product/JOURNEYS_STATUS_REPORT.md` |
 | Procurement order (building materials + equipment) | IMPLEMENTED | `procurement_orders` + ops API |
 | Marketplace | PLANNED_JIT | NOT_YET_REQUIRED |
 | Evidence Drawer V2 | PLANNED_JIT | DEFERRED |

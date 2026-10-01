@@ -14,7 +14,9 @@ from schemas.service_requests import (
     ServiceRequestListResponse,
     summary_from_model,
 )
-from services.quotes import QuoteService, _quote_detail_dict
+from schemas.commercial_engagement import QuoteAcceptanceResponse
+from services.commercial_engagement import CommercialEngagementError, CommercialEngagementService
+from services.quotes import QuoteService, QuoteTransitionError, _quote_detail_dict
 from services.service_requests import (
     SERVICE_REQUEST_STATUS_AWAITING_INFORMATION,
     ServiceRequestService,
@@ -121,3 +123,21 @@ async def get_customer_issued_quote(
     if quote is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Issued quote not found")
     return QuoteDetailResponse.model_validate(_quote_detail_dict(quote))
+
+
+@router.post("/{request_id}/quote/accept", response_model=QuoteAcceptanceResponse)
+async def accept_customer_quote(
+    request_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: UserResponse = Depends(get_current_user),
+):
+    service = CommercialEngagementService(db)
+    try:
+        data = await service.accept_issued_quote(request_id, user_id=current_user.id)
+        await db.commit()
+    except QuoteTransitionError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+    except CommercialEngagementError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+    return QuoteAcceptanceResponse.model_validate(data)

@@ -1105,6 +1105,61 @@ FURNISHING_WORKFLOW = {
     ],
 }
 
+INVESTMENT_WORKFLOW = {
+    "initial_step": "investor_profile",
+    "steps": [
+        {"key": "investor_profile", "label": "Investor profile", "required_fields": ["investor_profile"], "next": "interest_focus"},
+        {"key": "interest_focus", "label": "Interest focus", "required_fields": ["interest_focus"], "next": "capital_horizon"},
+        {"key": "capital_horizon", "label": "Capital horizon", "required_fields": ["capital_horizon"], "next": "geography_focus"},
+        {"key": "geography_focus", "label": "Geography focus", "required_fields": ["geography_focus"], "next": "risk_comfort"},
+        {"key": "risk_comfort", "label": "Risk comfort", "required_fields": ["risk_comfort"], "next": "compliance_context"},
+        {"key": "compliance_context", "label": "Compliance context", "required_fields": [], "next": "documents_readiness"},
+        {"key": "documents_readiness", "label": "Documents readiness", "required_fields": ["documents_readiness"], "next": "timeline_context"},
+        {"key": "timeline_context", "label": "Timeline context", "required_fields": ["target_timeline"], "next": "summary_review"},
+        {"key": "summary_review", "label": "Summary review", "required_fields": [], "next": "investment_interest_brief"},
+        {"key": "investment_interest_brief", "label": "Investment interest brief", "required_fields": [], "next": "scope_confirm"},
+        {"key": "scope_confirm", "label": "Scope confirmation", "required_fields": ["scope_confirmed"], "next": "submit_confirm"},
+        {"key": "submit_confirm", "label": "Submit confirmation", "required_fields": ["submit_confirmed"], "next": "intake_complete"},
+        {"key": "intake_complete", "label": "Intake complete", "terminal": True},
+    ],
+}
+
+FACTORIES_SUPPLIERS_WORKFLOW = {
+    "initial_step": "supplier_role",
+    "steps": [
+        {"key": "supplier_role", "label": "Supplier role", "required_fields": ["supplier_role"], "next": "product_category"},
+        {"key": "product_category", "label": "Product category", "required_fields": ["product_category"], "next": "supply_coverage"},
+        {"key": "supply_coverage", "label": "Supply coverage", "required_fields": ["supply_coverage"], "next": "quality_standards"},
+        {"key": "quality_standards", "label": "Quality standards", "required_fields": ["quality_standards"], "next": "partnership_intent"},
+        {"key": "partnership_intent", "label": "Partnership intent", "required_fields": ["partnership_intent"], "next": "timeline_context"},
+        {"key": "timeline_context", "label": "Timeline context", "required_fields": ["target_timeline"], "next": "readiness_context"},
+        {"key": "readiness_context", "label": "Readiness context", "required_fields": [], "next": "summary_review"},
+        {"key": "summary_review", "label": "Summary review", "required_fields": [], "next": "supplier_readiness_brief"},
+        {"key": "supplier_readiness_brief", "label": "Supplier readiness brief", "required_fields": [], "next": "scope_confirm"},
+        {"key": "scope_confirm", "label": "Scope confirmation", "required_fields": ["scope_confirmed"], "next": "submit_confirm"},
+        {"key": "submit_confirm", "label": "Submit confirmation", "required_fields": ["submit_confirmed"], "next": "intake_complete"},
+        {"key": "intake_complete", "label": "Intake complete", "terminal": True},
+    ],
+}
+
+DELIVERY_WARRANTY_WORKFLOW = {
+    "initial_step": "handover_context",
+    "steps": [
+        {"key": "handover_context", "label": "Handover context", "required_fields": ["handover_context"], "next": "property_location"},
+        {"key": "property_location", "label": "Property location", "required_fields": ["property_location"], "next": "project_reference"},
+        {"key": "project_reference", "label": "Project reference", "required_fields": [], "next": "issue_description"},
+        {"key": "issue_description", "label": "Issue description", "required_fields": ["issue_description"], "next": "documentation_state"},
+        {"key": "documentation_state", "label": "Documentation state", "required_fields": ["documentation_state"], "next": "owner_objective"},
+        {"key": "owner_objective", "label": "Owner objective", "required_fields": ["owner_objective"], "next": "timeline_context"},
+        {"key": "timeline_context", "label": "Timeline context", "required_fields": ["target_timeline"], "next": "summary_review"},
+        {"key": "summary_review", "label": "Summary review", "required_fields": [], "next": "handover_support_brief"},
+        {"key": "handover_support_brief", "label": "Handover support brief", "required_fields": [], "next": "scope_confirm"},
+        {"key": "scope_confirm", "label": "Scope confirmation", "required_fields": ["scope_confirmed"], "next": "submit_confirm"},
+        {"key": "submit_confirm", "label": "Submit confirmation", "required_fields": ["submit_confirmed"], "next": "intake_complete"},
+        {"key": "intake_complete", "label": "Intake complete", "terminal": True},
+    ],
+}
+
 DEFAULT_DEFINITIONS = [
     {
         "journey_type": "generic_demo",
@@ -1190,6 +1245,24 @@ DEFAULT_DEFINITIONS = [
         "description": "Pilot #11 equipment preliminary readiness brief journey.",
         "workflow_definition": EQUIPMENT_WORKFLOW,
     },
+    {
+        "journey_type": "investment",
+        "name": "Investment Interest Intake",
+        "description": "Pilot #03 investment preliminary interest journey (no ROI promises).",
+        "workflow_definition": INVESTMENT_WORKFLOW,
+    },
+    {
+        "journey_type": "factories_suppliers",
+        "name": "Factories & Suppliers Intake",
+        "description": "Pilot #12 supplier/manufacturer readiness journey.",
+        "workflow_definition": FACTORIES_SUPPLIERS_WORKFLOW,
+    },
+    {
+        "journey_type": "delivery_warranty",
+        "name": "Delivery & Owner Services Intake",
+        "description": "Pilot #16 handover and owner support journey.",
+        "workflow_definition": DELIVERY_WARRANTY_WORKFLOW,
+    },
 ]
 
 UPSERT_JOURNEY_TYPES = frozenset(
@@ -1207,6 +1280,9 @@ UPSERT_JOURNEY_TYPES = frozenset(
         "real_estate_marketing",
         "building_materials",
         "equipment",
+        "investment",
+        "factories_suppliers",
+        "delivery_warranty",
     }
 )
 

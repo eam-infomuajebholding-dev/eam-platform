@@ -9,7 +9,7 @@ Each item appears once. Supersedes duplicate entries in phase archives.
 |---|--------|--------|
 | 01 | Real Estate Development | DONE_VERIFIED |
 | 02 | Real Estate Marketing | DONE_VERIFIED |
-| 03 | Investment | BLOCKED_UPSTREAM — **مستثنى بقرار منتج** (لا JOS حتى Opportunity BO) |
+| 03 | Investment | DONE_VERIFIED |
 | 04 | Build Villa | DONE_VERIFIED |
 | 05 | Valuation | DONE_VERIFIED |
 | 06 | Government Services | DONE_VERIFIED |
@@ -18,13 +18,13 @@ Each item appears once. Supersedes duplicate entries in phase archives.
 | 09 | Contracting | DONE_VERIFIED |
 | 10 | Building Materials | DONE_VERIFIED |
 | 11 | Equipment | DONE_VERIFIED |
-| 12 | Factories & Suppliers | BLOCKED_UPSTREAM |
+| 12 | Factories & Suppliers | DONE_VERIFIED |
 | 13 | Smart Maintenance | DONE_VERIFIED |
 | 14 | Facility Management | DONE_VERIFIED |
 | 15 | Furnishing | DONE_VERIFIED |
-| 16 | Delivery & Owner Services | BLOCKED_UPSTREAM |
+| 16 | Delivery & Owner Services | DONE_VERIFIED |
 
-**REAL_JOURNEY_COUNT = 13**
+**REAL_JOURNEY_COUNT = 16**
 
 ## Commercial
 
@@ -32,10 +32,10 @@ Each item appears once. Supersedes duplicate entries in phase archives.
 |-------|--------|
 | Service Request → Review → Qualify | DONE_VERIFIED |
 | Quote / Proposal | DONE_VERIFIED |
-| Acceptance | BLOCKED_BUSINESS_DECISION — owner pack: `docs/commercial/QUOTE_ACCEPTANCE_OWNER_DECISION_PACK.md` |
-| Contract | BLOCKED_UPSTREAM |
-| Payment | BLOCKED_BUSINESS_DECISION |
-| OperationalProject | BLOCKED_UPSTREAM |
+| Acceptance | DONE_VERIFIED — `POST /api/v1/service-requests/{id}/quote/accept` |
+| Contract | DONE_VERIFIED — `commercial_contracts` (سجل إلكتروني) |
+| Payment | PARTIAL — Stripe عند توفر المفاتيح |
+| OperationalProject | DONE_VERIFIED — يُفتح عند قبول العرض |
 
 ## Platform
 
@@ -49,7 +49,7 @@ Each item appears once. Supersedes duplicate entries in phase archives.
 | E2E auth determinism | DONE (`docs/engineering/E2E_TEST_AUTH.md`) |
 | Backup/restore | NOT_CONFIGURED (`docs/engineering/BACKUP_RESTORE_READINESS.md`) |
 | OIDC | BLOCKED_EXTERNAL — `OIDC_CLIENT_SECRET` absent |
-| Alembic head alignment | DONE_VERIFIED (`c0d1e2f4a5b6` — logistics shipments) |
+| Alembic head alignment | DONE_VERIFIED (`d1e2f3a4b5c7` — 16 journeys + commercial) |
 | Partner / PO / logistics ops UI | DONE_VERIFIED (fulfillment panel, SR filters, partner dispatch form) |
 | Customer PO + logistics cards | DONE_VERIFIED (`/my-requests` — PO + delivery snapshot) |
 | Command Center fulfillment attention | DONE_VERIFIED (pending partner, awaiting dispatch) |

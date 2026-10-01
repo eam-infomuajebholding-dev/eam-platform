@@ -10,11 +10,12 @@ from alembic.config import Config
 from alembic.script import ScriptDirectory
 from pathlib import Path
 
-from services.payment_config import get_payment_config, is_checkout_ready
+from services.payment_config import get_payment_config
+from services.platform_architecture import get_platform_architecture
 
 ReadinessState = Literal["READY", "DEGRADED", "BLOCKED"]
 
-EXPECTED_ALEMBIC_HEAD = "c0d1e2f4a5b6"
+EXPECTED_ALEMBIC_HEAD = "d1e2f3a4b5c7"
 
 
 def _env_present(name: str) -> bool:
@@ -105,18 +106,17 @@ def get_platform_readiness() -> dict:
             }
         )
 
-    pending_business: list[dict[str, str]] = [
-        {
-            "id": "quote_acceptance",
-            "label_ar": "قبول عرض السعر",
-            "detail_ar": "قرار مالك — راجع docs/commercial/QUOTE_ACCEPTANCE_OWNER_DECISION_PACK.md",
-        },
-        {
-            "id": "investment_journey",
-            "label_ar": "رحلة الاستثمار (#03)",
-            "detail_ar": "BLOCKED_UPSTREAM — Opportunity BO (مستثنى حتى قرار منتج)",
-        },
-    ]
+    arch = get_platform_architecture()
+    live_count = arch["summary"]["live_journey_count"]
+    pending_business: list[dict[str, str]] = []
+    if live_count < 16:
+        pending_business.append(
+            {
+                "id": "journey_coverage",
+                "label_ar": "تغطية الرحلات",
+                "detail_ar": f"الرحلات LIVE: {live_count}/16",
+            }
+        )
 
     if core_operational and not blockers:
         overall: ReadinessState = "READY" if oidc_ok and payment.get("checkout_ready") else "DEGRADED"
@@ -128,7 +128,7 @@ def get_platform_readiness() -> dict:
         "overall": overall,
         "core_operational": core_operational,
         "credential_free_journeys": core_operational,
-        "live_journey_count": 13,
+        "live_journey_count": live_count,
         "alembic": {
             "expected_head": EXPECTED_ALEMBIC_HEAD,
             "current_head": alembic_head,

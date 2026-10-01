@@ -12,7 +12,7 @@ test.describe('Platform readiness API', () => {
       live_journey_count: number;
       alembic: { aligned: boolean };
     };
-    expect(body.live_journey_count).toBe(13);
+    expect(body.live_journey_count).toBe(16);
     expect(body.core_operational).toBe(true);
     expect(body.alembic.aligned).toBe(true);
     expect(['READY', 'DEGRADED', 'BLOCKED']).toContain(body.overall);

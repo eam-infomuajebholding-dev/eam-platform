@@ -87,6 +87,24 @@ from services.furnishing_validators import (
     assemble_furnishing_readiness_brief,
     validate_furnishing_step,
 )
+from services.investment_validators import (
+    INVESTMENT_JOURNEY_TYPE,
+    assemble_investment_intake_draft,
+    assemble_investment_interest_brief,
+    validate_investment_step,
+)
+from services.factories_suppliers_validators import (
+    FACTORIES_SUPPLIERS_JOURNEY_TYPE,
+    assemble_factories_suppliers_intake_draft,
+    assemble_supplier_readiness_brief,
+    validate_factories_suppliers_step,
+)
+from services.delivery_warranty_validators import (
+    DELIVERY_WARRANTY_JOURNEY_TYPE,
+    assemble_delivery_warranty_intake_draft,
+    assemble_handover_support_brief,
+    validate_delivery_warranty_step,
+)
 from services.engineering_consulting_validators import (
     ENGINEERING_CONSULTING_JOURNEY_TYPE,
     assemble_intake_draft as assemble_engineering_consulting_intake_draft,
@@ -127,6 +145,9 @@ DUPLICATE_GUARD_JOURNEY_TYPES = frozenset(
         REAL_ESTATE_MARKETING_JOURNEY_TYPE,
         BUILDING_MATERIALS_JOURNEY_TYPE,
         EQUIPMENT_JOURNEY_TYPE,
+        INVESTMENT_JOURNEY_TYPE,
+        FACTORIES_SUPPLIERS_JOURNEY_TYPE,
+        DELIVERY_WARRANTY_JOURNEY_TYPE,
     }
 )
 PINNED_WORKFLOW_CONTEXT_KEY = "_pinned_workflow"
@@ -446,6 +467,45 @@ class JosService:
                 )
                 await self.db.commit()
                 raise
+        elif instance.journey_type == INVESTMENT_JOURNEY_TYPE:
+            try:
+                validated_input = validate_investment_step(from_step, validated_input)
+            except FieldValidationError as exc:
+                await self._record_event(
+                    instance.id,
+                    event_type="validation_failed",
+                    from_step=from_step,
+                    to_step=from_step,
+                    payload={"errors": exc.errors, "input": input_data or {}},
+                )
+                await self.db.commit()
+                raise
+        elif instance.journey_type == FACTORIES_SUPPLIERS_JOURNEY_TYPE:
+            try:
+                validated_input = validate_factories_suppliers_step(from_step, validated_input)
+            except FieldValidationError as exc:
+                await self._record_event(
+                    instance.id,
+                    event_type="validation_failed",
+                    from_step=from_step,
+                    to_step=from_step,
+                    payload={"errors": exc.errors, "input": input_data or {}},
+                )
+                await self.db.commit()
+                raise
+        elif instance.journey_type == DELIVERY_WARRANTY_JOURNEY_TYPE:
+            try:
+                validated_input = validate_delivery_warranty_step(from_step, validated_input)
+            except FieldValidationError as exc:
+                await self._record_event(
+                    instance.id,
+                    event_type="validation_failed",
+                    from_step=from_step,
+                    to_step=from_step,
+                    payload={"errors": exc.errors, "input": input_data or {}},
+                )
+                await self.db.commit()
+                raise
 
         merged_context = dict(instance.context or {})
         merged_context.update(validated_input)
@@ -628,6 +688,36 @@ class JosService:
             and next_step == VALUATION_INTAKE_COMPLETE_STEP
         ):
             merged_context["intake_draft"] = assemble_equipment_intake_draft(merged_context)
+            merged_context["draft_status"] = "ready_for_handoff"
+
+        if instance.journey_type == INVESTMENT_JOURNEY_TYPE and next_step == "investment_interest_brief":
+            merged_context["preliminary_brief"] = assemble_investment_interest_brief(merged_context)
+
+        if (
+            instance.journey_type == INVESTMENT_JOURNEY_TYPE
+            and next_step == VALUATION_INTAKE_COMPLETE_STEP
+        ):
+            merged_context["intake_draft"] = assemble_investment_intake_draft(merged_context)
+            merged_context["draft_status"] = "ready_for_handoff"
+
+        if instance.journey_type == FACTORIES_SUPPLIERS_JOURNEY_TYPE and next_step == "supplier_readiness_brief":
+            merged_context["preliminary_brief"] = assemble_supplier_readiness_brief(merged_context)
+
+        if (
+            instance.journey_type == FACTORIES_SUPPLIERS_JOURNEY_TYPE
+            and next_step == VALUATION_INTAKE_COMPLETE_STEP
+        ):
+            merged_context["intake_draft"] = assemble_factories_suppliers_intake_draft(merged_context)
+            merged_context["draft_status"] = "ready_for_handoff"
+
+        if instance.journey_type == DELIVERY_WARRANTY_JOURNEY_TYPE and next_step == "handover_support_brief":
+            merged_context["preliminary_brief"] = assemble_handover_support_brief(merged_context)
+
+        if (
+            instance.journey_type == DELIVERY_WARRANTY_JOURNEY_TYPE
+            and next_step == VALUATION_INTAKE_COMPLETE_STEP
+        ):
+            merged_context["intake_draft"] = assemble_delivery_warranty_intake_draft(merged_context)
             merged_context["draft_status"] = "ready_for_handoff"
 
         instance.context = merged_context

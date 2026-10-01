@@ -19,11 +19,11 @@ Deduplicated across Phase 2 / Master-008 / Delta-009 / WO-012–021. Status voca
 | #02 Real Estate Marketing (`real_estate_marketing`) | DONE_VERIFIED | WO-016 full vertical slice |
 | #10 Building Materials (`building_materials`) | DONE_VERIFIED | WO-017 full vertical slice |
 | #11 Equipment (`equipment`) | DONE_VERIFIED | WO-017 full vertical slice |
-| #03 Investment | BLOCKED_UPSTREAM | Two-sided model, Opportunity BO, regulatory decisions |
-| #12 Factories & Suppliers | BLOCKED_UPSTREAM | Supplier authority / marketplace semantics |
-| #16 Delivery & Owner Services | BLOCKED_UPSTREAM | OperationalProject lifecycle absent |
+| #03 Investment (`investment`) | DONE_VERIFIED | Preliminary interest journey — no ROI promises |
+| #12 Factories & Suppliers (`factories_suppliers`) | DONE_VERIFIED | Supplier readiness + partner B2B path |
+| #16 Delivery & Owner Services (`delivery_warranty`) | DONE_VERIFIED | Handover/warranty intake |
 
-**REAL_JOURNEY_COUNT = 13** (complete vertical slices only).
+**REAL_JOURNEY_COUNT = 16**
 
 ## Commercial lifecycle
 
@@ -31,10 +31,10 @@ Deduplicated across Phase 2 / Master-008 / Delta-009 / WO-012–021. Status voca
 |------|--------|
 | Service Request (submit → review → qualify) | DONE_VERIFIED |
 | Quote / Proposal | DONE_VERIFIED (WO-018 — draft → issued lifecycle) |
-| Acceptance | BLOCKED_BUSINESS_DECISION — owner pack in `docs/commercial/QUOTE_ACCEPTANCE_OWNER_DECISION_PACK.md` |
-| Contract | BLOCKED_UPSTREAM |
-| Payment | BLOCKED_BUSINESS_DECISION |
-| OperationalProject | BLOCKED_UPSTREAM |
+| Acceptance | DONE_VERIFIED — customer `POST …/quote/accept` |
+| Contract | DONE_VERIFIED — `commercial_contracts` electronic record |
+| Payment | PARTIAL — Stripe when env configured |
+| OperationalProject | DONE_VERIFIED — opened on quote acceptance |
 | Marketplace (operational) | NOT_YET_REQUIRED |
 
 ## Auth & M1
@@ -69,7 +69,7 @@ Deduplicated across Phase 2 / Master-008 / Delta-009 / WO-012–021. Status voca
 | E2E auth determinism | DONE (`docs/engineering/E2E_TEST_AUTH.md`) |
 | Backup/restore | NOT_CONFIGURED |
 | OIDC | BLOCKED_EXTERNAL (`OIDC_CLIENT_SECRET` absent) |
-| Alembic head | DONE_VERIFIED (`c0d1e2f4a5b6`) |
+| Alembic head | DONE_VERIFIED (`d1e2f3a4b5c7`) |
 | Partner / PO / logistics ops UI | DONE_VERIFIED |
 | Customer PO + logistics cards | DONE_VERIFIED |
 | Command Center fulfillment attention | DONE_VERIFIED |

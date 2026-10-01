@@ -37,7 +37,10 @@ export type PaymentMessageKey =
   | 'payment.stageAwaitingPayment'
   | 'payment.stageAwaitingPaymentDesc'
   | 'payment.stagePaid'
-  | 'payment.stagePaidDesc';
+  | 'payment.stagePaidDesc'
+  | 'payment.acceptQuote'
+  | 'payment.acceptProcessing'
+  | 'payment.acceptTermsNote';
 
 export const PAYMENT_MESSAGES_AR: Record<PaymentMessageKey, string> = {
   'payment.payNow': 'ادفع الآن — دفع آمن',
@@ -77,6 +80,10 @@ export const PAYMENT_MESSAGES_AR: Record<PaymentMessageKey, string> = {
   'payment.stageAwaitingPaymentDesc': 'عرض السعر جاهز — يمكنك إتمام الدفع الآمن أدناه.',
   'payment.stagePaid': 'تم الدفع',
   'payment.stagePaidDesc': 'تم استلام الدفع — يتابع فريق EAM تنفيذ طلبك.',
+  'payment.acceptQuote': 'أقبل عرض السعر والشروط',
+  'payment.acceptProcessing': 'جاري تسجيل القبول…',
+  'payment.acceptTermsNote':
+    'يُنشأ سجل عقد إلكتروني ومشروع تشغيلي — دون استبدال عقد موقّع عند طلب الجهة المنظمة.',
 };
 
 export const PAYMENT_MESSAGES_EN: Record<PaymentMessageKey, string> = {
@@ -117,4 +124,8 @@ export const PAYMENT_MESSAGES_EN: Record<PaymentMessageKey, string> = {
   'payment.stageAwaitingPaymentDesc': 'Your quote is ready — complete secure checkout below.',
   'payment.stagePaid': 'Paid',
   'payment.stagePaidDesc': 'Payment received — the EAM team will proceed with your request.',
+  'payment.acceptQuote': 'Accept quote and terms',
+  'payment.acceptProcessing': 'Recording acceptance…',
+  'payment.acceptTermsNote':
+    'Creates an electronic contract record and operational project — does not replace a signed contract when required.',
 };

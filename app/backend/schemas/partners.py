@@ -108,6 +108,9 @@ def sample_links_for_partner(slug: str, journey_types: list[str]) -> list[dict[s
         "equipment": "/journeys/equipment",
         "contracting": "/journeys/contracting",
         "build_villa": "/journeys/build-villa",
+        "investment": "/journeys/investment",
+        "factories_suppliers": "/journeys/factories-suppliers",
+        "delivery_warranty": "/journeys/delivery-warranty",
     }
     links: list[dict[str, str]] = []
     for journey_type in journey_types:

@@ -23,7 +23,7 @@ def test_platform_architecture_covers_16_sectors():
     assert len(PLATFORM_SECTOR_ARCHITECTURE) == 16
     slugs = {s["sector_slug"] for s in PLATFORM_SECTOR_ARCHITECTURE}
     assert len(slugs) == 16
-    assert data["summary"]["live_journey_count"] == 13
+    assert data["summary"]["live_journey_count"] == 16
 
 
 def test_building_materials_sector_has_procurement_order_service():

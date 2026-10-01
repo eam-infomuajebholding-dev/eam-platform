@@ -15,6 +15,7 @@ from models.quotes import (
     QUOTE_STATUS_APPROVED,
     QUOTE_STATUS_CANCELLED,
     QUOTE_STATUS_DRAFT,
+    QUOTE_STATUS_ACCEPTED,
     QUOTE_STATUS_ISSUED,
     QUOTE_STATUS_PAID,
     QUOTE_STATUS_PENDING_APPROVAL,
@@ -303,8 +304,8 @@ class QuoteService:
         quote = await self.get_by_id(quote_id)
         if quote is None:
             raise QuoteValidationError("Quote not found")
-        if quote.status != QUOTE_STATUS_ISSUED:
-            raise QuoteTransitionError("Only issued quotes can be marked as paid")
+        if quote.status not in (QUOTE_STATUS_ISSUED, QUOTE_STATUS_ACCEPTED):
+            raise QuoteTransitionError("Only issued or accepted quotes can be marked as paid")
 
         quote.status = QUOTE_STATUS_PAID
         quote.updated_at = datetime.now(timezone.utc)

@@ -58,6 +58,18 @@ export const JOURNEY_ROUTE_DEFINITIONS: JourneyRouteDefinition[] = [
     path: 'equipment',
     lazyImport: () => import('@/features/journeys/equipment/EquipmentJourneyPage'),
   },
+  {
+    path: 'investment',
+    lazyImport: () => import('@/features/journeys/investment/InvestmentJourneyPage'),
+  },
+  {
+    path: 'factories-suppliers',
+    lazyImport: () => import('@/features/journeys/factories-suppliers/FactoriesSuppliersJourneyPage'),
+  },
+  {
+    path: 'delivery-warranty',
+    lazyImport: () => import('@/features/journeys/delivery-warranty/DeliveryWarrantyJourneyPage'),
+  },
 ];
 
 export const lazyJourneyPages = Object.fromEntries(

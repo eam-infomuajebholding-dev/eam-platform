@@ -64,8 +64,8 @@ jobs:
             exit 1
           fi
           head_id=$(alembic heads | awk '{print $1}')
-          if [ "$head_id" != "c0d1e2f4a5b6" ]; then
-            echo "Unexpected head: $head_id (expected c0d1e2f4a5b6)"
+          if [ "$head_id" != "d1e2f3a4b5c7" ]; then
+            echo "Unexpected head: $head_id (expected d1e2f3a4b5c7)"
             exit 1
           fi
 

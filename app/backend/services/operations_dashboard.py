@@ -526,7 +526,18 @@ class OperationsDashboardService:
                 status="LIVE",
                 detail_ar="WO-018 Quote BO",
             ),
-            CommercialFunnelStage(stage_id="contract", label_ar="عقد", status="NOT_YET_OPERATIONAL"),
+            CommercialFunnelStage(
+                stage_id="acceptance",
+                label_ar="قبول العرض",
+                status="LIVE",
+                detail_ar="POST …/quote/accept → contract + OP",
+            ),
+            CommercialFunnelStage(
+                stage_id="contract",
+                label_ar="عقد",
+                status="LIVE",
+                detail_ar="commercial_contracts (سجل إلكتروني)",
+            ),
             CommercialFunnelStage(
                 stage_id="payment",
                 label_ar="دفع",
@@ -540,8 +551,8 @@ class OperationsDashboardService:
             CommercialFunnelStage(
                 stage_id="operational_project",
                 label_ar="مشروع تشغيلي",
-                status="NOT_YET_OPERATIONAL",
-                detail_ar="BLOCKED_UPSTREAM_COMMERCIAL_TRIGGER",
+                status="LIVE",
+                detail_ar="operational_projects عند قبول العرض",
             ),
         ]
 
@@ -573,8 +584,7 @@ class OperationsDashboardService:
             "موافقة بصرية للصفحة الرئيسية — USER_VISUAL_ACCEPTANCE=AWAITING_USER",
         ]
         watch_next = [
-            "Contract BO — deferred until accepted proposal",
-            "OIDC للقبول المصادق — BLOCKED_EXTERNAL",
+            "OIDC للدخول الإنتاجي — BLOCKED_EXTERNAL حتى مفاتيح IdP",
             "متابعة طلبات بانتظار معلومات العميل" if awaiting else "لا طلبات بانتظار معلومات حالياً",
         ]
 
@@ -584,7 +594,7 @@ class OperationsDashboardService:
         )
         what_matters = [
             "الطلب المؤهل يمكن إصدار عرض سعر له — Quote BO نشط (WO-018)",
-            "الدفع الإلكتروني عبر Stripe Checkout — issued quote → pay",
+            "قبول العرض → عقد إلكتروني + مشروع تشغيلي — ثم Stripe Checkout",
             f"الرحلات النشطة: {overview.journey_status_counts.get('active', 0)}",
         ]
         if paid_count:
@@ -706,10 +716,16 @@ class OperationsDashboardService:
                 blocker=None,
             ),
             CommercialReadinessItem(
+                item_id="acceptance",
+                label_ar="قبول العرض",
+                status="LIVE",
+                blocker=None,
+            ),
+            CommercialReadinessItem(
                 item_id="contract",
                 label_ar="العقود",
-                status="NOT_YET_OPERATIONAL",
-                blocker="DEFERRED — upstream commercial acceptance",
+                status="LIVE",
+                blocker="سجل إلكتروني — لا يستبدل عقداً موقّعاً عند الطلب",
             ),
             CommercialReadinessItem(
                 item_id="payment",
@@ -720,8 +736,8 @@ class OperationsDashboardService:
             CommercialReadinessItem(
                 item_id="operational_project",
                 label_ar="المشروع التشغيلي",
-                status="NOT_YET_OPERATIONAL",
-                blocker="BLOCKED_UPSTREAM_COMMERCIAL_TRIGGER",
+                status="LIVE",
+                blocker=None,
             ),
         ]
 

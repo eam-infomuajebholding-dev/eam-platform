@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import {
   QUOTE_STATUS_LABELS,
   formatSar,
+  acceptCustomerQuote,
   getCustomerIssuedQuote,
 } from '@/features/operations/api/quotesClient';
 import {
@@ -39,6 +40,14 @@ export default function CustomerQuoteView({ requestId }: Props) {
     queryFn: () => getQuotePaymentStatus(requestId),
     enabled: quoteQuery.isSuccess,
     retry: false,
+  });
+
+  const acceptMutation = useMutation({
+    mutationFn: () => acceptCustomerQuote(requestId),
+    onSuccess: () => {
+      void quoteQuery.refetch();
+      void paymentQuery.refetch();
+    },
   });
 
   const checkoutMutation = useMutation({
@@ -88,6 +97,7 @@ export default function CustomerQuoteView({ requestId }: Props) {
   const quote = quoteQuery.data;
   const payment = paymentQuery.data;
   const isPaid = payment?.paid || quote.status === 'paid';
+  const canAccept = quote.status === 'issued' && !isPaid;
   const canPay = payment?.can_pay && !isPaid;
   const paymentsEnabled = payment?.payments_enabled ?? false;
   const webhookGap = paymentsEnabled && payment?.webhook_configured === false;
@@ -166,6 +176,26 @@ export default function CustomerQuoteView({ requestId }: Props) {
               </a>
             </Button>
           ) : null}
+        </div>
+      ) : canAccept ? (
+        <div className="mt-5 space-y-3">
+          <Button
+            className="w-full sm:w-auto"
+            variant="default"
+            size="lg"
+            disabled={acceptMutation.isPending}
+            onClick={() => acceptMutation.mutate()}
+          >
+            {acceptMutation.isPending ? (
+              <>
+                <Loader2 className="animate-spin" />
+                {t('payment.acceptProcessing')}
+              </>
+            ) : (
+              t('payment.acceptQuote')
+            )}
+          </Button>
+          <p className="text-xs text-ink-muted">{t('payment.acceptTermsNote')}</p>
         </div>
       ) : canPay ? (
         <div className="mt-5 space-y-3">

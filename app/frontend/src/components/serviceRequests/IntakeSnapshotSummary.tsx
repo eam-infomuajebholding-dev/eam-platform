@@ -296,6 +296,51 @@ export default function IntakeSnapshotSummary({
     );
   }
 
+  if (journeyType === 'investment') {
+    return (
+      <div className="space-y-4 text-sm">
+        {partnerBlock}
+        <div className="space-y-2 rounded-xl border border-gold/20 bg-surface-alt dark:bg-surface p-4">
+          <p><strong>صفة المستثمر:</strong> {snapshot.investor_profile ?? '—'}</p>
+          <p><strong>محور الاهتمام:</strong> {snapshot.interest_focus ?? '—'}</p>
+          <p><strong>التركيز الجغرافي:</strong> {snapshot.geography_focus ?? '—'}</p>
+          {snapshot.regulatory_notes ? <p><strong>امتثال:</strong> {snapshot.regulatory_notes}</p> : null}
+        </div>
+        {brief ? <PreliminaryBriefCard brief={brief} /> : null}
+      </div>
+    );
+  }
+
+  if (journeyType === 'factories_suppliers') {
+    return (
+      <div className="space-y-4 text-sm">
+        {partnerBlock}
+        <div className="space-y-2 rounded-xl border border-gold/20 bg-surface-alt dark:bg-surface p-4">
+          <p><strong>دور المورد:</strong> {snapshot.supplier_role ?? '—'}</p>
+          <p><strong>فئة المنتج:</strong> {snapshot.product_category ?? '—'}</p>
+          <p><strong>نطاق التوريد:</strong> {snapshot.supply_coverage ?? '—'}</p>
+          <p><strong>نية الشراكة:</strong> {snapshot.partnership_intent ?? '—'}</p>
+        </div>
+        {brief ? <PreliminaryBriefCard brief={brief} /> : null}
+      </div>
+    );
+  }
+
+  if (journeyType === 'delivery_warranty') {
+    return (
+      <div className="space-y-4 text-sm">
+        {partnerBlock}
+        <div className="space-y-2 rounded-xl border border-gold/20 bg-surface-alt dark:bg-surface p-4">
+          <p><strong>سياق التسليم:</strong> {snapshot.handover_context ?? '—'}</p>
+          <p><strong>الموقع:</strong> {snapshot.property_location ?? '—'}</p>
+          <p><strong>الوصف:</strong> {snapshot.issue_description ?? '—'}</p>
+          <p><strong>هدف المالك:</strong> {snapshot.owner_objective ?? '—'}</p>
+        </div>
+        {brief ? <PreliminaryBriefCard brief={brief} /> : null}
+      </div>
+    );
+  }
+
   if (journeyType === 'equipment') {
     const eqSnapshot = snapshot as ServiceRequestIntakeSnapshot & {
       equipment_need?: string;

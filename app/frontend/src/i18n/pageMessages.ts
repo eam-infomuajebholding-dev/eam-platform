@@ -200,7 +200,10 @@ export type PageMessageKey =
   | 'page.sector.startRed'
   | 'page.sector.startRem'
   | 'page.sector.startBm'
-  | 'page.sector.startEquipment';
+  | 'page.sector.startEquipment'
+  | 'page.sector.startInvestment'
+  | 'page.sector.startFactories'
+  | 'page.sector.startDelivery';
 
 export type PageMessageCatalog = Record<PageMessageKey, string>;
 
@@ -412,6 +415,9 @@ export const PAGE_MESSAGES_AR: PageMessageCatalog = {
   'page.sector.startRem': 'ابدأ رحلة التسويق العقاري',
   'page.sector.startBm': 'ابدأ رحلة مواد البناء',
   'page.sector.startEquipment': 'ابدأ رحلة المعدات',
+  'page.sector.startInvestment': 'ابدأ رحلة الاستثمار',
+  'page.sector.startFactories': 'ابدأ رحلة الموردين',
+  'page.sector.startDelivery': 'ابدأ رحلة التسليم والضمان',
 };
 
 export const PAGE_MESSAGES_EN: PageMessageCatalog = {
@@ -622,4 +628,7 @@ export const PAGE_MESSAGES_EN: PageMessageCatalog = {
   'page.sector.startRem': 'Start real estate marketing journey',
   'page.sector.startBm': 'Start building materials journey',
   'page.sector.startEquipment': 'Start equipment journey',
+  'page.sector.startInvestment': 'Start investment journey',
+  'page.sector.startFactories': 'Start factories & suppliers journey',
+  'page.sector.startDelivery': 'Start delivery & warranty journey',
 };

@@ -22,7 +22,7 @@ def test_readiness_structure():
     data = get_platform_readiness()
     assert data["overall"] in ("READY", "DEGRADED", "BLOCKED")
     assert data["alembic"]["expected_head"] == EXPECTED_ALEMBIC_HEAD
-    assert data["live_journey_count"] == 13
+    assert data["live_journey_count"] == 16
 
 
 @pytest.mark.asyncio

@@ -20,7 +20,13 @@ from models.payments import (
     Payment,
 )
 from models.stripe_webhook_events import StripeWebhookEvent
-from models.quotes import QUOTE_CUSTOMER_VISIBLE_STATUSES, QUOTE_STATUS_ISSUED, QUOTE_STATUS_PAID, Quote
+from models.quotes import (
+    QUOTE_CUSTOMER_VISIBLE_STATUSES,
+    QUOTE_STATUS_ACCEPTED,
+    QUOTE_STATUS_ISSUED,
+    QUOTE_STATUS_PAID,
+    Quote,
+)
 from services.payment import CheckoutError, initialize_stripe
 from services.payment_config import is_stripe_configured, is_stripe_webhook_configured
 from services.quotes import QuoteService, QuoteTransitionError, QuoteValidationError
@@ -125,7 +131,7 @@ class QuotePaymentService:
         stripe_ready = is_stripe_configured()
         can_pay = (
             stripe_ready
-            and quote.status == QUOTE_STATUS_ISSUED
+            and quote.status in (QUOTE_STATUS_ISSUED, QUOTE_STATUS_ACCEPTED)
             and not paid
             and not expired
             and quote.total_amount > 0
@@ -156,7 +162,7 @@ class QuotePaymentService:
         quote = await self.quote_service.get_customer_issued_quote(service_request_id, user_id=user_id)
         if quote is None:
             raise QuotePaymentError("Issued quote not found")
-        if quote.status != QUOTE_STATUS_ISSUED:
+        if quote.status not in (QUOTE_STATUS_ISSUED, QUOTE_STATUS_ACCEPTED):
             raise QuotePaymentError("Quote is not available for payment")
         if not quote.line_items:
             raise QuotePaymentError("Quote has no billable line items")

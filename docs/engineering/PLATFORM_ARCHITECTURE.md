@@ -18,8 +18,7 @@ Frontend sector registry (`app/frontend/src/data/sectors.ts`) must stay aligned 
 
 | Status | Count | Sectors |
 |--------|-------|---------|
-| LIVE JOS | 13 | All except investment, factories-suppliers, delivery-warranty |
-| PLANNED / BLOCKED | 3 | investment (BLOCKED), factories-suppliers (PLANNED), delivery-warranty (PLANNED) |
+| LIVE JOS | 16 | All 16 sectors |
 
 ## Procurement order (أمر شراء)
 
@@ -36,7 +35,7 @@ Frontend sector registry (`app/frontend/src/data/sectors.ts`) must stay aligned 
 
 See [LOGISTICS_LAYER.md](./LOGISTICS_LAYER.md).
 
-**Alembic head:** `c0d1e2f4a5b6` (procurement orders + delivery shipments)
+**Alembic head:** `d1e2f3a4b5c7` (16 journeys + commercial_contracts + operational_projects)
 
 ## Command Center
 
