@@ -90,8 +90,8 @@ Deduplicated across Phase 2 / Master-008 / Delta-009 / WO-012–021. Status voca
 | Quote | IMPLEMENTED |
 | Opportunity | NO_TRIGGER |
 | Supplier | NO_TRIGGER |
-| Contract | BLOCKED_UPSTREAM |
-| OperationalProject | BLOCKED_UPSTREAM |
-| Payment | BLOCKED_BUSINESS_DECISION |
+| Contract | IMPLEMENTED — `commercial_contracts` |
+| OperationalProject | IMPLEMENTED — `operational_projects` |
+| Payment | PARTIAL — Stripe when env configured |
 
 Canonical mirror: `docs/roadmap/EAM_REMAINING_WORK_REGISTER.md`

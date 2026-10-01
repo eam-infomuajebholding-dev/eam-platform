@@ -86,7 +86,7 @@ async def test_journey_start_unsupported_type(db_session: AsyncSession):
     gateway = ToolGateway(db_session)
     result = await gateway.execute(
         "journey.start",
-        {"journey_type": "investment"},
+        {"journey_type": "not_a_real_journey"},
         _ctx(confirmation_present=True),
     )
     assert result.status == "denied"

@@ -78,7 +78,7 @@ Deliveries logged in `partner_webhook_deliveries`. Failed HTTP deliveries retry 
 cd app/backend && alembic upgrade head
 ```
 
-Head revision: `c0d1e2f4a5b6`
+Head revision: `d1e2f3a4b5c7`
 
 ## Procurement orders
 

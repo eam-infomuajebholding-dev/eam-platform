@@ -19,6 +19,9 @@ from services.ai_core_intents import (
     REAL_ESTATE_MARKETING_JOURNEY_TYPE,
     BUILDING_MATERIALS_JOURNEY_TYPE,
     EQUIPMENT_JOURNEY_TYPE,
+    INVESTMENT_JOURNEY_TYPE,
+    FACTORIES_SUPPLIERS_JOURNEY_TYPE,
+    DELIVERY_WARRANTY_JOURNEY_TYPE,
     FURNISHING_JOURNEY_TYPE,
     PROJECT_MANAGEMENT_JOURNEY_TYPE,
     SMART_MAINTENANCE_JOURNEY_TYPE,
@@ -92,6 +95,47 @@ BUILDING_MATERIALS_PHRASE_PATTERNS = (
 EQUIPMENT_START_MESSAGE = (
     "حسناً! سأساعدك في بدء رحلة المعدات والآلات. "
     "حدّد حاجتك في الخطوة الأولى — الموجز الأولي ليس عرض سعر ولا جدول تسليم."
+)
+
+INVESTMENT_START_MESSAGE = (
+    "حسناً! سأساعدك في بدء رحلة الاهتمام الاستثماري الأولي. "
+    "هذا موجز استكشافي — ليس توصية استثمارية ولا وعداً بعائد."
+)
+
+INVESTMENT_PHRASE_PATTERNS = (
+    re.compile(r"اهتمام\s+استثمار", re.IGNORECASE),
+    re.compile(r"فرص(?:ة|)\s+استثمار", re.IGNORECASE),
+    re.compile(r"أ?ريد\s+استثمار", re.IGNORECASE),
+    re.compile(r"investment\s+interest", re.IGNORECASE),
+    re.compile(r"invest(?:or|ment)\s+(?:opportunity|inquiry)", re.IGNORECASE),
+    re.compile(r"joint\s+venture|مشاركة\s+استثمار", re.IGNORECASE),
+)
+
+FACTORIES_SUPPLIERS_START_MESSAGE = (
+    "حسناً! سأساعدك في بدء رحلة جاهزية المورد/المصنع. "
+    "الموجز الأولي ليس اعتماداً كمورّد رسمي."
+)
+
+FACTORIES_SUPPLIERS_PHRASE_PATTERNS = (
+    re.compile(r"مصانع\s+و?\s*مورد", re.IGNORECASE),
+    re.compile(r"أ?ريد\s+(?:التعاقد\s+مع\s+)?مورد", re.IGNORECASE),
+    re.compile(r"supplier\s+(?:onboarding|registration)", re.IGNORECASE),
+    re.compile(r"manufacturer\s+partner", re.IGNORECASE),
+    re.compile(r"توريد\s+من\s+مصنع", re.IGNORECASE),
+)
+
+DELIVERY_WARRANTY_START_MESSAGE = (
+    "حسناً! سأساعدك في بدء رحلة دعم التسليم أو الضمان. "
+    "الموجز الأولي ليس قرار ضمان أو التزام إصلاح."
+)
+
+DELIVERY_WARRANTY_PHRASE_PATTERNS = (
+    re.compile(r"تسليم\s+(?:عقار|وحدة|مشروع)", re.IGNORECASE),
+    re.compile(r"خدمات\s+ال?ملاك", re.IGNORECASE),
+    re.compile(r"مطالبة\s+ضمان", re.IGNORECASE),
+    re.compile(r"handover|snagging", re.IGNORECASE),
+    re.compile(r"warranty\s+(?:claim|service)", re.IGNORECASE),
+    re.compile(r"delivery\s+(?:and|&)\s+owner", re.IGNORECASE),
 )
 
 EQUIPMENT_PHRASE_PATTERNS = (
@@ -271,6 +315,39 @@ def classify_building_materials_deterministic(message: str, intent_hint: str | N
         return True
     trimmed = (message or "").strip()
     for pattern in BUILDING_MATERIALS_PHRASE_PATTERNS:
+        if pattern.search(trimmed):
+            return True
+    return False
+
+
+def classify_investment_deterministic(message: str, intent_hint: str | None = None) -> bool:
+    hinted = resolve_intent_hint(intent_hint)
+    if hinted == INVESTMENT_JOURNEY_TYPE:
+        return True
+    trimmed = (message or "").strip()
+    for pattern in INVESTMENT_PHRASE_PATTERNS:
+        if pattern.search(trimmed):
+            return True
+    return False
+
+
+def classify_factories_suppliers_deterministic(message: str, intent_hint: str | None = None) -> bool:
+    hinted = resolve_intent_hint(intent_hint)
+    if hinted == FACTORIES_SUPPLIERS_JOURNEY_TYPE:
+        return True
+    trimmed = (message or "").strip()
+    for pattern in FACTORIES_SUPPLIERS_PHRASE_PATTERNS:
+        if pattern.search(trimmed):
+            return True
+    return False
+
+
+def classify_delivery_warranty_deterministic(message: str, intent_hint: str | None = None) -> bool:
+    hinted = resolve_intent_hint(intent_hint)
+    if hinted == DELIVERY_WARRANTY_JOURNEY_TYPE:
+        return True
+    trimmed = (message or "").strip()
+    for pattern in DELIVERY_WARRANTY_PHRASE_PATTERNS:
         if pattern.search(trimmed):
             return True
     return False
@@ -473,6 +550,36 @@ def route_intent_deterministic(message: str, intent_hint: str | None = None) -> 
             action="start_journey",
             required_confirmation=False,
             assistant_message=REAL_ESTATE_MARKETING_START_MESSAGE,
+        )
+
+    if classify_investment_deterministic(message, intent_hint):
+        return IntentDecision(
+            intent=INVESTMENT_JOURNEY_TYPE,
+            confidence=1.0,
+            candidate_journey=INVESTMENT_JOURNEY_TYPE,
+            action="start_journey",
+            required_confirmation=False,
+            assistant_message=INVESTMENT_START_MESSAGE,
+        )
+
+    if classify_factories_suppliers_deterministic(message, intent_hint):
+        return IntentDecision(
+            intent=FACTORIES_SUPPLIERS_JOURNEY_TYPE,
+            confidence=1.0,
+            candidate_journey=FACTORIES_SUPPLIERS_JOURNEY_TYPE,
+            action="start_journey",
+            required_confirmation=False,
+            assistant_message=FACTORIES_SUPPLIERS_START_MESSAGE,
+        )
+
+    if classify_delivery_warranty_deterministic(message, intent_hint):
+        return IntentDecision(
+            intent=DELIVERY_WARRANTY_JOURNEY_TYPE,
+            confidence=1.0,
+            candidate_journey=DELIVERY_WARRANTY_JOURNEY_TYPE,
+            action="start_journey",
+            required_confirmation=False,
+            assistant_message=DELIVERY_WARRANTY_START_MESSAGE,
         )
 
     if classify_real_estate_development_deterministic(message, intent_hint):

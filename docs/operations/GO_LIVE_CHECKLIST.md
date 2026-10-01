@@ -24,7 +24,7 @@ python scripts\verify_platform_readiness.py --full   # after OIDC + Stripe fille
 | `JWT_SECRET_KEY` | Strong random — **not** `change-me` |
 | Migrations | `python -m alembic upgrade head` (Docker entrypoint runs this) |
 
-**Works without OIDC:** 13 credential-free journeys + ops (admin JWT) + partner layer.
+**Works without OIDC:** 16 credential-free journeys + ops (admin JWT) + partner layer.
 
 ## 2. When you provide OIDC (IdP)
 

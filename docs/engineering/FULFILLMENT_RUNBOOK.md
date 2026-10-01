@@ -22,7 +22,7 @@
 cd app/backend && alembic upgrade head
 ```
 
-Head: `c0d1e2f4a5b6`
+Head: `d1e2f3a4b5c7`
 
 ## Tests
 

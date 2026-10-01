@@ -8,3 +8,10 @@ class QuoteAcceptanceResponse(BaseModel):
     contract_reference: str
     operational_project_reference: str
     operational_project_status: str = Field(..., description="planned | active | closed")
+
+
+class CommercialEngagementSummary(BaseModel):
+    contract_reference: str | None = None
+    contract_accepted_at: str | None = None
+    operational_project_reference: str | None = None
+    operational_project_status: str | None = None

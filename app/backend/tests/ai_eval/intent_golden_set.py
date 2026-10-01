@@ -10,6 +10,9 @@ from services.ai_core_intents import (
     CONTRACTING_JOURNEY_TYPE,
     ENGINEERING_CONSULTING_JOURNEY_TYPE,
     EQUIPMENT_JOURNEY_TYPE,
+    INVESTMENT_JOURNEY_TYPE,
+    FACTORIES_SUPPLIERS_JOURNEY_TYPE,
+    DELIVERY_WARRANTY_JOURNEY_TYPE,
     REAL_ESTATE_VALUATION_JOURNEY_TYPE,
     REAL_ESTATE_DEVELOPMENT_JOURNEY_TYPE,
     FACILITY_MANAGEMENT_JOURNEY_TYPE,
@@ -143,6 +146,22 @@ EQUIPMENT_POSITIVE: tuple[IntentGoldenCase, ...] = (
     IntentGoldenCase("equipment rental", EXPECTED_START, EQUIPMENT_JOURNEY_TYPE),
 )
 
+INVESTMENT_POSITIVE: tuple[IntentGoldenCase, ...] = (
+    IntentGoldenCase("أريد استثمار عقاري", EXPECTED_START, INVESTMENT_JOURNEY_TYPE),
+    IntentGoldenCase("فرصة استثمار", EXPECTED_START, INVESTMENT_JOURNEY_TYPE),
+    IntentGoldenCase("investment interest", EXPECTED_START, INVESTMENT_JOURNEY_TYPE),
+)
+
+FACTORIES_SUPPLIERS_POSITIVE: tuple[IntentGoldenCase, ...] = (
+    IntentGoldenCase("أريد مورد مواد", EXPECTED_START, FACTORIES_SUPPLIERS_JOURNEY_TYPE),
+    IntentGoldenCase("مصانع وموردين", EXPECTED_START, FACTORIES_SUPPLIERS_JOURNEY_TYPE),
+)
+
+DELIVERY_WARRANTY_POSITIVE: tuple[IntentGoldenCase, ...] = (
+    IntentGoldenCase("تسليم عقار", EXPECTED_START, DELIVERY_WARRANTY_JOURNEY_TYPE),
+    IntentGoldenCase("مطالبة ضمان", EXPECTED_START, DELIVERY_WARRANTY_JOURNEY_TYPE),
+)
+
 CONTRACTING_POSITIVE: tuple[IntentGoldenCase, ...] = (
     IntentGoldenCase("أحتاج مقاول", EXPECTED_START, CONTRACTING_JOURNEY_TYPE),
     IntentGoldenCase("أبي مقاول", EXPECTED_START, CONTRACTING_JOURNEY_TYPE),
@@ -200,14 +219,12 @@ GOLDEN_SET: tuple[IntentGoldenCase, ...] = (
     *GOVERNMENT_SERVICES_POSITIVE,
     *BUILDING_MATERIALS_POSITIVE,
     *EQUIPMENT_POSITIVE,
+    *INVESTMENT_POSITIVE,
+    *FACTORIES_SUPPLIERS_POSITIVE,
+    *DELIVERY_WARRANTY_POSITIVE,
     *AMBIGUOUS_CASES,
     *COMMERCIAL_CASES,
     *NEGATIVE_CASES,
 )
 
-UNSUPPORTED_JOURNEY_TYPES = frozenset(
-    {
-        "investment",
-        "marketplace",
-    }
-)
+UNSUPPORTED_JOURNEY_TYPES = frozenset({"marketplace"})

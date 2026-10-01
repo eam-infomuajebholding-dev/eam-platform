@@ -16,6 +16,8 @@ from schemas.operations_service_requests import (
     ServiceRequestTransitionResponse,
     StartReviewRequest,
 )
+from schemas.commercial_engagement import CommercialEngagementSummary
+from services.commercial_engagement import CommercialEngagementService
 from services.service_requests import (
     SERVICE_REQUEST_STATUS_AWAITING_INFORMATION,
     SERVICE_REQUEST_STATUS_QUALIFIED,
@@ -101,6 +103,22 @@ async def get_operations_service_request(
             "transitions": [ServiceRequestTransitionResponse.model_validate(t) for t in transitions]
         }
     )
+
+
+@router.get("/{request_id}/commercial-engagement", response_model=CommercialEngagementSummary)
+async def get_commercial_engagement(
+    request_id: int,
+    db: AsyncSession = Depends(get_db),
+    _: UserResponse = Depends(get_admin_user),
+):
+    service = ServiceRequestService(db)
+    item = await service.get_by_id(request_id)
+    if item is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Service request not found")
+    summary = await CommercialEngagementService(db).get_engagement_summary(request_id)
+    if summary is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No commercial engagement yet")
+    return CommercialEngagementSummary.model_validate(summary)
 
 
 @router.post("/{request_id}/start-review", response_model=OperationsServiceRequestDetail)

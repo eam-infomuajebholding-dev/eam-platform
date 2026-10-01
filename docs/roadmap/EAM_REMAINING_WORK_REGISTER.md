@@ -85,8 +85,8 @@ Journeys status report → **DONE** (`docs/product/JOURNEYS_STATUS_REPORT.md`)
 
 ## NEXT_BLOCKED
 
-- **EXTERNAL:** OIDC
-- **BUSINESS:** Quote acceptance, Payment policy
-- **UPSTREAM:** Investment, Factories, Delivery, Contract, OperationalProject
+- **EXTERNAL:** OIDC (`OIDC_CLIENT_SECRET`, IdP redirect URI)
+- **BUSINESS:** Payment policy at scale (Stripe live keys, refund/chargeback runbook)
+- **ENV:** Production backup/restore drill (`BACKUP_RESTORE_READINESS.md`)
 
 Mirror: `docs/wo015/EAM_REMAINING_WORK_REGISTER.md` (keep in sync on commit).

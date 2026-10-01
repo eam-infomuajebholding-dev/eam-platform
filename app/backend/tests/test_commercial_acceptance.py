@@ -35,3 +35,9 @@ async def test_accept_issued_quote_creates_contract_and_op(db_session: AsyncSess
     assert result["quote"]["status"] == QUOTE_STATUS_ACCEPTED
     assert result["contract_reference"].startswith("CN-")
     assert result["operational_project_reference"].startswith("OP-")
+
+    summary = await svc.get_engagement_summary(sr.id)
+    assert summary is not None
+    assert summary["contract_reference"] == result["contract_reference"]
+    assert summary["operational_project_reference"] == result["operational_project_reference"]
+    assert summary["operational_project_status"] == "active"

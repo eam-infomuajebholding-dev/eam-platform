@@ -31,4 +31,4 @@ Partner dispatch: `tracking_number` required when partner marks `dispatched`.
 
 Customer activity: `record_delivery_logistics_event` on key status changes.
 
-Migration head: `c0d1e2f4a5b6`
+Migration head: `d1e2f3a4b5c7`

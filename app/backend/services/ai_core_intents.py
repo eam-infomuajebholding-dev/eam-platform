@@ -18,6 +18,9 @@ REAL_ESTATE_DEVELOPMENT_JOURNEY_TYPE = "real_estate_development"
 REAL_ESTATE_MARKETING_JOURNEY_TYPE = "real_estate_marketing"
 BUILDING_MATERIALS_JOURNEY_TYPE = "building_materials"
 EQUIPMENT_JOURNEY_TYPE = "equipment"
+INVESTMENT_JOURNEY_TYPE = "investment"
+FACTORIES_SUPPLIERS_JOURNEY_TYPE = "factories_suppliers"
+DELIVERY_WARRANTY_JOURNEY_TYPE = "delivery_warranty"
 BUILD_VILLA_QUICK_ACTION_LABEL = "أبني منزلًا"
 ENGINEERING_CONSULTING_LABEL = "استشارة هندسية"
 
@@ -36,6 +39,9 @@ M1_JOURNEY_INTENTS = frozenset(
         REAL_ESTATE_MARKETING_JOURNEY_TYPE,
         BUILDING_MATERIALS_JOURNEY_TYPE,
         EQUIPMENT_JOURNEY_TYPE,
+        INVESTMENT_JOURNEY_TYPE,
+        FACTORIES_SUPPLIERS_JOURNEY_TYPE,
+        DELIVERY_WARRANTY_JOURNEY_TYPE,
     }
 )
 
@@ -150,6 +156,22 @@ def resolve_intent_hint(intent_hint: str | None) -> str | None:
         "equipment-rental",
     }:
         return EQUIPMENT_JOURNEY_TYPE
+    if normalized in {"investment", "invest", "investor"}:
+        return INVESTMENT_JOURNEY_TYPE
+    if normalized in {
+        "factories-suppliers",
+        "factories_suppliers",
+        "supplier",
+        "manufacturer",
+    }:
+        return FACTORIES_SUPPLIERS_JOURNEY_TYPE
+    if normalized in {
+        "delivery-warranty",
+        "delivery_warranty",
+        "handover",
+        "warranty",
+    }:
+        return DELIVERY_WARRANTY_JOURNEY_TYPE
     if intent_hint.strip() == BUILD_VILLA_QUICK_ACTION_LABEL:
         return BUILD_VILLA_JOURNEY_TYPE
     if intent_hint.strip() == ENGINEERING_CONSULTING_LABEL:

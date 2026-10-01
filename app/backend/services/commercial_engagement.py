@@ -84,6 +84,24 @@ class CommercialEngagementService:
             "operational_project_status": project.status,
         }
 
+    async def get_engagement_summary(self, service_request_id: int) -> dict | None:
+        contract_result = await self.db.execute(
+            select(CommercialContract).where(CommercialContract.service_request_id == service_request_id)
+        )
+        contract = contract_result.scalar_one_or_none()
+        op_result = await self.db.execute(
+            select(OperationalProject).where(OperationalProject.service_request_id == service_request_id)
+        )
+        project = op_result.scalar_one_or_none()
+        if contract is None and project is None:
+            return None
+        return {
+            "contract_reference": contract.reference_code if contract else None,
+            "contract_accepted_at": contract.accepted_at.isoformat() if contract else None,
+            "operational_project_reference": project.reference_code if project else None,
+            "operational_project_status": project.status if project else None,
+        }
+
     async def _get_sr(self, service_request_id: int) -> ServiceRequest:
         result = await self.db.execute(
             select(ServiceRequest).where(ServiceRequest.id == service_request_id)

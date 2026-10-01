@@ -65,7 +65,7 @@ async def test_command_center_overview_aggregates_service_requests(db_session: A
     await db_session.commit()
 
     overview = await OperationsDashboardService(db_session).get_overview()
-    assert overview.real_journey_count >= 8
+    assert overview.real_journey_count >= 16
     assert overview.service_request_status_counts.get("submitted", 0) >= 1
     assert any(kpi.metric_id == "service_requests_total" for kpi in overview.executive_kpis)
 
@@ -102,7 +102,7 @@ async def test_command_center_overview_requires_admin():
     assert user.status_code == 403
     assert admin.status_code == 200
     body = admin.json()
-    assert body["real_journey_count"] >= 8
+    assert body["real_journey_count"] >= 16
     assert "financial_pulse" in body
     assert len(body.get("strategic_scorecard", [])) >= 1
     assert len(body.get("operating_pulse", [])) >= 1
