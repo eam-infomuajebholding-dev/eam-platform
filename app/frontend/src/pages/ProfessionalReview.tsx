@@ -13,6 +13,7 @@ import {
   requestMoreInformation,
   startProfessionalReview,
 } from '@/features/operations/api/operationsClient';
+import CommercialEngagementPanel from '@/features/operations/components/CommercialEngagementPanel';
 import QuoteProposalPanel from '@/features/operations/components/QuoteProposalPanel';
 import OperationsFulfillmentPanel from '@/features/operations/components/OperationsFulfillmentPanel';
 import OperationsProcurementCard from '@/features/operations/components/OperationsProcurementCard';
@@ -338,6 +339,11 @@ export default function ProfessionalReviewPage() {
                   <QuoteProposalPanel serviceRequestId={detailQuery.data.id} />
                 </div>
               ) : null}
+
+              <CommercialEngagementPanel
+                serviceRequestId={detailQuery.data.id}
+                audience="ops"
+              />
 
               <OperationsProcurementCard serviceRequestId={detailQuery.data.id} />
               {detailQuery.data.intake_snapshot?.delivery_logistics ? (

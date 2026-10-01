@@ -1,13 +1,15 @@
 # Backup & Restore Readiness
 
-**Updated:** 2026-09-12 (WO-021)
+**Updated:** 2026-10-01
 
 ## Current classification
 
 | Capability | Status | Evidence |
 |------------|--------|----------|
-| BACKUP | **NOT_CONFIGURED** | No production deployment topology verified in repo |
-| RESTORE | **NOT_CONFIGURED** | No tested restore procedure |
+| BACKUP (production) | **NOT_CONFIGURED** | No production deployment topology verified in repo |
+| BACKUP (dev SQLite) | **DEFINED** | `app/backend/scripts/backup_dev_db.ps1` |
+| RESTORE (production) | **NOT_CONFIGURED** | No tested restore procedure |
+| RESTORE (dev) | **DEFINED** | Stop uvicorn → copy `.bak-*` over `eam.db` |
 | RPO / RTO | **BUSINESS_DECISION_REQUIRED** | Not defined in Business Lab |
 
 ## Production requirements (definition only — not tested)
@@ -34,9 +36,10 @@ When production environment exists, minimum backup scope:
 Safe drill pattern (when approved):
 
 ```powershell
-# Example only — do not run against production
-Copy-Item app\backend\eam.db app\backend\eam.db.bak-$(Get-Date -Format yyyyMMdd)
-# restore: Copy-Item backup over eam.db after stopping uvicorn
+cd C:\Projects\eam-platform\app\backend
+.\scripts\backup_dev_db.ps1
+# restore (dev): stop uvicorn, then:
+# Copy-Item .\eam.db.bak-YYYYMMDD-HHMMSS .\eam.db
 ```
 
 Label any future drill: **DEV_RESTORE_TESTED** — not PRODUCTION_RESTORE_TESTED.

@@ -18,6 +18,22 @@ export async function getServiceRequest(requestId: number): Promise<ServiceReque
   return invokeServiceRequests<ServiceRequestDetail>(`/api/v1/service-requests/${requestId}`, 'GET');
 }
 
+export interface CustomerCommercialEngagementSummary {
+  contract_reference: string | null;
+  contract_accepted_at: string | null;
+  operational_project_reference: string | null;
+  operational_project_status: string | null;
+}
+
+export async function getCustomerCommercialEngagement(
+  requestId: number,
+): Promise<CustomerCommercialEngagementSummary> {
+  return invokeServiceRequests<CustomerCommercialEngagementSummary>(
+    `/api/v1/service-requests/${requestId}/commercial-engagement`,
+    'GET',
+  );
+}
+
 export async function submitCustomerResponse(
   requestId: number,
   message: string,

@@ -40,7 +40,15 @@ export type PaymentMessageKey =
   | 'payment.stagePaidDesc'
   | 'payment.acceptQuote'
   | 'payment.acceptProcessing'
-  | 'payment.acceptTermsNote';
+  | 'payment.acceptTermsNote'
+  | 'payment.engagementTitle'
+  | 'payment.engagementNote'
+  | 'payment.engagementLoading'
+  | 'payment.contractRef'
+  | 'payment.contractAcceptedAt'
+  | 'payment.operationalProjectRef'
+  | 'payment.operationalProjectStatus'
+  | 'payment.acceptConfirmedNote';
 
 export const PAYMENT_MESSAGES_AR: Record<PaymentMessageKey, string> = {
   'payment.payNow': 'ادفع الآن — دفع آمن',
@@ -84,6 +92,14 @@ export const PAYMENT_MESSAGES_AR: Record<PaymentMessageKey, string> = {
   'payment.acceptProcessing': 'جاري تسجيل القبول…',
   'payment.acceptTermsNote':
     'يُنشأ سجل عقد إلكتروني ومشروع تشغيلي — دون استبدال عقد موقّع عند طلب الجهة المنظمة.',
+  'payment.engagementTitle': 'الارتباط التجاري',
+  'payment.engagementNote': 'سجل إلكتروني بعد قبول العرض — للمتابعة التشغيلية.',
+  'payment.engagementLoading': 'جاري تحميل الارتباط التجاري…',
+  'payment.contractRef': 'مرجع العقد',
+  'payment.contractAcceptedAt': 'تاريخ القبول',
+  'payment.operationalProjectRef': 'المشروع التشغيلي',
+  'payment.operationalProjectStatus': 'حالة المشروع',
+  'payment.acceptConfirmedNote': 'تم قبول العرض — يمكنك إتمام الدفع أدناه عند تفعيل Stripe.',
 };
 
 export const PAYMENT_MESSAGES_EN: Record<PaymentMessageKey, string> = {
@@ -128,4 +144,13 @@ export const PAYMENT_MESSAGES_EN: Record<PaymentMessageKey, string> = {
   'payment.acceptProcessing': 'Recording acceptance…',
   'payment.acceptTermsNote':
     'Creates an electronic contract record and operational project — does not replace a signed contract when required.',
+  'payment.engagementTitle': 'Commercial engagement',
+  'payment.engagementNote': 'Electronic record after quote acceptance — for operational follow-up.',
+  'payment.engagementLoading': 'Loading commercial engagement…',
+  'payment.contractRef': 'Contract reference',
+  'payment.contractAcceptedAt': 'Accepted at',
+  'payment.operationalProjectRef': 'Operational project',
+  'payment.operationalProjectStatus': 'Project status',
+  'payment.acceptConfirmedNote':
+    'Quote accepted — you can complete payment below when Stripe is enabled.',
 };

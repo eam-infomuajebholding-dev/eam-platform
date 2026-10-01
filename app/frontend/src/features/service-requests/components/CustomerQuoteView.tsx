@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
+import CommercialEngagementPanel from '@/features/operations/components/CommercialEngagementPanel';
 import {
   QUOTE_STATUS_LABELS,
   formatSar,
@@ -26,6 +27,7 @@ function formatDate(value?: string | null, locale = 'ar-SA'): string {
 
 export default function CustomerQuoteView({ requestId }: Props) {
   const { t, language } = useLanguage();
+  const queryClient = useQueryClient();
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const dateLocale = language.startsWith('ar') ? 'ar-SA' : 'en-GB';
 
@@ -47,6 +49,7 @@ export default function CustomerQuoteView({ requestId }: Props) {
     onSuccess: () => {
       void quoteQuery.refetch();
       void paymentQuery.refetch();
+      void queryClient.invalidateQueries({ queryKey: ['commercial-engagement', 'customer', requestId] });
     },
   });
 
@@ -97,12 +100,17 @@ export default function CustomerQuoteView({ requestId }: Props) {
   const quote = quoteQuery.data;
   const payment = paymentQuery.data;
   const isPaid = payment?.paid || quote.status === 'paid';
+  const isAccepted = quote.status === 'accepted' && !isPaid;
   const canAccept = quote.status === 'issued' && !isPaid;
   const canPay = payment?.can_pay && !isPaid;
   const paymentsEnabled = payment?.payments_enabled ?? false;
   const webhookGap = paymentsEnabled && payment?.webhook_configured === false;
   const awaitingOnlineSetup =
-    paymentQuery.isSuccess && quote.status === 'issued' && !isPaid && !canPay && !paymentsEnabled;
+    paymentQuery.isSuccess &&
+    (quote.status === 'issued' || quote.status === 'accepted') &&
+    !isPaid &&
+    !canPay &&
+    !paymentsEnabled;
 
   return (
     <div id="quote" className="rounded-xl border border-gold/25 bg-gold/5 p-5">
@@ -176,6 +184,7 @@ export default function CustomerQuoteView({ requestId }: Props) {
               </a>
             </Button>
           ) : null}
+          <CommercialEngagementPanel serviceRequestId={requestId} audience="customer" />
         </div>
       ) : canAccept ? (
         <div className="mt-5 space-y-3">
@@ -196,6 +205,30 @@ export default function CustomerQuoteView({ requestId }: Props) {
             )}
           </Button>
           <p className="text-xs text-ink-muted">{t('payment.acceptTermsNote')}</p>
+        </div>
+      ) : isAccepted ? (
+        <div className="mt-5 space-y-3">
+          <p className="text-sm text-emerald-700 dark:text-emerald-300">{t('payment.acceptConfirmedNote')}</p>
+          <CommercialEngagementPanel serviceRequestId={requestId} audience="customer" />
+          {canPay ? (
+            <Button
+              className="w-full sm:w-auto"
+              size="lg"
+              disabled={checkoutMutation.isPending}
+              onClick={() => checkoutMutation.mutate()}
+            >
+              {checkoutMutation.isPending ? (
+                <>
+                  <Loader2 className="animate-spin" />
+                  {t('payment.processing')}
+                </>
+              ) : (
+                t('payment.payNow')
+              )}
+            </Button>
+          ) : awaitingOnlineSetup ? (
+            <p className="text-xs text-ink-muted">{t('payment.notConfigured')}</p>
+          ) : null}
         </div>
       ) : canPay ? (
         <div className="mt-5 space-y-3">

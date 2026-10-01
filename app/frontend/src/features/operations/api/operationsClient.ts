@@ -24,6 +24,13 @@ export interface ServiceRequestTransition {
   created_at?: string;
 }
 
+export interface CommercialEngagementSummary {
+  contract_reference: string | null;
+  contract_accepted_at: string | null;
+  operational_project_reference: string | null;
+  operational_project_status: string | null;
+}
+
 export interface OperationsServiceRequestDetail extends OperationsServiceRequestSummary {
   intake_snapshot: Record<string, unknown>;
   journey_instance_id: number;
@@ -77,6 +84,15 @@ export async function getOperationsServiceRequest(
 ): Promise<OperationsServiceRequestDetail> {
   return invokeOperations<OperationsServiceRequestDetail>(
     `/api/v1/operations/service-requests/${requestId}`,
+    'GET',
+  );
+}
+
+export async function getOperationsCommercialEngagement(
+  requestId: number,
+): Promise<CommercialEngagementSummary> {
+  return invokeOperations<CommercialEngagementSummary>(
+    `/api/v1/operations/service-requests/${requestId}/commercial-engagement`,
     'GET',
   );
 }

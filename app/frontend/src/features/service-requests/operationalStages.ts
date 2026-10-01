@@ -89,4 +89,7 @@ export const JOURNEY_TYPE_LABELS: Record<string, string> = {
   real_estate_marketing: 'التسويق العقاري',
   building_materials: 'مواد البناء',
   equipment: 'المعدات والآلات',
+  investment: 'الاستثمار',
+  factories_suppliers: 'المصانع والموردين',
+  delivery_warranty: 'التسليم وخدمات الملاك',
 };

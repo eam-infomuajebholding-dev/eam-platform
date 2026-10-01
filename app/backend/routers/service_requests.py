@@ -14,7 +14,7 @@ from schemas.service_requests import (
     ServiceRequestListResponse,
     summary_from_model,
 )
-from schemas.commercial_engagement import QuoteAcceptanceResponse
+from schemas.commercial_engagement import CommercialEngagementSummary, QuoteAcceptanceResponse
 from services.commercial_engagement import CommercialEngagementError, CommercialEngagementService
 from services.quotes import QuoteService, QuoteTransitionError, _quote_detail_dict
 from services.service_requests import (
@@ -141,3 +141,19 @@ async def accept_customer_quote(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
     return QuoteAcceptanceResponse.model_validate(data)
+
+
+@router.get("/{request_id}/commercial-engagement", response_model=CommercialEngagementSummary)
+async def get_customer_commercial_engagement(
+    request_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: UserResponse = Depends(get_current_user),
+):
+    sr_service = ServiceRequestService(db)
+    item = await sr_service.get_by_id_for_user(request_id, current_user.id)
+    if item is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Service request not found")
+    summary = await CommercialEngagementService(db).get_engagement_summary(request_id)
+    if summary is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No commercial engagement yet")
+    return CommercialEngagementSummary.model_validate(summary)

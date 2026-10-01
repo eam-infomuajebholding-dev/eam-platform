@@ -41,3 +41,13 @@ async def test_accept_issued_quote_creates_contract_and_op(db_session: AsyncSess
     assert summary["contract_reference"] == result["contract_reference"]
     assert summary["operational_project_reference"] == result["operational_project_reference"]
     assert summary["operational_project_status"] == "active"
+
+
+@pytest.mark.asyncio
+async def test_engagement_summary_empty_without_acceptance(db_session: AsyncSession):
+    sr, _user_id = await create_qualified_sr_with_user(db_session)
+    await issue_quote_for_sr(db_session, sr.id)
+    await db_session.commit()
+
+    summary = await CommercialEngagementService(db_session).get_engagement_summary(sr.id)
+    assert summary is None
