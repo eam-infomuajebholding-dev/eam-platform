@@ -14,10 +14,16 @@ export interface JourneySnapshot {
 
 export type WorkspaceMode = 'workspace' | 'faq';
 
+export type ConversationMessage = {
+  role: 'user' | 'assistant';
+  content: string;
+};
+
 export interface WorkspaceTurnRequest {
   message: string;
   intent_hint?: string;
   journey_snapshot?: JourneySnapshot;
+  conversation_history?: ConversationMessage[];
   stream?: boolean;
   mode?: WorkspaceMode;
 }

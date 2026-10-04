@@ -1,78 +1,62 @@
 import { Link } from 'react-router-dom';
-import { Award, Leaf, Lightbulb, ShieldCheck } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { getHomeImage } from '@/config/assets';
 import { useLanguage } from '@/contexts/LanguageContext';
+import HomeSectionBottomFade from '@/components/home/HomeSectionBottomFade';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 
+/** 02 — About EAM (ivory band after hero). */
 export default function AboutEAMSection() {
-  const reveal = useScrollReveal({ threshold: 0.15 });
-  const aboutMedia = getHomeImage('aboutCinematic');
+  const reveal = useScrollReveal({ threshold: 0.08 });
+  const aboutImage = getHomeImage('aboutEam');
   const { t, direction } = useLanguage();
-  const textAlign = direction === 'rtl' ? 'text-right' : 'text-left';
-
-  const values = [
-    { label: t('about.value.excellence'), icon: Award },
-    { label: t('about.value.trust'), icon: ShieldCheck },
-    { label: t('about.value.sustainability'), icon: Leaf },
-    { label: t('about.value.innovation'), icon: Lightbulb },
-  ];
 
   return (
     <section
       id="home-about"
-      data-home-section="about"
-      className="home-section-block border-t border-[var(--eam-home-border)]/40 bg-[var(--eam-home-cream-light)]"
+      data-home-section="about-eam"
+      className="home-about-eam home-section-block"
       aria-label={t('about.aria')}
     >
-      <div className="container mx-auto px-4">
+      <div className="home-about-eam__inner mx-auto w-full max-w-[1586px] px-3 sm:px-4 lg:px-[16px]">
         <div
           ref={reveal.ref}
-          className={`grid gap-10 lg:grid-cols-2 lg:items-center ${reveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}
+          className={`home-about-eam__stage ${reveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}
         >
-          <div className={textAlign} dir={direction}>
-            <h2 className="text-3xl font-bold text-[var(--eam-home-ink)] md:text-4xl">
-              {t('about.title')}
-            </h2>
-            <p className="mt-4 text-sm leading-8 text-[var(--eam-home-ink)]/80 md:text-base">
-              <span className="font-bold text-[var(--eam-home-gold-deep)]">{t('about.leadBold')}</span>{' '}
-              {t('about.body')}
-            </p>
-
-            <ul className="mt-6 grid grid-cols-2 gap-3">
-              {values.map(({ label, icon: Icon }) => (
-                <li
-                  key={label}
-                  className="flex items-center gap-2 rounded-xl border border-[var(--eam-home-border)] bg-white/80 px-3 py-2.5"
-                >
-                  <Icon className="h-4 w-4 shrink-0 text-[var(--eam-home-gold-deep)]" strokeWidth={1.75} />
-                  <span className="text-sm font-semibold text-[var(--eam-home-ink)]">{label}</span>
-                </li>
-              ))}
-            </ul>
-
-            <Link
-              to="/about"
-              className="mt-8 inline-flex rounded-xl border border-[var(--eam-home-border)] px-6 py-2.5 text-sm font-semibold text-[var(--eam-home-gold-deep)] transition hover:border-[var(--eam-home-gold)] hover:bg-[var(--eam-home-cream)]"
-            >
-              {t('about.cta')}
-            </Link>
+          <div className="home-about-eam__visual">
+            <ResponsiveImage
+              asset={aboutImage}
+              className="home-about-eam__visual-img"
+              loading="lazy"
+              width={1600}
+              height={900}
+            />
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-[var(--eam-home-border)] bg-white shadow-[0_4px_20px_rgba(139,77,0,0.08)]">
-            <div className="relative aspect-video w-full">
-              <ResponsiveImage
-                asset={aboutMedia}
-                className="h-full w-full object-cover"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 flex items-end bg-gradient-to-t from-[#2B2118]/75 to-transparent p-4">
-                <p className="text-sm font-semibold text-white">{t('about.mediaCaption')}</p>
-              </div>
+          <div className="home-about-eam__copy" dir={direction}>
+            <div className="home-about-eam__eyebrow">
+              <span className="home-about-eam__eyebrow-line" aria-hidden />
+              <span className="home-about-eam__eyebrow-text">{t('about.eyebrow')}</span>
+              <span className="home-about-eam__eyebrow-line" aria-hidden />
             </div>
+            <h2 className="home-about-eam__title">{t('about.headline')}</h2>
+            <p className="home-about-eam__tagline">{t('about.taglineEn')}</p>
+            <blockquote className="home-about-eam__body">
+              <p>{t('about.body')}</p>
+            </blockquote>
+            <Link to="/about" className="home-about-eam__cta group">
+              {t('about.cta')}
+              <ArrowLeft
+                className={`h-4 w-4 transition group-hover:translate-x-0.5 ${direction === 'ltr' ? 'rotate-180 group-hover:-translate-x-0.5' : 'group-hover:-translate-x-0.5'}`}
+                strokeWidth={2}
+                aria-hidden
+              />
+            </Link>
           </div>
         </div>
       </div>
+      <HomeSectionBottomFade to="cream-light" />
     </section>
   );
 }

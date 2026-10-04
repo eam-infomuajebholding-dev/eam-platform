@@ -8,6 +8,10 @@ import type { HomeImageKey, ProjectImageKey, SectorImageKey } from '@/config/ass
 
 import hero from '@/assets/images/home/01-home-hero.png';
 import aboutCinematic from '@/assets/images/home/02-home-about-cinematic.png';
+import aboutEam from '@/assets/images/home/02-home-about-eam.png';
+import oneStatement from '@/assets/images/home/02-home-one-statement.png';
+import midContentBg from '@/assets/images/home/05-home-mid-content-bg.jpg';
+import whatWeOfferBg from '@/assets/images/home/04-home-what-we-offer-bg.jpg';
 import investmentBanner from '@/assets/images/home/03-home-investment-banner.png';
 import footerCta from '@/assets/images/home/04-home-footer-cta.png';
 
@@ -47,8 +51,28 @@ export const homeImages = {
   },
   aboutCinematic: {
     src: aboutCinematic,
-    alt: 'مقدمة سينمائية عن EAM — وسائط قابلة للاستبدال',
+    alt: 'غلاف فيلم إعمار الأصالة والمعاصرة',
     objectPosition: 'center center',
+  },
+  aboutEam: {
+    src: aboutEam,
+    alt: 'فريق هندسي سعودي يراجع المخططات ونموذج المشروع في مكتب معاصر',
+    objectPosition: 'left center',
+  },
+  oneStatement: {
+    src: oneStatement,
+    alt: 'تفاصيل هندسية — مخططات ومواد ونماذج معمارية',
+    objectPosition: 'left bottom',
+  },
+  whatWeOfferBg: {
+    src: whatWeOfferBg,
+    alt: 'واجهة معمارية — مبنى حديث مع مساحة بيضاء لماذا نقدم',
+    objectPosition: 'left center',
+  },
+  midContentBg: {
+    src: midContentBg,
+    alt: 'مشهد معمارية — Engineering for a more resilient tomorrow',
+    objectPosition: 'left top',
   },
   investmentBanner: {
     src: investmentBanner,
@@ -61,6 +85,12 @@ export const homeImages = {
     objectPosition: 'center center',
   },
 } as const satisfies Record<string, EamImageAsset>;
+
+/** Served from `public/media/` — final brand film (v10). */
+export const HOME_ABOUT_CINEMATIC_VIDEO_SRC = '/media/eam-about-cinematic-v10.mp4';
+
+/** Home first-screen promo — same asset as about cinematic until a dedicated cut exists. */
+export const HOME_HERO_PROMO_VIDEO_SRC = HOME_ABOUT_CINEMATIC_VIDEO_SRC;
 
 export const sectorImages = {
   engineeringDesign: {

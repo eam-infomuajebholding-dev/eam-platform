@@ -36,7 +36,16 @@ export type PageMessageKey =
   | 'page.services.hero.title'
   | 'page.services.hero.subtitle'
   | 'page.services.engineering.title'
+  | 'page.services.engineering.subtitle'
+  | 'page.services.engineering.viewAll'
   | 'page.services.government.title'
+  | 'page.services.government.subtitle'
+  | 'page.services.government.viewAll'
+  | 'page.services.platformGate'
+  | 'page.services.platforms.hero.title'
+  | 'page.services.platforms.hero.subtitle'
+  | 'page.services.platforms.intro'
+  | 'page.services.platforms.backToServices'
   | 'page.services.contracting.title'
   | 'page.services.maintenance.title'
   | 'page.services.development.title'
@@ -60,6 +69,8 @@ export type PageMessageKey =
   | 'page.services.stat.platformValue'
   | 'page.services.grid.title'
   | 'page.services.grid.subtitle'
+  | 'page.services.unifiedPlatform.label'
+  | 'page.services.unifiedPlatform.aria'
   | 'page.contact.hero.title'
   | 'page.contact.hero.subtitle'
   | 'page.contact.form.title'
@@ -243,9 +254,21 @@ export const PAGE_MESSAGES_AR: PageMessageCatalog = {
   'page.about.values.3.desc': 'نمو سنوي متواصل منذ التأسيس',
   'page.services.hero.title': 'خدماتنا',
   'page.services.hero.subtitle':
-    '16 قطاعاً متكاملاً — من التطوير والاستثمار إلى التنفيذ والتشغيل — عبر منصة واحدة قابلة للتوسع.',
+    'استشارات هندسية معتمدة وخدمات حكومية متخصصة — مع منصة EAM للقطاعات عند الحاجة.',
   'page.services.intro':
-    'كل قطاع مرتبط برحلة رقمية مخصصة ومساعد EAM الذكي. اختر مجالك وابدأ فوراً — المنصة تنمو مع احتياجاتك.',
+    'نقدّم تصميمًا وإشرافًا ودراساتًا هندسية، ونُنجز معاملاتكم البلدية والحكومية بكفاءة. هذا هو جوهر شركة EAM.',
+  'page.services.platformGate':
+    'منصات القطاعات الـ16 والرحلات الرقمية متاحة عبر الشعار أعلاه — لمن يريد التوسع خارج الخدمات الأساسية.',
+  'page.services.engineering.subtitle': 'تصميم، مخططات، إشراف، ودراسات وفق المعايير المعتمدة',
+  'page.services.engineering.viewAll': 'صفحة الخدمات الهندسية',
+  'page.services.government.subtitle': 'رخص، صكوك، مخالفات، ومعاملات بلدية',
+  'page.services.government.viewAll': 'صفحة الخدمات الحكومية',
+  'page.services.platforms.hero.title': 'منصات قطاعات EAM',
+  'page.services.platforms.hero.subtitle':
+    '16 قطاعاً متكاملاً — من التطوير والاستثمار إلى التنفيذ والتشغيل — عبر منصة واحدة.',
+  'page.services.platforms.intro':
+    'كل قطاع مرتبط برحلة رقمية ومساعد EAM الذكي. اختر مجالك أو ابدأ رحلتك المخصصة.',
+  'page.services.platforms.backToServices': 'العودة إلى الخدمات الأساسية',
   'page.services.explore': 'استكشف القطاع',
   'page.services.startJourney': 'ابدأ الرحلة',
   'page.services.filter.all': 'جميع القطاعات',
@@ -261,6 +284,8 @@ export const PAGE_MESSAGES_AR: PageMessageCatalog = {
   'page.services.stat.platformValue': '1',
   'page.services.grid.title': 'منصات EAM',
   'page.services.grid.subtitle': 'اختر قطاعاً لاستكشاف الخدمات أو بدء رحلتك المخصصة',
+  'page.services.unifiedPlatform.label': 'منصة EAM الشاملة لقطاعات البناء',
+  'page.services.unifiedPlatform.aria': 'الدخول إلى المنصة الجامعة لقطاعات EAM',
   'page.services.engineering.title': 'الخدمات الهندسية',
   'page.services.government.title': 'الخدمات الحكومية',
   'page.services.contracting.title': 'المقاولات',
@@ -456,9 +481,21 @@ export const PAGE_MESSAGES_EN: PageMessageCatalog = {
   'page.about.values.3.desc': 'Consistent year-on-year growth since founding',
   'page.services.hero.title': 'Our services',
   'page.services.hero.subtitle':
-    '16 integrated sectors — from development and investment to execution and operations — on one scalable platform.',
+    'Certified engineering consulting and specialized government services — with EAM sector platforms when you need them.',
   'page.services.intro':
-    'Each sector connects to a guided digital journey and the EAM smart assistant. Pick your domain and start — the platform grows with your needs.',
+    'We deliver design, supervision, engineering studies, and efficient municipal and government transactions — the core of EAM.',
+  'page.services.platformGate':
+    'Sixteen sector platforms and digital journeys are available through the emblem above — for expanding beyond core services.',
+  'page.services.engineering.subtitle': 'Design, plans, supervision, and studies to approved standards',
+  'page.services.engineering.viewAll': 'Engineering services page',
+  'page.services.government.subtitle': 'Permits, deeds, violations, and municipal transactions',
+  'page.services.government.viewAll': 'Government services page',
+  'page.services.platforms.hero.title': 'EAM sector platforms',
+  'page.services.platforms.hero.subtitle':
+    '16 integrated sectors — from development and investment to execution and operations — on one platform.',
+  'page.services.platforms.intro':
+    'Each sector connects to a digital journey and the EAM smart assistant. Pick a sector or start your guided path.',
+  'page.services.platforms.backToServices': 'Back to core services',
   'page.services.explore': 'Explore sector',
   'page.services.startJourney': 'Start journey',
   'page.services.filter.all': 'All sectors',
@@ -474,6 +511,8 @@ export const PAGE_MESSAGES_EN: PageMessageCatalog = {
   'page.services.stat.platformValue': '1',
   'page.services.grid.title': 'EAM platforms',
   'page.services.grid.subtitle': 'Choose a sector to explore services or start your guided journey',
+  'page.services.unifiedPlatform.label': 'EAM comprehensive platform for construction sectors',
+  'page.services.unifiedPlatform.aria': 'Go to the unified EAM sector platforms',
   'page.services.engineering.title': 'Engineering services',
   'page.services.government.title': 'Government services',
   'page.services.contracting.title': 'Contracting',

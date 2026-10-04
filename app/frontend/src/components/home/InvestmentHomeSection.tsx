@@ -3,6 +3,7 @@ import { ArrowLeft, TrendingUp } from 'lucide-react';
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { getHomeImage } from '@/config/assets';
 import { useLanguage } from '@/contexts/LanguageContext';
+import HomeSectionBottomFade from '@/components/home/HomeSectionBottomFade';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 /** Homepage investment promotion — not operational Investment journey (#03) */

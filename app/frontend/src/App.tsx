@@ -15,6 +15,7 @@ import RealEstateDevelopment from './pages/RealEstateDevelopment';
 import RealEstateMarketing from './pages/RealEstateMarketing';
 import ContactCard from './pages/ContactCard';
 import Services from './pages/Services';
+import ServicesSectorPlatformsPage from './pages/ServicesSectorPlatformsPage';
 import About from './pages/About';
 import Projects from './pages/Projects';
 import Team from './pages/Team';
@@ -60,6 +61,7 @@ const AppRoutes = () => (
     <Route path="/services/real-estate-development" element={<RealEstateDevelopment />} />
     <Route path="/services/real-estate-marketing" element={<RealEstateMarketing />} />
     <Route path="/contact-card" element={<ContactCard />} />
+    <Route path="/services/platforms" element={<ServicesSectorPlatformsPage />} />
     <Route path="/services" element={<Services />} />
     <Route path="/about" element={<About />} />
     <Route path="/projects" element={<Projects />} />
@@ -159,8 +161,8 @@ const App = () => (
                     <AppErrorBoundary>
                       <Toaster />
                       <AppRoutes />
+                      <GlobalAssistantDock />
                     </AppErrorBoundary>
-                    <GlobalAssistantDock />
                   </WorkspaceProvider>
                 </EditModeProvider>
               </JourneyProvider>

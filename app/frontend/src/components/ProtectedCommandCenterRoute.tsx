@@ -5,6 +5,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { client } from '@/lib/api';
 import { saveAuthReturnTo } from '@/features/auth/utils/authReturnTo';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { isCommandCenterOpenAccessEnabled } from '@/config/commandCenterDevAccess';
 
 type ProtectedCommandCenterRouteProps = {
   children: React.ReactNode;
@@ -14,6 +15,10 @@ export default function ProtectedCommandCenterRoute({ children }: ProtectedComma
   const location = useLocation();
   const { user, loading, canAccessCommandCenter, commandCenterAccess } = useAuth();
   const { t } = useLanguage();
+
+  if (isCommandCenterOpenAccessEnabled) {
+    return <>{children}</>;
+  }
 
   if (loading) {
     return (

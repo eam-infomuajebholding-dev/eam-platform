@@ -16,8 +16,9 @@ test.describe('Homepage light journey (WO-021 C04/C05)', () => {
     await input.fill('أحتاج استشارة هندسية');
     await expect(input).toHaveValue('أحتاج استشارة هندسية');
 
+    await page.goto(`${FRONTEND}/services/platforms`);
     await expect(page.getByRole('region', { name: 'منصات القطاعات' })).toBeVisible();
-    const sectorLink = page.locator('.home-sector-rail a').first();
+    const sectorLink = page.locator('.services-sector-marquee .home-sector-rail a').first();
     await expect(sectorLink).toBeVisible();
     const sectorHref = await sectorLink.getAttribute('href');
     expect(sectorHref).toBeTruthy();
@@ -25,6 +26,7 @@ test.describe('Homepage light journey (WO-021 C04/C05)', () => {
     await page.goto(FRONTEND);
 
     await expect(page.locator('#home-about')).toBeVisible();
+    await expect(page.locator('#home-what-we-offer')).toBeVisible();
     await expect(page.locator('#home-projects-showcase')).toBeVisible();
     await expect(page.locator('#home-investment')).toBeVisible();
     await expect(page.locator('#home-contact')).toBeVisible();
@@ -53,12 +55,10 @@ test.describe('Homepage light journey (WO-021 C04/C05)', () => {
     }
   });
 
-  test('trust ribbon has no unverified numeric claims', async ({ page }) => {
+  test('stats ribbon removed — hero flows into one-statement section', async ({ page }) => {
     await page.goto(FRONTEND);
-    const ribbon = page.locator('.home-stats-ribbon');
-    await expect(ribbon).toBeVisible();
-    const text = await ribbon.innerText();
-    expect(text).not.toMatch(/\+250|98%|\+15|\+120/);
-    expect(text).toMatch(/تميّز|مصداقية|استدامة|ابتكار/);
+    await expect(page.locator('.home-stats-ribbon')).toHaveCount(0);
+    await expect(page.locator('.home-first-viewport-section--hero-only')).toBeVisible();
+    await expect(page.locator('#home-about')).toBeVisible();
   });
 });

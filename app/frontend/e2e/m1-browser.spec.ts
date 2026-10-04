@@ -50,12 +50,10 @@ async function openHomepage(page: Page) {
 }
 
 async function clickBuildVilla(page: Page) {
-  await page.evaluate(() => {
-    const buttons = [...document.querySelectorAll('button')].filter((button) =>
-      button.textContent?.includes('أبني منزلًا'),
-    );
-    buttons[0]?.click();
-  });
+  await page.goto(`${FRONTEND}/journeys/build-villa`);
+  await clearJourneySession(page);
+  await page.reload();
+  await page.getByRole('button', { name: 'ابدأ رحلة بناء الفيلا' }).click();
   await expect(
     page.getByPlaceholder('مثال: أريد بناء فيلا عائلية للسكن الدائم مع مجلس ضيوف...'),
   ).toBeVisible({ timeout: 45000 });
@@ -74,7 +72,7 @@ async function expectAnonymousJourneyComplete(page: Page) {
 }
 
 function workspace(page: Page) {
-  return page.getByRole('region', { name: 'مساحة العمل الذكية' });
+  return page;
 }
 
 async function continueWorkspace(page: Page) {
@@ -250,7 +248,6 @@ test.describe.serial('M1 Real Browser E2E', () => {
       expect(journey).toBeTruthy();
 
       await page.reload();
-      await expect(page.getByRole('region', { name: 'مساحة العمل الذكية' })).toBeVisible({ timeout: 20000 });
       const resumedBvStep = page
         .getByPlaceholder('500')
         .or(page.getByRole('heading', { name: 'ما مساحة الأرض (م²)؟' }))

@@ -4,6 +4,7 @@ import ProjectCard from '@/components/home/ProjectCard';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { FEATURED_HOME_PROJECTS } from '@/data/homeProjects';
 import { projectMessageKey } from '@/i18n/homeMessages';
+import HomeSectionBottomFade from '@/components/home/HomeSectionBottomFade';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 const PORTFOLIO_STATS = [
@@ -12,6 +13,7 @@ const PORTFOLIO_STATS = [
   { valueKey: 'projects.stat3.value' as const, labelKey: 'projects.stat3.label' as const },
 ] as const;
 
+/** 06 — Featured projects portfolio. */
 export default function ProjectsShowcaseSection() {
   const headerReveal = useScrollReveal({ threshold: 0.15 });
   const gridReveal = useScrollReveal({ threshold: 0.08 });
@@ -26,22 +28,13 @@ export default function ProjectsShowcaseSection() {
     <section
       id="home-projects-showcase"
       data-home-section="projects-showcase"
-      className="home-section-block home-section-block--showcase relative overflow-hidden border-t border-[var(--eam-home-border)]/40 bg-[var(--eam-home-cream)]"
+      className="home-projects-showcase home-section-block relative overflow-hidden"
       aria-label={t('projects.aria')}
     >
-      <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,color-mix(in_srgb,var(--gold-400)_12%,transparent),transparent)]"
-        aria-hidden="true"
-      />
-      <div
-        className="pointer-events-none absolute -end-24 top-1/4 h-64 w-64 rounded-full bg-[var(--eam-home-gold)]/5 blur-3xl"
-        aria-hidden="true"
-      />
-
-      <div className="container relative mx-auto px-4">
+      <div className="home-projects-showcase__shell">
         <div
           ref={headerReveal.ref}
-          className={`mb-12 md:mb-16 ${headerReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}
+          className={`home-projects-showcase__header mb-10 md:mb-12 ${headerReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}
         >
           <div className="grid gap-10 lg:grid-cols-12 lg:items-end">
             <div className={`lg:col-span-7 ${direction === 'rtl' ? 'text-right' : 'text-left'}`}>
@@ -88,7 +81,7 @@ export default function ProjectsShowcaseSection() {
 
         <div
           ref={gridReveal.ref}
-          className={`grid grid-cols-1 gap-4 md:gap-5 lg:grid-cols-12 lg:grid-rows-[auto_auto_auto] ${gridReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}
+          className={`home-projects-showcase__grid grid grid-cols-1 gap-4 md:gap-5 lg:grid-cols-12 lg:grid-rows-[auto_auto_auto] ${gridReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}
         >
           <ProjectCard project={featured} variant="featured" className="lg:col-span-7 lg:row-span-2" />
           {rest.slice(0, 2).map((project) => (
@@ -99,7 +92,7 @@ export default function ProjectsShowcaseSection() {
           ) : null}
         </div>
 
-        <div className="mt-10 flex justify-center md:mt-12">
+        <div className="home-projects-showcase__cta mt-10 flex justify-center md:mt-12">
           <Link
             to="/projects"
             className="group inline-flex items-center gap-2.5 rounded-full border border-[var(--eam-home-gold)]/50 bg-[var(--eam-home-cream-light)] px-7 py-3 text-sm font-semibold text-[var(--eam-home-gold-deep)] shadow-[var(--eam-home-shadow)] transition hover:border-[var(--eam-home-gold)] hover:bg-[var(--eam-home-gold)] hover:text-[#2B2118] hover:shadow-gold-sm"
@@ -112,6 +105,7 @@ export default function ProjectsShowcaseSection() {
           </Link>
         </div>
       </div>
+      <HomeSectionBottomFade to="dark" />
     </section>
   );
 }

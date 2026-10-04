@@ -22,8 +22,8 @@ test.describe('Homepage light layout at 1586x992', () => {
     await expect(page.locator('h1')).toHaveCount(1);
     await expect(page.getByRole('region', { name: 'من الفكرة إلى الأثر' })).toBeVisible();
     await expect(page.getByRole('region', { name: 'مساحة العمل الذكية' })).toBeVisible();
-    await expect(page.getByRole('region', { name: 'منصات القطاعات' })).toBeVisible();
     await expect(page.getByPlaceholder('ما الذي تريد إنجازه اليوم؟')).toBeVisible();
+    await expect(page.getByRole('region', { name: 'منصات القطاعات' })).toHaveCount(0);
   });
 
   test('removed homepage sections are absent', async ({ page }) => {
@@ -53,9 +53,39 @@ test.describe('Homepage light layout at 1586x992', () => {
     expect(dims.footerCount).toBe(1);
   });
 
-  test('sector rail cards visible within viewport area', async ({ page }) => {
+  test('hero fills first screen; one-statement starts at scroll without stats ribbon', async ({ page }) => {
+    const layout = await page.evaluate(() => {
+      const heroEnd = document.querySelector('[data-home-first-screen-end]');
+      const about = document.querySelector('#home-about');
+      const vh = window.innerHeight;
+      const heroBottom = heroEnd?.getBoundingClientRect().bottom ?? 0;
+      const aboutTop = about?.getBoundingClientRect().top ?? 0;
+      return {
+        vh,
+        heroBottom,
+        aboutTop,
+        hasStatsRibbon: Boolean(document.querySelector('.home-stats-ribbon')),
+      };
+    });
+
+    expect(layout.heroBottom).toBeGreaterThan(0);
+    expect(layout.heroBottom).toBeLessThanOrEqual(layout.vh + 2);
+    expect(layout.hasStatsRibbon).toBe(false);
+    expect(layout.aboutTop).toBeGreaterThanOrEqual(layout.vh - 8);
+    expect(layout.aboutTop).toBeLessThanOrEqual(layout.vh + 48);
+  });
+});
+
+test.describe('Services page sector marquee at 1586x992', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.setViewportSize(VIEWPORT);
+    await page.goto(`${FRONTEND}/services/platforms`);
+  });
+
+  test('sector rail region and cards render', async ({ page }) => {
+    await expect(page.getByRole('region', { name: 'منصات القطاعات' })).toBeVisible();
     const sectorCard = await page.evaluate(() => {
-      const card = document.querySelector('.home-sector-rail a');
+      const card = document.querySelector('.services-sector-marquee .home-sector-rail a');
       if (!card) return null;
       const b = card.getBoundingClientRect();
       return { h: Math.round(b.height), w: Math.round(b.width), visible: b.height > 0 && b.width > 0 };

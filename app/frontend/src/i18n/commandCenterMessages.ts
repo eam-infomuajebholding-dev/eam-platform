@@ -15,13 +15,34 @@ export type CommandCenterMessageKey =
   | 'commandCenter.hero.subtitle'
   | 'commandCenter.hero.greeting'
   | 'commandCenter.hero.greetingNamed'
+  | 'commandCenter.hero.platformTagline'
+  | 'commandCenter.hero.platformTaglineBody'
+  | 'commandCenter.hero.weather'
+  | 'commandCenter.hero.quoteTitle'
+  | 'commandCenter.hero.quoteBody'
+  | 'commandCenter.modules.engineeringDesign'
   | 'commandCenter.nav.main'
   | 'commandCenter.nav.internal'
   | 'commandCenter.nav.dashboard'
   | 'commandCenter.nav.review'
   | 'commandCenter.nav.delegations'
   | 'commandCenter.nav.settings'
+  | 'commandCenter.nav.users'
+  | 'commandCenter.nav.content'
+  | 'commandCenter.nav.analytics'
+  | 'commandCenter.nav.help'
+  | 'commandCenter.sidebar.slogan'
+  | 'commandCenter.values.aria'
+  | 'commandCenter.values.trust'
+  | 'commandCenter.values.customer'
+  | 'commandCenter.values.innovation'
+  | 'commandCenter.values.partnerships'
+  | 'commandCenter.values.growth'
+  | 'commandCenter.values.vision'
+  | 'commandCenter.advanced.title'
+  | 'commandCenter.search.shortcutHint'
   | 'commandCenter.role.owner'
+  | 'commandCenter.role.projectOwner'
   | 'commandCenter.role.delegate'
   | 'commandCenter.sectors.title'
   | 'commandCenter.sectors.subtitle'
@@ -93,6 +114,7 @@ export type CommandCenterMessageKey =
   | 'commandCenter.chart.other'
   | 'commandCenter.chart.noPerformanceData'
   | 'commandCenter.chart.noDistributionData'
+  | 'commandCenter.chart.opportunitiesCenter'
   | 'commandCenter.chart.trendTitle'
   | 'commandCenter.chart.trendSubtitle'
   | 'commandCenter.chart.qualified'
@@ -112,6 +134,7 @@ export type CommandCenterMessageKey =
   | 'commandCenter.featured.completed'
   | 'commandCenter.assistant.title'
   | 'commandCenter.assistant.subtitle'
+  | 'commandCenter.assistant.intro'
   | 'commandCenter.assistant.placeholder'
   | 'commandCenter.assistant.ask'
   | 'commandCenter.assistant.error'
@@ -123,7 +146,11 @@ export type CommandCenterMessageKey =
   | 'commandCenter.quickActions.review'
   | 'commandCenter.quickActions.report'
   | 'commandCenter.quickActions.delegations'
-  | 'commandCenter.quickActions.notify';
+  | 'commandCenter.quickActions.notify'
+  | 'commandCenter.quickActions.newProject'
+  | 'commandCenter.quickActions.opportunity'
+  | 'commandCenter.quickActions.analytics'
+  | 'commandCenter.quickActions.users';
 
 const AR: Record<CommandCenterMessageKey, string> = {
   'commandCenter.title': 'لوحة القيادة',
@@ -139,14 +166,36 @@ const AR: Record<CommandCenterMessageKey, string> = {
   'commandCenter.hero.eyebrow': 'Command Center',
   'commandCenter.hero.subtitle': 'إدارة شاملة.. رؤية أوسع.. لقرارات أفضل',
   'commandCenter.hero.greeting': 'معاً نبني غداً أفضل',
-  'commandCenter.hero.greetingNamed': 'مرحباً {name} — معاً نبني غداً أفضل',
+  'commandCenter.hero.greetingNamed': 'صباح الخير، {name}. معاً نصنع مستقبلاً أفضل.',
+  'commandCenter.hero.platformTagline': 'منصة متكاملة للهندسة والاستثمار والتحول الرقمي',
+  'commandCenter.hero.platformTaglineBody':
+    'INTEGRATED ENGINEERING, INVESTMENT AND DIGITAL PLATFORM — رحلة واحدة من الفكرة إلى التشغيل.',
+  'commandCenter.hero.weather': '30°م',
+  'commandCenter.hero.quoteTitle': 'EAM',
+  'commandCenter.hero.quoteBody': 'نحو مستقبل أكثر ازدهاراً لعائلات أسعد.',
+  'commandCenter.modules.engineeringDesign': 'التصميم الهندسي',
   'commandCenter.nav.main': 'التنقل الرئيسي',
   'commandCenter.nav.internal': 'المنصة الداخلية',
   'commandCenter.nav.dashboard': 'لوحة القيادة',
   'commandCenter.nav.review': 'المراجعة المهنية',
   'commandCenter.nav.delegations': 'إدارة المفوّضين',
   'commandCenter.nav.settings': 'الإعدادات',
+  'commandCenter.nav.users': 'إدارة المستخدمين',
+  'commandCenter.nav.content': 'إدارة المحتوى',
+  'commandCenter.nav.analytics': 'التحليلات والتقارير',
+  'commandCenter.nav.help': 'مركز المساعدة',
+  'commandCenter.sidebar.slogan': 'نبني اليوم لغدٍ أعظم',
+  'commandCenter.values.aria': 'قيم EAM',
+  'commandCenter.values.trust': 'الثقة أولاً',
+  'commandCenter.values.customer': 'العميل أولاً',
+  'commandCenter.values.innovation': 'ابتكار ذو معنى',
+  'commandCenter.values.partnerships': 'شراكات ذات أثر',
+  'commandCenter.values.growth': 'نمو مستدام',
+  'commandCenter.values.vision': 'من الرؤية إلى الواقع',
+  'commandCenter.advanced.title': 'رؤى تنفيذية إضافية',
+  'commandCenter.search.shortcutHint': '⌘ K',
   'commandCenter.role.owner': 'مالك المنصة',
+  'commandCenter.role.projectOwner': 'مالك مشروع',
   'commandCenter.role.delegate': 'مفوّض من المالك',
   'commandCenter.sectors.title': 'أقسام المنصة',
   'commandCenter.sectors.subtitle': 'القطاعات والرحلات الرقمية النشطة',
@@ -210,8 +259,8 @@ const AR: Record<CommandCenterMessageKey, string> = {
   'commandCenter.decisionInbox.source': 'المصدر',
   'commandCenter.metric.evidence': 'دليل',
   'commandCenter.search.label': 'بحث لوحة القيادة',
-  'commandCenter.search.placeholder': 'ابحث، اسأل، أو انتقل — مثال: الطلبات المؤهلة، المخاطر، OIDC',
-  'commandCenter.search.submit': 'تنفيذ',
+  'commandCenter.search.placeholder': 'ابحث في المنصة…',
+  'commandCenter.search.submit': 'بحث',
   'commandCenter.chart.performanceTitle': 'أداء المنصة',
   'commandCenter.chart.performanceSubtitle': 'طلبات ورحلات نشطة ومكتملة حسب نوع الرحلة',
   'commandCenter.chart.distributionTitle': 'توزيع الفرص حسب القطاع',
@@ -222,6 +271,7 @@ const AR: Record<CommandCenterMessageKey, string> = {
   'commandCenter.chart.other': 'أخرى',
   'commandCenter.chart.noPerformanceData': 'لا توجد بيانات أداء كافية بعد.',
   'commandCenter.chart.noDistributionData': 'لا يوجد توزيع فرص متاح حالياً.',
+  'commandCenter.chart.opportunitiesCenter': 'فرص حالية',
   'commandCenter.chart.trendTitle': 'اتجاه المنصة',
   'commandCenter.chart.trendSubtitle': 'حجم أسبوعي — طلبات جديدة ومؤهلة (8 أسابيع)',
   'commandCenter.chart.qualified': 'مؤهلة',
@@ -241,6 +291,7 @@ const AR: Record<CommandCenterMessageKey, string> = {
   'commandCenter.featured.completed': 'مكتمل',
   'commandCenter.assistant.title': 'مساعد EAM الذكي',
   'commandCenter.assistant.subtitle': 'تحليل تنفيذي مبني على بيانات المنصة',
+  'commandCenter.assistant.intro': 'كيف يمكنني مساعدتك اليوم؟',
   'commandCenter.assistant.placeholder': 'اسأل عن الأداء، المخاطر، أو القرارات…',
   'commandCenter.assistant.ask': 'اسأل',
   'commandCenter.assistant.error': 'تعذر الحصول على إجابة المساعد.',
@@ -253,6 +304,10 @@ const AR: Record<CommandCenterMessageKey, string> = {
   'commandCenter.quickActions.report': 'موجز القيادة',
   'commandCenter.quickActions.delegations': 'إدارة المفوّضين',
   'commandCenter.quickActions.notify': 'إرسال إشعار',
+  'commandCenter.quickActions.newProject': 'مشروع جديد',
+  'commandCenter.quickActions.opportunity': 'فرصة جديدة',
+  'commandCenter.quickActions.analytics': 'التحليلات',
+  'commandCenter.quickActions.users': 'إدارة المستخدمين',
 };
 
 const EN: Record<CommandCenterMessageKey, string> = {
@@ -269,14 +324,36 @@ const EN: Record<CommandCenterMessageKey, string> = {
   'commandCenter.hero.eyebrow': 'Command Center',
   'commandCenter.hero.subtitle': 'Full oversight, wider visibility, better decisions',
   'commandCenter.hero.greeting': 'Together we build a better tomorrow',
-  'commandCenter.hero.greetingNamed': 'Good morning, {name} — together we build a better tomorrow',
+  'commandCenter.hero.greetingNamed': 'Good morning, {name}. Together we create a better future.',
+  'commandCenter.hero.platformTagline': 'Integrated engineering, investment & digital platform',
+  'commandCenter.hero.platformTaglineBody':
+    'INTEGRATED ENGINEERING, INVESTMENT AND DIGITAL PLATFORM — one journey from idea to operations.',
+  'commandCenter.hero.weather': '30°C',
+  'commandCenter.hero.quoteTitle': 'EAM',
+  'commandCenter.hero.quoteBody': 'Towards a more prosperous future for happier families.',
+  'commandCenter.modules.engineeringDesign': 'Engineering Design',
   'commandCenter.nav.main': 'Main navigation',
   'commandCenter.nav.internal': 'Internal platform',
   'commandCenter.nav.dashboard': 'Command Center',
   'commandCenter.nav.review': 'Professional review',
   'commandCenter.nav.delegations': 'Delegate access',
   'commandCenter.nav.settings': 'Settings',
+  'commandCenter.nav.users': 'User management',
+  'commandCenter.nav.content': 'Content management',
+  'commandCenter.nav.analytics': 'Analytics & reports',
+  'commandCenter.nav.help': 'Help center',
+  'commandCenter.sidebar.slogan': 'Building today for a greater tomorrow',
+  'commandCenter.values.aria': 'EAM values',
+  'commandCenter.values.trust': 'Trust first',
+  'commandCenter.values.customer': 'Customer first',
+  'commandCenter.values.innovation': 'Meaningful innovation',
+  'commandCenter.values.partnerships': 'Partnerships for impact',
+  'commandCenter.values.growth': 'Sustainable growth',
+  'commandCenter.values.vision': 'From vision to reality',
+  'commandCenter.advanced.title': 'Additional executive insights',
+  'commandCenter.search.shortcutHint': '⌘ K',
   'commandCenter.role.owner': 'Platform owner',
+  'commandCenter.role.projectOwner': 'Project owner',
   'commandCenter.role.delegate': 'Owner delegate',
   'commandCenter.sectors.title': 'Platform sectors',
   'commandCenter.sectors.subtitle': 'Active sectors and digital journeys',
@@ -340,8 +417,8 @@ const EN: Record<CommandCenterMessageKey, string> = {
   'commandCenter.decisionInbox.source': 'Source',
   'commandCenter.metric.evidence': 'Evidence',
   'commandCenter.search.label': 'Command center search',
-  'commandCenter.search.placeholder': 'Search, ask, or navigate — e.g. qualified requests, risks, OIDC',
-  'commandCenter.search.submit': 'Run',
+  'commandCenter.search.placeholder': 'Search the platform…',
+  'commandCenter.search.submit': 'Search',
   'commandCenter.chart.performanceTitle': 'Platform performance',
   'commandCenter.chart.performanceSubtitle': 'Requests and active/completed journeys by type',
   'commandCenter.chart.distributionTitle': 'Opportunity distribution by sector',
@@ -352,6 +429,7 @@ const EN: Record<CommandCenterMessageKey, string> = {
   'commandCenter.chart.other': 'Other',
   'commandCenter.chart.noPerformanceData': 'Not enough performance data yet.',
   'commandCenter.chart.noDistributionData': 'No opportunity distribution available yet.',
+  'commandCenter.chart.opportunitiesCenter': 'Current opportunities',
   'commandCenter.chart.trendTitle': 'Platform trend',
   'commandCenter.chart.trendSubtitle': 'Weekly volume — new and qualified requests (8 weeks)',
   'commandCenter.chart.qualified': 'Qualified',
@@ -371,6 +449,7 @@ const EN: Record<CommandCenterMessageKey, string> = {
   'commandCenter.featured.completed': 'Completed',
   'commandCenter.assistant.title': 'EAM Smart Assistant',
   'commandCenter.assistant.subtitle': 'Executive analysis grounded in platform data',
+  'commandCenter.assistant.intro': 'How can I help you today?',
   'commandCenter.assistant.placeholder': 'Ask about performance, risks, or decisions…',
   'commandCenter.assistant.ask': 'Ask',
   'commandCenter.assistant.error': 'Could not get an assistant answer.',
@@ -383,6 +462,10 @@ const EN: Record<CommandCenterMessageKey, string> = {
   'commandCenter.quickActions.report': 'Executive brief',
   'commandCenter.quickActions.delegations': 'Manage delegates',
   'commandCenter.quickActions.notify': 'Send notification',
+  'commandCenter.quickActions.newProject': 'Add new project',
+  'commandCenter.quickActions.opportunity': 'Create opportunity',
+  'commandCenter.quickActions.analytics': 'Go to analytics',
+  'commandCenter.quickActions.users': 'User management',
 };
 
 export const COMMAND_CENTER_MESSAGES_AR = AR;

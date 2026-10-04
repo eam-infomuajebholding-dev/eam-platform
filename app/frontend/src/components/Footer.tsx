@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Instagram, Linkedin, Youtube, Globe, Facebook, Pencil } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import type { MessageKey } from '@/i18n/messages';
 import { useAuth } from '@/features/auth/context/AuthContext';
 import { useEditMode } from '../contexts/EditModeContext';
 
@@ -29,17 +28,6 @@ const defaultLinks: SocialLinks = {
   youtube: '#',
   website: '#',
 };
-
-const primaryQuickLinks: { path: string; labelKey: MessageKey }[] = [
-  { path: '/', labelKey: 'nav.home' },
-  { path: '/about', labelKey: 'nav.about' },
-  { path: '/services', labelKey: 'nav.services' },
-  { path: '/projects', labelKey: 'nav.projects' },
-  { path: '/invest', labelKey: 'nav.invest' },
-  { path: '/careers', labelKey: 'nav.careers' },
-  { path: '/blog', labelKey: 'nav.blog' },
-  { path: '/contact', labelKey: 'nav.contact' },
-];
 
 function XIcon({ className }: { className?: string }) {
   return (
@@ -131,7 +119,12 @@ function SocialIcon({ platform, url, isEditMode, onEdit }: SocialIconProps) {
   );
 }
 
-export default function Footer() {
+type FooterProps = {
+  /** Homepage: sit flush under #home-contact (no top border / gap). */
+  flushWithHomeContact?: boolean;
+};
+
+export default function Footer({ flushWithHomeContact = false }: FooterProps) {
   const [email, setEmail] = useState('');
   const { isEditMode } = useEditMode();
   const { t, direction } = useLanguage();
@@ -171,9 +164,16 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="border-t border-soft-border bg-background py-12 transition-colors duration-300 dark:border-gold/20 dark:bg-background" dir={direction}>
+    <footer
+      className={`eam-site-footer bg-background transition-colors duration-300 dark:bg-background ${
+        flushWithHomeContact
+          ? 'border-t-0 pb-12 pt-0'
+          : 'border-t border-soft-border py-12 dark:border-gold/20'
+      }`}
+      dir={direction}
+    >
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Company Info */}
           <div className="flex flex-col items-start gap-4">
             <img
@@ -196,33 +196,6 @@ export default function Footer() {
                 />
               ))}
             </div>
-          </div>
-
-          {/* Quick Links */}
-          <div>
-            <h4 className="mb-4 text-lg font-bold text-deep-gold">{t('footer.quickLinks')}</h4>
-            <ul className="space-y-2">
-              {canAccessCommandCenter ? (
-                <li>
-                  <Link
-                    to="/command-center"
-                    className="text-sm font-semibold text-deep-gold transition-colors hover:text-gold-600"
-                  >
-                    {t('auth.commandCenter')}
-                  </Link>
-                </li>
-              ) : null}
-              {primaryQuickLinks.map((link) => (
-                <li key={link.path}>
-                  <Link
-                    to={link.path}
-                    className="text-sm text-ink/70 transition-colors hover:text-deep-gold dark:text-white/70"
-                  >
-                    {t(link.labelKey)}
-                  </Link>
-                </li>
-              ))}
-            </ul>
           </div>
 
           {/* Newsletter */}
@@ -253,7 +226,18 @@ export default function Footer() {
           <p className="text-sm text-ink/50 dark:text-white/50">
             © {new Date().getFullYear()} {t('footer.copyright')}
           </p>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-4 md:justify-end">
+            {canAccessCommandCenter ? (
+              <>
+                <Link
+                  to="/command-center"
+                  className="text-sm font-semibold text-deep-gold transition-colors hover:text-gold-600"
+                >
+                  {t('auth.commandCenter')}
+                </Link>
+                <span className="text-ink/20 dark:text-white/30">|</span>
+              </>
+            ) : null}
             <Link to="/privacy" className="text-sm text-ink/50 transition-colors hover:text-deep-gold dark:text-white/50">
               {t('footer.privacy')}
             </Link>

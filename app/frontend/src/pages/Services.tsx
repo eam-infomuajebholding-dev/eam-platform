@@ -1,43 +1,29 @@
-import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Layers, Route, Sparkles } from 'lucide-react';
+import { useMemo } from 'react';
+import { Link, Navigate, useLocation } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import PageHero from '@/components/page/PageHero';
-import ServicesSectorCard from '@/components/services/ServicesSectorCard';
+import ServiceDetailGrid from '@/components/services/ServiceDetailGrid';
+import ServicesUnifiedPlatformEmblem from '@/components/services/ServicesUnifiedPlatformEmblem';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { SECTOR_DEFINITIONS } from '@/data/sectors';
-import {
-  SERVICE_CATEGORIES,
-  filterSectorsByCategory,
-  type ServiceCategoryId,
-} from '@/data/serviceCategories';
+import { engineeringServicesForDetailGrid } from '@/data/engineeringServiceCatalog';
+import { governmentServicesForDetailGrid } from '@/data/governmentServiceCatalog';
 
 export default function Services() {
-  const { t } = useLanguage();
-  const [activeCategory, setActiveCategory] = useState<ServiceCategoryId>('all');
+  const { t, language } = useLanguage();
+  const location = useLocation();
 
-  const visibleSectors = useMemo(
-    () => filterSectorsByCategory(SECTOR_DEFINITIONS, activeCategory),
-    [activeCategory],
+  const engineeringServices = useMemo(
+    () => engineeringServicesForDetailGrid(language),
+    [language],
+  );
+  const governmentServices = useMemo(
+    () => governmentServicesForDetailGrid(language),
+    [language],
   );
 
-  const stats = [
-    {
-      icon: Layers,
-      valueKey: 'page.services.stat.sectorsValue' as const,
-      labelKey: 'page.services.stat.sectors' as const,
-    },
-    {
-      icon: Route,
-      valueKey: 'page.services.stat.journeysValue' as const,
-      labelKey: 'page.services.stat.journeys' as const,
-    },
-    {
-      icon: Sparkles,
-      valueKey: 'page.services.stat.platformValue' as const,
-      labelKey: 'page.services.stat.platform' as const,
-    },
-  ];
+  if (location.hash === '#services-sector-platforms') {
+    return <Navigate to="/services/platforms" replace />;
+  }
 
   return (
     <Layout>
@@ -50,66 +36,39 @@ export default function Services() {
 
       <section className="border-b border-soft-border/50 bg-cream-light dark:bg-background">
         <div className="container mx-auto px-4 py-10 md:py-14">
-          <p data-editable-id="services-intro" className="text-lead mx-auto max-w-3xl text-center">
+          <ServicesUnifiedPlatformEmblem />
+
+          <p
+            data-editable-id="services-intro"
+            className="text-lead mx-auto mt-8 max-w-3xl text-center md:mt-10"
+          >
             {t('page.services.intro')}
           </p>
-
-          <div className="mx-auto mt-10 grid max-w-4xl grid-cols-1 gap-4 sm:grid-cols-3">
-            {stats.map(({ icon: Icon, valueKey, labelKey }) => (
-              <div
-                key={labelKey}
-                className="rounded-2xl border border-soft-border/60 bg-cream px-5 py-6 text-center dark:bg-surface"
-              >
-                <Icon className="mx-auto mb-3 h-6 w-6 text-gold-500" strokeWidth={1.75} />
-                <p className="font-display text-3xl font-semibold text-gold-600 dark:text-gold-300">
-                  {t(valueKey)}
-                </p>
-                <p className="text-caption mt-1">{t(labelKey)}</p>
-              </div>
-            ))}
-          </div>
+          <p className="text-caption mx-auto mt-3 max-w-2xl text-center">{t('page.services.platformGate')}</p>
         </div>
       </section>
 
-      <section className="bg-surface-alt py-12 dark:bg-surface-muted md:py-16">
-        <div className="container mx-auto px-4">
-          <div className="mb-8 text-center md:mb-10">
-            <h2 className="font-display text-display-sm text-ink md:text-display-md">
-              {t('page.services.grid.title')}
-            </h2>
-            <p className="text-body mx-auto mt-3 max-w-2xl">{t('page.services.grid.subtitle')}</p>
-          </div>
+      <ServiceDetailGrid
+        services={engineeringServices}
+        titleKey="page.services.engineering.title"
+        subtitleKey="page.services.engineering.subtitle"
+      />
+      <div className="bg-surface-alt pb-10 text-center dark:bg-surface-muted md:pb-12">
+        <Link to="/engineering-services" className="eam-btn-outline inline-block px-8 py-3 text-base">
+          {t('page.services.engineering.viewAll')}
+        </Link>
+      </div>
 
-          <div
-            className="mb-10 flex flex-wrap justify-center gap-2"
-            role="tablist"
-            aria-label={t('page.services.grid.title')}
-          >
-            {SERVICE_CATEGORIES.map((category) => (
-              <button
-                key={category.id}
-                type="button"
-                role="tab"
-                aria-selected={activeCategory === category.id}
-                onClick={() => setActiveCategory(category.id)}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ${
-                  activeCategory === category.id
-                    ? 'bg-gold-500 text-white shadow-gold'
-                    : 'border border-soft-border/80 bg-cream-light text-ink-secondary hover:border-gold-300 hover:bg-gold-50 dark:bg-surface dark:text-ink-secondary'
-                }`}
-              >
-                {t(category.labelKey)}
-              </button>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {visibleSectors.map((sector) => (
-              <ServicesSectorCard key={sector.slug} sector={sector} />
-            ))}
-          </div>
-        </div>
-      </section>
+      <ServiceDetailGrid
+        services={governmentServices}
+        titleKey="page.services.government.title"
+        subtitleKey="page.services.government.subtitle"
+      />
+      <div className="bg-surface-alt pb-14 text-center dark:bg-surface-muted md:pb-16">
+        <Link to="/government-services" className="eam-btn-outline inline-block px-8 py-3 text-base">
+          {t('page.services.government.viewAll')}
+        </Link>
+      </div>
 
       <section className="border-t border-soft-border/50 bg-surface-alt py-16 dark:bg-surface-muted">
         <div className="container mx-auto px-4 text-center">

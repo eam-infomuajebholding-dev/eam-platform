@@ -32,10 +32,8 @@
 - Commercial funnel stages
 - Mobile executive brief (emergency view)
 
-## Not yet
+## Not yet (V1 doc — see JIT V2 design)
 
-- Executive AI via AI Core (RULE_ASSISTED brief only)
-- Evidence drawer drill-down UI
-- Global command search
-- Owner watchlist persistence
+- JIT features **designed** in `COMMAND_CENTER_JIT_V2_DESIGN.md`: watchlist, decision journal, Ctrl+K palette, since last visit, evidence V2 lineage
+- Executive AI live provider — env-dependent
 - Quick Suggestions CMS control (DEFERRED)

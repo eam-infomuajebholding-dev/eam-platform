@@ -1,13 +1,20 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Search } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { searchCommandCenter } from '../api/commandCenterClient';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { cn } from '@/lib/utils';
 
-export default function CommandSearchBar() {
+type Props = {
+  variant?: 'panel' | 'header';
+};
+
+export default function CommandSearchBar({ variant = 'panel' }: Props) {
   const { t } = useLanguage();
   const [query, setQuery] = useState('');
   const [submitted, setSubmitted] = useState('');
+  const isHeader = variant === 'header';
 
   const searchQuery = useQuery({
     queryKey: ['operations', 'command-center', 'search', submitted],
@@ -21,29 +28,57 @@ export default function CommandSearchBar() {
   };
 
   return (
-    <div className="rounded-2xl border border-gold/15 bg-white/70 p-4 dark:border-white/10 dark:bg-white/5">
-      <form onSubmit={handleSubmit} className="flex flex-wrap gap-2">
+    <div
+      className={cn(
+        'relative',
+        isHeader ? 'command-center-header-search' : 'rounded-2xl border border-gold/15 bg-white/70 p-4 dark:border-white/10 dark:bg-white/5',
+      )}
+    >
+      <form onSubmit={handleSubmit} className={cn('flex gap-2', isHeader && 'items-center')}>
         <label htmlFor="command-search" className="sr-only">
           {t('commandCenter.search.label')}
         </label>
-        <input
-          id="command-search"
-          type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={t('commandCenter.search.placeholder')}
-          className="min-w-[240px] flex-1 rounded-xl border border-gold/20 bg-white px-4 py-2 text-sm dark:bg-white/5"
-        />
-        <button
-          type="submit"
-          className="rounded-xl bg-gold px-4 py-2 text-sm font-bold text-white"
-        >
-          {t('commandCenter.search.submit')}
-        </button>
+        <div className={cn('relative flex-1', isHeader && 'flex items-center')}>
+          {isHeader ? (
+            <Search size={16} className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-ink/40" aria-hidden />
+          ) : null}
+          <input
+            id="command-search"
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t('commandCenter.search.placeholder')}
+            className={cn(
+              'w-full text-sm',
+              isHeader
+                ? 'rounded-full border border-black/8 bg-[#f4f6f8] py-2.5 pe-16 ps-10 text-ink shadow-inner dark:border-white/10 dark:bg-white/5 dark:text-white'
+                : 'min-w-[240px] flex-1 rounded-xl border border-gold/20 bg-white px-4 py-2 dark:bg-white/5',
+            )}
+          />
+          {isHeader ? (
+            <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 rounded-md border border-black/8 bg-white px-1.5 py-0.5 text-[10px] font-medium text-ink/45 dark:border-white/10 dark:bg-surface">
+              {t('commandCenter.search.shortcutHint')}
+            </span>
+          ) : null}
+        </div>
+        {!isHeader ? (
+          <button
+            type="submit"
+            className="rounded-xl bg-gold px-4 py-2 text-sm font-bold text-white"
+          >
+            {t('commandCenter.search.submit')}
+          </button>
+        ) : null}
       </form>
 
       {searchQuery.data?.results?.length ? (
-        <ul className="mt-3 space-y-2">
+        <ul
+          className={cn(
+            'mt-3 space-y-2',
+            isHeader &&
+              'absolute inset-x-0 top-[calc(100%+0.35rem)] z-30 max-h-64 overflow-y-auto rounded-xl border border-black/8 bg-white p-2 shadow-lg dark:border-white/10 dark:bg-surface',
+          )}
+        >
           {searchQuery.data.results.map((result) => (
             <li key={`${result.result_type}-${result.id}`}>
               {result.navigation_path ? (
@@ -64,10 +99,6 @@ export default function CommandSearchBar() {
             </li>
           ))}
         </ul>
-      ) : null}
-
-      {searchQuery.data?.limitations?.length ? (
-        <p className="mt-2 text-xs text-ink/50">{searchQuery.data.limitations.join(' ')}</p>
       ) : null}
     </div>
   );

@@ -6,6 +6,7 @@ import React, {
   ReactNode,
 } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { isCommandCenterOpenAccessEnabled } from '@/config/commandCenterDevAccess';
 import { authApi } from '@/features/auth/api/auth';
 import { clearCustomerSensitiveQueries } from '@/features/auth/api/clearCustomerCache';
 
@@ -109,8 +110,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const commandCenterAccess = user?.command_center ?? null;
   const isAdmin = user?.role === 'admin';
-  const canAccessCommandCenter = Boolean(commandCenterAccess) || isAdmin;
+  const canAccessCommandCenter =
+    isCommandCenterOpenAccessEnabled || Boolean(commandCenterAccess) || isAdmin;
   const isCommandCenterOwner =
+    isCommandCenterOpenAccessEnabled ||
     commandCenterAccess?.role === 'owner' ||
     (isAdmin && commandCenterAccess?.role !== 'delegate');
 

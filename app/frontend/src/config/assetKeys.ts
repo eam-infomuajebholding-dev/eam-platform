@@ -1,6 +1,15 @@
 /** Asset key vocabulary — no binary imports (safe for tests and data layers). */
 
-export const HOME_IMAGE_KEYS = ['hero', 'aboutCinematic', 'investmentBanner', 'footerCta'] as const;
+export const HOME_IMAGE_KEYS = [
+  'hero',
+  'aboutCinematic',
+  'aboutEam',
+  'oneStatement',
+  'whatWeOfferBg',
+  'midContentBg',
+  'investmentBanner',
+  'footerCta',
+] as const;
 export type HomeImageKey = (typeof HOME_IMAGE_KEYS)[number];
 
 export const SECTOR_IMAGE_KEYS = [

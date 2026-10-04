@@ -2,9 +2,11 @@ import { Link } from 'react-router-dom';
 import {
   BarChart3,
   ClipboardList,
+  FolderPlus,
   RefreshCw,
   Send,
-  UserPlus,
+  Sparkles,
+  Users,
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -21,22 +23,29 @@ export default function CommandCenterQuickActionsBar({ isOwner, onRefresh, refre
     {
       key: 'project',
       to: '/operations/service-requests',
-      icon: ClipboardList,
-      label: t('commandCenter.quickActions.review'),
+      icon: FolderPlus,
+      label: t('commandCenter.quickActions.newProject'),
+      ownerOnly: false,
+    },
+    {
+      key: 'opportunity',
+      to: '/invest',
+      icon: Sparkles,
+      label: t('commandCenter.quickActions.opportunity'),
       ownerOnly: false,
     },
     {
       key: 'report',
       to: '#leadership',
-      icon: BarChart3,
+      icon: ClipboardList,
       label: t('commandCenter.quickActions.report'),
       ownerOnly: false,
     },
     {
-      key: 'delegations',
-      to: '/command-center#delegations',
-      icon: UserPlus,
-      label: t('commandCenter.quickActions.delegations'),
+      key: 'users',
+      to: '/admin',
+      icon: Users,
+      label: t('commandCenter.quickActions.users'),
       ownerOnly: true,
     },
     {
@@ -46,10 +55,17 @@ export default function CommandCenterQuickActionsBar({ isOwner, onRefresh, refre
       label: t('commandCenter.quickActions.notify'),
       ownerOnly: false,
     },
+    {
+      key: 'analytics',
+      to: '/command-center#finance',
+      icon: BarChart3,
+      label: t('commandCenter.quickActions.analytics'),
+      ownerOnly: false,
+    },
   ] as const;
 
   return (
-    <div className="sticky bottom-0 z-20 border-t border-black/5 bg-white/95 px-4 py-3 backdrop-blur dark:border-white/10 dark:bg-background/95">
+    <div className="border-t border-black/5 bg-white/95 px-4 py-3 backdrop-blur dark:border-white/10 dark:bg-background/95">
       <div className="mx-auto flex max-w-[1600px] flex-wrap items-center gap-2">
         <p className="hidden text-xs font-semibold uppercase tracking-wide text-ink-muted sm:block">
           {t('commandCenter.quickActions.title')}
@@ -63,7 +79,7 @@ export default function CommandCenterQuickActionsBar({ isOwner, onRefresh, refre
                 to={to}
                 className="inline-flex items-center gap-1.5 rounded-full border border-gold/25 bg-gold/8 px-3 py-1.5 text-xs font-semibold text-gold-800 transition hover:bg-gold/15 dark:text-gold-200"
               >
-                <Icon size={14} />
+                <Icon size={14} aria-hidden />
                 {label}
               </Link>
             ))}
@@ -73,7 +89,7 @@ export default function CommandCenterQuickActionsBar({ isOwner, onRefresh, refre
               onClick={onRefresh}
               className="inline-flex items-center gap-1.5 rounded-full border border-soft-border px-3 py-1.5 text-xs font-semibold text-ink/75 transition hover:bg-cream-light dark:text-white/75"
             >
-              <RefreshCw size={14} className={refreshing ? 'animate-spin' : undefined} />
+              <RefreshCw size={14} className={refreshing ? 'animate-spin' : undefined} aria-hidden />
               {t('commandCenter.refresh')}
             </button>
           ) : null}

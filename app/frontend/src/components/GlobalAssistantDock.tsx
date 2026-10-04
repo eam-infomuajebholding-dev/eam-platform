@@ -5,7 +5,7 @@ import HomeFixedAssistantDock from '@/components/home/HomeFixedAssistantDock';
 /**
  * GLOBAL EAM COPILOT — single platform-wide entry (persistent bottom dock).
  * Visible on all routes except auth, admin, command-center, and payment.
- * Renders outside AppErrorBoundary so route crashes do not remove the assistant.
+ * Wrapped in AppErrorBoundary so assistant render errors do not blank the whole app.
  */
 export default function GlobalAssistantDock() {
   const { pathname } = useLocation();

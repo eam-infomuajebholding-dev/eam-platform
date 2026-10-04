@@ -17,14 +17,10 @@ test.describe('M1 auth browser smoke', () => {
     await expect(page.getByRole('region', { name: 'مساحة العمل الذكية' })).toBeVisible({ timeout: 15000 });
     await expect(page.getByPlaceholder('ما الذي تريد إنجازه اليوم؟')).toBeVisible({ timeout: 15000 });
 
-    await page.evaluate(() => {
-      const buttons = [...document.querySelectorAll('button')].filter((b) => b.textContent?.includes('أبني منزلًا'));
-      buttons[0]?.click();
-    });
-    await expect(
-      page.getByPlaceholder('مثال: أريد بناء فيلا عائلية للسكن الدائم مع مجلس ضيوف...'),
-    ).toBeVisible({ timeout: 45000 });
-
+    await page.goto(`${FRONTEND}/journeys/build-villa`);
+    await page.evaluate(() => sessionStorage.removeItem('eam-active-journey-instance-id'));
+    await page.reload();
+    await page.getByRole('button', { name: 'ابدأ رحلة بناء الفيلا' }).click();
     await page
       .getByPlaceholder('مثال: أريد بناء فيلا عائلية للسكن الدائم مع مجلس ضيوف...')
       .fill('أريد بناء فيلا عائلية للسكن الدائم');
@@ -33,7 +29,6 @@ test.describe('M1 auth browser smoke', () => {
     expect(journeyBefore).toBeTruthy();
 
     await page.reload();
-    await expect(page.getByRole('region', { name: 'مساحة العمل الذكية' })).toBeVisible({ timeout: 20000 });
     const resumedStep = page
       .getByPlaceholder('مثال: الرياض')
       .or(page.getByPlaceholder('مثال: أريد بناء فيلا عائلية للسكن الدائم مع مجلس ضيوف...'));

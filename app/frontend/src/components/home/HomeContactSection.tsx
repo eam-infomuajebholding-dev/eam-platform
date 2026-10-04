@@ -15,7 +15,7 @@ export default function HomeContactSection() {
     <section
       id="home-contact"
       data-home-section="contact"
-      className="home-section-block relative overflow-hidden border-t border-[var(--eam-home-border)]/40 bg-[#1a2634] text-white"
+      className="home-contact home-section-block relative overflow-hidden bg-[#1a2634] text-white"
       aria-label={t('homeContact.aria')}
     >
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
@@ -27,7 +27,7 @@ export default function HomeContactSection() {
         <div className="absolute inset-0 bg-gradient-to-t from-[#1a2634]/95 via-[#1a2634]/70 to-[#1a2634]/50" />
       </div>
 
-      <div className="container relative mx-auto px-4">
+      <div className="home-contact__inner container relative mx-auto px-4">
         <div
           ref={reveal.ref}
           className={`mx-auto max-w-2xl text-center ${reveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}

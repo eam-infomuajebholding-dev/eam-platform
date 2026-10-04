@@ -15,6 +15,7 @@ import {
   executeActionProposal,
   executeStartJourney,
 } from '@/features/ai-workspace/actionExecutor';
+import { ASSISTANT_GUIDED_JOURNEY_ENABLED } from '@/config/assistant';
 import { clearActiveJourneyInstanceId, setActiveJourneyInstanceId } from '@/features/journeys/core/josClient';
 import {
   extractResourceLinksFromActions,
@@ -761,7 +762,10 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       setEqStepValues(syncEqStepValuesFromContext(eqContext));
     }
 
-    if (currentInstance.status === 'active' || currentInstance.status === 'paused') {
+    if (
+      ASSISTANT_GUIDED_JOURNEY_ENABLED &&
+      (currentInstance.status === 'active' || currentInstance.status === 'paused')
+    ) {
       setMode('journey');
     }
     if (currentInstance.status === 'completed') {
@@ -776,6 +780,9 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       source: 'quick_action' | 'free_text',
       traceId?: string | null,
     ) => {
+      if (!ASSISTANT_GUIDED_JOURNEY_ENABLED) {
+        return;
+      }
       const actionResult = await executeStartJourney(journeyType, traceId);
       let instance;
 
@@ -817,7 +824,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   );
 
   const startBuildVillaFromQuickAction = useCallback(async () => {
-    if (isBusy || isJourneyActive) {
+    if (!ASSISTANT_GUIDED_JOURNEY_ENABLED || isBusy || isJourneyActive) {
       return;
     }
     setIsBusy(true);
@@ -849,6 +856,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       const extras: Pick<WorkspaceMessage, 'journeyOffer' | 'resourceLinks'> = { resourceLinks };
 
       if (
+        ASSISTANT_GUIDED_JOURNEY_ENABLED &&
         interactionMode === 'free' &&
         journeyType &&
         SUPPORTED_JOURNEY_TYPES.has(journeyType)
@@ -868,7 +876,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   const acceptPendingJourney = useCallback(
     async (offer: PendingJourneyOffer) => {
-      if (isBusy || isJourneyActive) {
+      if (!ASSISTANT_GUIDED_JOURNEY_ENABLED || isBusy || isJourneyActive) {
         return;
       }
 
@@ -900,7 +908,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      if (isJourneyActive) {
+      if (ASSISTANT_GUIDED_JOURNEY_ENABLED && isJourneyActive) {
         return;
       }
 
@@ -910,7 +918,15 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       setMessages((prev) => [...prev, createMessage('user', trimmed)]);
 
       try {
-        const turn = await aiCoreClient.workspaceTurn({ message: trimmed, stream: true });
+        const conversationHistory = messages.slice(-20).map((entry) => ({
+          role: entry.role,
+          content: entry.content,
+        }));
+        const turn = await aiCoreClient.workspaceTurn({
+          message: trimmed,
+          stream: true,
+          conversation_history: conversationHistory,
+        });
         const resourceLinks = extractResourceLinksFromActions(turn.actions);
         const journeyType = resolveJourneyTypeFromTurn(
           turn.actions,
@@ -935,7 +951,11 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        if (supportedJourney && interactionMode === 'journey') {
+        if (
+          ASSISTANT_GUIDED_JOURNEY_ENABLED &&
+          supportedJourney &&
+          interactionMode === 'journey'
+        ) {
           await handoffToJourney(
             supportedJourney,
             turn.assistant_message,
@@ -957,9 +977,12 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         if (turn.action === 'general_answer') {
           if (turn.stream) {
             let streamed = '';
-            streamed = await aiCoreClient.streamGeneralAnswer({ message: trimmed }, (content) => {
-              setStreamingContent(content);
-            });
+            streamed = await aiCoreClient.streamGeneralAnswer(
+              { message: trimmed, conversation_history: conversationHistory },
+              (content) => {
+                setStreamingContent(content);
+              },
+            );
             setStreamingContent('');
             appendAssistantTurn(turn, streamed || turn.assistant_message, supportedJourney);
           } else {
@@ -971,8 +994,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         appendAssistantTurn(turn, turn.assistant_message, supportedJourney);
       } catch (error) {
         console.error(error);
-        const failure =
-          'تعذر معالجة رسالتك حالياً. يمكنك متابعة المحادثة الحرة أو اختيار «رحلة مخصصة» لبدء جمع المعلومات.';
+        const failure = 'تعذر معالجة رسالتك حالياً. يرجى المحاولة مرة أخرى أو تصفح الخدمات من القائمة.';
         setWorkspaceError(failure);
         setMessages((prev) => [...prev, createMessage('assistant', failure)]);
       } finally {
@@ -980,7 +1002,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         setStreamingContent('');
       }
     },
-    [appendAssistantTurn, handoffToJourney, interactionMode, isBusy, isJourneyActive],
+    [appendAssistantTurn, handoffToJourney, interactionMode, isBusy, isJourneyActive, messages],
   );
 
   const advanceCurrentStep = useCallback(async () => {

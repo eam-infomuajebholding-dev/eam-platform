@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth/context/AuthContext';
 import CommandCenterActivityFeed from '@/features/command-center/components/CommandCenterActivityFeed';
@@ -13,10 +13,8 @@ import CommandCenterFeaturedProjects from '@/features/command-center/components/
 import CommandCenterHero from '@/features/command-center/components/CommandCenterHero';
 import CommandCenterKpiGrid from '@/features/command-center/components/CommandCenterKpiGrid';
 import CommandCenterLayout from '@/features/command-center/components/CommandCenterLayout';
-import CommandCenterPerformanceChart from '@/features/command-center/components/CommandCenterPerformanceChart';
 import CommandCenterTrendChart from '@/features/command-center/components/CommandCenterTrendChart';
 import CommandCenterSectorGrid from '@/features/command-center/components/CommandCenterSectorGrid';
-import CommandSearchBar from '@/features/command-center/components/CommandSearchBar';
 import DecisionInboxPanel from '@/features/command-center/components/DecisionInboxPanel';
 import EvidenceDrawer from '@/features/command-center/components/EvidenceDrawer';
 import MetricCard from '@/features/command-center/components/MetricCard';
@@ -68,12 +66,22 @@ function AttentionCard({ item }: { item: AttentionItem }) {
   return content;
 }
 
+const SECTION_IDS = new Set(NAV_SECTIONS.map((section) => section.id));
+
 export default function OwnerCommandCenterPage() {
   const { t } = useLanguage();
   const { isCommandCenterOwner } = useAuth();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const [activeSection, setActiveSection] = useState<(typeof NAV_SECTIONS)[number]['id']>('leadership');
   const [evidenceMetricId, setEvidenceMetricId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const hash = location.hash.replace('#', '');
+    if (hash && SECTION_IDS.has(hash as (typeof NAV_SECTIONS)[number]['id'])) {
+      setActiveSection(hash as (typeof NAV_SECTIONS)[number]['id']);
+    }
+  }, [location.hash]);
 
   const overviewQuery = useQuery({
     queryKey: ['operations', 'command-center', 'overview'],
@@ -100,6 +108,18 @@ export default function OwnerCommandCenterPage() {
     void queryClient.invalidateQueries({ queryKey: ['operations', 'command-center'] });
   };
 
+  const opportunityCenterTotal = useMemo(() => {
+    if (!overview) return null;
+    const opp = overview.executive_kpis.find((m) =>
+      /opportunit|فرص/i.test(`${m.metric_id} ${m.label_ar}`),
+    );
+    if (opp?.value != null) {
+      const n = Number(String(opp.value).replace(/[^\d.]/g, ''));
+      return Number.isFinite(n) ? n : null;
+    }
+    return overview.journey_metrics.reduce((sum, row) => sum + row.service_request_count, 0) || null;
+  }, [overview]);
+
   return (
     <>
       <PageMeta title={`${t('auth.commandCenter')} — EAM`} noIndex />
@@ -108,33 +128,10 @@ export default function OwnerCommandCenterPage() {
       onRefresh={refreshDashboard}
       refreshing={overviewQuery.isFetching}
     >
-      <div className="space-y-6">
+      <div className="command-center-dashboard space-y-5">
         <CommandCenterHero generatedAt={overview?.generated_at} />
 
-        <nav
-          className="flex flex-wrap gap-2"
-          role="tablist"
-          aria-label={t('commandCenter.sections.aria')}
-        >
-          {NAV_SECTIONS.map((section) => (
-            <button
-              key={section.id}
-              type="button"
-              role="tab"
-              aria-selected={activeSection === section.id}
-              onClick={() => setActiveSection(section.id)}
-              className={`rounded-full px-4 py-1.5 font-tajawal text-sm ${
-                activeSection === section.id
-                  ? 'bg-gold text-white'
-                  : 'border border-gold/20 bg-white text-ink/80 dark:border-white/10 dark:bg-surface dark:text-white/80'
-              }`}
-            >
-              {t(section.labelKey)}
-            </button>
-          ))}
-        </nav>
-
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
           <div className="space-y-8">
           {overviewQuery.isError ? (
             <div className="rounded-xl border border-red-200 bg-red-50 p-4 font-tajawal text-red-800 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-200">
@@ -146,33 +143,61 @@ export default function OwnerCommandCenterPage() {
             <p className="font-tajawal text-ink/60">{t('commandCenter.loading')}</p>
           ) : null}
 
-          {overview && (activeSection === 'leadership' || activeSection === 'operations') ? (
-            <section id="leadership" className="space-y-4">
-              <h2 className="font-tajawal text-lg font-bold text-ink dark:text-white">{t('commandCenter.leadership.title')}</h2>
-              <CommandSearchBar />
+          {overview && activeSection === 'leadership' ? (
+            <section id="leadership" className="space-y-6">
               <CommandCenterKpiGrid
                 metrics={overview.executive_kpis}
                 changes={overview.what_changed}
                 onEvidenceClick={setEvidenceMetricId}
               />
 
-              {activeSection === 'leadership' ? (
-                <>
-                  <CommandCenterTrendChart trends={overview.platform_trends ?? []} />
-                  <div className="grid gap-6 xl:grid-cols-2">
-                    <CommandCenterPerformanceChart journeyMetrics={overview.journey_metrics} />
-                    <CommandCenterDistributionChart journeyMetrics={overview.journey_metrics} />
-                  </div>
-                  <CommandCenterSectorGrid journeyMetrics={overview.journey_metrics} />
-                  <CommandCenterFeaturedProjects journeyMetrics={overview.journey_metrics} />
-                  <div className="xl:hidden space-y-4">
-                    <CommandCenterActivityFeed overview={overview} />
-                    <CommandCenterAssistantPanel />
-                  </div>
-                </>
-              ) : null}
+              <CommandCenterSectorGrid journeyMetrics={overview.journey_metrics} />
 
-              <DecisionInboxPanel items={attentionSorted} />
+              <div className="grid gap-4 lg:grid-cols-3">
+                <CommandCenterTrendChart
+                  trends={overview.platform_trends ?? []}
+                  titleKey="commandCenter.chart.performanceTitle"
+                  subtitleKey="commandCenter.chart.performanceSubtitle"
+                />
+                <CommandCenterDistributionChart
+                  journeyMetrics={overview.journey_metrics}
+                  centerTotal={opportunityCenterTotal}
+                />
+                <CommandCenterFeaturedProjects journeyMetrics={overview.journey_metrics} />
+              </div>
+
+              <div className="xl:hidden space-y-4">
+                <CommandCenterActivityFeed overview={overview} />
+                <CommandCenterAssistantPanel />
+              </div>
+
+              <details className="command-center-advanced">
+                <summary>{t('commandCenter.advanced.title')}</summary>
+                <div className="mt-4 space-y-6">
+                  <nav
+                    className="flex flex-wrap gap-2"
+                    role="tablist"
+                    aria-label={t('commandCenter.sections.aria')}
+                  >
+                    {NAV_SECTIONS.map((section) => (
+                      <button
+                        key={section.id}
+                        type="button"
+                        role="tab"
+                        aria-selected={activeSection === section.id}
+                        onClick={() => setActiveSection(section.id)}
+                        className={`rounded-full px-3 py-1 font-tajawal text-xs ${
+                          activeSection === section.id
+                            ? 'bg-gold text-white'
+                            : 'border border-gold/20 bg-white text-ink/80'
+                        }`}
+                      >
+                        {t(section.labelKey)}
+                      </button>
+                    ))}
+                  </nav>
+                  <h2 className="sr-only">{t('commandCenter.leadership.title')}</h2>
+                  <DecisionInboxPanel items={attentionSorted} />
 
               {brief ? (
                 <div className="grid gap-4 lg:grid-cols-2">
@@ -270,6 +295,8 @@ export default function OwnerCommandCenterPage() {
                   </ul>
                 </div>
               ) : null}
+                </div>
+              </details>
             </section>
           ) : null}
 
@@ -284,7 +311,7 @@ export default function OwnerCommandCenterPage() {
             </section>
           ) : null}
 
-          {overview && (activeSection === 'operations' || activeSection === 'leadership') ? (
+          {overview && activeSection === 'operations' ? (
             <section id="operations" className="space-y-4">
               <h2 className="font-tajawal text-lg font-bold">{t('commandCenter.operations.title')}</h2>
               <div className="grid gap-4 md:grid-cols-2">

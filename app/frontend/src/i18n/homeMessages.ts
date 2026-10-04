@@ -8,6 +8,9 @@ export type HomeMessageKey =
   | 'hero.titleHighlight'
   | 'hero.subtitle'
   | 'hero.body'
+  | 'hero.replayPromo'
+  | 'hero.promoCompanyAr'
+  | 'hero.promoCompanyEn'
   | 'assistant.header'
   | 'assistant.aria'
   | 'assistant.minimize'
@@ -35,22 +38,83 @@ export type HomeMessageKey =
   | 'stats.sustainability.detail'
   | 'stats.innovation.label'
   | 'stats.innovation.detail'
+  | 'home.engineering.aria'
+  | 'home.engineering.title'
+  | 'home.engineering.subtitle'
+  | 'home.engineering.cta'
+  | 'home.sectorPlatform.emblemAria'
+  | 'home.sectorPlatform.emblemHint'
   | 'about.aria'
-  | 'about.title'
-  | 'about.leadBold'
+  | 'about.eyebrow'
+  | 'about.headline'
+  | 'about.taglineEn'
   | 'about.body'
-  | 'about.value.excellence'
-  | 'about.value.trust'
-  | 'about.value.sustainability'
-  | 'about.value.innovation'
   | 'about.cta'
-  | 'about.mediaCaption'
+  | 'oneStatement.aria'
+  | 'oneStatement.eyebrow'
+  | 'oneStatement.title'
+  | 'oneStatement.taglineEn'
+  | 'oneStatement.body'
+  | 'oneStatement.pillar.engineering'
+  | 'oneStatement.pillar.projectDelivery'
+  | 'oneStatement.pillar.investment'
+  | 'oneStatement.pillar.digital'
   | 'platforms.title'
   | 'platforms.subtitle'
   | 'platforms.eyebrow'
   | 'platforms.stat'
   | 'platforms.explore'
   | 'platforms.aria'
+  | 'offer.aria'
+  | 'midContent.aria'
+  | 'midContent.number'
+  | 'midContent.eyebrow'
+  | 'midContent.metaAr'
+  | 'midContent.metaEn'
+  | 'midContent.title'
+  | 'midContent.taglineEn'
+  | 'midContent.pillar1.title'
+  | 'midContent.pillar1.titleEn'
+  | 'midContent.pillar1.desc'
+  | 'midContent.pillar1.descEn'
+  | 'midContent.pillar2.title'
+  | 'midContent.pillar2.titleEn'
+  | 'midContent.pillar2.desc'
+  | 'midContent.pillar2.descEn'
+  | 'midContent.pillar3.title'
+  | 'midContent.pillar3.titleEn'
+  | 'midContent.pillar3.desc'
+  | 'midContent.pillar3.descEn'
+  | 'midContent.pillar4.title'
+  | 'midContent.pillar4.titleEn'
+  | 'midContent.pillar4.desc'
+  | 'midContent.pillar4.descEn'
+  | 'midContent.pillar5.title'
+  | 'midContent.pillar5.titleEn'
+  | 'midContent.pillar5.desc'
+  | 'midContent.pillar5.descEn'
+  | 'offer.number'
+  | 'offer.eyebrow'
+  | 'offer.title'
+  | 'offer.taglineEn'
+  | 'offer.body'
+  | 'offer.leadEn'
+  | 'offer.card.engineering.title'
+  | 'offer.card.engineering.titleEn'
+  | 'offer.card.engineering.desc'
+  | 'offer.card.projectDelivery.title'
+  | 'offer.card.projectDelivery.titleEn'
+  | 'offer.card.projectDelivery.desc'
+  | 'offer.card.investment.title'
+  | 'offer.card.investment.titleEn'
+  | 'offer.card.investment.desc'
+  | 'offer.card.digital.title'
+  | 'offer.card.digital.titleEn'
+  | 'offer.card.digital.desc'
+  | 'offer.value.longTerm'
+  | 'offer.value.sustainability'
+  | 'offer.value.integration'
+  | 'offer.value.clarity'
   | 'projects.title'
   | 'projects.subtitle'
   | 'projects.cta'
@@ -121,6 +185,17 @@ export type HomeMessageKey =
   | 'chat.voice'
   | 'chat.voiceListening'
   | 'chat.voiceUnsupported'
+  | 'chat.voicePermissionDenied'
+  | 'chat.voiceInsecure'
+  | 'chat.voiceError'
+  | 'chat.voiceNoSpeech'
+  | 'chat.voiceNoSpeechRetry'
+  | 'chat.voiceHoldHint'
+  | 'chat.voiceRecording'
+  | 'chat.voiceSlideToCancel'
+  | 'chat.voiceSlideToCancelRtl'
+  | 'chat.voiceReleaseToCancel'
+  | 'chat.voicePreparing'
   | 'chat.attachmentAdded'
   | 'chat.enterJourney'
   | 'chat.explore'
@@ -172,11 +247,14 @@ export const HOME_MESSAGES_AR: HomeMessageCatalog = {
   'hero.subtitle': 'منصة هندسية واستثمارية ورقمية متكاملة.',
   'hero.body':
     'تجمع الاستشارات، التطوير، التنفيذ، والاستثمار في مسار واحد — بدعم ذكاء EAM الذي يوجّه رحلتك من اللحظة الأولى.',
-  'assistant.header': 'مساعد ذكي — متابعة حرة أو رحلة مخصصة',
+  'hero.replayPromo': 'إعادة الفيلم الدعائي',
+  'hero.promoCompanyAr': 'إعمار الأصالة والمعاصرة للاستشارات الهندسية',
+  'hero.promoCompanyEn': 'Emmar Al Asala Wa Al Muasara Engineering Consultancy',
+  'assistant.header': 'EAM Copilot — فكّر معي بحرية',
   'assistant.aria': 'مساحة العمل الذكية',
   'assistant.minimize': 'تصغير المساعد',
   'assistant.restore': 'فتح المساعد',
-  'assistant.compactHint': 'اضغط لفتح المحادثة أو بدء رحلة',
+  'assistant.compactHint': 'اضغط لفتح المحادثة',
   'quickActions.aria': 'اقتراحات سريعة',
   'quickActions.title': 'ابدأ من هنا',
   'quickActions.subtitle': 'مسارات جاهزة على المنصة',
@@ -199,17 +277,29 @@ export const HOME_MESSAGES_AR: HomeMessageCatalog = {
   'stats.sustainability.detail': 'قرارات تخدم الأثر طويل المدى',
   'stats.innovation.label': 'ابتكار',
   'stats.innovation.detail': 'ذكاء EAM يوجّه الرحلة من البداية',
-  'about.aria': 'نبذة عن EAM',
-  'about.title': 'EAM .. لإعمار حياة أفضل',
-  'about.leadBold': 'منصة هندسية واستثمارية ورقمية متكاملة.',
+  'home.engineering.aria': 'الخدمات الهندسية',
+  'home.engineering.title': 'الخدمات الهندسية',
+  'home.engineering.subtitle': 'جوهر EAM — استشارات وتصاميم وإشراف وفق معايير مهنية',
+  'home.engineering.cta': 'كل الخدمات الهندسية',
+  'home.sectorPlatform.emblemAria': 'منصة قطاعات EAM — اضغط الشعار للاستكشاف',
+  'home.sectorPlatform.emblemHint': 'منصة القطاعات (خدمة إضافية)',
+  'about.aria': 'من نحن — About EAM',
+  'about.eyebrow': 'ABOUT EAM',
+  'about.headline': 'خبرة تراكمت عبر مشاريع كبرى… لتصنع منصة للمستقبل',
+  'about.taglineEn': 'Global experience. Engineering depth. A platform built for what comes next.',
   'about.body':
-    'تجمع إعمار الأصالة والمعاصرة بين الاستشارات الهندسية، التطوير العقاري، الاستثمار، والخدمات التنفيذية في مسار واحد يربط الفكرة بالتسليم.',
-  'about.value.excellence': 'التميّز',
-  'about.value.trust': 'المصداقية',
-  'about.value.sustainability': 'الاستدامة',
-  'about.value.innovation': 'الابتكار',
-  'about.cta': 'تعرّف على EAM',
-  'about.mediaCaption': 'EAM في 90 ثانية — وسائط قابلة للاستبدال',
+    'تأسست EAM على خبرة مهنية تراكمت عبر سنوات من العمل في المشاريع العالمية الضخمة والمتنوعة، لتقديم حلول هندسية واستثمارية ورقمية تواكب تطلعات المستقبل، تبني التميز وتصنع إرثًا يدوم.',
+  'about.cta': 'اكتشف EAM',
+  'oneStatement.aria': 'EAM في جملة واحدة',
+  'oneStatement.eyebrow': 'EAM IN ONE STATEMENT',
+  'oneStatement.title': 'نبني الثقة قبل أن نبني المشاريع',
+  'oneStatement.taglineEn': 'Engineering certainty. Investment vision. Lasting value.',
+  'oneStatement.body':
+    'في إعمار الأصالة والمعاصرة، نجمع بين الخبرة الهندسية، وإدارة المشاريع، والرؤية الاستثمارية، والحلول الرقمية لتقديم قيمة تمتد من الفكرة الأولى حتى التشغيل والاستدامة.',
+  'oneStatement.pillar.engineering': 'Engineering',
+  'oneStatement.pillar.projectDelivery': 'Project Delivery',
+  'oneStatement.pillar.investment': 'Investment',
+  'oneStatement.pillar.digital': 'Digital Transformation',
   'platforms.title': 'حلول متكاملة لرحلة أكثر نجاحاً',
   'platforms.subtitle':
     'عرض تفصيلي لمنصات EAM — استكشف كل قطاع وابدأ رحلتك من نقطة واحدة.',
@@ -217,6 +307,66 @@ export const HOME_MESSAGES_AR: HomeMessageCatalog = {
   'platforms.stat': '16 منصة',
   'platforms.explore': 'استكشف',
   'platforms.aria': 'منصات EAM',
+  'offer.aria': 'ماذا نقدم',
+  'midContent.aria': 'لماذا EAM — فارق EAM',
+  'midContent.number': '05',
+  'midContent.eyebrow': 'WHY EAM / THE EAM DIFFERENCE',
+  'midContent.metaAr': 'خبرة تبني الثقة في القرار والتنفيذ',
+  'midContent.metaEn': 'Experience that builds confidence in every decision',
+  'midContent.title': 'من الاستشارة إلى القرار',
+  'midContent.taglineEn': 'From technical insight to confident decisions',
+  'midContent.pillar1.title': 'رؤية شاملة',
+  'midContent.pillar1.titleEn': 'Holistic Perspective',
+  'midContent.pillar1.desc': 'نرى المشروع منظومة متكاملة تشغيلياً واستثمارياً.',
+  'midContent.pillar1.descEn':
+    'We see the project as an integrated operational and investment ecosystem.',
+  'midContent.pillar2.title': 'حوكمة القرار',
+  'midContent.pillar2.titleEn': 'Decision Governance',
+  'midContent.pillar2.desc': 'قرارات مبنية على بيانات ومراجعة دقيقة ومسؤوليات واضحة.',
+  'midContent.pillar2.descEn':
+    'Decisions are based on data, rigorous review and clearly defined accountabilities.',
+  'midContent.pillar3.title': 'تكامل التخصصات',
+  'midContent.pillar3.titleEn': 'Multi-disciplinary Integration',
+  'midContent.pillar3.desc': 'الهندسة والإدارة والاستثمار والتقنية ضمن إطار واحد.',
+  'midContent.pillar3.descEn':
+    'Engineering, management, investment, and technology within a unified framework.',
+  'midContent.pillar4.title': 'تركيز على التنفيذ',
+  'midContent.pillar4.titleEn': 'Execution Focus',
+  'midContent.pillar4.desc': 'الحلول لا تتوقف عند التقرير، بل تُصمَّم للتطبيق.',
+  'midContent.pillar4.descEn':
+    'Solutions do not end at the report, but are built to be implementable.',
+  'midContent.pillar5.title': 'قيمة طويلة الأمد',
+  'midContent.pillar5.titleEn': 'Long-term Value',
+  'midContent.pillar5.desc': 'ننظر إلى الأصل ودورة حياته، لا إلى مرحلة البناء فقط.',
+  'midContent.pillar5.descEn':
+    'We look at the asset and its lifecycle, not just the construction phase.',
+  'offer.number': '04',
+  'offer.eyebrow': 'WHAT WE OFFER',
+  'offer.title': 'ماذا نقدم',
+  'offer.taglineEn': 'Integrated engineering and investment value',
+  'offer.body':
+    'نقدم في EAM منظومة خدمات متكاملة تربط بين الهندسة، التنفيذ، الاستثمار، والتحول الرقمي، بحيث لا تكون كل خدمة معزولة عن الأخرى، بل جزءاً من رؤية أشمل لصناعة قيمة مستدامة.',
+  'offer.leadEn': 'A connected platform of services, not isolated offerings.',
+  'offer.card.engineering.title': 'الاستشارات الهندسية',
+  'offer.card.engineering.titleEn': 'Engineering Consultancy',
+  'offer.card.engineering.desc':
+    'حلول هندسية مدروسة تقود القرار من الفكرة إلى الاعتماد والتنفيذ.',
+  'offer.card.projectDelivery.title': 'إدارة المشاريع والتنفيذ',
+  'offer.card.projectDelivery.titleEn': 'Project Delivery',
+  'offer.card.projectDelivery.desc':
+    'إشراف وقيادة وضبط جودة يضمن وضوح المسار وكفاءة الإنجاز.',
+  'offer.card.investment.title': 'الاستثمار والتطوير',
+  'offer.card.investment.titleEn': 'Investment & Development',
+  'offer.card.investment.desc':
+    'رؤية استثمارية تربط الجدوى بالمكان والفرصة والنمو طويل الأمد.',
+  'offer.card.digital.title': 'الحلول الرقمية والتحول',
+  'offer.card.digital.titleEn': 'Digital Transformation',
+  'offer.card.digital.desc':
+    'أنظمة وأدوات رقمية ترفع الكفاءة وتدعم اتخاذ القرار والاستدامة التشغيلية.',
+  'offer.value.longTerm': 'قيمة طويلة الأمد',
+  'offer.value.sustainability': 'استدامة',
+  'offer.value.integration': 'تكامل',
+  'offer.value.clarity': 'وضوح',
   'projects.title': 'أبرز المشاريع',
   'projects.subtitle':
     'محفظة متنوعة عبر السكن والتجارة والصحة والبنية — عرض تقديمي يعكس قدرة EAM على ربط الفكرة بالتسليم.',
@@ -280,7 +430,7 @@ export const HOME_MESSAGES_AR: HomeMessageCatalog = {
   'footer.editLinkPrompt': 'أدخل رابط',
   'chat.tab.free': 'متابعة حرة',
   'chat.tab.journey': 'رحلة مخصصة',
-  'chat.placeholder.free': 'ما الذي تريد إنجازه اليوم؟',
+  'chat.placeholder.free': 'اسأل، فكّر، أو صف ما تبحث عنه…',
   'chat.placeholder.journey': 'صف احتياجك لبدء الرحلة المخصصة...',
   'chat.placeholder.journeyActive': 'أكمل الخطوات أعلاه للمتابعة...',
   'chat.journeyBanner': 'أنت في رحلة جمع المعلومات',
@@ -291,12 +441,23 @@ export const HOME_MESSAGES_AR: HomeMessageCatalog = {
   'chat.voice': 'صوت',
   'chat.voiceListening': 'جاري الاستماع...',
   'chat.voiceUnsupported': 'الإدخال الصوتي غير مدعوم في هذا المتصفح.',
+  'chat.voicePermissionDenied': 'يُرجى السماح باستخدام الميكروفون من إعدادات المتصفح ثم المحاولة مرة أخرى.',
+  'chat.voiceInsecure': 'الإدخال الصوتي يعمل فقط على اتصال آمن (HTTPS) أو أثناء التطوير المحلي.',
+  'chat.voiceError': 'تعذّر بدء الاستماع. جرّب مرة أخرى أو اكتب رسالتك.',
+  'chat.voiceNoSpeech': 'لم نلتقط صوتاً. اقترب من الميكروفون وحاول مرة أخرى.',
+  'chat.voiceNoSpeechRetry': 'لم نسمع كلاماً — نعيد الاستماع…',
+  'chat.voiceHoldHint': 'اضغط مطولاً للتحدث',
+  'chat.voiceRecording': 'جاري التسجيل',
+  'chat.voiceSlideToCancel': '← اسحب للإلغاء',
+  'chat.voiceSlideToCancelRtl': 'اسحب للإلغاء →',
+  'chat.voiceReleaseToCancel': 'أفلِت للإلغاء',
+  'chat.voicePreparing': 'أبقِ الضغط… جاري تفعيل الميكروفون',
   'chat.attachmentAdded': 'تم إرفاق الملف',
   'chat.enterJourney': 'الدخول للرحلة المخصصة',
   'chat.explore': 'استكشف',
   'chat.journeyComplete': 'تم إكمال رحلة جمع المعلومات بنجاح.',
   'chat.defaultDescription':
-    'مساعد هندسي ذكي يساعدك في اختيار الخدمة المناسبة، وتقدير المتطلبات، وبدء رحلتك مع فريق إعمار.',
+    'مساعد ذكاء اصطناعي مفتوح — نفكّر معاً في أي موضوع؛ وعندما يلزم، نوجّهك لخدمات EAM دون قيود على الحوار.',
   'chat.placeholder.general': 'صف مشروعك أو اطرح سؤالك...',
   'chat.brand': 'EAM AI',
   'sector.real-estate-development': 'التطوير العقاري',
@@ -358,11 +519,14 @@ export const HOME_MESSAGES_EN: HomeMessageCatalog = {
   'hero.subtitle': 'An integrated engineering, investment, and digital platform.',
   'hero.body':
     'Consulting, development, execution, and investment in one path — guided by EAM intelligence from the very first step.',
-  'assistant.header': 'Smart assistant — free chat or guided journey',
+  'hero.replayPromo': 'Replay brand film',
+  'hero.promoCompanyAr': 'إعمار الأصالة والمعاصرة للاستشارات الهندسية',
+  'hero.promoCompanyEn': 'Emmar Al Asala Wa Al Muasara Engineering Consultancy',
+  'assistant.header': 'EAM Copilot — think openly with me',
   'assistant.aria': 'AI workspace',
   'assistant.minimize': 'Minimize assistant',
   'assistant.restore': 'Open assistant',
-  'assistant.compactHint': 'Tap to open chat or start a journey',
+  'assistant.compactHint': 'Tap to open chat',
   'quickActions.aria': 'Quick suggestions',
   'quickActions.title': 'Start here',
   'quickActions.subtitle': 'Ready paths on the platform',
@@ -385,17 +549,29 @@ export const HOME_MESSAGES_EN: HomeMessageCatalog = {
   'stats.sustainability.detail': 'Decisions that serve long-term impact',
   'stats.innovation.label': 'Innovation',
   'stats.innovation.detail': 'EAM intelligence guides the journey from day one',
+  'home.engineering.aria': 'Engineering services',
+  'home.engineering.title': 'Engineering services',
+  'home.engineering.subtitle': 'The core of EAM — design, studies, and supervision',
+  'home.engineering.cta': 'All engineering services',
+  'home.sectorPlatform.emblemAria': 'EAM sector platform — tap the emblem to explore',
+  'home.sectorPlatform.emblemHint': 'Sector platform (extended service)',
   'about.aria': 'About EAM',
-  'about.title': 'EAM — building a better life',
-  'about.leadBold': 'An integrated engineering, investment, and digital platform.',
+  'about.eyebrow': 'ABOUT EAM',
+  'about.headline': 'Experience built on major projects… shaping a platform for the future',
+  'about.taglineEn': 'Global experience. Engineering depth. A platform built for what comes next.',
   'about.body':
-    'Emmar Al Asala Wa Al Muasara brings engineering consulting, real estate development, investment, and execution services together in one path from idea to delivery.',
-  'about.value.excellence': 'Excellence',
-  'about.value.trust': 'Trust',
-  'about.value.sustainability': 'Sustainability',
-  'about.value.innovation': 'Innovation',
+    'EAM was founded on professional expertise accumulated through years of work on large, diverse global projects — delivering engineering, investment, and digital solutions that meet future ambitions, build excellence, and create lasting legacy.',
   'about.cta': 'Discover EAM',
-  'about.mediaCaption': 'EAM in 90 seconds — replaceable media',
+  'oneStatement.aria': 'EAM in One Statement',
+  'oneStatement.eyebrow': 'EAM IN ONE STATEMENT',
+  'oneStatement.title': 'We build trust before we build projects',
+  'oneStatement.taglineEn': 'Engineering certainty. Investment vision. Lasting value.',
+  'oneStatement.body':
+    'At Emmar Al Asala Wa Al Muasara, we combine engineering expertise, project management, investment vision, and digital solutions to deliver value from the first idea through operations and sustainability.',
+  'oneStatement.pillar.engineering': 'Engineering',
+  'oneStatement.pillar.projectDelivery': 'Project Delivery',
+  'oneStatement.pillar.investment': 'Investment',
+  'oneStatement.pillar.digital': 'Digital Transformation',
   'platforms.title': 'Integrated solutions for a more successful journey',
   'platforms.subtitle':
     'A detailed view of EAM platforms — explore each sector and start your journey from one hub.',
@@ -403,6 +579,71 @@ export const HOME_MESSAGES_EN: HomeMessageCatalog = {
   'platforms.stat': '16 platforms',
   'platforms.explore': 'Explore',
   'platforms.aria': 'EAM platforms',
+  'offer.aria': 'What we offer',
+  'midContent.aria': 'Why EAM — the EAM difference',
+  'midContent.number': '05',
+  'midContent.eyebrow': 'WHY EAM / THE EAM DIFFERENCE',
+  'midContent.metaAr': 'خبرة تبني الثقة في القرار والتنفيذ',
+  'midContent.metaEn': 'Experience that builds confidence in every decision',
+  'midContent.title': 'From insight to decision',
+  'midContent.taglineEn': 'From technical insight to confident decisions',
+  'midContent.pillar1.title': 'Holistic perspective',
+  'midContent.pillar1.titleEn': 'Holistic Perspective',
+  'midContent.pillar1.desc':
+    'We see the project as an integrated operational and investment ecosystem.',
+  'midContent.pillar1.descEn':
+    'We see the project as an integrated operational and investment ecosystem.',
+  'midContent.pillar2.title': 'Decision governance',
+  'midContent.pillar2.titleEn': 'Decision Governance',
+  'midContent.pillar2.desc':
+    'Decisions are based on data, rigorous review and clearly defined accountabilities.',
+  'midContent.pillar2.descEn':
+    'Decisions are based on data, rigorous review and clearly defined accountabilities.',
+  'midContent.pillar3.title': 'Multi-disciplinary integration',
+  'midContent.pillar3.titleEn': 'Multi-disciplinary Integration',
+  'midContent.pillar3.desc':
+    'Engineering, management, investment, and technology within a unified framework.',
+  'midContent.pillar3.descEn':
+    'Engineering, management, investment, and technology within a unified framework.',
+  'midContent.pillar4.title': 'Execution focus',
+  'midContent.pillar4.titleEn': 'Execution Focus',
+  'midContent.pillar4.desc':
+    'Solutions do not end at the report, but are built to be implementable.',
+  'midContent.pillar4.descEn':
+    'Solutions do not end at the report, but are built to be implementable.',
+  'midContent.pillar5.title': 'Long-term value',
+  'midContent.pillar5.titleEn': 'Long-term Value',
+  'midContent.pillar5.desc':
+    'We look at the asset and its lifecycle, not just the construction phase.',
+  'midContent.pillar5.descEn':
+    'We look at the asset and its lifecycle, not just the construction phase.',
+  'offer.number': '04',
+  'offer.eyebrow': 'WHAT WE OFFER',
+  'offer.title': 'What we offer',
+  'offer.taglineEn': 'Integrated engineering and investment value',
+  'offer.body':
+    'At EAM we deliver an integrated service system linking engineering, execution, investment, and digital transformation — each capability part of a wider vision for sustainable value, not a standalone silo.',
+  'offer.leadEn': 'A connected platform of services, not isolated offerings.',
+  'offer.card.engineering.title': 'Engineering consultancy',
+  'offer.card.engineering.titleEn': 'Engineering Consultancy',
+  'offer.card.engineering.desc':
+    'Rigorous engineering that guides decisions from concept through approval and delivery.',
+  'offer.card.projectDelivery.title': 'Project management & delivery',
+  'offer.card.projectDelivery.titleEn': 'Project Delivery',
+  'offer.card.projectDelivery.desc':
+    'Supervision, leadership, and quality control for a clear path and efficient delivery.',
+  'offer.card.investment.title': 'Investment & development',
+  'offer.card.investment.titleEn': 'Investment & Development',
+  'offer.card.investment.desc':
+    'Investment vision that connects feasibility, place, opportunity, and long-term growth.',
+  'offer.card.digital.title': 'Digital solutions & transformation',
+  'offer.card.digital.titleEn': 'Digital Transformation',
+  'offer.card.digital.desc':
+    'Digital systems and tools that raise efficiency and support decisions and operational sustainability.',
+  'offer.value.longTerm': 'Long-term value',
+  'offer.value.sustainability': 'Sustainability',
+  'offer.value.integration': 'Integration',
+  'offer.value.clarity': 'Clarity',
   'projects.title': 'Featured projects',
   'projects.subtitle':
     'A diverse portfolio across residential, commercial, healthcare, and infrastructure — a presentation of EAM’s ability to connect vision to delivery.',
@@ -467,7 +708,7 @@ export const HOME_MESSAGES_EN: HomeMessageCatalog = {
   'footer.editLinkPrompt': 'Enter link for',
   'chat.tab.free': 'Free chat',
   'chat.tab.journey': 'Guided journey',
-  'chat.placeholder.free': 'What would you like to accomplish today?',
+  'chat.placeholder.free': 'Ask, explore, or describe what you’re looking for…',
   'chat.placeholder.journey': 'Describe your need to start the guided journey...',
   'chat.placeholder.journeyActive': 'Complete the steps above to continue...',
   'chat.journeyBanner': 'You are in an information-gathering journey',
@@ -478,12 +719,23 @@ export const HOME_MESSAGES_EN: HomeMessageCatalog = {
   'chat.voice': 'Voice',
   'chat.voiceListening': 'Listening...',
   'chat.voiceUnsupported': 'Voice input is not supported in this browser.',
+  'chat.voicePermissionDenied': 'Allow microphone access in your browser settings, then try again.',
+  'chat.voiceInsecure': 'Voice input requires a secure connection (HTTPS) or local development.',
+  'chat.voiceError': 'Could not start listening. Try again or type your message.',
+  'chat.voiceNoSpeech': 'No speech detected. Move closer to the microphone and try again.',
+  'chat.voiceNoSpeechRetry': 'No speech heard — listening again…',
+  'chat.voiceHoldHint': 'Hold to talk',
+  'chat.voiceRecording': 'Recording',
+  'chat.voiceSlideToCancel': 'Slide left to cancel ←',
+  'chat.voiceSlideToCancelRtl': 'Slide right to cancel →',
+  'chat.voiceReleaseToCancel': 'Release to cancel',
+  'chat.voicePreparing': 'Keep holding… enabling microphone',
   'chat.attachmentAdded': 'File attached',
   'chat.enterJourney': 'Enter guided journey',
   'chat.explore': 'Explore',
   'chat.journeyComplete': 'The information-gathering journey was completed successfully.',
   'chat.defaultDescription':
-    'A smart engineering assistant that helps you choose the right service, estimate requirements, and start your journey with the EAM team.',
+    'An open AI copilot — explore any topic together; when it fits, we guide you to EAM services without limiting the conversation.',
   'chat.placeholder.general': 'Describe your project or ask a question...',
   'chat.brand': 'EAM AI',
   'sector.real-estate-development': 'Real estate development',

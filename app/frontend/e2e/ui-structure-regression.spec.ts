@@ -20,11 +20,29 @@ test.describe('UI structure regression', () => {
     await expect(page.getByRole('heading', { level: 1, name: /من الفكرة إلى/ })).toBeVisible();
     await expect(page.getByRole('region', { name: 'مساحة العمل الذكية' })).toBeVisible();
     await expect(page.getByPlaceholder('ما الذي تريد إنجازه اليوم؟')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'أبني منزلًا' }).first()).toBeVisible();
-    await expect(page.getByRole('region', { name: 'منصات القطاعات' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'رحلة مخصصة' })).toHaveCount(0);
+    await expect(page.getByRole('region', { name: 'منصات القطاعات' })).toHaveCount(0);
     await expect(page.locator('.homepage-dashboard')).toHaveCount(0);
-    await expect(page.getByRole('region', { name: 'نبذة عن EAM' })).toBeVisible();
+    await expect(page.getByRole('region', { name: 'من نحن — About EAM' })).toBeVisible();
+    await expect(page.getByRole('region', { name: 'EAM في جملة واحدة' })).toBeVisible();
+    await expect(page.getByRole('region', { name: 'أبرز المشاريع' })).toBeVisible();
     await expect(page.getByRole('region', { name: 'الاستثمار' })).toBeVisible();
+
+  });
+
+  test('services page shows core engineering and government offerings', async ({ page }) => {
+    await page.goto(`${FRONTEND}/services`);
+
+    await expect(page.getByRole('heading', { name: 'الخدمات الهندسية', level: 2 })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'الخدمات الحكومية', level: 2 })).toBeVisible();
+    await expect(page.getByRole('region', { name: 'منصات القطاعات' })).toHaveCount(0);
+  });
+
+  test('sector platforms page preserves sector marquee structure', async ({ page }) => {
+    await page.goto(`${FRONTEND}/services/platforms`);
+
+    await expect(page.getByRole('region', { name: 'منصات القطاعات' })).toBeVisible();
+    await expect(page.locator('#services-sector-platforms')).toBeVisible();
 
     const sectorLinks = page.locator('[aria-label="منصات القطاعات"] a');
     await expect(sectorLinks).toHaveCount(32);
@@ -35,7 +53,7 @@ test.describe('UI structure regression', () => {
   });
 
   test('rich sector cards route to implemented pages', async ({ page }) => {
-    await page.goto(FRONTEND);
+    await page.goto(`${FRONTEND}/services/platforms`);
 
     for (const sector of RICH_SECTOR_ROUTES) {
       const link = page.locator(`[aria-label="منصات القطاعات"] a[href="${sector.href}"]`).first();

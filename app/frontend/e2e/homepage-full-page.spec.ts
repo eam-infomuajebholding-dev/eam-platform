@@ -6,7 +6,9 @@ const VIEWPORT = { width: 1586, height: 992 };
 const HOME_SECTION_SELECTORS = [
   '#home-command-center',
   '#home-about',
-  '#home-solutions',
+  '#home-one-statement',
+  '#home-what-we-offer',
+  '#home-mid-content',
   '#home-projects-showcase',
   '#home-investment',
   '#home-contact',
@@ -37,7 +39,9 @@ test.describe('Homepage full-page section order', () => {
   test('below-fold sections follow canonical order', async ({ page }) => {
     const command = await sectionY(page, '#home-command-center');
     const about = await sectionY(page, '#home-about');
-    const solutions = await sectionY(page, '#home-solutions');
+    const oneStatement = await sectionY(page, '#home-one-statement');
+    const offer = await sectionY(page, '#home-what-we-offer');
+    const midContent = await sectionY(page, '#home-mid-content');
     const projects = await sectionY(page, '#home-projects-showcase');
     const investment = await sectionY(page, '#home-investment');
     const contact = await sectionY(page, '#home-contact');
@@ -45,15 +49,19 @@ test.describe('Homepage full-page section order', () => {
 
     expect(command).not.toBeNull();
     expect(about).not.toBeNull();
-    expect(solutions).not.toBeNull();
+    expect(oneStatement).not.toBeNull();
+    expect(offer).not.toBeNull();
+    expect(midContent).not.toBeNull();
     expect(projects).not.toBeNull();
     expect(investment).not.toBeNull();
     expect(contact).not.toBeNull();
     expect(footer).not.toBeNull();
 
     expect(command!).toBeLessThan(about!);
-    expect(about!).toBeLessThan(solutions!);
-    expect(solutions!).toBeLessThan(projects!);
+    expect(about!).toBeLessThan(oneStatement!);
+    expect(oneStatement!).toBeLessThan(offer!);
+    expect(offer!).toBeLessThan(midContent!);
+    expect(midContent!).toBeLessThan(projects!);
     expect(projects!).toBeLessThan(investment!);
     expect(investment!).toBeLessThan(contact!);
     expect(contact!).toBeLessThan(footer!);
@@ -129,11 +137,6 @@ test.describe('Homepage full-page section order', () => {
     expect(layout).not.toBeNull();
     expect(layout!.aboutTop).toBeGreaterThanOrEqual(layout!.commandBottom - 8);
     expect(layout!.scrollHeight).toBeGreaterThan(992);
-  });
-
-  test('platform grid uses canonical 16 sectors', async ({ page }) => {
-    const count = await page.locator('#home-solutions [data-sector-slug]').count();
-    expect(count).toBe(16);
   });
 
   test('contact route reachable', async ({ page }) => {

@@ -13,6 +13,7 @@ import { getVideoFromIDB } from '@/lib/videoStorage';
 import { getCustomNavLinks, type CustomNavLink } from './admin/PageManager';
 import UserActions from './Navbar/UserActions';
 import PublicRouteMeta from './PublicRouteMeta';
+import { isCommandCenterOpenAccessEnabled } from '@/config/commandCenterDevAccess';
 
 const navLinks = [
   { path: '/about', labelKey: 'nav.about' as const },
@@ -23,6 +24,12 @@ const navLinks = [
   { path: '/blog', labelKey: 'nav.blog' as const },
   { path: '/contact', labelKey: 'nav.contact' as const },
 ];
+
+/** TEMP: surface Command Center in main nav while building it out (dev / explicit flag). */
+const commandCenterNavLink = { path: '/command-center', labelKey: 'auth.commandCenter' as const };
+
+const showCommandCenterInMainNav =
+  isCommandCenterOpenAccessEnabled || import.meta.env.VITE_SHOW_COMMAND_CENTER_NAV === 'true';
 
 const homeNavLink = { path: '/', labelKey: 'nav.home' as const };
 
@@ -100,7 +107,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     setTimeout(() => setIsToggling(false), 600);
   }, [toggleTheme]);
 
-  const resolvedNavLinks = [homeNavLink, ...navLinks];
+  const resolvedNavLinks = [
+    homeNavLink,
+    ...(showCommandCenterInMainNav ? [commandCenterNavLink] : []),
+    ...navLinks,
+  ];
   const isNavActive = (path: string) => location.pathname === path;
   const shellClassName =
     'min-h-screen bg-background font-sans text-foreground antialiased transition-colors duration-300';
@@ -278,7 +289,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="relative z-10">{children}</div>
       </main>
 
-      <Footer />
+      <Footer flushWithHomeContact={location.pathname === '/'} />
 
       {/* Edit Mode Toolbar */}
       <EditToolbar />
