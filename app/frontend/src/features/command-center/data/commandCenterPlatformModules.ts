@@ -45,11 +45,13 @@ export type CommandCenterPlatformModule = {
   labelEn: string;
   /** Match journey_metrics / sector slug for live counts */
   countSlug?: string;
+  /** Agreed mockup tile badge when live metrics are empty (preview / dev shell) */
+  showcaseCount?: number;
 };
 
 /** 24 tiles — order matches agreed Command Center mockup */
 export const COMMAND_CENTER_PLATFORM_MODULES: CommandCenterPlatformModule[] = [
-  { id: 'about', route: '/about', icon: Globe2, tint: 'cc-tint-gold', labelKey: 'nav.about', labelEn: 'About EAM' },
+  { id: 'about', route: '/about', icon: Globe2, tint: 'cc-tint-gold', labelKey: 'nav.about', labelEn: 'About EAM', showcaseCount: 8 },
   {
     id: 'engineering-design',
     route: '/journeys/build-villa',
@@ -58,6 +60,7 @@ export const COMMAND_CENTER_PLATFORM_MODULES: CommandCenterPlatformModule[] = [
     labelKey: 'commandCenter.modules.engineeringDesign',
     labelEn: 'Engineering Design',
     countSlug: 'build-villa',
+    showcaseCount: 24,
   },
   {
     id: 'real-estate-development',
@@ -67,6 +70,7 @@ export const COMMAND_CENTER_PLATFORM_MODULES: CommandCenterPlatformModule[] = [
     labelKey: 'sector.real-estate-development',
     labelEn: 'Real Estate Dev',
     countSlug: 'real-estate-development',
+    showcaseCount: 18,
   },
   {
     id: 'investment',
@@ -76,6 +80,7 @@ export const COMMAND_CENTER_PLATFORM_MODULES: CommandCenterPlatformModule[] = [
     labelKey: 'sector.investment',
     labelEn: 'Real Estate Investment',
     countSlug: 'investment',
+    showcaseCount: 16,
   },
   {
     id: 'real-estate-marketing',
@@ -85,6 +90,7 @@ export const COMMAND_CENTER_PLATFORM_MODULES: CommandCenterPlatformModule[] = [
     labelKey: 'sector.real-estate-marketing',
     labelEn: 'Real Estate Marketing',
     countSlug: 'real-estate-marketing',
+    showcaseCount: 14,
   },
   {
     id: 'real-estate-valuation',
@@ -94,6 +100,7 @@ export const COMMAND_CENTER_PLATFORM_MODULES: CommandCenterPlatformModule[] = [
     labelKey: 'sector.real-estate-valuation',
     labelEn: 'Real Estate Valuation',
     countSlug: 'real-estate-valuation',
+    showcaseCount: 12,
   },
   {
     id: 'government-services',
@@ -103,6 +110,7 @@ export const COMMAND_CENTER_PLATFORM_MODULES: CommandCenterPlatformModule[] = [
     labelKey: 'sector.government-services',
     labelEn: 'Government Services',
     countSlug: 'government-services',
+    showcaseCount: 9,
   },
   {
     id: 'project-management',
@@ -112,6 +120,7 @@ export const COMMAND_CENTER_PLATFORM_MODULES: CommandCenterPlatformModule[] = [
     labelKey: 'sector.project-management',
     labelEn: 'Project Management',
     countSlug: 'project-management',
+    showcaseCount: 22,
   },
   {
     id: 'engineering-consulting',
@@ -121,6 +130,7 @@ export const COMMAND_CENTER_PLATFORM_MODULES: CommandCenterPlatformModule[] = [
     labelKey: 'sector.engineering-consulting',
     labelEn: 'Engineering Consulting',
     countSlug: 'engineering-consulting',
+    showcaseCount: 15,
   },
   {
     id: 'contracting',
@@ -130,6 +140,7 @@ export const COMMAND_CENTER_PLATFORM_MODULES: CommandCenterPlatformModule[] = [
     labelKey: 'sector.contracting',
     labelEn: 'Contracting & Execution',
     countSlug: 'contracting',
+    showcaseCount: 17,
   },
   {
     id: 'building-materials',
@@ -139,6 +150,7 @@ export const COMMAND_CENTER_PLATFORM_MODULES: CommandCenterPlatformModule[] = [
     labelKey: 'sector.building-materials',
     labelEn: 'Building Materials',
     countSlug: 'building-materials',
+    showcaseCount: 11,
   },
   {
     id: 'equipment',
@@ -148,6 +160,7 @@ export const COMMAND_CENTER_PLATFORM_MODULES: CommandCenterPlatformModule[] = [
     labelKey: 'sector.equipment',
     labelEn: 'Equipment & Machinery',
     countSlug: 'equipment',
+    showcaseCount: 10,
   },
   {
     id: 'factories-suppliers',
@@ -157,6 +170,7 @@ export const COMMAND_CENTER_PLATFORM_MODULES: CommandCenterPlatformModule[] = [
     labelKey: 'sector.factories-suppliers',
     labelEn: 'Factories & Suppliers',
     countSlug: 'factories-suppliers',
+    showcaseCount: 8,
   },
   {
     id: 'smart-maintenance',
@@ -166,6 +180,7 @@ export const COMMAND_CENTER_PLATFORM_MODULES: CommandCenterPlatformModule[] = [
     labelKey: 'sector.smart-maintenance',
     labelEn: 'Operations & Maintenance',
     countSlug: 'smart-maintenance',
+    showcaseCount: 13,
   },
   {
     id: 'facility-management',
@@ -175,6 +190,7 @@ export const COMMAND_CENTER_PLATFORM_MODULES: CommandCenterPlatformModule[] = [
     labelKey: 'sector.facility-management',
     labelEn: 'Facility Management',
     countSlug: 'facility-management',
+    showcaseCount: 9,
   },
   {
     id: 'furnishing',
@@ -184,6 +200,7 @@ export const COMMAND_CENTER_PLATFORM_MODULES: CommandCenterPlatformModule[] = [
     labelKey: 'sector.furnishing',
     labelEn: 'Interior Fitout',
     countSlug: 'furnishing',
+    showcaseCount: 7,
   },
   {
     id: 'delivery-warranty',
@@ -193,12 +210,13 @@ export const COMMAND_CENTER_PLATFORM_MODULES: CommandCenterPlatformModule[] = [
     labelKey: 'sector.delivery-warranty',
     labelEn: 'Handover & After-Sales',
     countSlug: 'delivery-warranty',
+    showcaseCount: 6,
   },
-  { id: 'projects', route: '/projects', icon: BarChart3, tint: 'cc-tint-gold', labelKey: 'nav.projects', labelEn: 'Projects' },
-  { id: 'marketplace', route: '/market', icon: ShoppingBag, tint: 'cc-tint-purple', labelKey: 'nav.market', labelEn: 'Marketplace' },
-  { id: 'careers', route: '/careers', icon: Users, tint: 'cc-tint-cyan', labelKey: 'nav.careers', labelEn: 'Careers' },
-  { id: 'blog', route: '/blog', icon: Newspaper, tint: 'cc-tint-green', labelKey: 'nav.blog', labelEn: 'Blog' },
-  { id: 'contact', route: '/contact', icon: Mail, tint: 'cc-tint-slate', labelKey: 'nav.contact', labelEn: 'Contact Us' },
+  { id: 'projects', route: '/projects', icon: BarChart3, tint: 'cc-tint-gold', labelKey: 'nav.projects', labelEn: 'Projects', showcaseCount: 4 },
+  { id: 'marketplace', route: '/market', icon: ShoppingBag, tint: 'cc-tint-purple', labelKey: 'nav.market', labelEn: 'Marketplace', showcaseCount: 5 },
+  { id: 'careers', route: '/careers', icon: Users, tint: 'cc-tint-cyan', labelKey: 'nav.careers', labelEn: 'Careers', showcaseCount: 3 },
+  { id: 'blog', route: '/blog', icon: Newspaper, tint: 'cc-tint-green', labelKey: 'nav.blog', labelEn: 'Blog', showcaseCount: 2 },
+  { id: 'contact', route: '/contact', icon: Mail, tint: 'cc-tint-slate', labelKey: 'nav.contact', labelEn: 'Contact Us', showcaseCount: 1 },
   {
     id: 'platform-admin',
     route: '/admin',
@@ -206,13 +224,15 @@ export const COMMAND_CENTER_PLATFORM_MODULES: CommandCenterPlatformModule[] = [
     tint: 'cc-tint-gold',
     labelKey: 'commandCenter.nav.settings',
     labelEn: 'Platform Management',
+    showcaseCount: 6,
   },
   {
     id: 'analytics',
-    route: '/command-center#finance',
+    route: '/command-center#platform-sections',
     icon: LayoutGrid,
     tint: 'cc-tint-blue',
     labelKey: 'commandCenter.nav.analytics',
     labelEn: 'Analytics & Reports',
+    showcaseCount: 5,
   },
 ];

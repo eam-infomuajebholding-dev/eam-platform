@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { useEditMode } from '@/contexts/EditModeContext';
-import { PenSquare, X, Paintbrush, FileText } from 'lucide-react';
+import { History, PenSquare, X, Paintbrush, FileText } from 'lucide-react';
 import PageBackgroundEditor from './PageBackgroundEditor';
 import PageManager from './PageManager';
+import PageEditsPanel from './PageEditsPanel';
 
 export default function EditToolbar() {
   const { isEditMode, isDevEditModeAvailable, toggleEditMode, logout } = useEditMode();
   const [showBgEditor, setShowBgEditor] = useState(false);
   const [showPageManager, setShowPageManager] = useState(false);
+  const [showEditsPanel, setShowEditsPanel] = useState(false);
 
   if (!isDevEditModeAvailable) {
     return null;
@@ -28,16 +30,26 @@ export default function EditToolbar() {
       )}
 
       {isEditMode && (
-        <div className="fixed top-[72px] left-0 right-0 z-[9999] bg-[#D3B051]/95 backdrop-blur-sm shadow-lg">
-          <div className="container mx-auto px-4 py-2 flex items-center justify-between" dir="rtl">
+        <div className="fixed top-[72px] left-0 right-0 z-[9999] border-b border-[#1a1a2e]/10 bg-[#D3B051]/95 shadow-lg backdrop-blur-sm" data-edit-toolbar="true">
+          <div className="container mx-auto flex flex-wrap items-center justify-between gap-2 px-4 py-2.5" dir="rtl">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-green-600 animate-pulse" />
-              <span className="text-[#1a1a2e] text-sm font-bold">
-                وضع التحرير — بيئة التطوير فقط
-              </span>
+              <span className="h-2 w-2 animate-pulse rounded-full bg-green-600" />
+              <div>
+                <span className="text-[#1a1a2e] text-sm font-bold">وضع التحرير</span>
+                <p className="text-[10px] text-[#1a1a2e]/70">انقر أي نص أو صورة · نافذة تحرير · Ctrl+Enter للحفظ</p>
+              </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2">
               <button
+                type="button"
+                onClick={() => setShowEditsPanel(true)}
+                className="flex items-center gap-1 rounded-md bg-[#1a1a2e]/80 px-3 py-1.5 text-sm font-medium text-[#D3B051] transition-colors hover:bg-[#1a1a2e]"
+              >
+                <History className="h-3.5 w-3.5" />
+                تعديلات الصفحة
+              </button>
+              <button
+                type="button"
                 onClick={() => setShowBgEditor(true)}
                 className="flex items-center gap-1 px-3 py-1 rounded-md bg-[#1a1a2e]/80 text-[#D3B051] text-sm font-medium hover:bg-[#1a1a2e] transition-colors"
               >
@@ -45,6 +57,7 @@ export default function EditToolbar() {
                 خلفية الصفحة
               </button>
               <button
+                type="button"
                 onClick={() => setShowPageManager(true)}
                 className="flex items-center gap-1 px-3 py-1 rounded-md bg-[#1a1a2e]/80 text-[#D3B051] text-sm font-medium hover:bg-[#1a1a2e] transition-colors"
               >
@@ -52,12 +65,14 @@ export default function EditToolbar() {
                 إدارة الصفحات
               </button>
               <button
+                type="button"
                 onClick={logout}
                 className="text-[#1a1a2e]/70 text-xs hover:text-[#1a1a2e] underline transition-colors"
               >
                 إيقاف التحرير
               </button>
               <button
+                type="button"
                 onClick={toggleEditMode}
                 className="flex items-center gap-1 px-3 py-1 rounded-md bg-[#1a1a2e] text-[#D3B051] text-sm font-bold hover:bg-[#1a1a2e]/80 transition-colors"
               >
@@ -71,6 +86,7 @@ export default function EditToolbar() {
 
       <PageBackgroundEditor open={showBgEditor} onClose={() => setShowBgEditor(false)} />
       <PageManager open={showPageManager} onClose={() => setShowPageManager(false)} />
+      <PageEditsPanel open={showEditsPanel} onClose={() => setShowEditsPanel(false)} />
     </>
   );
 }

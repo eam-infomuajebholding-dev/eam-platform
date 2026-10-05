@@ -6,6 +6,8 @@ import { LanguageProvider } from '@/contexts/LanguageContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { AuthProvider } from '@/features/auth/context/AuthContext';
 import { EditModeProvider } from '@/contexts/EditModeContext';
+import { SiteEditorProvider } from '@/features/site-editor';
+import { MediaLibraryProvider } from '@/features/media-library';
 import Index from './pages/Index';
 import EngineeringServices from './pages/EngineeringServices';
 import GovernmentServices from './pages/GovernmentServices';
@@ -157,13 +159,17 @@ const App = () => (
             <LanguageProvider>
               <JourneyProvider>
                 <EditModeProvider>
-                  <WorkspaceProvider>
-                    <AppErrorBoundary>
-                      <Toaster />
-                      <AppRoutes />
-                      <GlobalAssistantDock />
-                    </AppErrorBoundary>
-                  </WorkspaceProvider>
+                  <SiteEditorProvider>
+                    <MediaLibraryProvider>
+                    <WorkspaceProvider>
+                      <AppErrorBoundary>
+                        <Toaster />
+                        <AppRoutes />
+                        <GlobalAssistantDock />
+                      </AppErrorBoundary>
+                    </WorkspaceProvider>
+                    </MediaLibraryProvider>
+                  </SiteEditorProvider>
                 </EditModeProvider>
               </JourneyProvider>
             </LanguageProvider>

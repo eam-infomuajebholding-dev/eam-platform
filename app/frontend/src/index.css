@@ -3455,6 +3455,10 @@ html.theme-transitioning::after {
   color: #dc2626;
 }
 
+.command-center-module-grid__tiles {
+  grid-template-rows: repeat(3, minmax(0, auto));
+}
+
 .command-center-module-tile {
   display: flex;
   min-height: 7.25rem;
@@ -3534,6 +3538,90 @@ html.theme-transitioning::after {
   margin-top: 0.15rem;
   font-size: 0.7rem;
   color: rgb(0 0 0 / 0.5);
+}
+
+.command-center-hero__grid {
+  display: grid;
+  gap: 0;
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    'intro'
+    'visual'
+    'tagline'
+    'widget';
+}
+
+@media (min-width: 1024px) {
+  .command-center-hero__grid {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.35fr) minmax(0, 0.95fr);
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      'intro visual tagline'
+      'widget visual tagline';
+  }
+}
+
+.command-center-hero__intro {
+  grid-area: intro;
+  padding: 1.25rem 1.25rem 0.75rem;
+}
+
+@media (min-width: 1024px) {
+  .command-center-hero__intro {
+    padding: 1.5rem 1.25rem 1rem 1.5rem;
+  }
+}
+
+.command-center-hero__visual {
+  grid-area: visual;
+}
+
+.command-center-hero__visual-scrim {
+  background: linear-gradient(
+    180deg,
+    rgb(255 255 255 / 0.05) 0%,
+    rgb(26 38 52 / 0.35) 55%,
+    rgb(26 38 52 / 0.72) 100%
+  );
+}
+
+.command-center-hero__tagline {
+  grid-area: tagline;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid rgb(0 0 0 / 0.06);
+}
+
+@media (min-width: 1024px) {
+  .command-center-hero__tagline {
+    border-top: none;
+    border-inline-start: 1px solid rgb(0 0 0 / 0.06);
+    padding: 1.5rem 1.25rem;
+  }
+}
+
+.command-center-hero__widget {
+  grid-area: widget;
+  padding: 0.75rem 1.25rem 1.25rem;
+  border-top: 1px solid rgb(0 0 0 / 0.06);
+}
+
+@media (min-width: 1024px) {
+  .command-center-hero__widget {
+    border-top: none;
+    padding: 0 1.25rem 1.5rem 1.5rem;
+  }
+}
+
+.command-center-kpi__label-secondary {
+  margin-top: 0.15rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: rgb(0 0 0 / 0.42);
+}
+
+.dark .command-center-kpi__label-secondary {
+  color: rgb(255 255 255 / 0.45);
 }
 
 .command-center-hero__overlay {
@@ -3707,6 +3795,24 @@ html.theme-transitioning::after {
   color: rgb(255 255 255 / 0.78);
 }
 
+.command-center-brand-footer__vision {
+  flex: 1 1 100%;
+  margin: 0;
+  text-align: center;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgb(255 255 255 / 0.55);
+}
+
+@media (min-width: 1024px) {
+  .command-center-brand-footer__vision {
+    flex: 0 1 auto;
+    margin-inline-start: auto;
+    text-align: end;
+  }
+}
+
 .command-center-advanced {
   border-radius: 1rem;
   border: 1px solid rgb(0 0 0 / 0.06);
@@ -3732,4 +3838,87 @@ html.theme-transitioning::after {
 
 .dark .command-center-advanced > summary {
   color: #fff;
+}
+
+/* ——— Site content editor (Content Studio) ——— */
+body.site-editor-active main {
+  padding-inline-end: min(22rem, 38vw);
+}
+
+.site-editor-field {
+  width: 100%;
+  border-radius: 0.65rem;
+  border: 1px solid rgb(0 0 0 / 0.12);
+  background: rgb(255 255 255 / 0.98);
+  padding: 0.55rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+.dark .site-editor-field {
+  border-color: rgb(255 255 255 / 0.12);
+  background: rgb(255 255 255 / 0.06);
+  color: #fff;
+}
+
+.site-editor-field:focus {
+  outline: 2px solid rgb(211 176 81 / 0.45);
+  outline-offset: 1px;
+}
+
+.site-editor-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgb(0 0 0 / 0.55);
+}
+
+.dark .site-editor-label {
+  color: rgb(255 255 255 / 0.55);
+}
+
+.site-editor-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  background: rgb(255 255 255 / 0.06);
+  padding: 0.35rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgb(255 255 255 / 0.88);
+  transition: background 0.15s;
+}
+
+.site-editor-chip:hover:not(:disabled) {
+  background: rgb(255 255 255 / 0.12);
+}
+
+.site-editor-chip:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.site-editor-chip--primary {
+  border-color: rgb(211 176 81 / 0.45);
+  background: rgb(211 176 81 / 0.22);
+  color: #fff;
+}
+
+.site-editor-inspector {
+  animation: site-editor-slide-in 0.2s ease-out;
+}
+
+@keyframes site-editor-slide-in {
+  from {
+    transform: translateX(1rem);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }

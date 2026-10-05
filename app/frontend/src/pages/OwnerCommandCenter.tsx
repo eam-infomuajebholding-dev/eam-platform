@@ -23,6 +23,8 @@ import {
   fetchCommandCenterOverview,
   fetchExecutiveBrief,
 } from '@/features/command-center/api/commandCenterClient';
+import { buildShowcaseOverview } from '@/features/command-center/data/commandCenterShowcase';
+import { isCommandCenterOpenAccessEnabled } from '@/config/commandCenterDevAccess';
 import type { AttentionItem, AttentionSeverity } from '@/features/command-center/types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import PageMeta from '@/components/PageMeta';
@@ -78,7 +80,16 @@ export default function OwnerCommandCenterPage() {
 
   useEffect(() => {
     const hash = location.hash.replace('#', '');
-    if (hash && SECTION_IDS.has(hash as (typeof NAV_SECTIONS)[number]['id'])) {
+    if (!hash) {
+      setActiveSection('leadership');
+      return;
+    }
+    if (hash === 'platform-sections') {
+      setActiveSection('leadership');
+      document.getElementById('platform-sections')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+    if (SECTION_IDS.has(hash as (typeof NAV_SECTIONS)[number]['id'])) {
       setActiveSection(hash as (typeof NAV_SECTIONS)[number]['id']);
     }
   }, [location.hash]);
@@ -96,81 +107,104 @@ export default function OwnerCommandCenterPage() {
   const overview = overviewQuery.data;
   const brief = briefQuery.data;
 
+  const effectiveOverview = useMemo(() => {
+    if (overview) return overview;
+    if (!isCommandCenterOpenAccessEnabled || overviewQuery.isLoading) return null;
+    return buildShowcaseOverview();
+  }, [overview, overviewQuery.isLoading]);
+
+  const isShowcaseData = Boolean(!overview && effectiveOverview);
+
   const attentionSorted = useMemo(() => {
-    if (!overview) return [];
+    const source = overview ?? effectiveOverview;
+    if (!source) return [];
     const order: AttentionSeverity[] = ['CRITICAL', 'DECISION', 'ACTION', 'WATCH', 'FYI', 'NORMAL'];
-    return [...overview.attention_items].sort(
+    return [...source.attention_items].sort(
       (a, b) => order.indexOf(a.severity) - order.indexOf(b.severity),
     );
-  }, [overview]);
+  }, [overview, effectiveOverview]);
 
   const refreshDashboard = () => {
     void queryClient.invalidateQueries({ queryKey: ['operations', 'command-center'] });
   };
 
   const opportunityCenterTotal = useMemo(() => {
-    if (!overview) return null;
-    const opp = overview.executive_kpis.find((m) =>
+    if (!effectiveOverview) return null;
+    const opp = effectiveOverview.executive_kpis.find((m) =>
       /opportunit|فرص/i.test(`${m.metric_id} ${m.label_ar}`),
     );
     if (opp?.value != null) {
       const n = Number(String(opp.value).replace(/[^\d.]/g, ''));
       return Number.isFinite(n) ? n : null;
     }
-    return overview.journey_metrics.reduce((sum, row) => sum + row.service_request_count, 0) || null;
-  }, [overview]);
+    return effectiveOverview.journey_metrics.reduce((sum, row) => sum + row.service_request_count, 0) || null;
+  }, [effectiveOverview]);
 
   return (
     <>
       <PageMeta title={`${t('auth.commandCenter')} — EAM`} noIndex />
       <CommandCenterLayout
-      overview={overview}
+      overview={effectiveOverview}
       onRefresh={refreshDashboard}
       refreshing={overviewQuery.isFetching}
     >
       <div className="command-center-dashboard space-y-5">
-        <CommandCenterHero generatedAt={overview?.generated_at} />
+        <CommandCenterHero generatedAt={effectiveOverview?.generated_at} />
+
+        {isShowcaseData ? (
+          <p className="rounded-lg border border-amber-200/80 bg-amber-50/90 px-4 py-2 text-center text-xs text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-100">
+            {t('commandCenter.showcase.banner')}
+          </p>
+        ) : null}
 
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
           <div className="space-y-8">
-          {overviewQuery.isError ? (
+          {overviewQuery.isError && !effectiveOverview ? (
             <div className="rounded-xl border border-red-200 bg-red-50 p-4 font-tajawal text-red-800 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-200">
               {t('commandCenter.loadError')}
             </div>
           ) : null}
 
-          {overviewQuery.isLoading ? (
+          {overviewQuery.isLoading && !effectiveOverview ? (
             <p className="font-tajawal text-ink/60">{t('commandCenter.loading')}</p>
           ) : null}
 
-          {overview && activeSection === 'leadership' ? (
+          {activeSection === 'leadership' ? (
             <section id="leadership" className="space-y-6">
-              <CommandCenterKpiGrid
-                metrics={overview.executive_kpis}
-                changes={overview.what_changed}
-                onEvidenceClick={setEvidenceMetricId}
-              />
-
-              <CommandCenterSectorGrid journeyMetrics={overview.journey_metrics} />
-
-              <div className="grid gap-4 lg:grid-cols-3">
-                <CommandCenterTrendChart
-                  trends={overview.platform_trends ?? []}
-                  titleKey="commandCenter.chart.performanceTitle"
-                  subtitleKey="commandCenter.chart.performanceSubtitle"
+              {effectiveOverview ? (
+                <CommandCenterKpiGrid
+                  metrics={effectiveOverview.executive_kpis}
+                  changes={effectiveOverview.what_changed}
+                  onEvidenceClick={isShowcaseData ? undefined : setEvidenceMetricId}
                 />
-                <CommandCenterDistributionChart
-                  journeyMetrics={overview.journey_metrics}
-                  centerTotal={opportunityCenterTotal}
-                />
-                <CommandCenterFeaturedProjects journeyMetrics={overview.journey_metrics} />
-              </div>
+              ) : null}
 
-              <div className="xl:hidden space-y-4">
-                <CommandCenterActivityFeed overview={overview} />
-                <CommandCenterAssistantPanel />
-              </div>
+              <CommandCenterSectorGrid journeyMetrics={effectiveOverview?.journey_metrics ?? []} />
 
+              {effectiveOverview ? (
+                <>
+                  <div className="grid gap-4 lg:grid-cols-3">
+                    <CommandCenterTrendChart
+                      trends={effectiveOverview.platform_trends ?? []}
+                      titleKey="commandCenter.chart.performanceTitle"
+                      subtitleKey="commandCenter.chart.performanceSubtitle"
+                      variant="platformPerformance"
+                    />
+                    <CommandCenterDistributionChart
+                      journeyMetrics={effectiveOverview.journey_metrics}
+                      centerTotal={opportunityCenterTotal}
+                    />
+                    <CommandCenterFeaturedProjects journeyMetrics={effectiveOverview.journey_metrics} />
+                  </div>
+
+                  <div className="xl:hidden space-y-4">
+                    <CommandCenterActivityFeed overview={effectiveOverview} />
+                    <CommandCenterAssistantPanel />
+                  </div>
+                </>
+              ) : null}
+
+              {overview ? (
               <details className="command-center-advanced">
                 <summary>{t('commandCenter.advanced.title')}</summary>
                 <div className="mt-4 space-y-6">
@@ -297,6 +331,7 @@ export default function OwnerCommandCenterPage() {
               ) : null}
                 </div>
               </details>
+              ) : null}
             </section>
           ) : null}
 
@@ -473,12 +508,12 @@ export default function OwnerCommandCenterPage() {
             </section>
           ) : null}
 
-          {overview ? (
+          {effectiveOverview ? (
             <section className="md:hidden space-y-3 rounded-2xl border border-gold/20 bg-white/80 p-4 dark:bg-white/5">
               <h2 className="font-tajawal font-bold">{t('commandCenter.mobile.title')}</h2>
               <p className="font-tajawal text-xs text-ink/60">{t('commandCenter.mobile.subtitle')}</p>
               <div className="grid grid-cols-2 gap-2">
-                {overview.executive_kpis.slice(0, 4).map((m) => (
+                {effectiveOverview.executive_kpis.slice(0, 4).map((m) => (
                   <div key={m.metric_id} className="rounded-lg border border-gold/10 p-2 text-center">
                     <p className="font-tajawal text-[11px] text-ink/60">{m.label_ar}</p>
                     <p className="font-tajawal text-lg font-bold">{m.value ?? '—'}</p>
@@ -495,9 +530,9 @@ export default function OwnerCommandCenterPage() {
           {isCommandCenterOwner ? <CommandCenterDelegationsPanel /> : null}
           </div>
 
-          {overview ? (
+          {effectiveOverview ? (
             <aside className="hidden xl:block space-y-4">
-              <CommandCenterActivityFeed overview={overview} />
+              <CommandCenterActivityFeed overview={effectiveOverview} />
               <CommandCenterAssistantPanel />
             </aside>
           ) : null}

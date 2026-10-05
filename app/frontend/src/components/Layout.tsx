@@ -4,9 +4,8 @@ import { Menu, X, Sun, Moon } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import Footer from './Footer';
-import EditToolbar from './admin/EditToolbar';
 import { isAssistantVisible } from '@/config/assistant';
-import { GlobalEditOverlay, applySavedEdits } from './admin/InlineEditable';
+import { applySavedEdits, SiteEditorShell } from '@/features/site-editor';
 import SectionManager from './admin/SectionManager';
 import { getPageBackground, type PageBackground } from './admin/PageBackgroundEditor';
 import { getVideoFromIDB } from '@/lib/videoStorage';
@@ -291,11 +290,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       <Footer flushWithHomeContact={location.pathname === '/'} />
 
-      {/* Edit Mode Toolbar */}
-      <EditToolbar />
-
-      {/* Global Edit Overlay (event delegation approach) */}
-      <GlobalEditOverlay />
+      <SiteEditorShell />
 
       {/* Section Manager (add/delete sections in edit mode) */}
       <SectionManager />

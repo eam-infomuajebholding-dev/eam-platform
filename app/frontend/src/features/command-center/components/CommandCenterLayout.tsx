@@ -6,7 +6,6 @@ import {
   Globe2,
   HelpCircle,
   LayoutDashboard,
-  LayoutGrid,
   LogOut,
   Mail,
   Newspaper,
@@ -17,6 +16,8 @@ import {
 } from 'lucide-react';
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { getHomeImage } from '@/config/assets';
+import CommandCenterAppLauncher from '@/features/command-center/components/CommandCenterAppLauncher';
+import CommandCenterMobileNav from '@/features/command-center/components/CommandCenterMobileNav';
 import CommandCenterNotificationsSheet from '@/features/command-center/components/CommandCenterNotificationsSheet';
 import CommandCenterQuickActionsBar from '@/features/command-center/components/CommandCenterQuickActionsBar';
 import CommandCenterValuesStrip from '@/features/command-center/components/CommandCenterValuesStrip';
@@ -57,7 +58,7 @@ const MAIN_LINKS: MainLink[] = [
 const INTERNAL_LINKS = [
   { to: '/admin', labelKey: 'commandCenter.nav.users' as const, icon: Users, ownerOnly: true },
   { to: '/admin', labelKey: 'commandCenter.nav.content' as const, icon: FileText, ownerOnly: true },
-  { to: '/command-center#finance', labelKey: 'commandCenter.nav.analytics' as const, icon: BarChart3, ownerOnly: false },
+  { to: '/command-center#platform-sections', labelKey: 'commandCenter.nav.analytics' as const, icon: BarChart3, ownerOnly: false },
   { to: '/admin', labelKey: 'commandCenter.nav.settings' as const, icon: Settings, ownerOnly: true },
   { to: '/contact', labelKey: 'commandCenter.nav.help' as const, icon: HelpCircle, ownerOnly: false },
   { to: '/command-center#delegations', labelKey: 'commandCenter.nav.delegations' as const, icon: Users, ownerOnly: true },
@@ -140,7 +141,14 @@ export default function CommandCenterLayout({
                         className={`command-center-sidebar__link ${active ? 'command-center-sidebar__link--active' : ''}`}
                       >
                         <Icon size={16} aria-hidden />
-                        {t(labelKey)}
+                        {link.matchCommandCenter ? (
+                          <span className="flex min-w-0 flex-col leading-tight">
+                            <span>{t(labelKey)}</span>
+                            <span className="text-[10px] font-normal text-white/50">Command Center</span>
+                          </span>
+                        ) : (
+                          t(labelKey)
+                        )}
                       </Link>
                     </li>
                   );
@@ -166,6 +174,16 @@ export default function CommandCenterLayout({
                     </li>
                   );
                 })}
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => void logout()}
+                    className="command-center-sidebar__link w-full"
+                  >
+                    <LogOut size={16} aria-hidden />
+                    {t('auth.logout')}
+                  </button>
+                </li>
               </ul>
             </div>
           </nav>
@@ -177,36 +195,23 @@ export default function CommandCenterLayout({
             </p>
           </div>
 
-          <div className="border-t border-white/10 px-4 py-4">
-            <button
-              type="button"
-              onClick={() => void logout()}
-              className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/15 px-3 py-2.5 text-sm text-white/85 transition hover:bg-white/8"
-            >
-              <LogOut size={15} aria-hidden />
-              {t('auth.logout')}
-            </button>
-          </div>
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="command-center-header sticky top-0 z-20 border-b border-black/5 bg-white/92 backdrop-blur dark:border-white/10 dark:bg-background/92">
-            <div className="grid grid-cols-[1fr_minmax(0,36rem)_1fr] items-center gap-3 px-4 py-3 sm:px-6">
-              <p className="truncate text-sm font-semibold text-ink dark:text-white lg:hidden">
-                {t('commandCenter.title')}
-              </p>
+            <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 px-4 py-3 sm:px-6 lg:grid-cols-[1fr_minmax(0,36rem)_1fr]">
+              <div className="flex items-center gap-2 lg:hidden">
+                <CommandCenterMobileNav />
+                <p className="truncate text-sm font-semibold text-ink dark:text-white">
+                  {t('commandCenter.title')}
+                </p>
+              </div>
               <div className="col-span-3 lg:col-span-1 lg:col-start-2">
                 <CommandSearchBar variant="header" />
               </div>
               <div className="col-span-3 flex items-center justify-end gap-2 lg:col-span-1 lg:col-start-3">
                 <CommandCenterNotificationsSheet overview={overview} />
-                <Link
-                  to="/services"
-                  className="command-center-header__icon-btn hidden sm:inline-flex"
-                  aria-label={t('nav.services')}
-                >
-                  <LayoutGrid size={18} aria-hidden />
-                </Link>
+                <CommandCenterAppLauncher />
                 <LanguageSelector />
                 <div className="hidden items-center gap-2 sm:flex">
                   <span className="command-center-header__avatar">{userInitials(displayName)}</span>

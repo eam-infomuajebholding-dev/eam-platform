@@ -6,9 +6,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 const PROMPT_KEYS = [
   'commandCenter.assistant.prompt.performance',
-  'commandCenter.assistant.prompt.risks',
-  'commandCenter.assistant.prompt.backlog',
-  'commandCenter.assistant.prompt.decisions',
+  'commandCenter.assistant.prompt.opportunity',
+  'commandCenter.assistant.prompt.report',
 ] as const;
 
 export default function CommandCenterAssistantPanel() {

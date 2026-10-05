@@ -27,30 +27,28 @@ export default function CommandCenterHero({ generatedAt }: CommandCenterHeroProp
 
   return (
     <section className="command-center-hero overflow-hidden rounded-2xl border border-black/[0.06] bg-white shadow-sm dark:border-white/10 dark:bg-surface">
-      <div className="grid lg:grid-cols-[1.55fr_1fr]">
-        <div className="relative min-h-[200px] overflow-hidden lg:min-h-[220px]">
-          <ResponsiveImage asset={hero} className="absolute inset-0 h-full w-full object-cover" loading="eager" />
-          <div className="command-center-hero__overlay absolute inset-0" />
-          <div className="relative flex h-full flex-col justify-between p-5 sm:p-7">
-            <div className="max-w-md">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold-200">
-                {t('commandCenter.hero.eyebrow')}
-              </p>
-              <h2 className="mt-2 font-display text-2xl font-semibold text-white sm:text-[1.65rem]">
-                {t('commandCenter.title')}
-              </h2>
-              <p className="mt-2 text-sm leading-7 text-white/88">{t('commandCenter.hero.subtitle')}</p>
-            </div>
-            <div className="mt-6 max-w-lg rounded-xl border border-white/15 bg-black/25 px-4 py-3 backdrop-blur-sm">
-              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gold-200">
-                {t('commandCenter.hero.platformTagline')}
-              </p>
-              <p className="mt-1 text-xs leading-6 text-white/85">{t('commandCenter.hero.platformTaglineBody')}</p>
-            </div>
-          </div>
+      <div className="command-center-hero__grid">
+        <div className="command-center-hero__intro">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold-600">
+            {t('commandCenter.hero.eyebrow')}
+          </p>
+          <h2 className="mt-2 font-display text-2xl font-semibold text-ink sm:text-3xl">
+            {t('commandCenter.title')}
+          </h2>
+          <p className="mt-2 text-sm leading-7 text-ink/70">{t('commandCenter.hero.subtitle')}</p>
         </div>
 
-        <div className="command-center-hero__aside flex flex-col justify-center gap-4 border-t border-black/[0.06] p-5 sm:p-6 lg:border-t-0 lg:border-s">
+        <div className="command-center-hero__visual relative min-h-[200px] overflow-hidden">
+          <ResponsiveImage asset={hero} className="absolute inset-0 h-full w-full object-cover" loading="eager" />
+          <div className="command-center-hero__visual-scrim absolute inset-0" />
+        </div>
+
+        <div className="command-center-hero__tagline">
+          <p className="text-lg font-bold leading-8 text-ink sm:text-xl">{t('commandCenter.hero.platformTagline')}</p>
+          <p className="mt-2 text-xs leading-6 text-ink/60">{t('commandCenter.hero.platformTaglineBody')}</p>
+        </div>
+
+        <div className="command-center-hero__widget">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-sm font-medium text-ink dark:text-white">{today}</p>
@@ -62,13 +60,13 @@ export default function CommandCenterHero({ generatedAt }: CommandCenterHeroProp
             </div>
           </div>
 
-          <blockquote className="rounded-xl border border-gold/20 bg-gold/[0.07] px-4 py-3">
+          <blockquote className="mt-4 rounded-xl border border-gold/20 bg-gold/[0.07] px-4 py-3">
             <p className="text-xs font-bold text-gold-800 dark:text-gold-200">{t('commandCenter.hero.quoteTitle')}</p>
             <p className="mt-1 text-sm leading-6 text-ink/75 dark:text-white/75">{t('commandCenter.hero.quoteBody')}</p>
           </blockquote>
 
           {generatedAt ? (
-            <p className="text-[11px] text-ink-muted">
+            <p className="mt-3 text-[11px] text-ink-muted">
               {t('commandCenter.lastUpdated')}: {new Date(generatedAt).toLocaleString(locale)}
             </p>
           ) : null}

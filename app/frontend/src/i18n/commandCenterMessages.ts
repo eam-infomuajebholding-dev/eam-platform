@@ -139,9 +139,23 @@ export type CommandCenterMessageKey =
   | 'commandCenter.assistant.ask'
   | 'commandCenter.assistant.error'
   | 'commandCenter.assistant.prompt.performance'
+  | 'commandCenter.assistant.prompt.opportunity'
+  | 'commandCenter.assistant.prompt.report'
   | 'commandCenter.assistant.prompt.risks'
   | 'commandCenter.assistant.prompt.backlog'
   | 'commandCenter.assistant.prompt.decisions'
+  | 'commandCenter.showcase.banner'
+  | 'commandCenter.launcher.title'
+  | 'commandCenter.kpi.activeProjectsEn'
+  | 'commandCenter.kpi.activeUsersEn'
+  | 'commandCenter.kpi.partnersEn'
+  | 'commandCenter.kpi.satisfactionEn'
+  | 'commandCenter.kpi.opportunitiesEn'
+  | 'commandCenter.kpi.projectValueEn'
+  | 'commandCenter.chart.seriesUsers'
+  | 'commandCenter.chart.seriesProjects'
+  | 'commandCenter.chart.seriesConsultations'
+  | 'commandCenter.chart.seriesPartners'
   | 'commandCenter.quickActions.title'
   | 'commandCenter.quickActions.review'
   | 'commandCenter.quickActions.report'
@@ -296,6 +310,8 @@ const AR: Record<CommandCenterMessageKey, string> = {
   'commandCenter.assistant.ask': 'اسأل',
   'commandCenter.assistant.error': 'تعذر الحصول على إجابة المساعد.',
   'commandCenter.assistant.prompt.performance': 'حلّل أداء المشاريع',
+  'commandCenter.assistant.prompt.opportunity': 'اعثر على فرصة استثمار',
+  'commandCenter.assistant.prompt.report': 'جهّز تقريراً',
   'commandCenter.assistant.prompt.risks': 'ما أبرز المخاطر؟',
   'commandCenter.assistant.prompt.backlog': 'حالة الطابور التشغيلي',
   'commandCenter.assistant.prompt.decisions': 'ما القرارات المطلوبة؟',
@@ -308,6 +324,18 @@ const AR: Record<CommandCenterMessageKey, string> = {
   'commandCenter.quickActions.opportunity': 'فرصة جديدة',
   'commandCenter.quickActions.analytics': 'التحليلات',
   'commandCenter.quickActions.users': 'إدارة المستخدمين',
+  'commandCenter.showcase.banner': 'عرض توضيحي — بيانات الموك المعتمد (بانتظار اتصال API الحي)',
+  'commandCenter.launcher.title': 'اختصارات المنصة',
+  'commandCenter.kpi.activeProjectsEn': 'Active Projects',
+  'commandCenter.kpi.activeUsersEn': 'Active Users',
+  'commandCenter.kpi.partnersEn': 'Partners & Investors',
+  'commandCenter.kpi.satisfactionEn': 'Customer Satisfaction',
+  'commandCenter.kpi.opportunitiesEn': 'Current Opportunities',
+  'commandCenter.kpi.projectValueEn': 'Project Value',
+  'commandCenter.chart.seriesUsers': 'Users',
+  'commandCenter.chart.seriesProjects': 'Projects',
+  'commandCenter.chart.seriesConsultations': 'Consultations',
+  'commandCenter.chart.seriesPartners': 'Partners',
 };
 
 const EN: Record<CommandCenterMessageKey, string> = {
@@ -454,6 +482,8 @@ const EN: Record<CommandCenterMessageKey, string> = {
   'commandCenter.assistant.ask': 'Ask',
   'commandCenter.assistant.error': 'Could not get an assistant answer.',
   'commandCenter.assistant.prompt.performance': 'Analyze project performance',
+  'commandCenter.assistant.prompt.opportunity': 'Find investment opportunity',
+  'commandCenter.assistant.prompt.report': 'Prepare a report',
   'commandCenter.assistant.prompt.risks': 'What are the top risks?',
   'commandCenter.assistant.prompt.backlog': 'Operations backlog status',
   'commandCenter.assistant.prompt.decisions': 'What decisions are needed?',
@@ -466,6 +496,18 @@ const EN: Record<CommandCenterMessageKey, string> = {
   'commandCenter.quickActions.opportunity': 'Create opportunity',
   'commandCenter.quickActions.analytics': 'Go to analytics',
   'commandCenter.quickActions.users': 'User management',
+  'commandCenter.showcase.banner': 'Showcase mode — agreed mock data until live API overview is available',
+  'commandCenter.launcher.title': 'Platform shortcuts',
+  'commandCenter.kpi.activeProjectsEn': 'Active Projects',
+  'commandCenter.kpi.activeUsersEn': 'Active Users',
+  'commandCenter.kpi.partnersEn': 'Partners & Investors',
+  'commandCenter.kpi.satisfactionEn': 'Customer Satisfaction',
+  'commandCenter.kpi.opportunitiesEn': 'Current Opportunities',
+  'commandCenter.kpi.projectValueEn': 'Project Value',
+  'commandCenter.chart.seriesUsers': 'Users',
+  'commandCenter.chart.seriesProjects': 'Projects',
+  'commandCenter.chart.seriesConsultations': 'Consultations',
+  'commandCenter.chart.seriesPartners': 'Partners',
 };
 
 export const COMMAND_CENTER_MESSAGES_AR = AR;

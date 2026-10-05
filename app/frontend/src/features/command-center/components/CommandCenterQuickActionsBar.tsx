@@ -57,7 +57,7 @@ export default function CommandCenterQuickActionsBar({ isOwner, onRefresh, refre
     },
     {
       key: 'analytics',
-      to: '/command-center#finance',
+      to: '/command-center#platform-sections',
       icon: BarChart3,
       label: t('commandCenter.quickActions.analytics'),
       ownerOnly: false,

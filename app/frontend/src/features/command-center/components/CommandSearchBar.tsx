@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
@@ -14,7 +14,20 @@ export default function CommandSearchBar({ variant = 'panel' }: Props) {
   const { t } = useLanguage();
   const [query, setQuery] = useState('');
   const [submitted, setSubmitted] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
   const isHeader = variant === 'header';
+
+  useEffect(() => {
+    if (!isHeader) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        inputRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isHeader]);
 
   const searchQuery = useQuery({
     queryKey: ['operations', 'command-center', 'search', submitted],
@@ -43,6 +56,7 @@ export default function CommandSearchBar({ variant = 'panel' }: Props) {
             <Search size={16} className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-ink/40" aria-hidden />
           ) : null}
           <input
+            ref={inputRef}
             id="command-search"
             type="search"
             value={query}

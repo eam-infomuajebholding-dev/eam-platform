@@ -1,8 +1,5 @@
 import { Link } from 'react-router-dom';
-import {
-  Area,
-  AreaChart,
-} from 'recharts';
+import { Area, AreaChart } from 'recharts';
 import {
   Building2,
   Handshake,
@@ -17,10 +14,20 @@ import {
   trendLabel,
 } from '@/features/command-center/lib/dashboardUtils';
 import type { ChangeItem, MetricValue } from '@/features/command-center/types';
+import type { CommandCenterMessageKey } from '@/i18n/commandCenterMessages';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
 
 const KPI_ICONS: LucideIcon[] = [Building2, Users, Handshake, Star, Target, TrendingUp];
+
+const KPI_EN_LABEL: Partial<Record<string, CommandCenterMessageKey>> = {
+  'kpi.active_projects': 'commandCenter.kpi.activeProjectsEn',
+  'kpi.active_users': 'commandCenter.kpi.activeUsersEn',
+  'kpi.partners': 'commandCenter.kpi.partnersEn',
+  'kpi.satisfaction': 'commandCenter.kpi.satisfactionEn',
+  'kpi.opportunities': 'commandCenter.kpi.opportunitiesEn',
+  'kpi.project_value': 'commandCenter.kpi.projectValueEn',
+};
 
 function MiniTrendSparkline({ direction }: { direction: ChangeItem['direction'] | undefined }) {
   const points =
@@ -65,7 +72,7 @@ type Props = {
 };
 
 export default function CommandCenterKpiGrid({ metrics, changes, onEvidenceClick }: Props) {
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
   const locale = language === 'ar' ? 'ar-SA' : 'en-US';
 
   return (
@@ -73,11 +80,15 @@ export default function CommandCenterKpiGrid({ metrics, changes, onEvidenceClick
       {metrics.map((metric, index) => {
         const change = changeForMetric(changes, metric.metric_id);
         const trend = trendLabel(change?.direction, locale);
+        const deltaText = metric.context ?? trend;
         const display =
           metric.truth_state && metric.truth_state !== 'LIVE' && metric.value == null
             ? '—'
             : metric.value ?? '—';
         const Icon = KPI_ICONS[index % KPI_ICONS.length];
+        const enKey = KPI_EN_LABEL[metric.metric_id];
+        const primaryLabel = language === 'ar' ? metric.label_ar : enKey ? t(enKey) : metric.label_ar;
+        const secondaryLabel = language === 'ar' ? (enKey ? t(enKey) : '') : metric.label_ar;
 
         const body = (
           <div className="command-center-kpi">
@@ -96,22 +107,26 @@ export default function CommandCenterKpiGrid({ metrics, changes, onEvidenceClick
               ) : null}
             </div>
             <p className="command-center-kpi__value">{display}</p>
-            <p className="command-center-kpi__label">{metric.label_ar}</p>
+            <p className="command-center-kpi__label">{primaryLabel}</p>
+            {secondaryLabel ? (
+              <p className="command-center-kpi__label-secondary">{secondaryLabel}</p>
+            ) : null}
             <div className="command-center-kpi__foot">
-              {trend ? (
+              {deltaText ? (
                 <span
                   className={cn(
                     'command-center-kpi__delta',
-                    change?.direction === 'up' && 'command-center-kpi__delta--up',
+                    (change?.direction === 'up' || metric.context?.startsWith('+')) &&
+                      'command-center-kpi__delta--up',
                     change?.direction === 'down' && 'command-center-kpi__delta--down',
                   )}
                 >
-                  {trend}
+                  {deltaText}
                 </span>
               ) : (
                 <span className="command-center-kpi__delta command-center-kpi__delta--up">—</span>
               )}
-              {change ? <MiniTrendSparkline direction={change.direction} /> : null}
+              {change || metric.context ? <MiniTrendSparkline direction={change?.direction ?? 'up'} /> : null}
             </div>
           </div>
         );
