@@ -8,6 +8,7 @@ import re
 from typing import AsyncGenerator
 
 from schemas.ai_core import JourneySnapshot, WorkspaceTurnRequest, WorkspaceTurnResponse
+from schemas.ai_intent import IntentDecision
 from schemas.aihub import ChatMessage, GenTxtRequest
 from services.ai.intent_router import (
     BUILD_VILLA_START_MESSAGE,
@@ -15,20 +16,54 @@ from services.ai.intent_router import (
     parse_model_intent_decision,
     route_intent_deterministic,
 )
+from services.ai.platform_assistant_policy import format_open_copilot_system_prompt
 from services.ai.prompt_registry import EXECUTIVE_BRIEF, FAQ_SYSTEM
 from services.ai.ai_trace import ai_trace
 from services.ai.response_builder import build_workspace_response, new_trace_id
-from services.ai_core_intents import BUILD_VILLA_JOURNEY_TYPE
+from services.ai_core_intents import BUILD_VILLA_JOURNEY_TYPE, BUILD_VILLA_QUICK_ACTION_LABEL, resolve_intent_hint
 from services.aihub import AIHubService
 
 logger = logging.getLogger(__name__)
 
+OPEN_COPILOT_SYSTEM_PROMPT = format_open_copilot_system_prompt()
 FAQ_SYSTEM_PROMPT = FAQ_SYSTEM.content
 JOURNEY_GUIDANCE_FALLBACK = "تابع الإجابة على السؤال الحالي لإكمال رحلة جمع المعلومات."
+MAX_CONVERSATION_HISTORY = 20
+OPEN_CHAT_MAX_TOKENS = 2048
 
 
 class AIUnavailableError(RuntimeError):
     """Raised when AI Hub is not configured."""
+
+
+def _should_auto_start_journey(request: WorkspaceTurnRequest, decision: IntentDecision | None) -> bool:
+    """Only explicit platform actions start JOS — free text stays in open conversation."""
+    if request.mode == "faq":
+        return False
+    if not decision or decision.action != "start_journey" or not decision.candidate_journey:
+        return False
+    if resolve_intent_hint(request.intent_hint):
+        return True
+    return (request.message or "").strip() == BUILD_VILLA_QUICK_ACTION_LABEL
+
+
+def _candidate_journey_type(
+    deterministic: IntentDecision | None,
+    decision: IntentDecision | None,
+) -> str | None:
+    if deterministic and deterministic.candidate_journey:
+        return deterministic.candidate_journey
+    if decision and decision.candidate_journey:
+        return decision.candidate_journey
+    return None
+
+
+def _chat_messages_for_request(request: WorkspaceTurnRequest) -> list[ChatMessage]:
+    messages = [ChatMessage(role="system", content=OPEN_COPILOT_SYSTEM_PROMPT)]
+    for item in request.conversation_history[-MAX_CONVERSATION_HISTORY:]:
+        messages.append(ChatMessage(role=item.role, content=item.content))
+    messages.append(ChatMessage(role="user", content=request.message))
+    return messages
 
 
 class AICoreService:
@@ -64,7 +99,7 @@ class AICoreService:
                     ai_available=True,
                     stream=True,
                 )
-            answer = await self._general_answer(request.message)
+            answer = await self._general_answer(request)
             return build_workspace_response(
                 trace_id=trace.trace_id,
                 action="general_answer",
@@ -79,9 +114,11 @@ class AICoreService:
             return response
 
         deterministic = route_intent_deterministic(request.message, request.intent_hint)
-        if deterministic and deterministic.action == "start_journey" and deterministic.candidate_journey:
+        if deterministic:
             trace.intent = deterministic.intent
             trace.confidence = deterministic.confidence
+        if _should_auto_start_journey(request, deterministic):
+            assert deterministic is not None and deterministic.candidate_journey
             return build_workspace_response(
                 trace_id=trace.trace_id,
                 action="start_journey",
@@ -109,7 +146,8 @@ class AICoreService:
         decision = await self._classify_free_text_intent(request.message)
         trace.intent = decision.intent
         trace.confidence = decision.confidence
-        if decision.action == "start_journey" and decision.candidate_journey:
+        if _should_auto_start_journey(request, decision):
+            assert decision.candidate_journey
             return build_workspace_response(
                 trace_id=trace.trace_id,
                 action="start_journey",
@@ -119,54 +157,47 @@ class AICoreService:
                 stream=False,
                 intent=decision,
             )
-        if decision.action == "clarify" and decision.assistant_message:
-            trace.fallback = True
-            return build_workspace_response(
-                trace_id=trace.trace_id,
-                action="general_answer",
-                assistant_message=decision.assistant_message,
-                ai_available=True,
-                stream=False,
-                intent=decision,
-            )
+
+        journey_hint = _candidate_journey_type(deterministic, decision)
 
         if request.stream:
             return build_workspace_response(
                 trace_id=trace.trace_id,
                 action="general_answer",
+                journey_type=journey_hint,
                 assistant_message="",
                 ai_available=True,
                 stream=True,
+                intent=decision,
             )
 
-        answer = await self._general_answer(request.message)
+        answer = await self._general_answer(request)
         return build_workspace_response(
             trace_id=trace.trace_id,
             action="general_answer",
+            journey_type=journey_hint,
             assistant_message=answer,
             ai_available=True,
             stream=request.stream,
+            intent=decision,
         )
 
-    async def stream_general_answer(self, message: str) -> AsyncGenerator[str, None]:
+    async def stream_general_answer(self, request: WorkspaceTurnRequest) -> AsyncGenerator[str, None]:
         if not self.is_ai_available():
             yield (
                 "خدمة الذكاء الاصطناعي غير متاحة حالياً. "
-                "يمكنك بدء رحلة بناء الفيلا من الزر السريع «أبني منزلًا»."
+                "يمكنك متابعة استكشاف المنصة أو التواصل معنا على info@eam.sa."
             )
             return
 
-        request = GenTxtRequest(
-            messages=[
-                ChatMessage(role="system", content=FAQ_SYSTEM_PROMPT),
-                ChatMessage(role="user", content=message),
-            ],
+        gen = GenTxtRequest(
+            messages=_chat_messages_for_request(request),
             model="deepseek-v3.2",
             stream=True,
-            temperature=0.4,
-            max_tokens=800,
+            temperature=0.55,
+            max_tokens=OPEN_CHAT_MAX_TOKENS,
         )
-        async for chunk in self.ai_hub.gentxt_stream(request):
+        async for chunk in self.ai_hub.gentxt_stream(gen):
             yield chunk
 
     async def _classify_free_text_intent(self, message: str):
@@ -190,18 +221,15 @@ class AICoreService:
             logger.warning("AI Core classifier failed; defaulting to general: %s", exc)
         return IntentDecision(intent="general", confidence=0.0, action="general_answer")
 
-    async def _general_answer(self, message: str) -> str:
-        request = GenTxtRequest(
-            messages=[
-                ChatMessage(role="system", content=FAQ_SYSTEM_PROMPT),
-                ChatMessage(role="user", content=message),
-            ],
+    async def _general_answer(self, request: WorkspaceTurnRequest) -> str:
+        gen = GenTxtRequest(
+            messages=_chat_messages_for_request(request),
             model="deepseek-v3.2",
             stream=False,
-            temperature=0.4,
-            max_tokens=800,
+            temperature=0.55,
+            max_tokens=OPEN_CHAT_MAX_TOKENS,
         )
-        response = await self.ai_hub.gentxt(request)
+        response = await self.ai_hub.gentxt(gen)
         return response.content.strip()
 
     async def _journey_guidance(self, message: str, snapshot: JourneySnapshot) -> WorkspaceTurnResponse:
@@ -224,7 +252,7 @@ class AICoreService:
         )
         request = GenTxtRequest(
             messages=[
-                ChatMessage(role="system", content=FAQ_SYSTEM_PROMPT),
+                ChatMessage(role="system", content=OPEN_COPILOT_SYSTEM_PROMPT),
                 ChatMessage(role="user", content=prompt),
             ],
             model="deepseek-v3.2",

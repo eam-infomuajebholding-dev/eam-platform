@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import ResponsiveImage from '@/components/ui/ResponsiveImage';
-import { getHomeImage } from '@/config/assets';
+import HomeSectionImage from '@/components/home/HomeSectionImage';
 import { useLanguage } from '@/contexts/LanguageContext';
 import HomeSectionBottomFade from '@/components/home/HomeSectionBottomFade';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
@@ -9,7 +8,6 @@ import { useScrollReveal } from '@/hooks/useScrollReveal';
 /** 02 — About EAM (ivory band after hero). */
 export default function AboutEAMSection() {
   const reveal = useScrollReveal({ threshold: 0.08 });
-  const aboutImage = getHomeImage('aboutEam');
   const { t, direction } = useLanguage();
 
   return (
@@ -25,8 +23,9 @@ export default function AboutEAMSection() {
           className={`home-about-eam__stage ${reveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}
         >
           <div className="home-about-eam__visual">
-            <ResponsiveImage
-              asset={aboutImage}
+            <HomeSectionImage
+              editId="home-about-eam-image"
+              assetKey="aboutEam"
               className="home-about-eam__visual-img"
               loading="lazy"
               width={1600}

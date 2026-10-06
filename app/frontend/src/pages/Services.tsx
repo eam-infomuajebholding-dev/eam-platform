@@ -34,7 +34,11 @@ export default function Services() {
         subtitleEditableId="services-hero-desc"
       />
 
-      <section className="border-b border-soft-border/50 bg-cream-light dark:bg-background">
+      <section
+        className="border-b border-soft-border/50 bg-cream-light dark:bg-background"
+        data-page-section="platforms-intro"
+        data-section-label="منصة القطاعات — مقدمة"
+      >
         <div className="container mx-auto px-4 py-10 md:py-14">
           <ServicesUnifiedPlatformEmblem />
 
@@ -52,6 +56,8 @@ export default function Services() {
         services={engineeringServices}
         titleKey="page.services.engineering.title"
         subtitleKey="page.services.engineering.subtitle"
+        sectionId="engineering"
+        sectionLabel="خدمات الهندسة"
       />
       <div className="bg-surface-alt pb-10 text-center dark:bg-surface-muted md:pb-12">
         <Link to="/engineering-services" className="eam-btn-outline inline-block px-8 py-3 text-base">
@@ -63,6 +69,8 @@ export default function Services() {
         services={governmentServices}
         titleKey="page.services.government.title"
         subtitleKey="page.services.government.subtitle"
+        sectionId="government"
+        sectionLabel="الخدمات الحكومية"
       />
       <div className="bg-surface-alt pb-14 text-center dark:bg-surface-muted md:pb-16">
         <Link to="/government-services" className="eam-btn-outline inline-block px-8 py-3 text-base">
@@ -70,7 +78,11 @@ export default function Services() {
         </Link>
       </div>
 
-      <section className="border-t border-soft-border/50 bg-surface-alt py-16 dark:bg-surface-muted">
+      <section
+        className="border-t border-soft-border/50 bg-surface-alt py-16 dark:bg-surface-muted"
+        data-page-section="cta"
+        data-section-label="دعوة للإجراء"
+      >
         <div className="container mx-auto px-4 text-center">
           <h2 data-editable-id="services-cta-title" className="font-display text-display-sm gold-text md:text-display-md">
             {t('page.services.cta.title')}

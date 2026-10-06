@@ -33,7 +33,16 @@ def _action_proposals_for_turn(
             )
         ]
     if action == "general_answer":
-        return [AIActionProposal(action="ANSWER", side_effect="none")]
+        proposals = [AIActionProposal(action="ANSWER", side_effect="none")]
+        if journey_type:
+            proposals.append(
+                AIActionProposal(
+                    action="OPEN_RESOURCE",
+                    resource_ref=journey_type,
+                    side_effect="read",
+                )
+            )
+        return proposals
     if action == "journey_guidance" and journey_type:
         return [
             AIActionProposal(

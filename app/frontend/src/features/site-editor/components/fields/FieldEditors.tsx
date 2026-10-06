@@ -2,8 +2,9 @@ import { useState } from 'react';
 import Markdown from 'markdown-to-jsx';
 import { Images, Upload } from 'lucide-react';
 import { useMediaLibrary } from '@/features/media-library';
-import { isCloudinaryConfigured, uploadToCloudinary } from '@/lib/cloudinary';
-import { uploadMedia } from '@/lib/dbService';
+import ResolvedMediaUrl from '@/features/media-library/ResolvedMediaUrl';
+import { toast } from 'sonner';
+import { uploadSiteMedia } from '@/lib/siteMediaUpload';
 import type { FieldValue } from '../../types';
 
 type EditorProps = {
@@ -16,7 +17,7 @@ export function PlainFieldEditor({ value, onChange }: EditorProps) {
   return (
     <textarea
       value={value.text}
-      onChange={(e) => onChange({ type: 'plain', text: e.target.value })}
+      onChange={(e) => onChange({ type: 'plain', text: e.target.value, layout: value.layout })}
       rows={4}
       className="site-editor-field"
       dir="auto"
@@ -48,7 +49,7 @@ export function MarkdownFieldEditor({ value, onChange }: EditorProps) {
       {tab === 'write' ? (
         <textarea
           value={value.markdown}
-          onChange={(e) => onChange({ type: 'markdown', markdown: e.target.value })}
+          onChange={(e) => onChange({ type: 'markdown', markdown: e.target.value, layout: value.layout })}
           rows={10}
           className="site-editor-field font-mono text-sm"
           dir="auto"
@@ -90,16 +91,7 @@ export function LinkFieldEditor({ value, onChange }: EditorProps) {
 }
 
 async function uploadFile(file: File, register: (url: string, kind: 'image' | 'video', label: string) => void): Promise<string> {
-  if (isCloudinaryConfigured()) {
-    try {
-      const url = await uploadToCloudinary(file);
-      register(url, file.type.startsWith('video/') ? 'video' : 'image', file.name);
-      return url;
-    } catch {
-      /* fallback */
-    }
-  }
-  const url = await uploadMedia(file);
+  const url = await uploadSiteMedia(file);
   register(url, file.type.startsWith('video/') ? 'video' : 'image', file.name);
   return url;
 }
@@ -117,11 +109,11 @@ export function MediaFieldEditor({ value, onChange }: EditorProps) {
     <div className="space-y-3">
       {value.url ? (
         <div className="overflow-hidden rounded-xl border border-soft-border bg-muted/20 p-2">
-          {isVideo ? (
-            <video src={value.url} controls className="max-h-40 w-full rounded-lg" />
-          ) : (
-            <img src={value.url} alt="" className="mx-auto max-h-40 rounded-lg object-contain" />
-          )}
+          <ResolvedMediaUrl
+            url={value.url}
+            kind={kind}
+            className="mx-auto max-h-40 w-full rounded-lg object-contain"
+          />
         </div>
       ) : null}
       <button
@@ -160,7 +152,16 @@ export function MediaFieldEditor({ value, onChange }: EditorProps) {
             if (!file) return;
             setUploading(true);
             void uploadFile(file, registerUpload)
-              .then((url) => onChange(isVideo ? { type: 'video', url } : { type: 'image', url }))
+              .then((url) =>
+                onChange(
+                  isVideo
+                    ? { type: 'video', url, layout: value.layout }
+                    : { type: 'image', url, layout: value.layout },
+                ),
+              )
+              .catch((err: unknown) => {
+                toast.error(err instanceof Error ? err.message : 'فشل الرفع');
+              })
               .finally(() => setUploading(false));
           }}
         />

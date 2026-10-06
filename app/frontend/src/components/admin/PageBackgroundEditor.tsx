@@ -72,17 +72,13 @@ export default function PageBackgroundEditor({ open, onClose }: Props) {
     }
   }, [open, location.pathname]);
 
-  // Close on outside click
   useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
-        onClose();
-      }
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
     };
-    if (open) {
-      document.addEventListener('mousedown', handleClick);
-    }
-    return () => document.removeEventListener('mousedown', handleClick);
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
   }, [open, onClose]);
 
   if (!open) return null;
@@ -214,18 +210,34 @@ export default function PageBackgroundEditor({ open, onClose }: Props) {
   ];
 
   return (
-    <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div
+      className="fixed inset-0 z-[10125] flex items-end justify-center bg-black/40 backdrop-blur-[3px] sm:items-center"
+      dir="rtl"
+      role="presentation"
+      onClick={onClose}
+      onKeyDown={undefined}
+    >
       <div
         ref={panelRef}
-        className="w-[90%] max-w-md bg-[#1a1a2e] border border-[#D3B051]/40 rounded-xl shadow-2xl shadow-[#D3B051]/10 overflow-hidden"
-        dir="rtl"
+        className="w-full max-h-[88vh] overflow-hidden rounded-t-[20px] border border-black/10 bg-[#f2f2f7] shadow-2xl dark:border-white/10 dark:bg-[#1c1c1e] sm:max-w-md sm:rounded-[20px]"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3 border-b border-[#D3B051]/20">
-          <h3 className="text-[#D3B051] font-bold text-base">تغيير خلفية الصفحة</h3>
+        <div className="flex items-center justify-between border-b border-black/5 px-4 py-3 dark:border-white/10">
           <button
+            type="button"
             onClick={onClose}
-            className="p-1 rounded-md hover:bg-white/10 text-white/60 hover:text-white transition-colors"
+            className="text-[17px] font-semibold text-[#007aff] dark:text-[#0a84ff]"
+          >
+            تم
+          </button>
+          <h3 className="text-[17px] font-bold text-ink dark:text-white">خلفية الصفحة</h3>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1 text-ink-muted dark:text-white/60"
+            aria-label="إغلاق"
           >
             <X className="h-5 w-5" />
           </button>

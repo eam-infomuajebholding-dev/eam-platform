@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
+from services.ai.platform_assistant_policy import format_open_copilot_system_prompt
+
 RiskLevel = Literal["low", "medium", "high"]
 
 
@@ -21,24 +23,12 @@ class PromptDefinition:
 
 FAQ_SYSTEM = PromptDefinition(
     prompt_id="faq.system",
-    purpose="General EAM homepage FAQ assistant prose",
+    purpose="Open EAM Copilot — deny-list only; all other topics allowed",
     owner="ai-core",
-    version="1.0.0",
+    version="2.0.0",
     risk_level="low",
-    supported_locales=("ar",),
-    content="""أنت مساعد ذكي لشركة إعمار الأصالة والمعاصرة للاستشارات الهندسية (EAM).
-أجب على استفسارات العملاء بشكل مهني ومختصر باللغة العربية.
-
-معلومات عامة عن الشركة:
-- شركة سعودية للاستشارات الهندسية تجمع بين الأصالة والمعاصرة
-- تقدم تصميمًا معماريًا وإنشائيًا، إدارة مشاريع، دراسات جدوى، واستشارات متخصصة
-- للتواصل: info@eam.sa — الرياض، المملكة العربية السعودية
-
-قواعد الرد:
-- لا تختلق معلومات غير موجودة
-- إذا لم تعرف الإجابة، اقترح التواصل مع الشركة مباشرة
-- لا تبدأ رحلات تشغيلية ولا تجمع بيانات مشروع — هذا دور نظام الرحلات (JOS) وليس دورك
-- لا تقدم آراء هندسية معتمدة أو عروضًا تعاقدية""",
+    supported_locales=("ar", "en"),
+    content=format_open_copilot_system_prompt(),
 )
 
 INTENT_CLASSIFIER = PromptDefinition(

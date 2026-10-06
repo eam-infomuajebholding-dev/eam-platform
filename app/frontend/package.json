@@ -10,6 +10,7 @@
     "e2e": "playwright test",
     "e2e:payment": "playwright test e2e/payment-checkout.spec.ts",
     "e2e:routing": "playwright test e2e/routing.spec.ts",
+    "test:unit": "node --experimental-strip-types --test src/features/site-editor/editorClipboard.node.test.ts src/features/ai-workspace/siteEditCopilot.node.test.ts",
     "e2e:payment:stripe": "playwright test e2e/payment-checkout.spec.ts",
     "postinstall": "echo 'Dependencies installed successfully'"
   },

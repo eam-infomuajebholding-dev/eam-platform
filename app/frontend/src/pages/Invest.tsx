@@ -292,9 +292,14 @@ export default function Invest() {
 
   return (
     <Layout>
-      <PageHero titleKey="page.invest.hero.title" subtitleKey="page.invest.hero.subtitle" />
+      <PageHero
+        titleKey="page.invest.hero.title"
+        subtitleKey="page.invest.hero.subtitle"
+        titleEditableId="invest-hero-title"
+        subtitleEditableId="invest-hero-subtitle"
+      />
 
-      <PageSection variant="muted" className="py-10 md:py-14">
+      <PageSection variant="muted" className="py-10 md:py-14" sectionId="stats" sectionLabel="إحصائيات">
         <PageStatGrid
           columns={4}
           stats={[
@@ -306,7 +311,7 @@ export default function Invest() {
         />
       </PageSection>
 
-      <PageSection variant="alt" withGlow>
+      <PageSection variant="alt" withGlow sectionId="projects" sectionLabel="فرص الاستثمار">
           <div
             ref={projectsReveal.ref}
             className={`${projectsReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}

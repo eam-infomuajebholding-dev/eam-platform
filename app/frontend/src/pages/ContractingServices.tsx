@@ -63,6 +63,8 @@ export default function ContractingServices() {
       <ImagePageHero
         titleKey="page.contracting.hero.title"
         subtitleKey="page.contracting.hero.subtitle"
+        titleEditableId="contracting-hero-title"
+        subtitleEditableId="contracting-hero-subtitle"
       />
 
       <ServiceDetailGrid services={services} titleKey="page.services.contracting.title" />

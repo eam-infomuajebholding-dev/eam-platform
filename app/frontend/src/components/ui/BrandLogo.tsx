@@ -1,8 +1,9 @@
 type BrandLogoProps = {
-  size?: 'sm' | 'md' | 'lg' | 'emblem' | 'heroEmblem' | 'header';
+  size?: 'sm' | 'md' | 'lg' | 'emblem' | 'heroEmblem' | 'header' | 'footer';
   showText?: boolean;
   className?: string;
-  align?: 'center' | 'end';
+  align?: 'center' | 'end' | 'start';
+  alt?: string;
 };
 
 const LOGO_SRC = '/assets/eam-emblem-transparent.png';
@@ -13,6 +14,7 @@ export default function BrandLogo({
   showText = true,
   className = '',
   align = 'center',
+  alt = 'شعار إعمار الأصالة والمعاصرة',
 }: BrandLogoProps) {
   const logoSize = {
     sm: 'h-16 w-auto',
@@ -22,12 +24,17 @@ export default function BrandLogo({
       'h-auto w-full max-h-[min(440px,56vh)] max-w-[min(330px,90%)] object-contain',
     heroEmblem: 'h-auto w-auto max-h-[min(220px,34vh)] object-contain',
     header: 'h-10 w-auto max-h-10',
+    footer: 'h-auto w-full max-h-none max-w-none object-contain',
   }[size];
 
   const isEmblem = size === 'emblem' || size === 'heroEmblem';
   const isHeader = size === 'header';
   const alignClass =
-    align === 'end' ? 'items-end' : 'items-center justify-center';
+    align === 'end'
+      ? 'items-end'
+      : align === 'start'
+        ? 'items-start'
+        : 'items-center justify-center';
 
   return (
     <div className={`flex flex-col ${alignClass} ${className}`}>
@@ -36,7 +43,7 @@ export default function BrandLogo({
         onError={(event) => {
           event.currentTarget.src = LOGO_FALLBACK;
         }}
-        alt="شعار إعمار الأصالة والمعاصرة"
+        alt={alt}
         className={`${logoSize} object-contain ${isEmblem ? 'drop-shadow-[0_6px_28px_rgba(198,138,42,0.28)]' : ''}`}
         loading={isEmblem || isHeader ? 'eager' : 'lazy'}
         decoding="async"

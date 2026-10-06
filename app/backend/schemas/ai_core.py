@@ -1,6 +1,6 @@
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from schemas.ai_contract import (
     AIActionProposal,
@@ -30,13 +30,26 @@ class JourneySnapshot(BaseModel):
 
 WorkspaceMode = Literal["workspace", "faq"]
 
+ConversationRole = Literal["user", "assistant"]
+
+
+class ConversationMessage(BaseModel):
+    role: ConversationRole
+    content: str = Field(..., min_length=1, max_length=4000)
+
 
 class WorkspaceTurnRequest(BaseModel):
     message: str = Field(..., min_length=1, max_length=4000)
     intent_hint: str | None = None
     journey_snapshot: JourneySnapshot | None = None
+    conversation_history: list[ConversationMessage] = Field(default_factory=list, max_length=24)
     stream: bool = False
     mode: WorkspaceMode = "workspace"
+
+    @field_validator("conversation_history")
+    @classmethod
+    def trim_history(cls, value: list[ConversationMessage]) -> list[ConversationMessage]:
+        return value[-24:]
 
 
 class WorkspaceTurnResponse(BaseModel):

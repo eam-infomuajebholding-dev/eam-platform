@@ -1,61 +1,99 @@
-import { useState } from 'react';
-import {
-  History,
-  Paintbrush,
-  PenSquare,
-  Redo2,
-  Save,
-  Undo2,
-  FileText,
-  Images,
-  X,
-} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Ellipsis, PenSquare, Redo2, Undo2 } from 'lucide-react';
 import { useEditMode } from '@/contexts/EditModeContext';
 import { useMediaLibrary } from '@/features/media-library';
+import SectionVisibilityPanel from '@/features/section-visibility/SectionVisibilityPanel';
 import PageBackgroundEditor from '@/components/admin/PageBackgroundEditor';
-import PageManager from '@/components/admin/PageManager';
+import EditorPagesSheet from './EditorPagesSheet';
 import { useSiteEditor } from '../context/SiteEditorContext';
-import EditorInspector from './EditorInspector';
+import EditorControlSheet from './EditorControlSheet';
 import EditorCanvasLayer from './EditorCanvasLayer';
+import EditorSelectionChrome from './EditorSelectionChrome';
+import EditorTransformToolbar from './EditorTransformToolbar';
 import EditorCommandPalette from './EditorCommandPalette';
 import EditorRevisionsPanel from './EditorRevisionsPanel';
+import EditorMoreSheet from './EditorMoreSheet';
 
-function SaveStatusBadge({ status }: { status: string }) {
-  const label =
+function SaveDot({ status }: { status: string }) {
+  const color =
+    status === 'error'
+      ? 'bg-red-400'
+      : status === 'dirty' || status === 'saving'
+        ? 'bg-amber-400 animate-pulse'
+        : status === 'saved'
+          ? 'bg-emerald-400'
+          : 'bg-white/35';
+  const title =
     status === 'saving'
-      ? 'جاري الحفظ…'
+      ? 'جاري الحفظ'
       : status === 'saved'
         ? 'محفوظ'
         : status === 'dirty'
-          ? 'تغييرات غير محفوظة'
+          ? 'تغييرات قيد الحفظ'
           : status === 'error'
-            ? 'خطأ في الحفظ'
+            ? 'خطأ'
             : 'جاهز';
-  const tone =
-    status === 'error'
-      ? 'bg-red-500/20 text-red-100'
-      : status === 'dirty'
-        ? 'bg-amber-500/25 text-amber-50'
-        : status === 'saved'
-          ? 'bg-green-500/20 text-green-50'
-          : 'bg-white/10 text-white/80';
-  return <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${tone}`}>{label}</span>;
+  return <span className={`h-2 w-2 shrink-0 rounded-full ${color}`} title={title} aria-label={title} />;
 }
 
 export default function SiteEditorShell() {
   const { isDevEditModeAvailable, isEditMode, toggleEditMode, logout } = useEditMode();
-  const { enabled, saveStatus, saveAll, undo, redo, canUndo, canRedo, pagePath } = useSiteEditor();
+  const {
+    enabled,
+    saveStatus,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    selectedFieldId,
+    contentSheetOpen,
+    pagePath,
+    dismissFieldEditor,
+    closeContentSheet,
+    finishEditingSession,
+    saveAll,
+  } = useSiteEditor();
   const [showBg, setShowBg] = useState(false);
   const [showPages, setShowPages] = useState(false);
   const [showRevisions, setShowRevisions] = useState(false);
+  const [showSections, setShowSections] = useState(false);
+  const [showMore, setShowMore] = useState(false);
   const { openBrowse } = useMediaLibrary();
 
+  const closeAllPanels = () => {
+    setShowBg(false);
+    setShowPages(false);
+    setShowRevisions(false);
+    setShowSections(false);
+    setShowMore(false);
+  };
+
+  useEffect(() => {
+    if (!isEditMode) closeAllPanels();
+  }, [isEditMode]);
+
   if (!isDevEditModeAvailable) return null;
+
+  const handleDone = () => {
+    if (contentSheetOpen) {
+      void closeContentSheet();
+      return;
+    }
+    if (selectedFieldId) {
+      void dismissFieldEditor();
+      return;
+    }
+    void finishEditingSession().then(() => {
+      closeAllPanels();
+      logout();
+      toggleEditMode();
+    });
+  };
 
   return (
     <>
       {!isEditMode ? (
-        <div className="fixed bottom-6 left-6 z-[9999]">
+        <div className="fixed bottom-6 left-6 z-[10002]">
           <button
             type="button"
             onClick={toggleEditMode}
@@ -67,91 +105,113 @@ export default function SiteEditorShell() {
         </div>
       ) : (
         <>
-          <header
-            className="site-editor-topbar fixed left-0 right-0 top-[4.25rem] z-[9999] border-b border-black/10 bg-[#0f141c]/95 text-white backdrop-blur-md"
+          <div
+            className="site-editor-ios-bar pointer-events-none fixed inset-x-0 top-[4.25rem] z-[10130] flex justify-center px-3 py-2"
             data-edit-toolbar="true"
-            dir="rtl"
           >
-            <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-2 px-4 py-2">
-              <div className="flex min-w-0 items-center gap-3">
-                <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-emerald-400" />
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-bold">محرر EAM · Content Studio</p>
-                  <p className="truncate font-mono text-[10px] text-white/50">{pagePath}</p>
-                </div>
-                <SaveStatusBadge status={saveStatus} />
+            <div
+              className="pointer-events-auto flex w-full max-w-lg items-center justify-between gap-2 rounded-[14px] border border-white/15 bg-white/75 px-3 py-2 shadow-lg backdrop-blur-2xl dark:bg-[#1c1c1e]/88"
+              dir="rtl"
+            >
+              <button
+                type="button"
+                onClick={handleDone}
+                className="rounded-lg px-2 py-1 text-[17px] font-semibold text-[#007aff] transition active:opacity-70 dark:text-[#0a84ff]"
+              >
+                تم
+              </button>
+              <div className="flex min-w-0 flex-1 items-center justify-center gap-2">
+                <SaveDot status={saveStatus} />
+                <span
+                  className="truncate text-xs font-semibold text-ink/80 dark:text-white/85"
+                  title={pagePath}
+                >
+                  {selectedFieldId ? 'تحرير العنصر' : pagePath || 'انقر للتحرير'}
+                </span>
               </div>
-
-              <div className="flex flex-wrap items-center gap-1.5">
+              <div className="flex items-center gap-0.5">
                 <button
                   type="button"
                   disabled={!canUndo}
                   onClick={undo}
-                  className="site-editor-chip"
+                  className="site-editor-ios-icon text-ink/85 dark:text-white/88"
                   title="تراجع"
+                  aria-label="تراجع"
                 >
-                  <Undo2 className="h-3.5 w-3.5" />
+                  <Undo2 className="h-4 w-4" />
                 </button>
                 <button
                   type="button"
                   disabled={!canRedo}
                   onClick={redo}
-                  className="site-editor-chip"
+                  className="site-editor-ios-icon text-ink/85 dark:text-white/88"
                   title="إعادة"
+                  aria-label="إعادة"
                 >
-                  <Redo2 className="h-3.5 w-3.5" />
-                </button>
-                <button type="button" onClick={() => void saveAll()} className="site-editor-chip site-editor-chip--primary">
-                  <Save className="h-3.5 w-3.5" />
-                  حفظ
-                </button>
-                <button type="button" onClick={() => setShowRevisions(true)} className="site-editor-chip">
-                  <History className="h-3.5 w-3.5" />
-                  سجل
-                </button>
-                <button type="button" onClick={() => openBrowse('image')} className="site-editor-chip">
-                  <Images className="h-3.5 w-3.5" />
-                  مكتبة الوسائط
-                </button>
-                <button type="button" onClick={() => setShowBg(true)} className="site-editor-chip">
-                  <Paintbrush className="h-3.5 w-3.5" />
-                  خلفية
-                </button>
-                <button type="button" onClick={() => setShowPages(true)} className="site-editor-chip">
-                  <FileText className="h-3.5 w-3.5" />
-                  صفحات
+                  <Redo2 className="h-4 w-4" />
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    logout();
-                    toggleEditMode();
-                  }}
-                  className="site-editor-chip"
+                  onClick={() => setShowMore(true)}
+                  className="site-editor-ios-icon text-ink/85 dark:text-white/88"
+                  title="المزيد"
+                  aria-label="المزيد"
                 >
-                  <X className="h-3.5 w-3.5" />
-                  إغلاق
+                  <Ellipsis className="h-4 w-4" />
                 </button>
               </div>
             </div>
-            <p className="border-t border-white/5 py-1 text-center text-[10px] text-white/45">
-              Ctrl+K أوامر · Ctrl+S حفظ · انقر صورة/فيديو لفتح المكتبة · المفتش للنص
-            </p>
-          </header>
+          </div>
 
           {enabled ? (
             <>
               <EditorCanvasLayer />
-              <EditorInspector />
+              <EditorSelectionChrome />
+              <EditorTransformToolbar />
+              <EditorControlSheet />
               <EditorCommandPalette />
             </>
           ) : null}
+
+          <EditorMoreSheet
+            open={showMore}
+            onClose={() => setShowMore(false)}
+            onOpenMedia={() => {
+              closeAllPanels();
+              openBrowse('image');
+            }}
+            onOpenRevisions={() => {
+              closeAllPanels();
+              setShowRevisions(true);
+            }}
+            onOpenBackground={() => {
+              closeAllPanels();
+              setShowBg(true);
+            }}
+            onOpenPages={() => {
+              closeAllPanels();
+              setShowPages(true);
+            }}
+            onOpenSections={() => {
+              closeAllPanels();
+              setShowSections(true);
+            }}
+            onSave={() => void saveAll()}
+            onExitEditor={() => {
+              void finishEditingSession().then(() => {
+                closeAllPanels();
+                logout();
+                toggleEditMode();
+              });
+            }}
+          />
         </>
       )}
 
       <PageBackgroundEditor open={showBg} onClose={() => setShowBg(false)} />
-      <PageManager open={showPages} onClose={() => setShowPages(false)} />
+      <EditorPagesSheet open={showPages} onClose={() => setShowPages(false)} />
       <EditorRevisionsPanel open={showRevisions} onClose={() => setShowRevisions(false)} />
+      <SectionVisibilityPanel open={showSections} onClose={() => setShowSections(false)} />
     </>
   );
 }

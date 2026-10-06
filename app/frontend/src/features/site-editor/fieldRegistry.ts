@@ -1,7 +1,31 @@
 import type { EditorFieldMeta, FieldType } from './types';
 
-/** Schema-first registry — extend as pages gain `data-editable-id`. */
+/**
+ * Schema-first registry for named fields (Ctrl+K). Any page using `Layout` also supports
+ * click-to-edit on img/video/text even without listing here — edits are scoped by URL path.
+ */
 export const EDITOR_FIELD_REGISTRY: EditorFieldMeta[] = [
+  {
+    id: 'home-hero-bg-image',
+    label: 'صورة الهيرو — الشاشة الرئيسية',
+    type: 'image',
+    pages: ['/', '/services/platforms'],
+    group: 'Home',
+  },
+  {
+    id: 'home-about-eam-image',
+    label: 'صورة القسم 2 — عن EAM',
+    type: 'image',
+    pages: ['/', '/services/platforms'],
+    group: 'Home',
+  },
+  {
+    id: 'home-one-statement-image',
+    label: 'صورة القسم 3 — رسالة واحدة',
+    type: 'image',
+    pages: ['/', '/services/platforms'],
+    group: 'Home',
+  },
   {
     id: 'about-intro-text',
     label: 'مقدمة «من نحن»',
@@ -70,4 +94,14 @@ export function listFieldsForPage(pagePath: string): EditorFieldMeta[] {
     if (!merged.has(id)) merged.set(id, resolveFieldMeta(id, pagePath));
   }
   return [...merged.values()];
+}
+
+export function listEditableDomIdsOnPage(): string[] {
+  if (typeof document === 'undefined') return [];
+  const ids = new Set<string>();
+  for (const el of document.querySelectorAll('[data-editable-id]')) {
+    const id = el.getAttribute('data-editable-id');
+    if (id) ids.add(id);
+  }
+  return [...ids];
 }

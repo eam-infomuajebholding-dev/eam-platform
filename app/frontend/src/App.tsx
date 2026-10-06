@@ -8,6 +8,7 @@ import { AuthProvider } from '@/features/auth/context/AuthContext';
 import { EditModeProvider } from '@/contexts/EditModeContext';
 import { SiteEditorProvider } from '@/features/site-editor';
 import { MediaLibraryProvider } from '@/features/media-library';
+import { SectionVisibilityProvider } from '@/features/section-visibility';
 import Index from './pages/Index';
 import EngineeringServices from './pages/EngineeringServices';
 import GovernmentServices from './pages/GovernmentServices';
@@ -160,6 +161,7 @@ const App = () => (
               <JourneyProvider>
                 <EditModeProvider>
                   <SiteEditorProvider>
+                    <SectionVisibilityProvider>
                     <MediaLibraryProvider>
                     <WorkspaceProvider>
                       <AppErrorBoundary>
@@ -169,6 +171,7 @@ const App = () => (
                       </AppErrorBoundary>
                     </WorkspaceProvider>
                     </MediaLibraryProvider>
+                    </SectionVisibilityProvider>
                   </SiteEditorProvider>
                 </EditModeProvider>
               </JourneyProvider>

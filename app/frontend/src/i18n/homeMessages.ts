@@ -12,6 +12,7 @@ export type HomeMessageKey =
   | 'hero.promoCompanyAr'
   | 'hero.promoCompanyEn'
   | 'assistant.header'
+  | 'assistant.header.siteEdit'
   | 'assistant.aria'
   | 'assistant.minimize'
   | 'assistant.restore'
@@ -158,8 +159,14 @@ export type HomeMessageKey =
   | 'homeContact.aria'
   | 'footer.logoAlt'
   | 'footer.companyName'
+  | 'footer.tagline'
   | 'footer.description'
   | 'footer.quickLinks'
+  | 'footer.nav.home'
+  | 'footer.nav.about'
+  | 'footer.nav.services'
+  | 'footer.nav.projects'
+  | 'footer.nav.contact'
   | 'footer.moreLinks'
   | 'footer.team'
   | 'footer.consultation'
@@ -167,14 +174,19 @@ export type HomeMessageKey =
   | 'footer.newsletter.body'
   | 'footer.newsletter.placeholder'
   | 'footer.newsletter.cta'
+  | 'footer.newsletter.hint'
+  | 'footer.newsletter.success'
+  | 'footer.newsletter.prefillSubject'
   | 'footer.copyright'
   | 'footer.privacy'
   | 'footer.terms'
   | 'footer.editLink'
   | 'footer.editLinkPrompt'
+  | 'footer.socialAria'
   | 'chat.tab.free'
   | 'chat.tab.journey'
   | 'chat.placeholder.free'
+  | 'chat.placeholder.siteEdit'
   | 'chat.placeholder.journey'
   | 'chat.placeholder.journeyActive'
   | 'chat.journeyBanner'
@@ -251,6 +263,7 @@ export const HOME_MESSAGES_AR: HomeMessageCatalog = {
   'hero.promoCompanyAr': 'إعمار الأصالة والمعاصرة للاستشارات الهندسية',
   'hero.promoCompanyEn': 'Emmar Al Asala Wa Al Muasara Engineering Consultancy',
   'assistant.header': 'EAM Copilot — فكّر معي بحرية',
+  'assistant.header.siteEdit': 'مساعد التحرير — صلاحيات كاملة على الصفحة',
   'assistant.aria': 'مساحة العمل الذكية',
   'assistant.minimize': 'تصغير المساعد',
   'assistant.restore': 'فتح المساعد',
@@ -413,24 +426,36 @@ export const HOME_MESSAGES_AR: HomeMessageCatalog = {
   'homeContact.aria': 'كن على اطلاع',
   'footer.logoAlt': 'إعمار الأصالة والمعاصرة',
   'footer.companyName': 'إعمار الأصالة والمعاصرة للاستشارات الهندسية',
+  'footer.tagline': 'الأصالة والمعاصرة لتحقيق الرؤية',
   'footer.description':
-    'نقدم خدمات هندسية واستشارية متميزة تجمع بين الأصالة والمعاصرة لتحقيق رؤية عملائنا بأعلى معايير الجودة والاحترافية.',
+    'نقدم خدمات هندسية واستشارية متميزة بأعلى معايير الجودة والاحترافية.',
   'footer.quickLinks': 'روابط سريعة',
+  'footer.nav.home': 'الرئيسية',
+  'footer.nav.about': 'من نحن',
+  'footer.nav.services': 'الخدمات',
+  'footer.nav.projects': 'المشاريع',
+  'footer.nav.contact': 'تواصل',
   'footer.moreLinks': 'روابط إضافية',
   'footer.team': 'فريقنا',
   'footer.consultation': 'طلب استشارة',
   'footer.newsletter.title': 'النشرة البريدية',
-  'footer.newsletter.body': 'اشترك للحصول على آخر الأخبار والمشاريع.',
-  'footer.newsletter.placeholder': 'بريدك الإلكتروني',
-  'footer.newsletter.cta': 'اشترك الآن',
+  'footer.newsletter.body': 'أدخل بريدك وسننقلك لصفحة التواصل لإتمام الاشتراك بشكل رسمي.',
+  'footer.newsletter.placeholder': 'name@example.com',
+  'footer.newsletter.cta': 'متابعة',
+  'footer.newsletter.hint': 'لا يُحفظ بريدك تلقائياً — التأكيد عبر صفحة التواصل.',
+  'footer.newsletter.success': 'تم — أكمل طلب الاشتراك في صفحة التواصل.',
+  'footer.newsletter.prefillSubject': 'طلب اشتراك في النشرة البريدية',
   'footer.copyright': 'إعمار الأصالة والمعاصرة للاستشارات الهندسية. جميع الحقوق محفوظة.',
   'footer.privacy': 'سياسة الخصوصية',
   'footer.terms': 'الشروط والأحكام',
   'footer.editLink': 'تعديل رابط',
   'footer.editLinkPrompt': 'أدخل رابط',
+  'footer.socialAria': 'حسابات التواصل الاجتماعي',
   'chat.tab.free': 'متابعة حرة',
   'chat.tab.journey': 'رحلة مخصصة',
   'chat.placeholder.free': 'اسأل، فكّر، أو صف ما تبحث عنه…',
+  'chat.placeholder.siteEdit':
+    'صلاحيات كاملة: نص، صور، تخطيط، إخفاء/إظهار أقسام، تراجع، استعادة افتراضي…',
   'chat.placeholder.journey': 'صف احتياجك لبدء الرحلة المخصصة...',
   'chat.placeholder.journeyActive': 'أكمل الخطوات أعلاه للمتابعة...',
   'chat.journeyBanner': 'أنت في رحلة جمع المعلومات',
@@ -523,6 +548,7 @@ export const HOME_MESSAGES_EN: HomeMessageCatalog = {
   'hero.promoCompanyAr': 'إعمار الأصالة والمعاصرة للاستشارات الهندسية',
   'hero.promoCompanyEn': 'Emmar Al Asala Wa Al Muasara Engineering Consultancy',
   'assistant.header': 'EAM Copilot — think openly with me',
+  'assistant.header.siteEdit': 'Edit assistant — describe the change, it runs',
   'assistant.aria': 'AI workspace',
   'assistant.minimize': 'Minimize assistant',
   'assistant.restore': 'Open assistant',
@@ -691,24 +717,36 @@ export const HOME_MESSAGES_EN: HomeMessageCatalog = {
   'homeContact.aria': 'Stay informed',
   'footer.logoAlt': 'Emmar Al Asala Wa Al Muasara',
   'footer.companyName': 'Emmar Al Asala Wa Al Muasara Engineering Consultancy',
+  'footer.tagline': 'Heritage and modernity to achieve the vision',
   'footer.description':
-    'We deliver distinguished engineering and consulting services that combine heritage and modernity to achieve our clients’ vision with the highest standards of quality and professionalism.',
+    'We deliver distinguished engineering and consulting services with the highest standards of quality and professionalism.',
   'footer.quickLinks': 'Quick links',
+  'footer.nav.home': 'Home',
+  'footer.nav.about': 'About',
+  'footer.nav.services': 'Services',
+  'footer.nav.projects': 'Projects',
+  'footer.nav.contact': 'Contact',
   'footer.moreLinks': 'More links',
   'footer.team': 'Our team',
   'footer.consultation': 'Request a consultation',
   'footer.newsletter.title': 'Newsletter',
-  'footer.newsletter.body': 'Subscribe for the latest news and projects.',
-  'footer.newsletter.placeholder': 'Your email address',
-  'footer.newsletter.cta': 'Subscribe now',
+  'footer.newsletter.body': 'Enter your email — we’ll open the contact page to complete your subscription officially.',
+  'footer.newsletter.placeholder': 'name@example.com',
+  'footer.newsletter.cta': 'Continue',
+  'footer.newsletter.hint': 'Your email is not stored until you confirm on the contact page.',
+  'footer.newsletter.success': 'Next — complete your subscription on the contact page.',
+  'footer.newsletter.prefillSubject': 'Newsletter subscription request',
   'footer.copyright': 'Emmar Al Asala Wa Al Muasara Engineering Consultancy. All rights reserved.',
   'footer.privacy': 'Privacy policy',
   'footer.terms': 'Terms and conditions',
   'footer.editLink': 'Edit link',
   'footer.editLinkPrompt': 'Enter link for',
+  'footer.socialAria': 'Social media accounts',
   'chat.tab.free': 'Free chat',
   'chat.tab.journey': 'Guided journey',
   'chat.placeholder.free': 'Ask, explore, or describe what you’re looking for…',
+  'chat.placeholder.siteEdit':
+    'Full edit powers: text, media, layout, hide/show sections, undo, restore defaults…',
   'chat.placeholder.journey': 'Describe your need to start the guided journey...',
   'chat.placeholder.journeyActive': 'Complete the steps above to continue...',
   'chat.journeyBanner': 'You are in an information-gathering journey',

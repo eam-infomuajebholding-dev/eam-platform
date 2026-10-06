@@ -3,8 +3,12 @@ import { useCallback, useState } from 'react';
 import HomeAIWorkspace from '@/components/home/HomeAIWorkspace';
 import { useAssistantDockHeightVar } from '@/hooks/useAssistantDockHeightVar';
 
+type HomeFixedAssistantDockProps = {
+  editModeActive?: boolean;
+};
+
 /** Fixed smart assistant — centered bottom bar, portaled to body for reliable stacking. */
-export default function HomeFixedAssistantDock() {
+export default function HomeFixedAssistantDock({ editModeActive = false }: HomeFixedAssistantDockProps) {
   const [dockEl, setDockEl] = useState<HTMLDivElement | null>(null);
   const dockRef = useCallback((node: HTMLDivElement | null) => {
     setDockEl(node);
@@ -23,7 +27,7 @@ export default function HomeFixedAssistantDock() {
       data-global-assistant="dock"
     >
       <div className="pointer-events-auto flex w-full justify-center">
-        <HomeAIWorkspace layout="dock" />
+        <HomeAIWorkspace layout="dock" siteEditMode={editModeActive} />
       </div>
     </div>,
     document.body,

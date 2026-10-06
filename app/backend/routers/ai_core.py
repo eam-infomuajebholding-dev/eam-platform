@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException, Request, status
 from schemas.ai_core import WorkspaceTurnRequest, WorkspaceTurnResponse
 from services.ai_core import AICoreService
 from services.ai_core_guard import AiCoreGuardError, check_rate_limit, validate_workspace_message
-from services.ai_core_intents import classify_build_villa_deterministic, resolve_intent_hint
+from services.ai_core_intents import resolve_intent_hint
 from sse_starlette.sse import EventSourceResponse
 
 logger = logging.getLogger(__name__)
@@ -45,14 +45,6 @@ async def workspace_stream(http_request: Request, request: WorkspaceTurnRequest)
 
     service = AICoreService()
 
-    if request.mode == "faq":
-        async def faq_event():
-            async for chunk in service.stream_general_answer(request.message):
-                yield json.dumps({"content": chunk})
-            yield "[DONE]"
-
-        return EventSourceResponse(faq_event(), media_type="text/event-stream")
-
     if request.journey_snapshot or resolve_intent_hint(request.intent_hint):
         turn = await service.handle_turn(request)
 
@@ -61,15 +53,6 @@ async def workspace_stream(http_request: Request, request: WorkspaceTurnRequest)
             yield "[DONE]"
 
         return EventSourceResponse(single_event(), media_type="text/event-stream")
-
-    if classify_build_villa_deterministic(request.message, request.intent_hint):
-        turn = await service.handle_turn(request)
-
-        async def journey_event():
-            yield json.dumps({"content": turn.assistant_message})
-            yield "[DONE]"
-
-        return EventSourceResponse(journey_event(), media_type="text/event-stream")
 
     if not service.is_ai_available():
         async def unavailable_event():
@@ -81,7 +64,7 @@ async def workspace_stream(http_request: Request, request: WorkspaceTurnRequest)
 
     async def event_generator():
         try:
-            async for chunk in service.stream_general_answer(request.message):
+            async for chunk in service.stream_general_answer(request):
                 yield json.dumps({"content": chunk})
         except Exception as exc:
             logger.error("AI Core stream failed: %s", exc)

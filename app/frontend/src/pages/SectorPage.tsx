@@ -33,7 +33,11 @@ export default function SectorPage() {
 
   return (
     <Layout>
-      <section className="eam-page-hero min-h-[320px]">
+      <section
+        className="eam-page-hero min-h-[320px]"
+        data-page-section="hero"
+        data-section-label="البطل"
+      >
         <div className="container relative z-10 mx-auto px-4">
           <div className="mx-auto max-w-4xl">
             <div
@@ -56,7 +60,7 @@ export default function SectorPage() {
         </div>
       </section>
 
-      <PageSection variant="muted" className="py-10 md:py-14">
+      <PageSection variant="muted" className="py-10 md:py-14" sectionId="stats" sectionLabel="إحصائيات">
         <div className="mx-auto grid max-w-3xl grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="rounded-2xl border border-soft-border/60 bg-cream px-5 py-6 text-center dark:bg-surface">
             <Layers className="mx-auto mb-3 h-6 w-6 text-gold-500" strokeWidth={1.75} />
@@ -75,7 +79,7 @@ export default function SectorPage() {
         </div>
       </PageSection>
 
-      <PageSection variant="cream">
+      <PageSection variant="cream" sectionId="journey" sectionLabel="ابدأ الرحلة">
         <div className="mx-auto max-w-3xl">
           <PageSectionHeader
             titleKey="page.services.startJourney"

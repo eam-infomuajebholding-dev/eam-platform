@@ -63,6 +63,8 @@ export default function RealEstateMarketing() {
       <ImagePageHero
         titleKey="page.rem.hero.title"
         subtitleKey="page.rem.hero.subtitle"
+        titleEditableId="rem-hero-title"
+        subtitleEditableId="rem-hero-subtitle"
       />
 
       <ServiceDetailGrid services={services} titleKey="page.services.marketing.title" />

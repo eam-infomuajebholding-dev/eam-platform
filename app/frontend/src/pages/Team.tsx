@@ -238,9 +238,11 @@ export default function Team() {
       <PageHero
         titleKey="page.team.hero.title"
         subtitleKey="page.team.hero.subtitle"
+        titleEditableId="team-hero-title"
+        subtitleEditableId="team-hero-subtitle"
       />
 
-      <PageSection variant="cream">
+      <PageSection variant="cream" sectionId="main" sectionLabel="المحتوى الرئيسي">
           <PageSectionHeader subtitleKey="page.team.intro" />
 
           {/* Add Member Button (Edit Mode) */}

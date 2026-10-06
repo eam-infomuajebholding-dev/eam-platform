@@ -333,9 +333,15 @@ export default function Projects() {
       <PageHero
         titleKey="page.projects.hero.title"
         subtitleKey="page.projects.hero.subtitle"
+        titleEditableId="projects-hero-title"
+        subtitleEditableId="projects-hero-subtitle"
       />
 
-      <section className="relative overflow-hidden bg-cream py-16 dark:bg-background md:py-24">
+      <section
+        className="relative overflow-hidden bg-cream py-16 dark:bg-background md:py-24"
+        data-page-section="portfolio"
+        data-section-label="معرض المشاريع"
+      >
         <div
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,color-mix(in_srgb,var(--gold-400)_10%,transparent),transparent)]"
           aria-hidden="true"

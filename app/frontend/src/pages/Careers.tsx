@@ -55,7 +55,7 @@ export default function Careers() {
         subtitleEditableId="careers-hero-desc"
       />
 
-      <PageSection variant="cream">
+      <PageSection variant="cream" sectionId="main" sectionLabel="المحتوى الرئيسي">
         <div className="mx-auto max-w-3xl">
           <PageSectionHeader
             titleKey="page.careers.apply.title"

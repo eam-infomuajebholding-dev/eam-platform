@@ -11,9 +11,15 @@ type HeroChatProps = {
   variant?: "default" | "homepage";
   /** Strip outer card chrome when parent provides the shell (homepage composer). */
   shell?: "default" | "embedded" | "dock";
+  /** Site editor: natural-language edits applied on send. */
+  siteEditMode?: boolean;
 };
 
-export default function HeroChat({ variant = "default", shell = "default" }: HeroChatProps) {
+export default function HeroChat({
+  variant = "default",
+  shell = "default",
+  siteEditMode = false,
+}: HeroChatProps) {
   const { messages, streamingContent, isBusy, workspaceError, sendMessage } = useWorkspace();
   const { t, direction, language } = useLanguage();
 
@@ -232,7 +238,11 @@ export default function HeroChat({ variant = "default", shell = "default" }: Her
         : "mx-auto w-full max-w-4xl overflow-hidden rounded-[28px] border border-soft-border bg-cream shadow-md dark:border-white/10 dark:bg-dark";
 
   const homepageCompact = isHomepage && messages.length === 0 && !streamingContent;
-  const composerPlaceholder = isHomepage ? t("chat.placeholder.free") : t("chat.placeholder.general");
+  const composerPlaceholder = siteEditMode
+    ? t("chat.placeholder.siteEdit")
+    : isHomepage
+      ? t("chat.placeholder.free")
+      : t("chat.placeholder.general");
 
   const voiceAwarePlaceholder = statusMessage
     ? statusMessage

@@ -8,6 +8,7 @@ import pytest
 
 from schemas.ai_contract import AI_CONTRACT_VERSION
 from schemas.ai_core import WorkspaceTurnRequest
+from schemas.ai_intent import IntentDecision
 from services.ai_core import AICoreService
 from services.ai_core_intents import (
     BUILD_VILLA_JOURNEY_TYPE,
@@ -51,11 +52,21 @@ async def test_deterministic_handoff_action_contract():
 
 
 @pytest.mark.asyncio
-async def test_arabic_free_text_start_journey_without_llm():
+async def test_arabic_free_text_stays_open_conversation_without_llm():
     service = AICoreService()
-    response = await service.handle_turn(WorkspaceTurnRequest(message="أريد بناء فيلا في جدة"))
-    assert response.action == "start_journey"
+    with patch.object(service, "is_ai_available", return_value=True):
+        with patch.object(
+            service,
+            "_classify_free_text_intent",
+            AsyncMock(return_value=IntentDecision(intent="general", confidence=0.2, action="general_answer")),
+        ):
+            response = await service.handle_turn(
+                WorkspaceTurnRequest(message="أريد بناء فيلا في جدة", stream=True)
+            )
+    assert response.action == "general_answer"
+    assert response.stream is True
     assert response.journey_type == BUILD_VILLA_JOURNEY_TYPE
+    assert any(item.action == "OPEN_RESOURCE" for item in response.actions)
 
 
 @pytest.mark.asyncio

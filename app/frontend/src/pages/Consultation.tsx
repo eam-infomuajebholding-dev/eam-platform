@@ -59,9 +59,15 @@ export default function Consultation() {
       <PageHero
         titleKey="page.consultation.hero.title"
         subtitleKey="page.consultation.hero.subtitle"
+        titleEditableId="consultation-hero-title"
+        subtitleEditableId="consultation-hero-subtitle"
       />
 
-      <section className="bg-cream-light py-16 dark:bg-background md:py-24">
+      <section
+        className="bg-cream-light py-16 dark:bg-background md:py-24"
+        data-page-section="main"
+        data-section-label="نموذج الاستشارة"
+      >
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-2xl">
             {isSubmitted ? (

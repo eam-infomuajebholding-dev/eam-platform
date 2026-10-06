@@ -63,6 +63,8 @@ export default function MaintenanceServices() {
       <ImagePageHero
         titleKey="page.maintenance.hero.title"
         subtitleKey="page.maintenance.hero.subtitle"
+        titleEditableId="maintenance-hero-title"
+        subtitleEditableId="maintenance-hero-subtitle"
       />
 
       <ServiceDetailGrid services={services} titleKey="page.services.maintenance.title" />

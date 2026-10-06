@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { toast } from 'sonner';
 
-/** Dev-only inline editing — not production admin auth. */
-export const isDevEditModeEnabled = import.meta.env.DEV;
+/** Inline editing in dev, or when explicitly enabled (e.g. staging preview). */
+export const isDevEditModeEnabled =
+  import.meta.env.DEV || import.meta.env.VITE_SITE_EDITOR === 'true';
 
 interface EditModeContextType {
   isEditMode: boolean;
@@ -30,9 +32,21 @@ export const EditModeProvider: React.FC<EditModeProviderProps> = ({ children }) 
   const [isEditMode, setIsEditMode] = useState(false);
 
   const toggleEditMode = useCallback(() => {
-    if (isDevEditModeEnabled) {
-      setIsEditMode((prev) => !prev);
+    if (!isDevEditModeEnabled) {
+      toast.message('محرر المحتوى غير متاح', {
+        description: 'شغّل npm run dev أو فعّل VITE_SITE_EDITOR=true ثم أعد البناء.',
+      });
+      return;
     }
+    setIsEditMode((prev) => {
+      const next = !prev;
+      if (next) {
+        toast.message('وضع التحرير مفعّل', {
+          description: 'انقر على عنوان أو فقرة أو صورة في الصفحة.',
+        });
+      }
+      return next;
+    });
   }, []);
 
   const login = useCallback((_password: string): boolean => false, []);

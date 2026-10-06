@@ -55,10 +55,10 @@ Deduplicated across Phase 2 / Master-008 / Delta-009 / WO-012–021. Status voca
 | Executive AI live provider acceptance | UNVERIFIED_ENV_DEPENDENT |
 | Evidence Drawer V2 (lineage fields) | PARTIAL (contributing count, data quality WO-021) |
 | Decision Inbox (Quote surfacing in UI) | DONE_VERIFIED |
-| Watchlist | DEFERRED_JIT |
-| Decision Journal | DEFERRED_JIT |
-| Command Palette (Ctrl+K) | DEFERRED_JIT |
-| Since My Last Visit | DEFERRED_JIT |
+| Watchlist | DESIGNED — `docs/command-center/COMMAND_CENTER_JIT_V2_DESIGN.md` §6 |
+| Decision Journal | DESIGNED — same doc §7 |
+| Command Palette (Ctrl+K) | DESIGNED — same doc §8 |
+| Since My Last Visit | DESIGNED — same doc §5 |
 
 ## Engineering & operability
 

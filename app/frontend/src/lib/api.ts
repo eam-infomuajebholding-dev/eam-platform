@@ -44,7 +44,15 @@ function createHttpClient(): AxiosInstance {
 }
 
 function resolveUrl(url: string): string {
-  return url.startsWith('http') ? url : `${getAPIBaseURL()}${url}`;
+  if (url.startsWith('http')) {
+    return url;
+  }
+  // In the browser, same-origin relative `/api` avoids localhost vs 127.0.0.1 mismatches
+  // and always routes through the Vite dev proxy when present.
+  if (typeof window !== 'undefined') {
+    return url;
+  }
+  return `${getAPIBaseURL()}${url}`;
 }
 
 function buildEntityApi(entity: string) {

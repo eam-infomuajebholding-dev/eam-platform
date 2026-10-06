@@ -13,15 +13,19 @@ type ServiceDetailGridProps = {
   services: ServiceItem[];
   titleKey?: MessageKey;
   subtitleKey?: MessageKey;
+  sectionId?: string;
+  sectionLabel?: string;
 };
 
 export default function ServiceDetailGrid({
   services,
   titleKey,
   subtitleKey,
+  sectionId = 'services-grid',
+  sectionLabel = 'شبكة الخدمات',
 }: ServiceDetailGridProps) {
   return (
-    <PageSection variant="alt" withGlow>
+    <PageSection variant="alt" withGlow sectionId={sectionId} sectionLabel={sectionLabel}>
       {titleKey ? (
         <PageSectionHeader titleKey={titleKey} subtitleKey={subtitleKey} />
       ) : null}

@@ -10,10 +10,11 @@ import {
 
 type HomeAIWorkspaceProps = {
   layout?: 'default' | 'dock';
+  siteEditMode?: boolean;
 };
 
 /** EAM AI composer shell for homepage. */
-export default function HomeAIWorkspace({ layout = 'default' }: HomeAIWorkspaceProps) {
+export default function HomeAIWorkspace({ layout = 'default', siteEditMode = false }: HomeAIWorkspaceProps) {
   const { t } = useLanguage();
   const isDock = layout === 'dock';
   const [isMinimized, setIsMinimized] = useState(readAssistantMinimized);
@@ -89,13 +90,13 @@ export default function HomeAIWorkspace({ layout = 'default' }: HomeAIWorkspaceP
             role={isMinimized && isDock ? 'button' : undefined}
             tabIndex={isMinimized && isDock ? 0 : undefined}
           >
-            {t('assistant.header')}
+            {siteEditMode ? t('assistant.header.siteEdit') : t('assistant.header')}
           </p>
           {isDock ? <div className={`shrink-0 ${headerControlsWidth}`} aria-hidden /> : null}
         </div>
 
         {!isMinimized || !isDock ? (
-          <HeroChat variant="homepage" shell={isDock ? 'dock' : 'embedded'} />
+          <HeroChat variant="homepage" shell={isDock ? 'dock' : 'embedded'} siteEditMode={siteEditMode} />
         ) : null}
       </div>
     </div>

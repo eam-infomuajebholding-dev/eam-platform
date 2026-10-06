@@ -9,7 +9,21 @@ import {
 } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth/context/AuthContext';
+import { useEditMode } from '@/contexts/EditModeContext';
+import { useSiteEditorOptional } from '@/features/site-editor';
 import * as aiCoreClient from '@/features/ai-workspace/aiCoreClient';
+import { useSectionVisibilityOptional } from '@/features/section-visibility';
+import {
+  buildSiteEditCatalog,
+  buildSiteEditPrompt,
+  executeSiteEditPlan,
+  hasExecutableSiteEditPlan,
+  parseSiteEditPlan,
+  tryApplyDirectSelectedEdit,
+  tryApplyLocalSiteEditCommand,
+  tryBuildHeuristicSiteEditPlan,
+  type SiteEditEditorApi,
+} from '@/features/ai-workspace/siteEditCopilot';
 import {
   actionFailureMessage,
   executeActionProposal,
@@ -29,6 +43,7 @@ import {
   type PendingJourneyOffer,
   type WorkspaceMessage,
 } from '@/features/ai-workspace/types';
+import { describeWorkspaceFailure } from '@/features/ai-workspace/workspaceErrors';
 import { useJourney } from '@/features/journeys/core/useJourney';
 import type { JourneyInstance } from '@/features/journeys/core/types';
 import {
@@ -662,6 +677,10 @@ function syncEcStepValuesFromContext(context: EngineeringConsultingContext): Eng
 
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
+  const { isEditMode, isDevEditModeAvailable } = useEditMode();
+  const siteEditor = useSiteEditorOptional();
+  const sectionVisibility = useSectionVisibilityOptional();
+  const siteEditActive = Boolean(isDevEditModeAvailable && isEditMode && siteEditor?.enabled);
   const queryClient = useQueryClient();
   const {
     currentInstance,
@@ -918,6 +937,94 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       setMessages((prev) => [...prev, createMessage('user', trimmed)]);
 
       try {
+        if (siteEditActive && siteEditor) {
+          const editorApi: SiteEditEditorApi = {
+            pagePath: siteEditor.pagePath,
+            selectedFieldId: siteEditor.selectedFieldId,
+            fields: siteEditor.fields,
+            fieldList: siteEditor.fieldList,
+            sections: sectionVisibility?.sections ?? [],
+            replaceFieldValue: siteEditor.replaceFieldValue,
+            selectField: siteEditor.selectField,
+            saveAll: siteEditor.saveAll,
+            reloadDocument: siteEditor.reloadDocument,
+            undo: siteEditor.undo,
+            redo: siteEditor.redo,
+            setSectionState:
+              sectionVisibility?.setSectionState ??
+              (async () => {
+                /* no-op when sections unavailable */
+              }),
+          };
+
+          const local = await tryApplyLocalSiteEditCommand(trimmed, editorApi);
+          if (local) {
+            if (local.appliedFields.length > 0) {
+              await siteEditor.saveAll({ silent: true });
+            }
+            setMessages((prev) => [...prev, createMessage('assistant', local.assistantMessage)]);
+            return;
+          }
+
+          const direct = tryApplyDirectSelectedEdit(trimmed, editorApi);
+          if (direct.applied) {
+            await siteEditor.saveAll({ silent: true });
+            setMessages((prev) => [...prev, createMessage('assistant', direct.assistantMessage)]);
+            return;
+          }
+
+          const catalog = buildSiteEditCatalog(editorApi);
+          const heuristic = tryBuildHeuristicSiteEditPlan(trimmed, editorApi, catalog);
+          if (heuristic && hasExecutableSiteEditPlan(heuristic)) {
+            const applied = await executeSiteEditPlan(heuristic, editorApi);
+            await siteEditor.saveAll({ silent: true });
+            setMessages((prev) => [...prev, createMessage('assistant', applied.assistantMessage)]);
+            return;
+          }
+
+          const prompt = buildSiteEditPrompt(
+            trimmed,
+            catalog,
+            editorApi.pagePath,
+            editorApi.selectedFieldId,
+            editorApi.sections,
+          );
+          const streamed = await aiCoreClient.streamGeneralAnswer(
+            { message: prompt, stream: true },
+            (content) => {
+              setStreamingContent(content);
+            },
+          );
+          setStreamingContent('');
+
+          let plan = parseSiteEditPlan(streamed);
+          if (!plan || !hasExecutableSiteEditPlan(plan)) {
+            plan = tryBuildHeuristicSiteEditPlan(trimmed, editorApi, catalog) ?? plan;
+          }
+
+          if (plan && hasExecutableSiteEditPlan(plan)) {
+            const applied = await executeSiteEditPlan(plan, editorApi);
+            await siteEditor.saveAll({ silent: true });
+            setMessages((prev) => [...prev, createMessage('assistant', applied.assistantMessage)]);
+            return;
+          }
+
+          if (plan?.assistant_message) {
+            setMessages((prev) => [...prev, createMessage('assistant', plan.assistant_message)]);
+            return;
+          }
+
+          setMessages((prev) => [
+            ...prev,
+            createMessage(
+              'assistant',
+              streamed.trim() ||
+                'لم أفهم التعديل. حدّد عنصراً، أو اذكر اسم الحقل/القسم (Ctrl+K)، أو صِغ «غيّر [العنوان] إلى [النص]».',
+            ),
+          ]);
+          return;
+        }
+
         const conversationHistory = messages.slice(-20).map((entry) => ({
           role: entry.role,
           content: entry.content,
@@ -966,23 +1073,36 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         }
 
         if (turn.action === 'ai_unavailable') {
+          const unavailableText =
+            turn.error?.user_message?.trim() ||
+            turn.assistant_message ||
+            'خدمة الذكاء الاصطناعي غير متاحة حالياً.';
           setMessages((prev) => [
             ...prev,
-            createMessage('assistant', turn.assistant_message, { resourceLinks }),
+            createMessage('assistant', unavailableText, { resourceLinks }),
           ]);
-          setWorkspaceError(turn.assistant_message);
+          setWorkspaceError(null);
           return;
         }
 
         if (turn.action === 'general_answer') {
           if (turn.stream) {
             let streamed = '';
-            streamed = await aiCoreClient.streamGeneralAnswer(
-              { message: trimmed, conversation_history: conversationHistory },
-              (content) => {
-                setStreamingContent(content);
-              },
-            );
+            try {
+              streamed = await aiCoreClient.streamGeneralAnswer(
+                { message: trimmed, conversation_history: conversationHistory },
+                (content) => {
+                  setStreamingContent(content);
+                },
+              );
+            } catch (streamError) {
+              console.error(streamError);
+              if (turn.assistant_message?.trim()) {
+                streamed = turn.assistant_message;
+              } else {
+                throw streamError;
+              }
+            }
             setStreamingContent('');
             appendAssistantTurn(turn, streamed || turn.assistant_message, supportedJourney);
           } else {
@@ -994,7 +1114,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         appendAssistantTurn(turn, turn.assistant_message, supportedJourney);
       } catch (error) {
         console.error(error);
-        const failure = 'تعذر معالجة رسالتك حالياً. يرجى المحاولة مرة أخرى أو تصفح الخدمات من القائمة.';
+        const failure = describeWorkspaceFailure(error);
         setWorkspaceError(failure);
         setMessages((prev) => [...prev, createMessage('assistant', failure)]);
       } finally {
@@ -1002,7 +1122,17 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         setStreamingContent('');
       }
     },
-    [appendAssistantTurn, handoffToJourney, interactionMode, isBusy, isJourneyActive, messages],
+    [
+      appendAssistantTurn,
+      handoffToJourney,
+      interactionMode,
+      isBusy,
+      isJourneyActive,
+      messages,
+      siteEditActive,
+      siteEditor,
+      sectionVisibility,
+    ],
   );
 
   const advanceCurrentStep = useCallback(async () => {

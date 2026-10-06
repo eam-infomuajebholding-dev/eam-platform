@@ -63,6 +63,8 @@ export default function RealEstateDevelopment() {
       <ImagePageHero
         titleKey="page.red.hero.title"
         subtitleKey="page.red.hero.subtitle"
+        titleEditableId="red-hero-title"
+        subtitleEditableId="red-hero-subtitle"
       />
 
       <ServiceDetailGrid services={services} titleKey="page.services.development.title" />

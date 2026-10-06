@@ -4,7 +4,7 @@ Statuses: IMPLEMENTED | PARTIAL | BLOCKED | PLANNED_JIT
 
 | Capability | Status | Evidence |
 |------------|--------|----------|
-| 13 real journeys (credential-free) | IMPLEMENTED | 13 vertical slices, E2E |
+| 16 real journeys (credential-free) | IMPLEMENTED | 16 vertical slices, E2E |
 | HeroChat intent routing | IMPLEMENTED | `herochat-intent.spec.ts` |
 | Service Request lifecycle | IMPLEMENTED | submitted → qualified |
 | Professional Review ops UI | IMPLEMENTED | `/operations/service-requests` |
@@ -26,7 +26,10 @@ Statuses: IMPLEMENTED | PARTIAL | BLOCKED | PLANNED_JIT
 | Journeys program (16 LIVE) | IMPLEMENTED | `docs/product/JOURNEYS_STATUS_REPORT.md` |
 | Procurement order (building materials + equipment) | IMPLEMENTED | `procurement_orders` + ops API |
 | Marketplace | PLANNED_JIT | NOT_YET_REQUIRED |
-| Evidence Drawer V2 | PLANNED_JIT | DEFERRED |
-| Watchlist / Decision Journal | PLANNED_JIT | DEFERRED |
+| Evidence Drawer V2 | DESIGNED | `docs/command-center/COMMAND_CENTER_JIT_V2_DESIGN.md` §9 |
+| Since My Last Visit | DESIGNED | same doc §5 |
+| Watchlist | DESIGNED | same doc §6 |
+| Decision Journal | DESIGNED | same doc §7 |
+| Command Palette (Ctrl+K) | DESIGNED | same doc §8 |
 | RAG / Vector DB | PLANNED_JIT | No use case |
 | Digital Employee | PLANNED_JIT | DEFERRED |

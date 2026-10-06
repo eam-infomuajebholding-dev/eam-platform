@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import PageHero from '@/components/page/PageHero';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -8,8 +9,15 @@ import { toast } from 'sonner';
 
 const WHATSAPP_NUMBER = '966599555437';
 
+type ContactLocationState = {
+  fromNewsletter?: boolean;
+  email?: string;
+  subject?: string;
+};
+
 export default function Contact() {
   const { t } = useLanguage();
+  const location = useLocation();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -19,6 +27,16 @@ export default function Contact() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  useEffect(() => {
+    const state = location.state as ContactLocationState | null;
+    if (!state?.fromNewsletter) return;
+    setFormData((prev) => ({
+      ...prev,
+      email: state.email?.trim() || prev.email,
+      subject: state.subject?.trim() || prev.subject,
+    }));
+  }, [location.state]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -65,7 +83,11 @@ export default function Contact() {
         subtitleEditableId="contact-hero-desc"
       />
 
-      <section className="bg-cream-light py-16 dark:bg-background md:py-24">
+      <section
+        className="bg-cream-light py-16 dark:bg-background md:py-24"
+        data-page-section="form"
+        data-section-label="نموذج التواصل"
+      >
         <div className="container mx-auto px-4">
           <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 lg:grid-cols-3">
             <div className="lg:col-span-2">
@@ -257,7 +279,11 @@ export default function Contact() {
         </div>
       </section>
 
-      <section className="bg-surface-alt py-16 dark:bg-surface-muted md:py-24">
+      <section
+        className="bg-surface-alt py-16 dark:bg-surface-muted md:py-24"
+        data-page-section="channels"
+        data-section-label="قنوات التواصل"
+      >
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-6xl">
             <div className="mb-10 text-center">

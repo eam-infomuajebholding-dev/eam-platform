@@ -38,9 +38,18 @@ const BlogIndexPage = () => {
     <Layout>
       <BlogSeo seo={seo} />
 
-      <PageHero titleKey="blog.hero.title" subtitleKey="blog.hero.subtitle" />
+      <PageHero
+        titleKey="blog.hero.title"
+        subtitleKey="blog.hero.subtitle"
+        titleEditableId="blog-hero-title"
+        subtitleEditableId="blog-hero-subtitle"
+      />
 
-      <section className="bg-cream-light py-16 dark:bg-background md:py-20">
+      <section
+        className="bg-cream-light py-16 dark:bg-background md:py-20"
+        data-page-section="main"
+        data-section-label="قائمة المقالات"
+      >
         <div className="container mx-auto px-4">
           {posts.length === 0 ? (
             <div className="mx-auto max-w-2xl rounded-2xl border border-dashed border-gold/30 bg-surface-alt p-10 text-center dark:bg-white/5">

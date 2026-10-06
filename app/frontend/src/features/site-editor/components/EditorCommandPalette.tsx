@@ -3,7 +3,18 @@ import { Command } from 'cmdk';
 import { useSiteEditor } from '../context/SiteEditorContext';
 
 export default function EditorCommandPalette() {
-  const { enabled, fieldList, selectField, saveAll, undo, redo } = useSiteEditor();
+  const {
+    enabled,
+    fieldList,
+    selectField,
+    saveAll,
+    copySelected,
+    cutSelected,
+    pasteToSelected,
+    selectAllOnPage,
+    undo,
+    redo,
+  } = useSiteEditor();
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -40,7 +51,7 @@ export default function EditorCommandPalette() {
                 key={field.id}
                 value={`${field.label} ${field.id}`}
                 onSelect={() => {
-                  selectField(field.id);
+                  selectField(field.id, null, { openContentSheet: false });
                   setOpen(false);
                 }}
                 className="cursor-pointer rounded-lg px-3 py-2 text-sm aria-selected:bg-gold/15"
@@ -51,6 +62,42 @@ export default function EditorCommandPalette() {
             ))}
           </Command.Group>
           <Command.Group heading="أوامر">
+            <Command.Item
+              onSelect={() => {
+                copySelected();
+                setOpen(false);
+              }}
+              className="cursor-pointer rounded-lg px-3 py-2 text-sm aria-selected:bg-gold/15"
+            >
+              نسخ العنصر (Ctrl+C)
+            </Command.Item>
+            <Command.Item
+              onSelect={() => {
+                cutSelected();
+                setOpen(false);
+              }}
+              className="cursor-pointer rounded-lg px-3 py-2 text-sm aria-selected:bg-gold/15"
+            >
+              قص العنصر (Ctrl+X)
+            </Command.Item>
+            <Command.Item
+              onSelect={() => {
+                pasteToSelected();
+                setOpen(false);
+              }}
+              className="cursor-pointer rounded-lg px-3 py-2 text-sm aria-selected:bg-gold/15"
+            >
+              لصق (Ctrl+V)
+            </Command.Item>
+            <Command.Item
+              onSelect={() => {
+                selectAllOnPage();
+                setOpen(false);
+              }}
+              className="cursor-pointer rounded-lg px-3 py-2 text-sm aria-selected:bg-gold/15"
+            >
+              تحديد الكل (Ctrl+A)
+            </Command.Item>
             <Command.Item
               onSelect={() => {
                 void saveAll();

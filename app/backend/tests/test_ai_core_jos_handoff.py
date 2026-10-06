@@ -3,27 +3,39 @@
 from __future__ import annotations
 
 import uuid
+from unittest.mock import AsyncMock, patch
 
 import httpx
 import pytest
 from httpx import ASGITransport
 
 from main import app
+from schemas.ai_intent import IntentDecision
+from services.ai_core import AICoreService
 from tests.helpers.build_villa_flow import BUILD_VILLA_V1_ADVANCE_SEQUENCE, payload_for_legacy_step
 
 
 @pytest.mark.asyncio
-async def test_workspace_turn_start_journey_for_arabic_text():
+async def test_workspace_turn_open_chat_for_arabic_build_villa_text():
     transport = ASGITransport(app=app)
-    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
-        response = await client.post(
-            "/api/v1/ai-core/workspace/turn",
-            json={"message": "أريد بناء فيلا في جدة"},
-        )
-        assert response.status_code == 200, response.text
-        body = response.json()
-        assert body["action"] == "start_journey"
-        assert body["journey_type"] == "build_villa"
+    with patch.object(AICoreService, "is_ai_available", return_value=True):
+        with patch.object(
+            AICoreService,
+            "_classify_free_text_intent",
+            AsyncMock(
+                return_value=IntentDecision(intent="general", confidence=0.2, action="general_answer")
+            ),
+        ):
+            async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+                response = await client.post(
+                    "/api/v1/ai-core/workspace/turn",
+                    json={"message": "أريد بناء فيلا في جدة", "stream": True},
+                )
+                assert response.status_code == 200, response.text
+                body = response.json()
+                assert body["action"] == "general_answer"
+                assert body["journey_type"] == "build_villa"
+                assert body.get("stream") is True
 
 
 @pytest.mark.asyncio

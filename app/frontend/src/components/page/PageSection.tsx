@@ -13,6 +13,9 @@ type PageSectionProps = {
   variant?: PageSectionVariant;
   className?: string;
   withGlow?: boolean;
+  /** For section visibility in the content editor */
+  sectionId?: string;
+  sectionLabel?: string;
 };
 
 export default function PageSection({
@@ -20,10 +23,18 @@ export default function PageSection({
   variant = 'cream',
   className = '',
   withGlow = false,
+  sectionId,
+  sectionLabel,
 }: PageSectionProps) {
   return (
     <section
       className={`relative py-16 md:py-24 ${variantClasses[variant]} ${className}`}
+      {...(sectionId
+        ? {
+            'data-page-section': sectionId,
+            ...(sectionLabel ? { 'data-section-label': sectionLabel } : {}),
+          }
+        : {})}
     >
       {withGlow ? (
         <div

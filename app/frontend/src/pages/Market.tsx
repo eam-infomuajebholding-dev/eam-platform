@@ -10,9 +10,14 @@ export default function Market() {
 
   return (
     <Layout>
-      <PageHero titleKey="page.market.hero.title" subtitleKey="page.market.hero.subtitle" />
+      <PageHero
+        titleKey="page.market.hero.title"
+        subtitleKey="page.market.hero.subtitle"
+        titleEditableId="market-hero-title"
+        subtitleEditableId="market-hero-subtitle"
+      />
 
-      <PageSection variant="cream" withGlow>
+      <PageSection variant="cream" withGlow sectionId="main" sectionLabel="المحتوى الرئيسي">
         <div className="mx-auto max-w-2xl">
           <div className="rounded-3xl border border-soft-border/70 bg-cream p-10 text-center shadow-gold-card dark:bg-surface md:p-14">
             <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-2xl bg-gold-50 dark:bg-gold/10">

@@ -105,7 +105,7 @@ export default function ProjectsShowcaseSection() {
           </Link>
         </div>
       </div>
-      <HomeSectionBottomFade to="dark" />
+      <HomeSectionBottomFade to="cream-light" />
     </section>
   );
 }

@@ -1,6 +1,5 @@
 import { Cpu, HardHat, Settings2, TrendingUp } from 'lucide-react';
-import ResponsiveImage from '@/components/ui/ResponsiveImage';
-import { getHomeImage } from '@/config/assets';
+import HomeSectionImage from '@/components/home/HomeSectionImage';
 import { useLanguage } from '@/contexts/LanguageContext';
 import HomeSectionBottomFade from '@/components/home/HomeSectionBottomFade';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
@@ -15,7 +14,6 @@ const PILLARS = [
 /** 03 — EAM in One Statement (after About EAM). */
 export default function HomeOneStatementSection() {
   const reveal = useScrollReveal({ threshold: 0.08 });
-  const statementVisual = getHomeImage('oneStatement');
   const { t, direction } = useLanguage();
 
   return (
@@ -31,8 +29,9 @@ export default function HomeOneStatementSection() {
           className={`home-one-statement__stage ${reveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}
         >
           <div className="home-one-statement__visual">
-            <ResponsiveImage
-              asset={statementVisual}
+            <HomeSectionImage
+              editId="home-one-statement-image"
+              assetKey="oneStatement"
               className="home-one-statement__visual-img"
               loading="lazy"
               width={752}

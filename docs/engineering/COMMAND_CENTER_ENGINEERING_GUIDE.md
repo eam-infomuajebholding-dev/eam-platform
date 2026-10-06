@@ -32,3 +32,8 @@ All CC routes require admin/owner role. Test 403 for non-admin.
 
 - Frontend business logic for metrics
 - CC-initiated SR/Quote/JOS mutations
+
+## JIT V2 (designed, not yet implemented)
+
+Watchlist, Decision Journal, Command Palette, Since My Last Visit, Evidence Drawer V2 — see  
+`docs/command-center/COMMAND_CENTER_JIT_V2_DESIGN.md` (persistence in CC tables only; read model resolution unchanged).

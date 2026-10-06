@@ -16,6 +16,23 @@ function openDB(): Promise<IDBDatabase> {
   });
 }
 
+export async function saveFileToIDB(key: string, file: File | Blob): Promise<void> {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    store.put(file, key);
+    tx.oncomplete = () => {
+      db.close();
+      resolve();
+    };
+    tx.onerror = () => {
+      db.close();
+      reject(tx.error);
+    };
+  });
+}
+
 export async function saveMediaToIDB(key: string, dataUrl: string): Promise<void> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
@@ -42,7 +59,16 @@ export async function getMediaFromIDB(key: string): Promise<string | null> {
       const request = store.get(key);
       request.onsuccess = () => {
         db.close();
-        resolve(request.result || null);
+        const result = request.result as string | Blob | undefined;
+        if (!result) {
+          resolve(null);
+          return;
+        }
+        if (typeof result === 'string') {
+          resolve(result);
+          return;
+        }
+        resolve(URL.createObjectURL(result));
       };
       request.onerror = () => {
         db.close();

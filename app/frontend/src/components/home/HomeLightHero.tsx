@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { RotateCcw } from 'lucide-react';
-import ResponsiveImage from '@/components/ui/ResponsiveImage';
+import HomeSectionImage from '@/components/home/HomeSectionImage';
 import { HOME_HERO_PROMO_VIDEO_SRC, getHomeImage } from '@/config/assets';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ASSISTANT_LAYOUT_EVENT } from '@/features/ai-workspace/assistantShell';
@@ -161,6 +161,7 @@ export default function HomeLightHero() {
         role="region"
         data-home-section="hero"
         data-home-first-screen-end
+        data-editor-protected="true"
         className={`home-light-hero relative h-full min-h-0 flex-1 overflow-hidden rounded-[20px] border border-[var(--eam-home-border)] bg-[var(--eam-home-cream-light)] shadow-[0_4px_24px_rgba(139,77,0,0.08)] ${showPromo ? 'home-light-hero--promo' : ''}`}
         aria-label={t('hero.aria')}
       >
@@ -193,10 +194,11 @@ export default function HomeLightHero() {
           }`}
           aria-hidden={showPromo}
         >
-          <ResponsiveImage
-            asset={hero}
+          <HomeSectionImage
+            editId="home-hero-bg-image"
+            assetKey="hero"
             className="home-hero-bg-img h-full w-full object-cover"
-            priority={!showPromo}
+            loading={showPromo ? 'lazy' : 'eager'}
             width={1800}
             height={900}
           />

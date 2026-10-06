@@ -1,5 +1,6 @@
 import { useLocation } from 'react-router-dom';
 import { isAssistantVisible } from '@/config/globalAssistant';
+import { useEditMode } from '@/contexts/EditModeContext';
 import HomeFixedAssistantDock from '@/components/home/HomeFixedAssistantDock';
 
 /**
@@ -9,10 +10,11 @@ import HomeFixedAssistantDock from '@/components/home/HomeFixedAssistantDock';
  */
 export default function GlobalAssistantDock() {
   const { pathname } = useLocation();
+  const { isEditMode, isDevEditModeAvailable } = useEditMode();
 
   if (!isAssistantVisible(pathname)) {
     return null;
   }
 
-  return <HomeFixedAssistantDock />;
+  return <HomeFixedAssistantDock editModeActive={isDevEditModeAvailable && isEditMode} />;
 }

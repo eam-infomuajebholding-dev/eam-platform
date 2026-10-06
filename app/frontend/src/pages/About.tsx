@@ -39,11 +39,11 @@ export default function About() {
         subtitleEditableId="about-hero-desc"
       />
 
-      <PageSection variant="muted" className="py-10 md:py-14">
+      <PageSection variant="muted" className="py-10 md:py-14" sectionId="stats" sectionLabel="إحصائيات">
         <PageStatGrid stats={aboutStats} columns={3} />
       </PageSection>
 
-      <PageSection variant="cream">
+      <PageSection variant="cream" sectionId="intro" sectionLabel="نبذة والالتزامات">
         <div className="mx-auto max-w-4xl">
           <div className="rounded-2xl border border-soft-border/70 bg-cream p-8 shadow-gold-card dark:bg-surface md:p-12">
             <p
@@ -70,7 +70,7 @@ export default function About() {
         </div>
       </PageSection>
 
-      <PageSection variant="alt" withGlow>
+      <PageSection variant="alt" withGlow sectionId="values" sectionLabel="قيمنا">
         <PageSectionHeader titleKey="page.about.values.title" />
         <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3">
           {valueKeys.map((value) => (

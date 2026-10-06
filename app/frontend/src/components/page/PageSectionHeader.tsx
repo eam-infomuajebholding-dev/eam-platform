@@ -27,6 +27,11 @@ export default function PageSectionHeader({
   const { t } = useLanguage();
   const resolvedTitle = titleKey ? t(titleKey) : title;
   const resolvedSubtitle = subtitleKey ? t(subtitleKey) : subtitle;
+  const keyToId = (key: MessageKey) => key.replace(/\./g, '-');
+  const resolvedTitleId =
+    titleEditableId ?? (titleKey ? keyToId(titleKey) : undefined);
+  const resolvedSubtitleId =
+    subtitleEditableId ?? (subtitleKey ? keyToId(subtitleKey) : undefined);
 
   return (
     <header className={`mb-10 md:mb-12 ${center ? 'text-center' : ''} ${className}`}>
@@ -35,7 +40,7 @@ export default function PageSectionHeader({
       ) : null}
       {resolvedTitle ? (
         <h2
-          data-editable-id={titleEditableId}
+          data-editable-id={resolvedTitleId}
           className="font-display text-display-sm text-ink md:text-display-md"
         >
           {resolvedTitle}
@@ -43,7 +48,7 @@ export default function PageSectionHeader({
       ) : null}
       {resolvedSubtitle ? (
         <p
-          data-editable-id={subtitleEditableId}
+          data-editable-id={resolvedSubtitleId}
           className="text-body mx-auto mt-3 max-w-2xl"
         >
           {resolvedSubtitle}

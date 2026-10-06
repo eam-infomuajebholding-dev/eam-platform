@@ -4,8 +4,13 @@ const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || '';
 /**
  * Check if Cloudinary is configured with required environment variables.
  */
+const PLACEHOLDER = /^(your_|change_me|xxx|test)$/i;
+
 export function isCloudinaryConfigured(): boolean {
-  return Boolean(CLOUD_NAME && UPLOAD_PRESET);
+  if (!CLOUD_NAME || !UPLOAD_PRESET) return false;
+  if (PLACEHOLDER.test(CLOUD_NAME) || PLACEHOLDER.test(UPLOAD_PRESET)) return false;
+  if (CLOUD_NAME.includes('your_cloud') || UPLOAD_PRESET.includes('your_upload')) return false;
+  return true;
 }
 
 /**

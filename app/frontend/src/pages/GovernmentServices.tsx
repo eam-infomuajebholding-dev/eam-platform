@@ -19,6 +19,9 @@ export default function GovernmentServices() {
         titleKey="page.government.hero.title"
         subtitleKey="page.government.hero.subtitle"
         backgroundImage={GOVERNMENT_IMAGE}
+        titleEditableId="government-hero-title"
+        subtitleEditableId="government-hero-subtitle"
+        backgroundEditableId="government-hero-bg"
       />
 
       <ServiceDetailGrid services={services} titleKey="page.services.government.title" />

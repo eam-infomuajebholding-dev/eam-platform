@@ -3,7 +3,6 @@ import { ArrowLeft, TrendingUp } from 'lucide-react';
 import ResponsiveImage from '@/components/ui/ResponsiveImage';
 import { getHomeImage } from '@/config/assets';
 import { useLanguage } from '@/contexts/LanguageContext';
-import HomeSectionBottomFade from '@/components/home/HomeSectionBottomFade';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 /** Homepage investment promotion — not operational Investment journey (#03) */
@@ -16,16 +15,16 @@ export default function InvestmentHomeSection() {
     <section
       id="home-investment"
       data-home-section="investment"
-      className="home-section-block relative overflow-hidden bg-[#1a2634] text-white"
+      className="home-investment home-section-block relative overflow-hidden"
       aria-label={t('invest.aria')}
     >
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
         <ResponsiveImage
           asset={{ ...banner, alt: '' }}
-          className="h-full w-full object-cover opacity-50"
+          className="h-full w-full object-cover opacity-35"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-l from-[#1a2634]/95 via-[#1a2634]/75 to-[#1a2634]/55" />
+        <div className="home-investment__overlay absolute inset-0" />
       </div>
 
       <div className="container relative mx-auto px-4">
@@ -36,10 +35,10 @@ export default function InvestmentHomeSection() {
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--eam-home-gold)]/20">
             <TrendingUp className="h-6 w-6 text-[var(--eam-home-gold-soft)]" strokeWidth={1.75} />
           </div>
-          <h2 className="text-3xl font-bold text-[var(--eam-home-gold-soft)] md:text-4xl">
+          <h2 className="text-3xl font-bold text-[var(--eam-home-gold-deep)] md:text-4xl">
             {t('invest.title')}
           </h2>
-          <p className="mt-4 text-sm leading-7 text-white/80 md:text-base">{t('invest.body')}</p>
+          <p className="mt-4 text-sm leading-7 text-[var(--eam-home-ink)]/72 md:text-base">{t('invest.body')}</p>
           <Link
             to="/invest"
             className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[var(--eam-home-gold)] px-6 py-3 text-sm font-semibold text-[#2B2118] transition hover:bg-[var(--eam-home-gold-soft)]"

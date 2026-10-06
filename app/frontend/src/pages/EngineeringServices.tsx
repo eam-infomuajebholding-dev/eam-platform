@@ -33,15 +33,13 @@ export default function EngineeringServices() {
     <Layout>
 
       <ImagePageHero
-
         titleKey="page.engineering.hero.title"
-
         subtitleKey="page.engineering.hero.subtitle"
-
         backgroundImage={ENGINEERING_IMAGE}
-
+        titleEditableId="engineering-hero-title"
+        subtitleEditableId="engineering-hero-subtitle"
+        backgroundEditableId="engineering-hero-bg"
         ctaTo="/journeys/engineering-consulting"
-
         ctaKey="page.sector.startEc"
 
       />

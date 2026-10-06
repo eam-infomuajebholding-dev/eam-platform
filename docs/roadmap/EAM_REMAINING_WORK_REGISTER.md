@@ -60,10 +60,13 @@ Each item appears once. Supersedes duplicate entries in phase archives.
 | Docker migrate-on-start | DONE (`deploy/entrypoint.sh`) |
 | Git logical commits (WO-017/018/019) | DONE_VERIFIED |
 
-## Command Center (JIT deferred)
+## Command Center (JIT)
 
-Evidence V2 expansion, Watchlist, Decision Journal, Command Palette, Since My Last Visit → **DEFERRED_JIT**  
-Foundation (overview, pulse, search, decision inbox surfacing) → **DONE_VERIFIED / PARTIAL**
+| Item | Status |
+|------|--------|
+| V1 foundation (overview, pulse, search, inbox, delegations) | DONE_VERIFIED |
+| JIT V2 design (watchlist, journal, palette, since-last-visit, evidence V2) | **DESIGNED** — `docs/command-center/COMMAND_CENTER_JIT_V2_DESIGN.md` |
+| JIT V2 implementation | NOT_STARTED — phases A→E in design doc |
 
 ## Engineering docs
 

@@ -29,13 +29,37 @@ export default function EditorRevisionsPanel({ open, onClose }: Props) {
     if (open) void refresh();
   }, [open, refresh]);
 
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [open, onClose]);
+
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[10000] flex items-end justify-center sm:items-center" data-edit-toolbar="true">
-      <button type="button" className="absolute inset-0 bg-black/50" aria-label="إغلاق" onClick={onClose} />
-      <div className="relative z-10 flex max-h-[85vh] w-full max-w-lg flex-col rounded-t-2xl bg-[#1a1a2e] text-white shadow-2xl sm:rounded-2xl" dir="rtl">
-        <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+    <div className="fixed inset-0 z-[10125] flex items-end justify-center sm:items-center" data-edit-toolbar="true">
+      <button
+        type="button"
+        className="absolute inset-0 bg-black/40 backdrop-blur-[3px]"
+        aria-label="إغلاق"
+        onClick={onClose}
+      />
+      <div
+        className="relative z-10 flex max-h-[85vh] w-full max-w-lg flex-col rounded-t-[20px] bg-[#f2f2f7] text-ink shadow-2xl dark:bg-[#1c1c1e] dark:text-white sm:rounded-[20px]"
+        dir="rtl"
+      >
+        <div className="flex items-center justify-between border-b border-black/5 px-4 py-3 dark:border-white/10">
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-[17px] font-semibold text-[#007aff] dark:text-[#0a84ff]"
+          >
+            تم
+          </button>
           <div className="flex items-center gap-2">
             <History className="h-4 w-4 text-gold" />
             <div>

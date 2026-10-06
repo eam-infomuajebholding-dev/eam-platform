@@ -9,6 +9,8 @@ type ResponsiveImageProps = {
   width?: number;
   height?: number;
   style?: CSSProperties;
+  'data-editable-id'?: string;
+  'data-editor-default-src'?: string;
 };
 
 /** Minimal responsive image wrapper — presentation only; asset data lives in config/assets. */
@@ -21,11 +23,15 @@ export default function ResponsiveImage({
   width,
   height,
   style,
+  'data-editable-id': dataEditableId,
+  'data-editor-default-src': dataEditorDefaultSrc,
 }: ResponsiveImageProps) {
   return (
     <img
       src={asset.src}
       alt={asset.alt}
+      data-editable-id={dataEditableId}
+      data-editor-default-src={dataEditorDefaultSrc}
       className={className}
       loading={priority ? 'eager' : loading}
       decoding={decoding}

@@ -1,8 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Film, ImageIcon, Loader2, Search, Upload, X } from 'lucide-react';
+import { Film, ImageIcon, Loader2, Search, Upload } from 'lucide-react';
 import { toast } from 'sonner';
-import { isCloudinaryConfigured, uploadToCloudinary } from '@/lib/cloudinary';
-import { uploadMedia } from '@/lib/dbService';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from '@/components/ui/drawer';
+import { uploadSiteMedia } from '@/lib/siteMediaUpload';
+import ResolvedMediaUrl from './ResolvedMediaUrl';
 import { buildMediaCatalog } from './catalog';
 import { registerLocalMedia } from './localIndex';
 import type { MediaKind, MediaLibraryItem } from './types';
@@ -15,17 +22,6 @@ type Props = {
   onClose: () => void;
   onSelect: (item: MediaLibraryItem) => void;
 };
-
-async function uploadFile(file: File): Promise<string> {
-  if (isCloudinaryConfigured()) {
-    try {
-      return await uploadToCloudinary(file);
-    } catch {
-      /* fallback */
-    }
-  }
-  return uploadMedia(file);
-}
 
 export default function MediaLibraryModal({
   open,
@@ -66,34 +62,27 @@ export default function MediaLibraryModal({
     });
   }, [items, query, tab]);
 
-  if (!open) return null;
-
   const heading =
     title ??
     (pickerMode
       ? tab === 'video'
-        ? 'اختر فيديو من المكتبة'
-        : 'اختر صورة من المكتبة'
+        ? 'اختر فيديو'
+        : 'اختر صورة'
       : 'مكتبة الوسائط');
 
   return (
-    <div className="fixed inset-0 z-[10002] flex items-end justify-center sm:items-center" data-edit-toolbar="true">
-      <button type="button" className="absolute inset-0 bg-black/60" aria-label="إغلاق" onClick={onClose} />
-      <div
-        className="relative z-10 flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-t-2xl bg-[#0f141c] text-white shadow-2xl sm:rounded-2xl"
+    <Drawer open={open} onOpenChange={(next) => !next && onClose()} shouldScaleBackground={false}>
+      <DrawerContent
+        className="z-[10002] max-h-[92vh] border-white/10 bg-[#0f141c] text-white"
+        data-edit-toolbar="true"
         dir="rtl"
       >
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
-          <div>
-            <p className="text-base font-bold">{heading}</p>
-            <p className="text-[11px] text-white/50">
-              {pickerMode ? 'انقر العنصر لاستبدال الوسيط الحالي' : 'تصفح وارفع وسائط الموقع'}
-            </p>
-          </div>
-          <button type="button" onClick={onClose} className="rounded-lg p-2 hover:bg-white/10" aria-label="إغلاق">
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+        <DrawerHeader className="border-b border-white/10 pb-3 text-right">
+          <DrawerTitle className="text-base font-bold text-white">{heading}</DrawerTitle>
+          <DrawerDescription className="text-[11px] text-white/50">
+            {pickerMode ? 'انقر للاستبدال · اسحب للإغلاق' : 'تصفح أو ارفع وسائط جديدة'}
+          </DrawerDescription>
+        </DrawerHeader>
 
         <div className="flex flex-wrap items-center gap-2 border-b border-white/10 px-4 py-2">
           <button
@@ -116,7 +105,7 @@ export default function MediaLibraryModal({
             <Film className="h-3.5 w-3.5" />
             فيديو
           </button>
-          <div className="relative min-w-[12rem] flex-1">
+          <div className="relative min-w-[10rem] flex-1">
             <Search className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
             <input
               value={query}
@@ -127,7 +116,7 @@ export default function MediaLibraryModal({
           </div>
           <label className="inline-flex cursor-pointer items-center gap-1 rounded-lg bg-gold/20 px-3 py-1.5 text-xs font-bold text-gold">
             <Upload className="h-3.5 w-3.5" />
-            {uploading ? 'رفع…' : 'رفع جديد'}
+            {uploading ? 'رفع…' : 'رفع'}
             <input
               type="file"
               accept={tab === 'video' ? 'video/*' : 'image/*'}
@@ -137,7 +126,7 @@ export default function MediaLibraryModal({
                 e.target.value = '';
                 if (!file) return;
                 setUploading(true);
-                void uploadFile(file)
+                void uploadSiteMedia(file)
                   .then((url) => {
                     const entry = registerLocalMedia({
                       url,
@@ -146,10 +135,14 @@ export default function MediaLibraryModal({
                       source: 'upload',
                     });
                     setItems((prev) => [entry, ...prev.filter((r) => r.url !== url)]);
-                    toast.success('تمت إضافة الملف إلى المكتبة');
+                    const local = url.startsWith('idb://');
+                    toast.success(local ? 'تم الحفظ محلياً (وضع التطوير)' : 'تمت الإضافة');
                     if (pickerMode) onSelect(entry);
                   })
-                  .catch(() => toast.error('فشل الرفع'))
+                  .catch((err: unknown) => {
+                    const msg = err instanceof Error ? err.message : 'فشل الرفع';
+                    toast.error(msg);
+                  })
                   .finally(() => setUploading(false));
               }}
             />
@@ -162,33 +155,30 @@ export default function MediaLibraryModal({
               <Loader2 className="h-8 w-8 animate-spin text-gold" />
             </div>
           ) : filtered.length === 0 ? (
-            <p className="py-16 text-center text-sm text-white/55">لا توجد وسائط من هذا النوع. ارفع ملفاً جديداً.</p>
+            <p className="py-16 text-center text-sm text-white/55">لا توجد وسائط. ارفع ملفاً جديداً.</p>
           ) : (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
               {filtered.map((item) => (
                 <button
                   key={item.id}
                   type="button"
                   onClick={() => onSelect(item)}
-                  className="group overflow-hidden rounded-xl border border-white/10 bg-white/5 text-right transition hover:border-gold/50 hover:ring-2 hover:ring-gold/30"
+                  className="group overflow-hidden rounded-xl border border-white/10 bg-white/5 text-right transition active:scale-[0.98] hover:border-gold/50"
                 >
-                  <div className="relative aspect-[4/3] bg-black/30">
-                    {item.kind === 'video' ? (
-                      <video src={item.url} className="h-full w-full object-cover" muted playsInline />
-                    ) : (
-                      <img src={item.url} alt="" className="h-full w-full object-cover" loading="lazy" />
-                    )}
-                    <span className="absolute bottom-1 left-1 rounded bg-black/60 px-1.5 py-0.5 text-[9px] uppercase text-white/80">
-                      {item.source}
-                    </span>
+                  <div className="relative aspect-square bg-black/30">
+                    <ResolvedMediaUrl
+                      url={item.url}
+                      kind={item.kind}
+                      className="h-full w-full object-cover"
+                    />
                   </div>
-                  <p className="line-clamp-2 px-2 py-2 text-[11px] font-medium text-white/85">{item.label}</p>
+                  <p className="line-clamp-1 px-1.5 py-1.5 text-[10px] font-medium text-white/80">{item.label}</p>
                 </button>
               ))}
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </DrawerContent>
+    </Drawer>
   );
 }

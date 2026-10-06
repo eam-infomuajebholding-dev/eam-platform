@@ -14,8 +14,14 @@ import {
   type SectionPublishState,
   sectionsForPage,
   sectionStorageKey,
+  pageKeyForSectionVisibility,
 } from './registry';
+import { applyDomSectionVisibility } from './applyDomSectionVisibility';
 import { loadSectionVisibilityMap, persistSectionVisibility } from './persistence';
+import {
+  discoverSectionsFromDocument,
+  mergeSectionDefinitions,
+} from './sectionDom';
 
 type SectionVisibilityContextValue = {
   pagePath: string;
@@ -45,35 +51,66 @@ export function useSectionVisibilityOptional() {
 
 export function SectionVisibilityProvider({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
+  const pageKey = pageKeyForSectionVisibility(pathname);
   const { isEditMode, isDevEditModeAvailable } = useEditMode();
   const editorPreview = isDevEditModeAvailable && isEditMode;
 
   const [map, setMap] = useState<Record<string, SectionPublishState>>({});
+  const [domSections, setDomSections] = useState<ReturnType<typeof discoverSectionsFromDocument>>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const refreshDomSections = useCallback(() => {
+    setDomSections(discoverSectionsFromDocument());
+  }, []);
 
   const reload = useCallback(async () => {
     setIsLoading(true);
     try {
-      const loaded = await loadSectionVisibilityMap(pathname);
+      const loaded = await loadSectionVisibilityMap(pageKey);
       setMap(loaded);
     } catch {
       setMap({});
     } finally {
       setIsLoading(false);
     }
-  }, [pathname]);
+  }, [pageKey]);
 
   useEffect(() => {
     void reload();
   }, [reload]);
 
+  useEffect(() => {
+    refreshDomSections();
+    const t1 = window.setTimeout(refreshDomSections, 300);
+    const t2 = window.setTimeout(refreshDomSections, 800);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, [pathname, refreshDomSections, isEditMode, map]);
+
+  useEffect(() => {
+    if (isLoading) return;
+    const run = () => {
+      refreshDomSections();
+      applyDomSectionVisibility(pathname, map, editorPreview);
+    };
+    run();
+    const t1 = window.setTimeout(run, 300);
+    const t2 = window.setTimeout(run, 800);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, [pathname, pageKey, map, editorPreview, isLoading, refreshDomSections]);
+
   const getState = useCallback(
     (sectionId: string): SectionPublishState => {
       if (map[sectionId]) return map[sectionId];
-      const def = sectionsForPage(pathname).find((s) => s.id === sectionId);
+      const def = sectionsForPage(pageKey).find((s) => s.id === sectionId);
       return def?.defaultState ?? 'published';
     },
-    [map, pathname],
+    [map, pageKey],
   );
 
   const isHiddenFromPublic = useCallback(
@@ -93,23 +130,24 @@ export function SectionVisibilityProvider({ children }: { children: ReactNode })
   const setSectionState = useCallback(
     async (sectionId: string, state: SectionPublishState) => {
       try {
-        await persistSectionVisibility(pathname, sectionId, state);
+        await persistSectionVisibility(pageKey, sectionId, state);
         setMap((prev) => ({ ...prev, [sectionId]: state }));
         toast.success(state === 'published' ? 'تم نشر القسم للزوار' : 'تم إخفاء القسم عن الزوار');
       } catch {
         toast.error('تعذر حفظ حالة القسم');
       }
     },
-    [pathname],
+    [pageKey],
   );
 
   const sections = useMemo(() => {
-    return sectionsForPage(pathname).map((def) => ({
+    const merged = mergeSectionDefinitions(sectionsForPage(pageKey), domSections);
+    return merged.map((def) => ({
       id: def.id,
       label: def.label,
       state: getState(def.id),
     }));
-  }, [pathname, getState, map]);
+  }, [pageKey, getState, map, domSections]);
 
   const value = useMemo<SectionVisibilityContextValue>(
     () => ({

@@ -31,8 +31,17 @@ const TEXT_TAGS = new Set([
   'P', 'SPAN', 'A', 'LI', 'TD', 'TH', 'LABEL', 'BLOCKQUOTE',
 ]);
 
+export function isProtectedHomeHeroElement(el: HTMLElement): boolean {
+  return Boolean(el.closest('#home-hero[data-editor-protected="true"]'));
+}
+
 export function isInsideEditUI(el: HTMLElement): boolean {
-  return !!el.closest('[data-edit-overlay]') || !!el.closest('[data-edit-toolbar]');
+  return (
+    !!el.closest('[data-edit-overlay]') ||
+    !!el.closest('[data-edit-toolbar]') ||
+    !!el.closest('[data-edit-transform]') ||
+    !!el.closest('[data-global-assistant]')
+  );
 }
 
 export function isImageElement(el: HTMLElement): boolean {

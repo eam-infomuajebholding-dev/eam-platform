@@ -15,16 +15,16 @@ export default function HomeContactSection() {
     <section
       id="home-contact"
       data-home-section="contact"
-      className="home-contact home-section-block relative overflow-hidden bg-[#1a2634] text-white"
+      className="home-contact home-section-block relative overflow-hidden"
       aria-label={t('homeContact.aria')}
     >
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
         <ResponsiveImage
           asset={{ ...footerCta, alt: '' }}
-          className="h-full w-full object-cover opacity-40"
+          className="h-full w-full object-cover opacity-30"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1a2634]/95 via-[#1a2634]/70 to-[#1a2634]/50" />
+        <div className="home-contact__overlay absolute inset-0" />
       </div>
 
       <div className="home-contact__inner container relative mx-auto px-4">
@@ -35,10 +35,10 @@ export default function HomeContactSection() {
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--eam-home-gold)]/20">
             <Bell className="h-6 w-6 text-[var(--eam-home-gold-soft)]" strokeWidth={1.75} />
           </div>
-          <h2 className="text-3xl font-bold text-[var(--eam-home-gold-soft)] md:text-4xl">
+          <h2 className="text-3xl font-bold text-[var(--eam-home-gold-deep)] md:text-4xl">
             {t('homeContact.title')}
           </h2>
-          <p className="mt-4 text-sm leading-7 text-white/80 md:text-base">{t('homeContact.body')}</p>
+          <p className="mt-4 text-sm leading-7 text-[var(--eam-home-ink)]/72 md:text-base">{t('homeContact.body')}</p>
 
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
@@ -50,7 +50,7 @@ export default function HomeContactSection() {
             </Link>
             <Link
               to="/about"
-              className="inline-flex items-center gap-2 rounded-xl border border-white/30 px-6 py-3 text-sm font-semibold text-white/90 transition hover:border-[var(--eam-home-gold)] hover:text-[var(--eam-home-gold-soft)]"
+              className="inline-flex items-center gap-2 rounded-xl border border-[var(--eam-home-border)] bg-[var(--eam-home-cream-light)]/80 px-6 py-3 text-sm font-semibold text-[var(--eam-home-gold-deep)] transition hover:border-[var(--eam-home-gold)] hover:bg-white hover:text-[var(--eam-home-gold-deep)]"
             >
               {t('homeContact.ctaAbout')}
             </Link>

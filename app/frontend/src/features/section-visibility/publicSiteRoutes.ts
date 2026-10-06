@@ -1,0 +1,21 @@
+/** Main marketing routes — open from «الصفحات» in the content editor. */
+export const PUBLIC_SITE_ROUTES: { path: string; label: string }[] = [
+  { path: '/', label: 'الرئيسية' },
+  { path: '/services/platforms', label: 'منصة القطاعات' },
+  { path: '/about', label: 'من نحن' },
+  { path: '/services', label: 'الخدمات' },
+  { path: '/engineering-services', label: 'الهندسة' },
+  { path: '/government-services', label: 'الخدمات الحكومية' },
+  { path: '/services/contracting', label: 'المقاولات' },
+  { path: '/services/maintenance', label: 'الصيانة الذكية' },
+  { path: '/services/real-estate-development', label: 'التطوير العقاري' },
+  { path: '/services/real-estate-marketing', label: 'التسويق العقاري' },
+  { path: '/projects', label: 'المشاريع' },
+  { path: '/invest', label: 'الاستثمار' },
+  { path: '/team', label: 'الفريق' },
+  { path: '/consultation', label: 'استشارة' },
+  { path: '/market', label: 'السوق' },
+  { path: '/careers', label: 'الوظائف' },
+  { path: '/blog', label: 'المدونة' },
+  { path: '/contact', label: 'تواصل' },
+];
