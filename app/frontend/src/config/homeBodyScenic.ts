@@ -15,8 +15,8 @@ export const HOME_BODY_BG_RIGHT_STRIP_SPEC = {
 
 /** Intrinsic pixels of bundled flank masters. */
 export const homeBodyScenicFlankAssetSize = {
-  left: { width: 341, height: 1024 },
-  right: { width: 167, height: 1024 },
+  left: { width: 167, height: 1024 },
+  right: { width: 161, height: 1024 },
 } as const;
 
 /** @deprecated Use `homeBodyScenicFlankAssetSize.right` — kept for any legacy imports */

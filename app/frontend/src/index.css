@@ -1999,7 +1999,7 @@ html.theme-transitioning::after {
     position: relative;
     background-color: transparent;
     --home-text-column-max: 40rem;
-    --home-scenic-natural-width: 341px;
+    --home-scenic-natural-width: 167px;
     --home-scenic-flank-width: var(--home-scenic-natural-width);
     --home-scenic-strip: var(--home-scenic-flank-width);
   }
