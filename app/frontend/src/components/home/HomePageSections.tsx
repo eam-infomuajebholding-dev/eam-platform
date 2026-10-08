@@ -1,9 +1,5 @@
 import type { ReactNode } from 'react';
-import {
-  HOME_BODY_SCENIC_ASSET_HEIGHT,
-  HOME_BODY_SCENIC_ASSET_WIDTH,
-  homeBodyScenicFlanks,
-} from '@/config/homeBodyScenic';
+import { homeBodyScenicFlankAssetSize, homeBodyScenicFlanks } from '@/config/homeBodyScenic';
 import HomeFirstViewport from '@/components/home/HomeFirstViewport';
 import AboutEAMSection from '@/components/home/AboutEAMSection';
 import HomeOneStatementSection from '@/components/home/HomeOneStatementSection';
@@ -22,10 +18,14 @@ function HomeBodyScenicFlank({
   side,
   src,
   editId,
+  width,
+  height,
 }: {
   side: 'left' | 'right';
   src: string | null;
   editId: string;
+  width: number;
+  height: number;
 }) {
   if (!src) return null;
 
@@ -41,8 +41,8 @@ function HomeBodyScenicFlank({
         alt=""
         decoding="async"
         loading="lazy"
-        width={HOME_BODY_SCENIC_ASSET_WIDTH}
-        height={HOME_BODY_SCENIC_ASSET_HEIGHT}
+        width={width}
+        height={height}
         data-editable-id={editId}
         data-editor-default-src={src}
       />
@@ -66,8 +66,20 @@ export default function HomePageSections({ afterWhatWeOffer }: Props) {
       >
         {/* §02→contact: flank height stops before site footer (Layout Footer) */}
         <div className="home-main-body-bg__flank-range">
-          <HomeBodyScenicFlank side="left" src={left} editId="home-body-bg-left" />
-          <HomeBodyScenicFlank side="right" src={right} editId="home-body-bg-right" />
+          <HomeBodyScenicFlank
+            side="left"
+            src={left}
+            editId="home-body-bg-left"
+            width={homeBodyScenicFlankAssetSize.left.width}
+            height={homeBodyScenicFlankAssetSize.left.height}
+          />
+          <HomeBodyScenicFlank
+            side="right"
+            src={right}
+            editId="home-body-bg-right"
+            width={homeBodyScenicFlankAssetSize.right.width}
+            height={homeBodyScenicFlankAssetSize.right.height}
+          />
           <AboutEAMSection />
           <HomeOneStatementSection />
           <HomeWhatWeOfferSection />
