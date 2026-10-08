@@ -1,7 +1,7 @@
 import { Cpu, HardHat, Settings2, TrendingUp } from 'lucide-react';
-import HomeSectionImage from '@/components/home/HomeSectionImage';
 import { useLanguage } from '@/contexts/LanguageContext';
 import HomeSectionBottomFade from '@/components/home/HomeSectionBottomFade';
+import HomeSectionTopFigure from '@/components/home/HomeSectionTopFigure';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 const PILLARS = [
@@ -26,20 +26,15 @@ export default function HomeOneStatementSection() {
       <div className="home-one-statement__inner mx-auto w-full max-w-[1586px]">
         <div
           ref={reveal.ref}
-          className={`home-one-statement__stage ${reveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}
+          className={`home-one-statement__stage home-one-statement__stage--mural ${reveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}
         >
-          <div className="home-one-statement__visual">
-            <HomeSectionImage
+          <div className="home-one-statement__copy" dir={direction}>
+            <HomeSectionTopFigure
               editId="home-one-statement-image"
-              assetKey="oneStatement"
-              className="home-one-statement__visual-img"
-              loading="lazy"
+              assetKey="aboutCinematic"
               width={752}
               height={941}
             />
-          </div>
-
-          <div className="home-one-statement__copy" dir={direction}>
             <div className="home-one-statement__eyebrow">
               <span className="home-one-statement__eyebrow-line" aria-hidden />
               <span className="home-one-statement__eyebrow-text">{t('oneStatement.eyebrow')}</span>

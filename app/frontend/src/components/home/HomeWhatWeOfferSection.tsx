@@ -10,11 +10,10 @@ import {
   Target,
   TrendingUp,
 } from 'lucide-react';
-import ResponsiveImage from '@/components/ui/ResponsiveImage';
-import { getHomeImage } from '@/config/assets';
 import { useLanguage } from '@/contexts/LanguageContext';
 import type { HomeMessageKey } from '@/i18n/homeMessages';
 import HomeSectionBottomFade from '@/components/home/HomeSectionBottomFade';
+import HomeSectionTopFigure from '@/components/home/HomeSectionTopFigure';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 const OFFER_CARDS: Array<{
@@ -71,74 +70,42 @@ const OFFER_VALUES: Array<{ icon: typeof BarChart3; labelKey: HomeMessageKey }> 
   { icon: BarChart3, labelKey: 'offer.value.longTerm' },
 ];
 
-/** 04 — What we offer (bg left; copy + cards on open field extending right). */
+/** 04 — What we offer (split layout — matches About / One Statement). */
 export default function HomeWhatWeOfferSection() {
-  const introReveal = useScrollReveal({ threshold: 0.12 });
-  const cardsReveal = useScrollReveal({ threshold: 0.08 });
+  const reveal = useScrollReveal({ threshold: 0.1 });
   const { t, direction } = useLanguage();
-  const offerBg = getHomeImage('whatWeOfferBg');
 
   return (
     <section
       id="home-what-we-offer"
       data-home-section="what-we-offer"
-      className="home-what-we-offer home-section-block home-section-block--showcase relative overflow-hidden"
+      className="home-what-we-offer home-section-block"
       aria-label={t('offer.aria')}
     >
-      <div className="home-what-we-offer__bg" aria-hidden="true">
-        <ResponsiveImage
-          asset={offerBg}
-          className="home-what-we-offer__bg-img"
-          loading="lazy"
-          width={1586}
-          height={900}
-        />
-      </div>
-
-      <div className="home-what-we-offer__shell">
-        <div className="home-what-we-offer__layout">
-          <div className="home-what-we-offer__building-slot" aria-hidden="true" />
-
-          <div className="home-what-we-offer__content">
-            <div
-              ref={introReveal.ref}
-              className={`home-what-we-offer__intro ${introReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}
-              dir={direction}
-            >
-              <div className="home-what-we-offer__section-meta">
-                <span
-                  className="home-what-we-offer__section-rule home-what-we-offer__section-rule--long"
-                  aria-hidden
-                />
-                <span className="home-what-we-offer__section-id">
-                  <span className="home-what-we-offer__section-mark" aria-hidden>
-                    —
-                  </span>
-                  <span className="home-what-we-offer__section-num">{t('offer.number')}</span>
-                </span>
-                <span
-                  className="home-what-we-offer__section-rule home-what-we-offer__section-rule--short"
-                  aria-hidden
-                />
-              </div>
-
-              <h2 className="home-what-we-offer__title">{t('offer.title')}</h2>
-              <p className="home-what-we-offer__tagline" lang="en">
-                {t('offer.taglineEn')}
-              </p>
-              <blockquote className="home-what-we-offer__body">
-                <p>{t('offer.body')}</p>
-              </blockquote>
-              <div className="home-what-we-offer__lead" lang="en">
-                <span className="home-what-we-offer__lead-line" aria-hidden />
-                <p>{t('offer.leadEn')}</p>
-              </div>
+      <div className="home-what-we-offer__inner mx-auto w-full max-w-[1586px] px-3 sm:px-4 lg:px-[16px]">
+        <div
+          ref={reveal.ref}
+          className={`home-what-we-offer__stage home-what-we-offer__stage--mural home-mural-stage--wide ${reveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}
+        >
+          <div className="home-what-we-offer__copy" dir={direction}>
+            <HomeSectionTopFigure editId="home-what-we-offer-image" assetKey="aboutCinematic" />
+            <div className="home-what-we-offer__eyebrow">
+              <span className="home-what-we-offer__eyebrow-line" aria-hidden />
+              <span className="home-what-we-offer__eyebrow-text">{t('offer.eyebrow')}</span>
+              <span className="home-what-we-offer__eyebrow-line" aria-hidden />
             </div>
+            <h2 className="home-what-we-offer__title">{t('offer.title')}</h2>
+            <p className="home-what-we-offer__tagline" lang="en">
+              {t('offer.taglineEn')}
+            </p>
+            <blockquote className="home-what-we-offer__body">
+              <p>{t('offer.body')}</p>
+              <p className="home-what-we-offer__lead" lang="en">
+                {t('offer.leadEn')}
+              </p>
+            </blockquote>
 
-            <div
-              ref={cardsReveal.ref}
-              className={`home-what-we-offer__cards ${cardsReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}
-            >
+            <div className="home-what-we-offer__cards">
               {OFFER_CARDS.map((card) => {
                 const Icon = card.icon;
                 return (
@@ -168,7 +135,7 @@ export default function HomeWhatWeOfferSection() {
               })}
             </div>
 
-            <footer className="home-what-we-offer__values" dir={direction} aria-label={t('offer.aria')}>
+            <footer className="home-what-we-offer__values" aria-label={t('offer.aria')}>
               {OFFER_VALUES.map(({ icon: Icon, labelKey }, index) => (
                 <div key={labelKey} className="home-what-we-offer__value">
                   {index > 0 ? (

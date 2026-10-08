@@ -11,11 +11,13 @@ const PROMPT_KEYS = [
 ] as const;
 
 export default function CommandCenterAssistantPanel() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const briefLocale = language.toLowerCase().startsWith('en') ? 'en' : 'ar';
   const [answer, setAnswer] = useState<string | null>(null);
 
   const briefMutation = useMutation({
-    mutationFn: (question: string) => fetchExecutiveBrief(question),
+    mutationFn: (question: string) =>
+      fetchExecutiveBrief(question, { locale: briefLocale, route: '/command-center' }),
     onSuccess: (brief) => {
       const lines = [
         ...brief.facts.slice(0, 2),

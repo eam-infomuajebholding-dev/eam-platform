@@ -200,16 +200,14 @@ function storedMediaUrlEmpty(edit_type: string, raw: string): boolean {
 function legacyHomeImageFieldId(row: { element_key: string; value: string }): string | null {
   if (!row.element_key.startsWith('img-')) return null;
   const v = row.value.toLowerCase();
-  if (v.includes('one-statement') || v.includes('02-home-one-statement')) {
-    return 'home-one-statement-image';
-  }
   if (v.includes('about-eam') || v.includes('02-home-about')) {
     return 'home-about-eam-image';
   }
   return null;
 }
 
-const HOME_SECTION_IMAGE_IDS = ['home-about-eam-image', 'home-one-statement-image'] as const;
+const HOME_SECTION_IMAGE_IDS = ['home-about-eam-image'] as const;
+const HOME_BODY_FLANK_IDS = ['home-body-bg-right', 'home-body-bg-left'] as const;
 const HOME_HERO_BG_ID = 'home-hero-bg-image';
 
 export function isInsideHomeHero(el: HTMLElement | null): boolean {
@@ -251,9 +249,8 @@ export function ensureHomeHeroDefaults() {
   }
 }
 
-const HOME_SECTION_ASSET_KEY: Record<(typeof HOME_SECTION_IMAGE_IDS)[number], 'aboutEam' | 'oneStatement'> = {
+const HOME_SECTION_ASSET_KEY: Record<(typeof HOME_SECTION_IMAGE_IDS)[number], 'aboutEam'> = {
   'home-about-eam-image': 'aboutEam',
-  'home-one-statement-image': 'oneStatement',
 };
 
 function bundledSectionImageSrc(fieldId: (typeof HOME_SECTION_IMAGE_IDS)[number]): string {
@@ -262,14 +259,25 @@ function bundledSectionImageSrc(fieldId: (typeof HOME_SECTION_IMAGE_IDS)[number]
 
 function sectionImageLooksBroken(fieldId: string, src: string, bundledSrc: string): boolean {
   if (!src.trim() || src === window.location.href) return true;
-  const needle =
-    fieldId === 'home-about-eam-image'
-      ? 'about-eam'
-      : fieldId === 'home-one-statement-image'
-        ? 'one-statement'
-        : '';
+  const needle = fieldId === 'home-about-eam-image' ? 'about-eam' : '';
   if (!needle) return false;
   return !src.includes(needle) && src !== bundledSrc;
+}
+
+/** Stamp homepage flank backgrounds for editor pick + restore default src. */
+export function ensureHomeBodyFlankDefaults() {
+  for (const id of HOME_BODY_FLANK_IDS) {
+    const el = resolveElementForField(id);
+    if (!el || el.tagName !== 'IMG') continue;
+    const img = el as HTMLImageElement;
+    stampEditableId(el, id);
+    const def = img.getAttribute('data-editor-default-src');
+    if (!def?.trim()) continue;
+    const src = img.currentSrc || img.src;
+    if (!src.trim() || src === window.location.href) {
+      img.src = def;
+    }
+  }
 }
 
 /** Force bundled PNG/JPG if overrides left the img broken, empty, or editor-transformed off-screen. */
@@ -285,7 +293,7 @@ export function ensureHomeSectionImageDefaults() {
     }
 
     resetEditorTransformsOnElement(el);
-    const visualHost = img.closest('.home-about-eam__visual, .home-one-statement__visual') as HTMLElement | null;
+    const visualHost = img.closest('.home-about-eam__visual, .home-about-eam__figure') as HTMLElement | null;
     if (visualHost) {
       visualHost.style.position = '';
       visualHost.style.overflow = '';

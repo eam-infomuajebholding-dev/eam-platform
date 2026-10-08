@@ -5,6 +5,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { FEATURED_HOME_PROJECTS } from '@/data/homeProjects';
 import { projectMessageKey } from '@/i18n/homeMessages';
 import HomeSectionBottomFade from '@/components/home/HomeSectionBottomFade';
+import HomeSectionTopFigure from '@/components/home/HomeSectionTopFigure';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 const PORTFOLIO_STATS = [

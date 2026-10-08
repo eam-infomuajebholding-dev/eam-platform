@@ -1,4 +1,9 @@
 import type { ReactNode } from 'react';
+import {
+  HOME_BODY_SCENIC_ASSET_HEIGHT,
+  HOME_BODY_SCENIC_ASSET_WIDTH,
+  homeBodyScenicFlanks,
+} from '@/config/homeBodyScenic';
 import HomeFirstViewport from '@/components/home/HomeFirstViewport';
 import AboutEAMSection from '@/components/home/AboutEAMSection';
 import HomeOneStatementSection from '@/components/home/HomeOneStatementSection';
@@ -13,21 +18,66 @@ type Props = {
   afterWhatWeOffer?: ReactNode;
 };
 
+function HomeBodyScenicFlank({
+  side,
+  src,
+  editId,
+}: {
+  side: 'left' | 'right';
+  src: string | null;
+  editId: string;
+}) {
+  if (!src) return null;
+
+  const wrapClass =
+    side === 'left' ? 'home-main-body-bg__left-wrap' : 'home-main-body-bg__right-wrap';
+  const imgClass = side === 'left' ? 'home-main-body-bg__left' : 'home-main-body-bg__right';
+
+  return (
+    <div className={wrapClass} aria-hidden>
+      <img
+        className={imgClass}
+        src={src}
+        alt=""
+        decoding="async"
+        loading="lazy"
+        width={HOME_BODY_SCENIC_ASSET_WIDTH}
+        height={HOME_BODY_SCENIC_ASSET_HEIGHT}
+        data-editable-id={editId}
+        data-editor-default-src={src}
+      />
+    </div>
+  );
+}
+
 /** Shared homepage stack — site root and sector platforms hub. */
 export default function HomePageSections({ afterWhatWeOffer }: Props) {
+  const { left, right } = homeBodyScenicFlanks;
+
   return (
     <>
       <div className="home-hero-statement-bridge">
         <HomeFirstViewport />
-        <AboutEAMSection />
       </div>
-      <HomeOneStatementSection />
-      <HomeWhatWeOfferSection />
-      {afterWhatWeOffer}
-      <HomeMidContentSection />
-      <ProjectsShowcaseSection />
-      <InvestmentHomeSection />
-      <HomeContactSection />
+      <div
+        className="home-main-body-bg home-main-body-bg--scenic"
+        data-scenic-flank-left={left ? '1' : '0'}
+        data-scenic-flank-right={right ? '1' : '0'}
+      >
+        {/* §02→contact: flank height stops before site footer (Layout Footer) */}
+        <div className="home-main-body-bg__flank-range">
+          <HomeBodyScenicFlank side="left" src={left} editId="home-body-bg-left" />
+          <HomeBodyScenicFlank side="right" src={right} editId="home-body-bg-right" />
+          <AboutEAMSection />
+          <HomeOneStatementSection />
+          <HomeWhatWeOfferSection />
+          {afterWhatWeOffer}
+          <HomeMidContentSection />
+          <ProjectsShowcaseSection />
+          <InvestmentHomeSection />
+          <HomeContactSection />
+        </div>
+      </div>
     </>
   );
 }

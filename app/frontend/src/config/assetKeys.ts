@@ -4,11 +4,6 @@ export const HOME_IMAGE_KEYS = [
   'hero',
   'aboutCinematic',
   'aboutEam',
-  'oneStatement',
-  'whatWeOfferBg',
-  'midContentBg',
-  'investmentBanner',
-  'footerCta',
 ] as const;
 export type HomeImageKey = (typeof HOME_IMAGE_KEYS)[number];
 

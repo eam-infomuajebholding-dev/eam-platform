@@ -1,0 +1,469 @@
+/**
+ * Homepage scenic body — loaded after index.css (beats @layer utilities).
+ * Glass panels sit above full-width backdrop so blur/transparency is visible.
+ */
+
+.eam-home .home-main-body-bg--scenic {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  background-color: transparent !important;
+  --home-text-column-max: 40rem;
+  --home-frame-gap: clamp(0.5rem, 1.35vw, 0.875rem);
+  --home-section-start-space: var(--home-frame-gap);
+  --home-scenic-site-max: 1586px;
+  --home-scenic-pad-inline: clamp(0.75rem, 3vw, 1rem);
+  --home-scenic-inner: min(100%, var(--home-scenic-site-max));
+  --home-scenic-content: max(0px, calc(var(--home-scenic-inner) - 2 * var(--home-scenic-pad-inline)));
+  --home-scenic-column: min(var(--home-text-column-max), var(--home-scenic-content));
+  /* Width of the band between text column and viewport edge (each side) */
+  --home-scenic-gutter-inline-end: max(
+    0px,
+    calc(
+      (100% - var(--home-scenic-inner)) * 0.5 + var(--home-scenic-pad-inline) +
+        (var(--home-scenic-content) - var(--home-scenic-column)) * 0.5
+    )
+  );
+  padding-inline: 0;
+}
+
+.eam-home .home-main-body-bg--scenic .home-main-body-bg__flank-range {
+  position: relative;
+  width: 100%;
+}
+
+/* Side strips — fill gutter to viewport edge; height = flank-range (§02 → contact) */
+.eam-home .home-main-body-bg--scenic .home-main-body-bg__flank-range .home-main-body-bg__left-wrap,
+.eam-home .home-main-body-bg--scenic .home-main-body-bg__flank-range .home-main-body-bg__right-wrap {
+  position: absolute;
+  direction: ltr;
+  top: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 0;
+  height: auto;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+  border-radius: 0;
+}
+
+.eam-home .home-main-body-bg--scenic .home-main-body-bg__flank-range .home-main-body-bg__left-wrap {
+  left: 0;
+  right: auto;
+  width: var(--home-scenic-gutter-inline-end);
+  max-width: none;
+}
+
+.eam-home .home-main-body-bg--scenic .home-main-body-bg__flank-range .home-main-body-bg__right-wrap {
+  right: 0;
+  left: auto;
+  width: var(--home-scenic-gutter-inline-end);
+  max-width: none;
+}
+
+.eam-home .home-main-body-bg--scenic .home-main-body-bg__left-wrap::after,
+.eam-home .home-main-body-bg--scenic .home-main-body-bg__right-wrap::after {
+  display: none;
+}
+
+.eam-home .home-main-body-bg--scenic .home-main-body-bg__flank-range .home-main-body-bg__left,
+.eam-home .home-main-body-bg--scenic .home-main-body-bg__flank-range .home-main-body-bg__right {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  object-fit: cover;
+  object-position: center;
+  opacity: 1;
+}
+
+.eam-home .home-main-body-bg--scenic .home-main-body-bg__flank-range .home-main-body-bg__left {
+  object-position: right center;
+}
+
+.eam-home .home-main-body-bg--scenic .home-main-body-bg__flank-range .home-main-body-bg__right {
+  object-position: left center;
+}
+
+.eam-home .home-main-body-bg--scenic .home-main-body-bg__flank-range > .home-section-block {
+  position: relative;
+  z-index: 2;
+}
+
+/* Section shells — align to viewport center axis */
+.eam-home .home-main-body-bg--scenic .home-about-eam__inner,
+.eam-home .home-main-body-bg--scenic .home-one-statement__inner,
+.eam-home .home-main-body-bg--scenic .home-what-we-offer__inner,
+.eam-home .home-main-body-bg--scenic .home-mid-content__inner,
+.eam-home .home-main-body-bg--scenic .home-sector-platforms > .mx-auto,
+.eam-home .home-main-body-bg--scenic #home-investment > .container,
+.eam-home .home-main-body-bg--scenic .home-contact__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 100% !important;
+  margin-inline: auto;
+  padding-inline: clamp(0.75rem, 3vw, 1rem);
+  box-sizing: border-box;
+}
+
+/* Centered text frames — unified max width on page midline */
+.eam-home .home-main-body-bg--scenic .home-about-eam__stage--mural,
+.eam-home .home-main-body-bg--scenic .home-one-statement__stage--mural,
+.eam-home .home-main-body-bg--scenic .home-what-we-offer__stage--mural,
+.eam-home .home-main-body-bg--scenic .home-mid-content__stage--mural,
+.eam-home .home-main-body-bg--scenic .home-what-we-offer__stage--mural.home-mural-stage--wide {
+  max-width: min(100%, var(--home-text-column-max)) !important;
+  width: 100%;
+  margin-inline: auto;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Short, uniform vertical rhythm between stacked text frames (§02→contact) */
+.eam-home .home-main-body-bg--scenic .home-main-body-bg__flank-range > .home-section-block + .home-section-block {
+  margin-top: var(--home-frame-gap) !important;
+}
+
+.eam-home .home-main-body-bg--scenic .home-main-body-bg__flank-range #home-investment + .home-contact.home-section-block {
+  margin-top: var(--home-frame-gap) !important;
+  padding-top: 0 !important;
+}
+
+.eam-home .home-main-body-bg--scenic .home-main-body-bg__flank-range > .home-section-block:first-child {
+  padding-top: var(--home-frame-gap);
+}
+
+.eam-home .home-main-body-bg--scenic .home-main-body-bg__flank-range > .home-section-block:last-child {
+  padding-bottom: var(--home-frame-gap);
+}
+
+.eam-home .home-main-body-bg--scenic .home-about-eam__inner,
+.eam-home .home-main-body-bg--scenic .home-one-statement__inner,
+.eam-home .home-main-body-bg--scenic .home-what-we-offer__inner,
+.eam-home .home-main-body-bg--scenic .home-mid-content__inner {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+
+.eam-home .home-main-body-bg--scenic #home-investment > .container {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.eam-home .home-main-body-bg--scenic .home-contact__inner {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.eam-home .home-main-body-bg--scenic .home-about-eam__copy,
+.eam-home .home-main-body-bg--scenic .home-one-statement__copy,
+.eam-home .home-main-body-bg--scenic .home-what-we-offer__copy,
+.eam-home .home-main-body-bg--scenic .home-mid-content__copy {
+  width: 100%;
+  max-width: var(--home-text-column-max);
+  margin-inline: auto;
+  text-align: center;
+}
+
+.eam-home .home-main-body-bg--scenic .home-projects-showcase__shell {
+  max-width: min(100%, var(--home-text-column-max)) !important;
+  margin-inline: auto;
+  box-sizing: border-box;
+  border-radius: 1.25rem;
+  padding: clamp(1.5rem, 3vw, 2.25rem) clamp(1.25rem, 2vw, 1.75rem) !important;
+}
+
+.eam-home .home-main-body-bg--scenic .home-sector-platforms > .mx-auto {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.eam-home .home-main-body-bg--scenic #home-investment > .container {
+  max-width: min(100%, calc(var(--home-text-column-max) + 2rem));
+}
+
+.eam-home .home-main-body-bg--scenic #home-investment .container > .max-w-3xl {
+  max-width: min(100%, var(--home-text-column-max)) !important;
+  width: 100%;
+  margin-inline: auto;
+}
+
+.eam-home .home-main-body-bg--scenic .home-contact__inner {
+  max-width: min(100%, calc(var(--home-text-column-max) + 2rem));
+}
+
+.eam-home .home-main-body-bg--scenic .home-contact__inner > .max-w-2xl {
+  max-width: min(100%, var(--home-text-column-max)) !important;
+  width: 100%;
+  margin-inline: auto;
+}
+
+@media (min-width: 1024px) {
+  .eam-home .home-main-body-bg--scenic .home-about-eam__copy,
+  .eam-home .home-main-body-bg--scenic .home-one-statement__copy,
+  .eam-home .home-main-body-bg--scenic .home-mid-content__copy,
+  .eam-home .home-main-body-bg--scenic .home-what-we-offer__copy {
+    margin-inline-start: 0 !important;
+    margin-inline-end: 0 !important;
+    align-self: center !important;
+  }
+}
+
+.eam-home .home-main-body-bg--scenic .home-one-statement__inner,
+.eam-home .home-main-body-bg--scenic .home-mid-content__inner {
+  padding-inline: clamp(0.75rem, 3vw, 1rem) !important;
+}
+
+.eam-home .home-main-body-bg--scenic .home-mid-content__stage--mural {
+  direction: inherit;
+  gap: clamp(1.25rem, 2.5vw, 1.75rem);
+}
+
+.eam-home .home-main-body-bg--scenic .home-mid-content__copy {
+  box-sizing: border-box;
+  border-radius: 1.25rem !important;
+  padding: clamp(1.5rem, 3vw, 2.25rem) clamp(1.25rem, 2vw, 1.75rem) !important;
+}
+
+.eam-home .home-main-body-bg--scenic .home-mid-content__title {
+  max-width: none;
+}
+
+.eam-home .home-main-body-bg--scenic .home-mid-content__pillars {
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+@media (min-width: 768px) {
+  .eam-home .home-main-body-bg--scenic .home-mid-content__pillars {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem 0.65rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .eam-home .home-main-body-bg--scenic .home-mid-content__pillars {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.75rem 0.4rem;
+  }
+}
+
+/* Site editor — PowerPoint-style pick / resize flank backgrounds */
+body[data-site-editor-active='true'] .home-main-body-bg__left-wrap,
+body[data-site-editor-active='true'] .home-main-body-bg__right-wrap {
+  z-index: 40;
+  overflow: visible;
+  pointer-events: none;
+}
+
+body[data-site-editor-active='true'] .home-main-body-bg__left,
+body[data-site-editor-active='true'] .home-main-body-bg__right {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+@media (max-width: 1100px) {
+  .eam-home .home-main-body-bg--scenic .home-main-body-bg__flank-range .home-main-body-bg__left-wrap,
+  .eam-home .home-main-body-bg--scenic .home-main-body-bg__flank-range .home-main-body-bg__right-wrap {
+    display: none;
+  }
+}
+
+/* Section bands — no cream overlay */
+.eam-home .home-main-body-bg--scenic .home-about-eam,
+.eam-home .home-main-body-bg--scenic .home-one-statement,
+.eam-home .home-main-body-bg--scenic .home-what-we-offer,
+.eam-home .home-main-body-bg--scenic .home-mid-content,
+.eam-home .home-main-body-bg--scenic .home-projects-showcase,
+.eam-home .home-main-body-bg--scenic .home-sector-platforms,
+.eam-home .home-main-body-bg--scenic .home-platforms-section,
+.eam-home .home-main-body-bg--scenic #home-investment.home-investment,
+.eam-home .home-main-body-bg--scenic #home-contact.home-contact {
+  background: none !important;
+  background-color: transparent !important;
+}
+
+.eam-home .home-main-body-bg--scenic #home-investment .home-investment__overlay,
+.eam-home .home-main-body-bg--scenic #home-contact .home-contact__overlay {
+  opacity: 0 !important;
+}
+
+.eam-home .home-main-body-bg--scenic .home-section-bottom-fade {
+  display: none !important;
+}
+
+/* Glass panels */
+.eam-home .home-main-body-bg--scenic .home-about-eam__copy,
+.eam-home .home-main-body-bg--scenic .home-one-statement__copy,
+.eam-home .home-main-body-bg--scenic .home-what-we-offer__copy,
+.eam-home .home-main-body-bg--scenic .home-mid-content__copy,
+.eam-home .home-main-body-bg--scenic .home-projects-showcase__shell,
+.eam-home .home-main-body-bg--scenic #home-investment .container > div,
+.eam-home .home-main-body-bg--scenic #home-contact .home-contact__inner > div,
+.eam-home .home-main-body-bg--scenic .home-what-we-offer__card,
+.eam-home .home-main-body-bg--scenic .home-project-card,
+.eam-home .home-main-body-bg--scenic .home-platform-card,
+.eam-home .home-main-body-bg--scenic .home-projects-showcase__header .grid.grid-cols-3 > div,
+.eam-home .home-main-body-bg--scenic .home-projects-showcase__header .rounded-full,
+.eam-home .home-main-body-bg--scenic .home-sector-platforms .rounded-2xl {
+  background-color: rgba(255, 255, 255, 0.28) !important;
+  background-image: none !important;
+  border: 1px solid rgba(197, 160, 89, 0.38) !important;
+  backdrop-filter: blur(18px) saturate(1.08);
+  -webkit-backdrop-filter: blur(18px) saturate(1.08);
+  box-shadow: 0 12px 40px rgba(26, 38, 52, 0.1) !important;
+}
+
+.dark .eam-home .home-main-body-bg--scenic .home-about-eam__copy,
+.dark .eam-home .home-main-body-bg--scenic .home-one-statement__copy,
+.dark .eam-home .home-main-body-bg--scenic .home-what-we-offer__copy,
+.dark .eam-home .home-main-body-bg--scenic .home-mid-content__copy,
+.dark .eam-home .home-main-body-bg--scenic .home-projects-showcase__shell,
+.dark .eam-home .home-main-body-bg--scenic #home-investment .container > div,
+.dark .eam-home .home-main-body-bg--scenic #home-contact .home-contact__inner > div,
+.dark .eam-home .home-main-body-bg--scenic .home-what-we-offer__card,
+.dark .eam-home .home-main-body-bg--scenic .home-project-card,
+.dark .eam-home .home-main-body-bg--scenic .home-platform-card,
+.dark .eam-home .home-main-body-bg--scenic .home-projects-showcase__header .grid.grid-cols-3 > div,
+.dark .eam-home .home-main-body-bg--scenic .home-projects-showcase__header .rounded-full,
+.dark .eam-home .home-main-body-bg--scenic .home-sector-platforms .rounded-2xl {
+  background-color: rgba(28, 32, 38, 0.42) !important;
+  border-color: rgba(197, 160, 89, 0.32) !important;
+}
+
+.eam-home .home-main-body-bg--scenic .home-about-eam__copy::before,
+.eam-home .home-main-body-bg--scenic .home-one-statement__copy::before,
+.eam-home .home-main-body-bg--scenic .home-what-we-offer__copy::before,
+.eam-home .home-main-body-bg--scenic .home-mid-content__copy::before {
+  display: none !important;
+}
+
+.eam-home .home-main-body-bg--scenic .home-section-top-figure {
+  margin: 0 0 clamp(1rem, 2.5vw, 1.5rem);
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: 14px;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.eam-home .home-main-body-bg--scenic .home-section-top-figure__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: none;
+  object-fit: contain;
+  object-position: center;
+}
+
+.eam-home .home-main-body-bg--scenic .home-about-eam__copy .home-section-top-figure__img {
+  object-position: center 35%;
+}
+
+.eam-home .home-main-body-bg--scenic .home-about-eam__figure,
+.eam-home .home-main-body-bg--scenic .home-one-statement__figure {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid rgba(197, 160, 89, 0.35) !important;
+}
+
+.eam-home .home-main-body-bg--scenic .home-one-statement__stage--mural {
+  direction: inherit;
+}
+
+.eam-home .home-main-body-bg--scenic .home-one-statement__figure-img {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  margin-inline-start: 0 !important;
+}
+
+/* Text */
+.eam-home .home-main-body-bg--scenic .home-about-eam__title,
+.eam-home .home-main-body-bg--scenic .home-one-statement__title,
+.eam-home .home-main-body-bg--scenic .home-what-we-offer__title,
+.eam-home .home-main-body-bg--scenic .home-mid-content__title,
+.eam-home .home-main-body-bg--scenic .home-what-we-offer__card-title,
+.eam-home .home-main-body-bg--scenic .home-projects-showcase__header h2,
+.eam-home .home-main-body-bg--scenic #home-investment h2,
+.eam-home .home-main-body-bg--scenic #home-contact h2,
+.eam-home .home-main-body-bg--scenic .home-platform-card__title {
+  color: rgba(12, 61, 52, 0.88) !important;
+}
+
+.dark .eam-home .home-main-body-bg--scenic .home-about-eam__title,
+.dark .eam-home .home-main-body-bg--scenic .home-one-statement__title,
+.dark .eam-home .home-main-body-bg--scenic .home-what-we-offer__title,
+.dark .eam-home .home-main-body-bg--scenic .home-mid-content__title,
+.dark .eam-home .home-main-body-bg--scenic .home-what-we-offer__card-title,
+.dark .eam-home .home-main-body-bg--scenic .home-projects-showcase__header h2,
+.dark .eam-home .home-main-body-bg--scenic #home-investment h2,
+.dark .eam-home .home-main-body-bg--scenic #home-contact h2,
+.dark .eam-home .home-main-body-bg--scenic .home-platform-card__title {
+  color: rgba(250, 250, 249, 0.9) !important;
+}
+
+.eam-home .home-main-body-bg--scenic .home-about-eam__body,
+.eam-home .home-main-body-bg--scenic .home-about-eam__tagline,
+.eam-home .home-main-body-bg--scenic .home-one-statement__body,
+.eam-home .home-main-body-bg--scenic .home-one-statement__tagline,
+.eam-home .home-main-body-bg--scenic .home-what-we-offer__body,
+.eam-home .home-main-body-bg--scenic .home-what-we-offer__tagline,
+.eam-home .home-main-body-bg--scenic .home-what-we-offer__lead,
+.eam-home .home-main-body-bg--scenic .home-mid-content__body,
+.eam-home .home-main-body-bg--scenic .home-mid-content__tagline,
+.eam-home .home-main-body-bg--scenic .home-what-we-offer__card-desc,
+.eam-home .home-main-body-bg--scenic .home-what-we-offer__card-title-en,
+.eam-home .home-main-body-bg--scenic .home-platform-card__desc,
+.eam-home .home-main-body-bg--scenic .home-projects-showcase__header p,
+.eam-home .home-main-body-bg--scenic #home-investment p,
+.eam-home .home-main-body-bg--scenic #home-contact p {
+  color: rgba(28, 25, 23, 0.78) !important;
+}
+
+.dark .eam-home .home-main-body-bg--scenic .home-about-eam__body,
+.dark .eam-home .home-main-body-bg--scenic .home-about-eam__tagline,
+.dark .eam-home .home-main-body-bg--scenic .home-one-statement__body,
+.dark .eam-home .home-main-body-bg--scenic .home-one-statement__tagline,
+.dark .eam-home .home-main-body-bg--scenic .home-what-we-offer__body,
+.dark .eam-home .home-main-body-bg--scenic .home-what-we-offer__tagline,
+.dark .eam-home .home-main-body-bg--scenic .home-what-we-offer__lead,
+.dark .eam-home .home-main-body-bg--scenic .home-mid-content__body,
+.dark .eam-home .home-main-body-bg--scenic .home-mid-content__tagline,
+.dark .eam-home .home-main-body-bg--scenic .home-what-we-offer__card-desc,
+.dark .eam-home .home-main-body-bg--scenic .home-what-we-offer__card-title-en,
+.dark .eam-home .home-main-body-bg--scenic .home-platform-card__desc,
+.dark .eam-home .home-main-body-bg--scenic .home-projects-showcase__header p,
+.dark .eam-home .home-main-body-bg--scenic #home-investment p,
+.dark .eam-home .home-main-body-bg--scenic #home-contact p {
+  color: rgba(250, 250, 249, 0.78) !important;
+}
+
+.eam-home .home-main-body-bg--scenic .home-projects-showcase__header .font-display.tabular-nums,
+.eam-home .home-main-body-bg--scenic .home-about-eam__eyebrow-text,
+.eam-home .home-main-body-bg--scenic .home-one-statement__eyebrow-text,
+.eam-home .home-main-body-bg--scenic .home-what-we-offer__eyebrow-text,
+.eam-home .home-main-body-bg--scenic .home-mid-content__eyebrow-text,
+.eam-home .home-main-body-bg--scenic .home-projects-showcase__header .inline-flex {
+  color: rgba(139, 105, 20, 0.82) !important;
+}
+
+.eam-home .home-main-body-bg--scenic .home-one-statement__pillar-label,
+.eam-home .home-main-body-bg--scenic .home-mid-content__pillar-label,
+.eam-home .home-main-body-bg--scenic .home-what-we-offer__value-label {
+  color: rgba(28, 25, 23, 0.84) !important;
+}
+
+.eam-home .home-main-body-bg--scenic #home-investment .container > div,
+.eam-home .home-main-body-bg--scenic #home-contact .home-contact__inner > div {
+  border-radius: 1.25rem;
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+}

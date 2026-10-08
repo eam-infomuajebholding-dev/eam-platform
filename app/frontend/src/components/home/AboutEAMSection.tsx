@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import HomeSectionImage from '@/components/home/HomeSectionImage';
+import HomeSectionTopFigure from '@/components/home/HomeSectionTopFigure';
 import { useLanguage } from '@/contexts/LanguageContext';
 import HomeSectionBottomFade from '@/components/home/HomeSectionBottomFade';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
@@ -20,20 +20,10 @@ export default function AboutEAMSection() {
       <div className="home-about-eam__inner mx-auto w-full max-w-[1586px] px-3 sm:px-4 lg:px-[16px]">
         <div
           ref={reveal.ref}
-          className={`home-about-eam__stage ${reveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}
+          className={`home-about-eam__stage home-about-eam__stage--mural ${reveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}
         >
-          <div className="home-about-eam__visual">
-            <HomeSectionImage
-              editId="home-about-eam-image"
-              assetKey="aboutEam"
-              className="home-about-eam__visual-img"
-              loading="lazy"
-              width={1600}
-              height={900}
-            />
-          </div>
-
           <div className="home-about-eam__copy" dir={direction}>
+            <HomeSectionTopFigure editId="home-about-eam-image" assetKey="aboutEam" />
             <div className="home-about-eam__eyebrow">
               <span className="home-about-eam__eyebrow-line" aria-hidden />
               <span className="home-about-eam__eyebrow-text">{t('about.eyebrow')}</span>

@@ -1,14 +1,12 @@
 import { Link } from 'react-router-dom';
 import { Bell, Mail } from 'lucide-react';
-import ResponsiveImage from '@/components/ui/ResponsiveImage';
-import { getHomeImage } from '@/config/assets';
 import { useLanguage } from '@/contexts/LanguageContext';
+import HomeSectionTopFigure from '@/components/home/HomeSectionTopFigure';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 /** Final CTA — routes to real contact; no fake newsletter backend */
 export default function HomeContactSection() {
   const reveal = useScrollReveal({ threshold: 0.15 });
-  const footerCta = getHomeImage('footerCta');
   const { t } = useLanguage();
 
   return (
@@ -18,15 +16,6 @@ export default function HomeContactSection() {
       className="home-contact home-section-block relative overflow-hidden"
       aria-label={t('homeContact.aria')}
     >
-      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-        <ResponsiveImage
-          asset={{ ...footerCta, alt: '' }}
-          className="h-full w-full object-cover opacity-30"
-          loading="lazy"
-        />
-        <div className="home-contact__overlay absolute inset-0" />
-      </div>
-
       <div className="home-contact__inner container relative mx-auto px-4">
         <div
           ref={reveal.ref}

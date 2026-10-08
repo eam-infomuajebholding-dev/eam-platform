@@ -22,6 +22,7 @@ import {
   tryApplyDirectSelectedEdit,
   tryApplyLocalSiteEditCommand,
   tryBuildHeuristicSiteEditPlan,
+  SITE_EDIT_COPILOT_SURFACE,
   type SiteEditEditorApi,
 } from '@/features/ai-workspace/siteEditCopilot';
 import {
@@ -29,7 +30,7 @@ import {
   executeActionProposal,
   executeStartJourney,
 } from '@/features/ai-workspace/actionExecutor';
-import { ASSISTANT_GUIDED_JOURNEY_ENABLED } from '@/config/assistant';
+import { ASSISTANT_GUIDED_JOURNEY_ENABLED, ASSISTANT_GUIDED_JOURNEY_TYPE } from '@/config/assistant';
 import { clearActiveJourneyInstanceId, setActiveJourneyInstanceId } from '@/features/journeys/core/josClient';
 import {
   extractResourceLinksFromActions,
@@ -444,7 +445,7 @@ const emptyEcStepValues = (): EngineeringStepValues => ({
 function createMessage(
   role: WorkspaceMessage['role'],
   content: string,
-  extras?: Pick<WorkspaceMessage, 'journeyOffer' | 'resourceLinks'>,
+  extras?: Pick<WorkspaceMessage, 'journeyOffer' | 'resourceLinks' | 'citations'>,
 ): WorkspaceMessage {
   return {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -698,6 +699,23 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [interactionMode, setInteractionMode] = useState<InteractionMode>('free');
   const [messages, setMessages] = useState<WorkspaceMessage[]>([]);
   const [streamingContent, setStreamingContent] = useState('');
+
+  useEffect(() => {
+    const existing = aiCoreClient.readStoredConversationId();
+    if (!existing) {
+      return;
+    }
+    let cancelled = false;
+    void aiCoreClient.loadConversation(existing).then((loaded) => {
+      if (cancelled || !loaded?.length) {
+        return;
+      }
+      setMessages(loaded.map((entry) => createMessage(entry.role === 'assistant' ? 'assistant' : 'user', entry.content)));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const [isBusy, setIsBusy] = useState(false);
   const [workspaceError, setWorkspaceError] = useState<string | null>(null);
   const [completionNotice, setCompletionNotice] = useState<CompletionNotice | null>(null);
@@ -783,14 +801,16 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
     if (
       ASSISTANT_GUIDED_JOURNEY_ENABLED &&
-      (currentInstance.status === 'active' || currentInstance.status === 'paused')
+      currentInstance.journey_type === ASSISTANT_GUIDED_JOURNEY_TYPE &&
+      (currentInstance.status === 'active' || currentInstance.status === 'paused') &&
+      interactionMode === 'journey'
     ) {
       setMode('journey');
     }
     if (currentInstance.status === 'completed') {
       setMode('chat');
     }
-  }, [currentInstance, bvContext, ecContext, ctContext, rvContext, smContext, pmContext, frContext, fmContext, gsContext, redContext, rmContext, bmContext, eqContext]);
+  }, [currentInstance, interactionMode, bvContext, ecContext, ctContext, rvContext, smContext, pmContext, frContext, fmContext, gsContext, redContext, rmContext, bmContext, eqContext]);
 
   const handoffToJourney = useCallback(
     async (
@@ -799,7 +819,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       source: 'quick_action' | 'free_text',
       traceId?: string | null,
     ) => {
-      if (!ASSISTANT_GUIDED_JOURNEY_ENABLED) {
+      if (!ASSISTANT_GUIDED_JOURNEY_ENABLED || journeyType !== ASSISTANT_GUIDED_JOURNEY_TYPE) {
         return;
       }
       const actionResult = await executeStartJourney(journeyType, traceId);
@@ -810,17 +830,17 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       } else if (actionResult.viaToolGateway && actionResult.status === 'denied') {
         throw new Error(actionResult.safeMessage ?? actionFailureMessage(actionResult.errorCode));
       } else {
-        try {
-          instance = await startJourney({
+      try {
+        instance = await startJourney({
             journey_type: journeyType,
-            initial_context: { source_channel: 'hero_workspace', handoff_source: source },
-          });
-        } catch (error) {
-          const existingId = extractExistingInstanceId(error);
-          if (!existingId) {
-            throw error;
-          }
-          instance = await getInstance(existingId);
+          initial_context: { source_channel: 'hero_workspace', handoff_source: source },
+        });
+      } catch (error) {
+        const existingId = extractExistingInstanceId(error);
+        if (!existingId) {
+          throw error;
+        }
+        instance = await getInstance(existingId);
         }
       }
 
@@ -836,6 +856,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       });
       setMessages((prev) => [...prev, createMessage('assistant', assistantMessage)]);
       setMode('journey');
+      setInteractionMode('journey');
       setWorkspaceError(null);
       await getInstance(instance.id);
     },
@@ -872,13 +893,15 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       journeyType: string | null,
     ) => {
       const resourceLinks = extractResourceLinksFromActions(turn.actions);
-      const extras: Pick<WorkspaceMessage, 'journeyOffer' | 'resourceLinks'> = { resourceLinks };
+      const extras: Pick<WorkspaceMessage, 'journeyOffer' | 'resourceLinks' | 'citations'> = {
+        resourceLinks,
+        citations: turn.citations,
+      };
 
       if (
         ASSISTANT_GUIDED_JOURNEY_ENABLED &&
         interactionMode === 'free' &&
-        journeyType &&
-        SUPPORTED_JOURNEY_TYPES.has(journeyType)
+        journeyType === ASSISTANT_GUIDED_JOURNEY_TYPE
       ) {
         extras.journeyOffer = {
           journeyType,
@@ -927,7 +950,12 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      if (ASSISTANT_GUIDED_JOURNEY_ENABLED && isJourneyActive) {
+      if (
+        ASSISTANT_GUIDED_JOURNEY_ENABLED &&
+        mode === 'journey' &&
+        currentInstance?.journey_type === ASSISTANT_GUIDED_JOURNEY_TYPE &&
+        isJourneyActive
+      ) {
         return;
       }
 
@@ -990,7 +1018,11 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
             editorApi.sections,
           );
           const streamed = await aiCoreClient.streamGeneralAnswer(
-            { message: prompt, stream: true },
+            {
+              message: prompt,
+              stream: true,
+              client_hints: aiCoreClient.buildWorkspaceClientHints(SITE_EDIT_COPILOT_SURFACE),
+            },
             (content) => {
               setStreamingContent(content);
             },
@@ -1019,7 +1051,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
             createMessage(
               'assistant',
               streamed.trim() ||
-                'لم أفهم التعديل. حدّد عنصراً، أو اذكر اسم الحقل/القسم (Ctrl+K)، أو صِغ «غيّر [العنوان] إلى [النص]».',
+                'لم أفهم التعديل. حدّد عنصراً، أو اذكر اسم الحقل/القسم (Ctrl+K)، أو صِغ «غيّر [العنوان] إلى [النص]». المحرر التقليدي يبقى متاحاً.',
             ),
           ]);
           return;
@@ -1029,11 +1061,18 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
           role: entry.role,
           content: entry.content,
         }));
+        const clientHints = aiCoreClient.buildWorkspaceClientHints();
+        const conversationId = aiCoreClient.readStoredConversationId() ?? undefined;
         const turn = await aiCoreClient.workspaceTurn({
           message: trimmed,
           stream: true,
           conversation_history: conversationHistory,
+          client_hints: clientHints,
+          conversation_id: conversationId,
         });
+        if (turn.conversation_id) {
+          aiCoreClient.storeConversationId(turn.conversation_id);
+        }
         const resourceLinks = extractResourceLinksFromActions(turn.actions);
         const journeyType = resolveJourneyTypeFromTurn(
           turn.actions,
@@ -1060,7 +1099,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
         if (
           ASSISTANT_GUIDED_JOURNEY_ENABLED &&
-          supportedJourney &&
+          supportedJourney === ASSISTANT_GUIDED_JOURNEY_TYPE &&
           interactionMode === 'journey'
         ) {
           await handoffToJourney(
@@ -1090,9 +1129,14 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
             let streamed = '';
             try {
               streamed = await aiCoreClient.streamGeneralAnswer(
-                { message: trimmed, conversation_history: conversationHistory },
+                {
+                  message: trimmed,
+                  conversation_history: conversationHistory,
+                  client_hints: clientHints,
+                  conversation_id: turn.conversation_id ?? conversationId,
+                },
                 (content) => {
-                  setStreamingContent(content);
+              setStreamingContent(content);
                 },
               );
             } catch (streamError) {
@@ -1115,8 +1159,11 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       } catch (error) {
         console.error(error);
         const failure = describeWorkspaceFailure(error);
-        setWorkspaceError(failure);
-        setMessages((prev) => [...prev, createMessage('assistant', failure)]);
+        const siteEditFailure = siteEditActive
+          ? `${failure} المحرر التقليدي يبقى متاحاً.`
+          : failure;
+        setWorkspaceError(siteEditFailure);
+        setMessages((prev) => [...prev, createMessage('assistant', siteEditFailure)]);
       } finally {
         setIsBusy(false);
         setStreamingContent('');
@@ -1129,6 +1176,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       isBusy,
       isJourneyActive,
       messages,
+      mode,
+      currentInstance,
       siteEditActive,
       siteEditor,
       sectionVisibility,

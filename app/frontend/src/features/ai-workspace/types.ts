@@ -14,6 +14,15 @@ export interface JourneySnapshot {
 
 export type WorkspaceMode = 'workspace' | 'faq';
 
+export type WorkspaceSurface = 'home' | 'journey' | 'command_center' | 'site_editor';
+
+export interface WorkspaceClientHints {
+  surface?: WorkspaceSurface;
+  route?: string;
+  locale?: 'ar' | 'en';
+  journey_instance_id?: number;
+}
+
 export type ConversationMessage = {
   role: 'user' | 'assistant';
   content: string;
@@ -26,6 +35,8 @@ export interface WorkspaceTurnRequest {
   conversation_history?: ConversationMessage[];
   stream?: boolean;
   mode?: WorkspaceMode;
+  conversation_id?: string;
+  client_hints?: WorkspaceClientHints;
 }
 
 export type AIErrorCode =
@@ -86,6 +97,9 @@ export interface WorkspaceTurnResponse {
   requires_confirmation?: boolean;
   handoff?: Record<string, unknown> | null;
   error?: AIError | null;
+  capability_id?: string | null;
+  conversation_id?: string | null;
+  citations?: string[];
 }
 
 export type InteractionMode = 'free' | 'journey';
@@ -109,6 +123,7 @@ export interface WorkspaceMessage {
   content: string;
   journeyOffer?: PendingJourneyOffer | null;
   resourceLinks?: PlatformResourceLink[];
+  citations?: string[];
 }
 
 export const BUILD_VILLA_QUICK_ACTION_LABEL = 'أبني منزلًا';

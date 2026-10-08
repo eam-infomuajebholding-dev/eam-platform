@@ -1,6 +1,80 @@
 import { client } from '@/lib/api';
-import { getOrCreateAnonymousSessionId } from '@/features/journeys/core/josClient';
-import type { JourneySnapshot, WorkspaceTurnRequest, WorkspaceTurnResponse } from './types';
+import { getStoredAuthToken } from '@/features/auth/utils/authTokenStorage';
+import { getActiveJourneyInstanceId, getOrCreateAnonymousSessionId } from '@/features/journeys/core/josClient';
+import type {
+  JourneySnapshot,
+  WorkspaceClientHints,
+  WorkspaceSurface,
+  WorkspaceTurnRequest,
+  WorkspaceTurnResponse,
+} from './types';
+
+export function buildWorkspaceClientHints(surface?: WorkspaceSurface): WorkspaceClientHints {
+  const path = typeof window !== 'undefined' ? window.location.pathname : '/';
+  const lang = typeof document !== 'undefined' ? document.documentElement.lang : 'ar';
+  const resolved = surface ?? (path.startsWith('/journeys/') ? 'journey' : 'home');
+  const journeyId = getActiveJourneyInstanceId();
+  return {
+    surface: resolved,
+    route: path,
+    locale: lang.toLowerCase().startsWith('en') ? 'en' : 'ar',
+    ...(journeyId != null ? { journey_instance_id: journeyId } : {}),
+  };
+}
+
+function aiCoreHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
+    'X-Anonymous-Session-Id': getOrCreateAnonymousSessionId(),
+  };
+  const token = getStoredAuthToken();
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  return headers;
+}
+
+const AI_CONVERSATION_STORAGE_KEY = 'eam-ai-conversation-id';
+
+export function readStoredConversationId(): string | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  return window.sessionStorage.getItem(AI_CONVERSATION_STORAGE_KEY);
+}
+
+export function storeConversationId(conversationId: string): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  window.sessionStorage.setItem(AI_CONVERSATION_STORAGE_KEY, conversationId);
+}
+
+export async function loadConversation(
+  conversationId: string,
+): Promise<Array<{ role: 'user' | 'assistant'; content: string }> | null> {
+  const response = await fetch(`/api/v1/ai-core/workspace/conversation/${conversationId}`, {
+    headers: aiCoreHeaders(),
+  });
+  if (!response.ok) {
+    return null;
+  }
+  const body = (await response.json()) as {
+    messages?: Array<{ role?: string; content?: string }>;
+  };
+  return (body.messages ?? [])
+    .filter((entry) => (entry.role === 'user' || entry.role === 'assistant') && entry.content)
+    .map((entry) => ({
+      role: entry.role as 'user' | 'assistant',
+      content: String(entry.content),
+    }));
+}
+
+function withClientHints(input: WorkspaceTurnRequest): WorkspaceTurnRequest {
+  return {
+    ...input,
+    client_hints: input.client_hints ?? buildWorkspaceClientHints(),
+  };
+}
 
 export interface ToolExecuteRequest {
   tool_id: string;
@@ -23,7 +97,8 @@ export async function workspaceTurn(input: WorkspaceTurnRequest): Promise<Worksp
   const response = await client.apiCall.invoke({
     url: '/api/v1/ai-core/workspace/turn',
     method: 'POST',
-    data: input,
+    data: withClientHints(input),
+    headers: aiCoreHeaders(),
   });
   return response.data as WorkspaceTurnResponse;
 }
@@ -56,8 +131,8 @@ export async function streamGeneralAnswer(
 ): Promise<string> {
   const response = await fetch('/api/v1/ai-core/workspace/stream', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(input),
+    headers: { 'Content-Type': 'application/json', ...aiCoreHeaders() },
+    body: JSON.stringify(withClientHints(input)),
   });
 
   if (!response.ok || !response.body) {

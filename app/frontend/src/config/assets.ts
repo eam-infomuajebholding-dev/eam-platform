@@ -9,12 +9,6 @@ import type { HomeImageKey, ProjectImageKey, SectorImageKey } from '@/config/ass
 import hero from '@/assets/images/home/01-home-hero.png';
 import aboutCinematic from '@/assets/images/home/02-home-about-cinematic.png';
 import aboutEam from '@/assets/images/home/02-home-about-eam.png';
-import oneStatement from '@/assets/images/home/02-home-one-statement.png';
-import midContentBg from '@/assets/images/home/05-home-mid-content-bg.jpg';
-import whatWeOfferBg from '@/assets/images/home/04-home-what-we-offer-bg.jpg';
-import investmentBanner from '@/assets/images/home/03-home-investment-banner.png';
-import footerCta from '@/assets/images/home/04-home-footer-cta.png';
-
 import engineeringDesign from '@/assets/images/sectors/05-sector-engineering-design.png';
 import realEstateDevelopment from '@/assets/images/sectors/06-sector-real-estate-development.png';
 import realEstateInvestment from '@/assets/images/sectors/07-sector-real-estate-investment.png';
@@ -32,10 +26,10 @@ import facilityManagement from '@/assets/images/sectors/18-sector-facility-manag
 import interiorFitoutFurnishing from '@/assets/images/sectors/19-sector-interior-fitout-furnishing.png';
 import handoverAfterSales from '@/assets/images/sectors/20-sector-handover-after-sales.png';
 
-import luxuryResidential from '@/assets/images/projects/21-project-luxury-residential.png';
-import businessCenter from '@/assets/images/projects/22-project-business-center.png';
-import specializedHospital from '@/assets/images/projects/23-project-specialized-hospital.png';
-import commercialTower from '@/assets/images/projects/24-project-commercial-tower.png';
+import luxuryResidential from '@/assets/images/projects/21-project-luxury-residential.jpg';
+import businessCenter from '@/assets/images/projects/22-project-business-center.jpg';
+import specializedHospital from '@/assets/images/projects/23-project-specialized-hospital.jpg';
+import commercialTower from '@/assets/images/projects/24-project-commercial-tower.jpg';
 
 export type EamImageAsset = {
   src: string;
@@ -58,31 +52,6 @@ export const homeImages = {
     src: aboutEam,
     alt: 'فريق هندسي سعودي يراجع المخططات ونموذج المشروع في مكتب معاصر',
     objectPosition: 'left center',
-  },
-  oneStatement: {
-    src: oneStatement,
-    alt: 'تفاصيل هندسية — مخططات ومواد ونماذج معمارية',
-    objectPosition: 'left bottom',
-  },
-  whatWeOfferBg: {
-    src: whatWeOfferBg,
-    alt: 'واجهة معمارية — مبنى حديث مع مساحة بيضاء لماذا نقدم',
-    objectPosition: 'left center',
-  },
-  midContentBg: {
-    src: midContentBg,
-    alt: 'مشهد معمارية — Engineering for a more resilient tomorrow',
-    objectPosition: 'left top',
-  },
-  investmentBanner: {
-    src: investmentBanner,
-    alt: 'استثمر في مستقبل واعد — مسارات الاستثمار مع EAM',
-    objectPosition: 'center center',
-  },
-  footerCta: {
-    src: footerCta,
-    alt: 'كن على اطلاع بآخر تحديثات منصة EAM',
-    objectPosition: 'center center',
   },
 } as const satisfies Record<string, EamImageAsset>;
 

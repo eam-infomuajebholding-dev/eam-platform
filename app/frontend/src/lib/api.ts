@@ -12,6 +12,7 @@ type InvokeArgs = {
   url: string;
   method?: string;
   data?: unknown;
+  headers?: Record<string, string>;
 };
 
 type EntityQueryArgs = {
@@ -187,12 +188,12 @@ function getEntityApi(entity: string) {
 
 export const client = {
   apiCall: {
-    invoke: async ({ url, method = 'GET', data }: InvokeArgs): Promise<ApiResponse> => {
+    invoke: async ({ url, method = 'GET', data, headers }: InvokeArgs): Promise<ApiResponse> => {
       const response = await createHttpClient().request({
         url: resolveUrl(url),
         method: method as Method,
         data,
-        headers: getAuthHeaders(),
+        headers: { ...getAuthHeaders(), ...headers },
       });
       return { data: response.data, status: response.status };
     },

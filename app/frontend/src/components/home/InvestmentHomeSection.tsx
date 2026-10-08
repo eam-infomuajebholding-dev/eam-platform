@@ -1,14 +1,12 @@
 import { Link } from 'react-router-dom';
 import { ArrowLeft, TrendingUp } from 'lucide-react';
-import ResponsiveImage from '@/components/ui/ResponsiveImage';
-import { getHomeImage } from '@/config/assets';
 import { useLanguage } from '@/contexts/LanguageContext';
+import HomeSectionTopFigure from '@/components/home/HomeSectionTopFigure';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 /** Homepage investment promotion — not operational Investment journey (#03) */
 export default function InvestmentHomeSection() {
   const reveal = useScrollReveal({ threshold: 0.12 });
-  const banner = getHomeImage('investmentBanner');
   const { t, direction } = useLanguage();
 
   return (
@@ -18,15 +16,6 @@ export default function InvestmentHomeSection() {
       className="home-investment home-section-block relative overflow-hidden"
       aria-label={t('invest.aria')}
     >
-      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-        <ResponsiveImage
-          asset={{ ...banner, alt: '' }}
-          className="h-full w-full object-cover opacity-35"
-          loading="lazy"
-        />
-        <div className="home-investment__overlay absolute inset-0" />
-      </div>
-
       <div className="container relative mx-auto px-4">
         <div
           ref={reveal.ref}

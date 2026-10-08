@@ -4,6 +4,7 @@ import type { FieldRecord, FieldValue } from './types';
 import { resolveFieldMeta } from './fieldRegistry';
 import {
   applyLegacyEditsFromRows,
+  ensureHomeBodyFlankDefaults,
   ensureHomeHeroDefaults,
   ensureHomeSectionImageDefaults,
   readValueFromElement,
@@ -12,12 +13,11 @@ import {
 } from './domApply';
 import { HOME_STACK_EDITOR_PAGES, siteEditorPageKey } from './siteEditorPageKey';
 
-const HOME_SECTION_2_3_IDS = new Set(['home-about-eam-image', 'home-one-statement-image']);
-const HOME_S23_RESTORE_KEY = 'eam-home-s2-s3-images-restored-v3';
+const HOME_SECTION_2_IDS = new Set(['home-about-eam-image']);
+const HOME_S23_RESTORE_KEY = 'eam-home-s2-s3-images-restored-v4';
 const PROTECTED_HOME_IMAGE_IDS = new Set([
   'home-hero-bg-image',
   'home-about-eam-image',
-  'home-one-statement-image',
 ]);
 const HOME_HERO_RESTORE_KEY = 'eam-home-hero-restored-v1';
 const HOME_HERO_FIELD_IDS = new Set(['home-hero-bg-image']);
@@ -27,16 +27,11 @@ function legacyRowTargetsHomeSection23(row: {
   edit_type: string;
   value: string;
 }): boolean {
-  if (HOME_SECTION_2_3_IDS.has(row.element_key)) return true;
+  if (HOME_SECTION_2_IDS.has(row.element_key)) return true;
   if (row.edit_type !== 'image' || !row.element_key.startsWith('img-')) return false;
   if (isEmptyStoredImage(row)) return true;
   const v = row.value.toLowerCase();
-  return (
-    v.includes('about-eam') ||
-    v.includes('one-statement') ||
-    v.includes('02-home-about') ||
-    v.includes('02-home-one-statement')
-  );
+  return v.includes('about-eam') || v.includes('02-home-about');
 }
 
 function legacyRowTargetsHomeHero(row: {
@@ -165,6 +160,7 @@ export async function loadPageFieldRecords(page: string): Promise<Record<string,
 
   await applyLegacyEditsFromRows(rows);
   ensureHomeSectionImageDefaults();
+  ensureHomeBodyFlankDefaults();
 
   if (typeof document !== 'undefined') {
     for (const el of document.querySelectorAll('[data-editable-id]')) {
@@ -231,6 +227,7 @@ export async function applySavedEditsForRoute(page: string = window.location.pat
     void applyLegacyEditsFromRows(rows);
     ensureHomeHeroDefaults();
     ensureHomeSectionImageDefaults();
+    ensureHomeBodyFlankDefaults();
   };
   run();
   window.setTimeout(run, 300);

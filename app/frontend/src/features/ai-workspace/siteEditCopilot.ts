@@ -8,6 +8,9 @@ import { resolveFieldIdHint, resolveSectionIdHint } from './siteEditFieldResolve
 import type { SiteEditInstruction, SiteEditPlan } from './siteEditCopilotParse';
 
 export type { SiteEditInstruction, SiteEditPlan, SiteEditSectionInstruction } from './siteEditCopilotParse';
+
+/** Workspace surface sent with site-edit turns. Authority stays on the server. */
+export const SITE_EDIT_COPILOT_SURFACE = 'site_editor' as const;
 export { parseSiteEditPlan } from './siteEditCopilotParse';
 
 export type SiteEditCatalogEntry = {

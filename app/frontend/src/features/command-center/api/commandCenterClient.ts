@@ -23,9 +23,15 @@ export async function fetchCommandCenterOverview(): Promise<CommandCenterOvervie
   return invoke<CommandCenterOverview>('/api/v1/operations/command-center/overview');
 }
 
-export async function fetchExecutiveBrief(question?: string): Promise<ExecutiveBrief> {
-  const suffix = question ? `?question=${encodeURIComponent(question)}` : '';
-  return invoke<ExecutiveBrief>(`/api/v1/operations/command-center/executive-brief${suffix}`);
+export async function fetchExecutiveBrief(
+  question?: string,
+  hints?: { locale?: 'ar' | 'en'; route?: string },
+): Promise<ExecutiveBrief> {
+  const params = new URLSearchParams();
+  if (question) params.set('question', question);
+  params.set('locale', hints?.locale ?? 'ar');
+  params.set('route', hints?.route ?? '/command-center');
+  return invoke<ExecutiveBrief>(`/api/v1/operations/command-center/executive-brief?${params.toString()}`);
 }
 
 export async function fetchMetricEvidence(metricId: string): Promise<EvidenceResponse> {

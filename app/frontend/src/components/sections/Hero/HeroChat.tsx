@@ -20,7 +20,7 @@ export default function HeroChat({
   shell = "default",
   siteEditMode = false,
 }: HeroChatProps) {
-  const { messages, streamingContent, isBusy, workspaceError, sendMessage } = useWorkspace();
+  const { messages, streamingContent, isBusy, workspaceError, sendMessage, acceptPendingJourney } = useWorkspace();
   const { t, direction, language } = useLanguage();
 
   const [input, setInput] = useState("");
@@ -285,6 +285,20 @@ export default function HeroChat({
                 }`}
               >
                 {message.content}
+
+                {message.role === 'assistant' && message.journeyOffer ? (
+                  <button
+                    type="button"
+                    className="mt-2 rounded-full bg-[var(--eam-home-gold)] px-3 py-1 text-[11px] font-semibold text-white"
+                    onClick={() => void acceptPendingJourney(message.journeyOffer!)}
+                  >
+                    ابدأ رحلة {message.journeyOffer.label}
+                  </button>
+                ) : null}
+
+                {message.role === 'assistant' && message.citations && message.citations.length > 0 ? (
+                  <p className="mt-2 text-[11px] text-ink/60">مصادر: {message.citations.join('، ')}</p>
+                ) : null}
 
                 {message.role === "assistant" && message.resourceLinks && message.resourceLinks.length > 0 ? (
                   <div className="mt-2 flex flex-wrap gap-1.5">
