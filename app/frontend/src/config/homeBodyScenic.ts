@@ -13,7 +13,7 @@ export const HOME_BODY_BG_RIGHT_STRIP_SPEC = {
 } as const;
 
 /** Pixels of the bundled master file (`03-home-body-bg-right.jpg`). */
-export const HOME_BODY_SCENIC_ASSET_WIDTH = 107;
+export const HOME_BODY_SCENIC_ASSET_WIDTH = 167;
 export const HOME_BODY_SCENIC_ASSET_HEIGHT = 1024;
 
 export const HOME_BODY_SCENIC_NATURAL_WIDTH = HOME_BODY_SCENIC_ASSET_WIDTH;
