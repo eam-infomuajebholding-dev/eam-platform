@@ -15,13 +15,11 @@ type Props = {
 };
 
 function HomeBodyScenicFlank({
-  side,
   src,
   editId,
   width,
   height,
 }: {
-  side: 'left' | 'right';
   src: string | null;
   editId: string;
   width: number;
@@ -29,14 +27,10 @@ function HomeBodyScenicFlank({
 }) {
   if (!src) return null;
 
-  const wrapClass =
-    side === 'left' ? 'home-main-body-bg__left-wrap' : 'home-main-body-bg__right-wrap';
-  const imgClass = side === 'left' ? 'home-main-body-bg__left' : 'home-main-body-bg__right';
-
   return (
-    <div className={wrapClass} aria-hidden>
+    <div className="home-main-body-bg__right-wrap" aria-hidden>
       <img
-        className={imgClass}
+        className="home-main-body-bg__right"
         src={src}
         alt=""
         decoding="async"
@@ -52,7 +46,7 @@ function HomeBodyScenicFlank({
 
 /** Shared homepage stack — site root and sector platforms hub. */
 export default function HomePageSections({ afterWhatWeOffer }: Props) {
-  const { left, right } = homeBodyScenicFlanks;
+  const { right } = homeBodyScenicFlanks;
 
   return (
     <>
@@ -61,20 +55,11 @@ export default function HomePageSections({ afterWhatWeOffer }: Props) {
       </div>
       <div
         className="home-main-body-bg home-main-body-bg--scenic"
-        data-scenic-flank-left={left ? '1' : '0'}
         data-scenic-flank-right={right ? '1' : '0'}
       >
         {/* §02→contact: flank height stops before site footer (Layout Footer) */}
         <div className="home-main-body-bg__flank-range">
           <HomeBodyScenicFlank
-            side="left"
-            src={left}
-            editId="home-body-bg-left"
-            width={homeBodyScenicFlankAssetSize.left.width}
-            height={homeBodyScenicFlankAssetSize.left.height}
-          />
-          <HomeBodyScenicFlank
-            side="right"
             src={right}
             editId="home-body-bg-right"
             width={homeBodyScenicFlankAssetSize.right.width}

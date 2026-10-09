@@ -21,6 +21,8 @@ from services.ai.tool_policy import (
 from services.ai.tool_registry import ToolDefinition, get_tool
 from services.ai_core_intents import M1_JOURNEY_INTENTS
 from services.jos import JosAccessError, JosDuplicateActiveJourneyError, JosService, JosStateError
+from services.ai.memory import actor_storage_key, persist_handoff
+from services.ai.context_engine import ActorBinding
 from services.service_requests import ServiceRequestService
 
 logger = logging.getLogger(__name__)
@@ -259,8 +261,28 @@ class ToolGateway:
                         "current_step_key": instance.current_step_key,
                         "status": instance.status,
                     }
+            try:
+                stored_id = await persist_handoff(
+                    self.db,
+                    trace_id=context.trace_id,
+                    actor_key=actor_storage_key(
+                        ActorBinding(
+                            user_id=context.user_id,
+                            anonymous_session_id=context.anonymous_session_id,
+                            role="",
+                            permissions=frozenset(),
+                        )
+                    ),
+                    reason=reason,
+                    summary=payload.get("conversation_summary"),
+                    journey_instance_id=int(journey_instance_id) if journey_instance_id is not None else None,
+                    service_request_id=int(service_request_id) if service_request_id is not None else None,
+                )
+            except Exception:
+                logger.exception("Durable handoff persistence failed")
+                stored_id = None
             return {
-                "handoff_id": context.trace_id,
+                "handoff_id": stored_id or context.trace_id,
                 "status": "queued",
                 "reason": reason,
                 "conversation_summary": payload.get("conversation_summary"),

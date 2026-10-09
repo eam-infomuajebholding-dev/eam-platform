@@ -14,7 +14,6 @@ const FIELD_ALIASES: Record<string, string[]> = {
   'home-hero-bg-image': ['هيرو', 'hero', 'بطل', 'خلفيه الهيرو', 'صوره الهيرو', 'صورة الهيرو'],
   'home-about-eam-image': ['عن eam', 'about', 'قسم 2', 'about eam'],
   'home-body-bg-right': ['خلفيه يمين', 'خلفية يمين', 'يمين النص', 'body bg right'],
-  'home-body-bg-left': ['خلفيه يسار', 'خلفية يسار', 'يسار النص', 'body bg left'],
   'about-intro-text': ['مقدمه من نحن', 'intro about'],
   'services-intro': ['مقدمه الخدمات', 'services intro'],
   'services-cta-title': ['عنوان دعوه الخدمات', 'cta title'],

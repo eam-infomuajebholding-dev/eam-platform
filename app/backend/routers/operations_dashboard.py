@@ -49,6 +49,8 @@ async def get_command_center_overview(
 @router.get("/executive-brief", response_model=ExecutiveBriefResponse)
 async def get_executive_brief(
     question: str | None = Query(default=None, max_length=500),
+    locale: str = Query(default="ar", max_length=8),
+    route: str = Query(default="/command-center", max_length=300),
     db: AsyncSession = Depends(get_db),
     current_user: UserResponse = Depends(get_command_center_user),
     _: object = Depends(require_command_center_permission("executive_brief")),
@@ -58,7 +60,15 @@ async def get_executive_brief(
     overview = await service.get_overview()
     rule_brief = service.build_executive_brief(overview)
     ai_service = ExecutiveAIService()
-    return await ai_service.enhance_brief(overview, rule_brief, question)
+    return await ai_service.enhance_brief(
+        overview,
+        rule_brief,
+        question,
+        db=db,
+        user=current_user,
+        locale=locale,
+        route=route,
+    )
 
 
 @router.get("/evidence/{metric_id}", response_model=EvidenceResponse)

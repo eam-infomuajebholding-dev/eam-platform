@@ -21,12 +21,17 @@ class AITraceContext:
     fallback: bool = False
     structured_output_valid: bool | None = None
     error_code: str | None = None
+    surface: str | None = None
+    actor_kind: str | None = None
+    journey_id: int | None = None
+    conflict: bool | None = None
 
     def finish(self, **extra: object) -> None:
         latency_ms = int((time.perf_counter() - self.started_at) * 1000)
         logger.info(
             "ai_trace trace_id=%s capability=%s intent=%s confidence=%s model_class=%s "
-            "latency_ms=%s fallback=%s structured_valid=%s error=%s extra=%s",
+            "latency_ms=%s fallback=%s structured_valid=%s error=%s surface=%s actor_kind=%s "
+            "journey_id=%s conflict=%s extra=%s",
             self.trace_id,
             self.capability,
             self.intent,
@@ -36,6 +41,10 @@ class AITraceContext:
             self.fallback,
             self.structured_output_valid,
             self.error_code,
+            self.surface,
+            self.actor_kind,
+            self.journey_id,
+            self.conflict,
             extra,
         )
 

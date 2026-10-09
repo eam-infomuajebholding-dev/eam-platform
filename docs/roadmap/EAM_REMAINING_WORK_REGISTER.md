@@ -80,11 +80,21 @@ Journeys status report → **DONE** (`docs/product/JOURNEYS_STATUS_REPORT.md`)
 | CLEANUP_READINESS | APPROACHING_READY |
 | Final cleanup WO | NOT_YET_REQUIRED |
 
+## AI Lab
+
+Baseline accepted 2026-10-07: `docs/ai-lab/AI_IMPLEMENTATION_BASELINE_2026-10-07.md`.  
+Specification v1.0: `docs/ai-lab/AI_PLATFORM_SPECIFICATION_v1.0.md`.
+
+| Work order | Status |
+|------------|--------|
+| WO-001 through WO-009 | IMPLEMENTED — M1, 2026-10-07 |
+
 ## NEXT_READY_NOW
 
-1. Business Lab: Quote acceptance decisions (20 questions in decision record)
-2. USER_VISUAL_ACCEPTANCE (owner review, 1586×992 evidence)
-3. OIDC external prerequisites for M1 16/16 closure
+1. AI Lab M1 (WO-001 through WO-009) is implemented. Apply Alembic `a7b8c9d0e1f2` before production use of conversation memory, handoff rows, and the shared rate limit.
+2. Business Lab: Quote acceptance decisions (20 questions in decision record)
+3. USER_VISUAL_ACCEPTANCE (owner review, 1586×992 evidence)
+4. OIDC external prerequisites for M1 16/16 closure
 
 ## NEXT_BLOCKED
 

@@ -77,6 +77,7 @@ def build_workspace_response(
     trace_id: str | None = None,
     error: AIError | None = None,
     requires_confirmation: bool = False,
+    citations: list[str] | None = None,
 ) -> WorkspaceTurnResponse:
     resolved_trace = trace_id or new_trace_id()
     response_intent = intent_from_decision(intent)
@@ -116,4 +117,5 @@ def build_workspace_response(
         actions=actions,
         requires_confirmation=requires_confirmation,
         error=error,
+        citations=citations or [],
     )

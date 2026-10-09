@@ -2,15 +2,17 @@
 
 from __future__ import annotations
 
-import json
 import logging
-import re
 from datetime import datetime, timezone
 
+from schemas.ai_core import WorkspaceClientHints
+from schemas.auth import UserResponse
 from schemas.operations_dashboard import CommandCenterOverviewResponse, ExecutiveBriefResponse
+from services.ai.ai_trace import ai_trace
+from services.ai.context_engine import ContextEngine, actor_binding
 from services.ai.prompt_registry import EXECUTIVE_BRIEF
-from services.ai_core import AICoreService
-from services.operations_dashboard import OperationsDashboardService
+from services.ai.response_builder import new_trace_id
+from services.ai_core import AICoreService, _apply_context_trace
 
 logger = logging.getLogger(__name__)
 
@@ -26,25 +28,52 @@ class ExecutiveAIService:
         overview: CommandCenterOverviewResponse,
         rule_brief: ExecutiveBriefResponse,
         question: str | None = None,
+        *,
+        db=None,
+        user: UserResponse | None = None,
+        locale: str = "ar",
+        route: str = "/command-center",
     ) -> ExecutiveBriefResponse:
-        if not self.ai_core.is_ai_available():
-            rule_brief.limitations = [
-                *rule_brief.limitations,
-                "AI_DEGRADED — provider unavailable; RULE_ASSISTED fallback active",
-            ]
-            return rule_brief
+        safe_locale = "en" if locale == "en" else "ar"
+        ai_context = await ContextEngine(db).build(
+            actor_binding(user, None),
+            WorkspaceClientHints(
+                surface="command_center",
+                route=route or "/command-center",
+                locale=safe_locale,
+            ),
+        )
+        trace_id = new_trace_id()
+        with ai_trace(trace_id, "executive.brief") as trace:
+            _apply_context_trace(trace, ai_context)
+            if ai_context.forbidden:
+                trace.error_code = "AI_CONTEXT_FORBIDDEN"
+                rule_brief.limitations = [*rule_brief.limitations, "AI_CONTEXT_FORBIDDEN"]
+                return rule_brief
+            if not self.ai_core.is_ai_available():
+                trace.fallback = True
+                trace.error_code = "AI_NOT_CONFIGURED"
+                rule_brief.limitations = [
+                    *rule_brief.limitations,
+                    "AI_DEGRADED — provider unavailable; RULE_ASSISTED fallback active",
+                ]
+                return rule_brief
 
-        context = self._build_safe_context(overview)
-        try:
-            payload = await self.ai_core.generate_executive_analysis(context, question)
-            return self._merge_ai_response(rule_brief, payload)
-        except Exception as exc:
-            logger.warning("Executive AI failed; using rule-assisted fallback: %s", type(exc).__name__)
-            rule_brief.limitations = [
-                *rule_brief.limitations,
-                f"AI_DEGRADED — analysis failed ({type(exc).__name__})",
-            ]
-            return rule_brief
+            context = self._build_safe_context(overview)
+            try:
+                payload = await self.ai_core.generate_executive_analysis(
+                    context,
+                    question,
+                    ai_context=ai_context,
+                )
+                return self._merge_ai_response(rule_brief, payload)
+            except Exception as exc:
+                logger.warning("Executive AI failed; using rule-assisted fallback: %s", type(exc).__name__)
+                rule_brief.limitations = [
+                    *rule_brief.limitations,
+                    f"AI_DEGRADED — analysis failed ({type(exc).__name__})",
+                ]
+                return rule_brief
 
     def _build_safe_context(self, overview: CommandCenterOverviewResponse) -> dict:
         """Aggregate-only context — no customer PII, no secrets."""

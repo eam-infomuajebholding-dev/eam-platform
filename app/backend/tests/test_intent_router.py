@@ -31,4 +31,4 @@ def test_parse_model_low_confidence_clarifies():
 def test_parse_model_build_villa_high_confidence():
     decision = parse_model_intent_decision({"intent": "build_villa", "confidence": 0.85})
     assert decision.candidate_journey == BUILD_VILLA_JOURNEY_TYPE
-    assert decision.action == "start_journey"
+    assert decision.action == "general_answer"

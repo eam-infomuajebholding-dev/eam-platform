@@ -7,6 +7,8 @@ from typing import Any, Literal
 from pydantic import BaseModel, Field
 
 AI_CONTRACT_VERSION = "1.1.0"
+# Hint path (WO-001). Clients that omit client_hints stay on 1.1.0.
+AI_CONTEXT_CONTRACT_VERSION = "1.2.0"
 
 AIErrorCode = Literal[
     "AI_NOT_CONFIGURED",

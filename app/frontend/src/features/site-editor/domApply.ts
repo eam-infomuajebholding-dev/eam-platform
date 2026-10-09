@@ -207,7 +207,7 @@ function legacyHomeImageFieldId(row: { element_key: string; value: string }): st
 }
 
 const HOME_SECTION_IMAGE_IDS = ['home-about-eam-image'] as const;
-const HOME_BODY_FLANK_IDS = ['home-body-bg-right', 'home-body-bg-left'] as const;
+const HOME_BODY_FLANK_IDS = ['home-body-bg-right'] as const;
 const HOME_HERO_BG_ID = 'home-hero-bg-image';
 
 export function isInsideHomeHero(el: HTMLElement | null): boolean {

@@ -29,6 +29,19 @@ class JourneySnapshot(BaseModel):
 
 
 WorkspaceMode = Literal["workspace", "faq"]
+WorkspaceSurface = Literal["home", "journey", "command_center", "site_editor"]
+WorkspaceLocale = Literal["ar", "en"]
+
+
+class WorkspaceClientHints(BaseModel):
+    """Presentation hints. The server builds authority in the Context Engine."""
+
+    model_config = {"extra": "ignore"}
+
+    surface: WorkspaceSurface = "home"
+    route: str | None = Field(default=None, max_length=300)
+    locale: WorkspaceLocale = "ar"
+    journey_instance_id: int | None = None
 
 ConversationRole = Literal["user", "assistant"]
 
@@ -39,12 +52,16 @@ class ConversationMessage(BaseModel):
 
 
 class WorkspaceTurnRequest(BaseModel):
+    model_config = {"extra": "ignore"}
+
     message: str = Field(..., min_length=1, max_length=4000)
     intent_hint: str | None = None
     journey_snapshot: JourneySnapshot | None = None
     conversation_history: list[ConversationMessage] = Field(default_factory=list, max_length=24)
     stream: bool = False
     mode: WorkspaceMode = "workspace"
+    client_hints: WorkspaceClientHints | None = None
+    conversation_id: str | None = Field(default=None, max_length=36)
 
     @field_validator("conversation_history")
     @classmethod
@@ -69,3 +86,6 @@ class WorkspaceTurnResponse(BaseModel):
     handoff: dict[str, Any] | None = None
     error: AIError | None = None
     usage: AIUsageMetadata | None = None
+    capability_id: str | None = None
+    conversation_id: str | None = None
+    citations: list[str] = Field(default_factory=list)

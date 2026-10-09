@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
+from services.ai.capability_registry import classifier_intent_union
 from services.ai.platform_assistant_policy import format_open_copilot_system_prompt
 
 RiskLevel = Literal["low", "medium", "high"]
@@ -35,17 +36,17 @@ INTENT_CLASSIFIER = PromptDefinition(
     prompt_id="intent.classifier",
     purpose="Free-text journey intent classification for homepage workspace",
     owner="ai-core",
-    version="1.1.0",
+    version="1.2.0",
     risk_level="medium",
     supported_locales=("ar", "en"),
-    content="""Classify the user's Arabic message for the EAM homepage workspace.
+    content=f"""Classify the user's message for the EAM workspace.
 Return ONLY valid JSON with this shape:
-{"intent":"build_villa"|"engineering_consulting"|"contracting"|"real_estate_valuation"|"smart_maintenance"|"project_management"|"furnishing"|"general","confidence":0.0-1.0}
+{{"intent":{classifier_intent_union()},"confidence":0.0-1.0}}
 
 Rules:
-- Use intent=build_villa only when the user clearly wants to build a villa/home/house project.
-- Use intent=engineering_consulting only when the user clearly wants engineering consulting or technical study.
-- Use intent=general for company questions, greetings, or unclear messages.
+- intent must be one listed journey type, or general.
+- Choose a journey type only when the user clearly wants that EAM service.
+- Use general for greetings, company questions, or unclear messages.
 - Be conservative: if unsure, choose general with low confidence.
 - Do not extract business fields or validate data.""",
 )

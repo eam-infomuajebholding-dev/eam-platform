@@ -1,8 +1,7 @@
 import homeBodyBgRight from '@/assets/images/home/03-home-body-bg-right.jpg';
-import homeBodyBgLeft from '@/assets/images/home/04-home-body-bg-left.jpg';
 
 /**
- * Side flanks — fill gutter for `.home-main-body-bg__flank-range` (§02 About → contact).
+ * Right flank — fills gutter for `.home-main-body-bg__flank-range` (§02 About → contact).
  * On-screen width = `--home-scenic-gutter-inline-end`; height = flank-range (CSS cover).
  */
 export const HOME_BODY_BG_RIGHT_STRIP_SPEC = {
@@ -13,9 +12,8 @@ export const HOME_BODY_BG_RIGHT_STRIP_SPEC = {
   assetHeightPx: 12204,
 } as const;
 
-/** Intrinsic pixels of bundled flank masters. */
+/** Intrinsic pixels of bundled flank master (right strip). */
 export const homeBodyScenicFlankAssetSize = {
-  left: { width: 167, height: 1024 },
   right: { width: 161, height: 1024 },
 } as const;
 
@@ -23,10 +21,10 @@ export const homeBodyScenicFlankAssetSize = {
 export const HOME_BODY_SCENIC_ASSET_WIDTH = homeBodyScenicFlankAssetSize.right.width;
 export const HOME_BODY_SCENIC_ASSET_HEIGHT = homeBodyScenicFlankAssetSize.right.height;
 
-export const HOME_BODY_SCENIC_NATURAL_WIDTH = homeBodyScenicFlankAssetSize.left.width;
-export const HOME_BODY_SCENIC_NATURAL_HEIGHT = homeBodyScenicFlankAssetSize.left.height;
+export const HOME_BODY_SCENIC_NATURAL_WIDTH = homeBodyScenicFlankAssetSize.right.width;
+export const HOME_BODY_SCENIC_NATURAL_HEIGHT = homeBodyScenicFlankAssetSize.right.height;
 
 export const homeBodyScenicFlanks = {
   right: homeBodyBgRight,
-  left: homeBodyBgLeft,
+  left: null as string | null,
 };

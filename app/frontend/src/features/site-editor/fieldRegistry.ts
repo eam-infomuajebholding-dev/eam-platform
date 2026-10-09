@@ -69,13 +69,6 @@ export const EDITOR_FIELD_REGISTRY: EditorFieldMeta[] = [
     group: 'Home',
   },
   {
-    id: 'home-body-bg-left',
-    label: 'خلفية يسار النص — الصفحة الرئيسية',
-    type: 'image',
-    pages: ['/', '/services/platforms'],
-    group: 'Home',
-  },
-  {
     id: 'contact-page-bg',
     label: 'خلفية صفحة تواصل معنا',
     type: 'image',

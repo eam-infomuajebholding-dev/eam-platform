@@ -729,23 +729,17 @@ def route_intent_deterministic(message: str, intent_hint: str | None = None) -> 
 
 
 def parse_model_intent_decision(payload: dict) -> IntentDecision:
-    intent = payload.get("intent", "general")
+    from services.ai.capability_registry import capability_for_intent
+
+    intent = str(payload.get("intent", "general"))
     confidence = float(payload.get("confidence", 0.0))
-    if intent == BUILD_VILLA_JOURNEY_TYPE and confidence >= CLASSIFIER_CONFIDENCE_THRESHOLD:
+    capability = capability_for_intent(intent)
+    if capability and confidence >= CLASSIFIER_CONFIDENCE_THRESHOLD:
         return IntentDecision(
-            intent=BUILD_VILLA_JOURNEY_TYPE,
+            intent=capability.journey_type,
             confidence=confidence,
-            candidate_journey=BUILD_VILLA_JOURNEY_TYPE,
-            action="start_journey",
-            assistant_message=BUILD_VILLA_START_MESSAGE,
-        )
-    if intent == ENGINEERING_CONSULTING_JOURNEY_TYPE and confidence >= CLASSIFIER_CONFIDENCE_THRESHOLD:
-        return IntentDecision(
-            intent=ENGINEERING_CONSULTING_JOURNEY_TYPE,
-            confidence=confidence,
-            candidate_journey=ENGINEERING_CONSULTING_JOURNEY_TYPE,
-            action="start_journey",
-            assistant_message=ENGINEERING_CONSULTING_START_MESSAGE,
+            candidate_journey=capability.journey_type,
+            action="general_answer",
         )
     if confidence < 0.35:
         return IntentDecision(
